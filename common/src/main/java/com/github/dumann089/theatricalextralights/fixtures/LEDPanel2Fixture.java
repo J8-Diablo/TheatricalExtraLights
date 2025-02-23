@@ -1,5 +1,6 @@
 package com.github.dumann089.theatricalextralights.fixtures;
 
+import com.github.dumann089.theatricalextralights.TheatricalExtraLights;
 import dev.imabad.theatrical.Theatrical;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.api.HangType;
@@ -23,9 +24,9 @@ public class LEDPanel2Fixture extends Fixture {
                     .addSlot(SharedSlots.BLUE)
     );
 
-    private static final ResourceLocation TILT_MODEL = new ResourceLocation(Theatrical.MOD_ID, "block/ledpanel/led_panel_body");
-    private static final ResourceLocation PAN_MODEL = new ResourceLocation(Theatrical.MOD_ID, "block/ledpanel/led_panel_pan");
-    private static final ResourceLocation STATIC_MODEL = new ResourceLocation(Theatrical.MOD_ID, "block/ledpanel/led_panel_static");
+    private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/ledpanel/led_panel_body");
+    private static final ResourceLocation PAN_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/ledpanel/led_panel_pan");
+    private static final ResourceLocation STATIC_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/ledpanel/led_panel_static");
 
     private final float[] tiltRotation = new float[]{0.5F, .5F, .2F};
     private final float[] panRotation = new float[]{0.5F, 5F, .5F};

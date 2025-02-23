@@ -1,5 +1,6 @@
 package com.github.dumann089.theatricalextralights.fixtures;
 
+import com.github.dumann089.theatricalextralights.TheatricalExtraLights;
 import dev.imabad.theatrical.Theatrical;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.api.HangType;
@@ -26,9 +27,9 @@ public class MovingBeamFixture extends Fixture {
                     .addSlot(SharedSlots.TILT)
     );
 
-    private static final ResourceLocation TILT_MODEL = new ResourceLocation(Theatrical.MOD_ID, "block/moving_beam/moving_beam_tilt");
-    private static final ResourceLocation PAN_MODEL = new ResourceLocation(Theatrical.MOD_ID, "block/moving_beam/moving_beam_pan");
-    private static final ResourceLocation STATIC_MODEL = new ResourceLocation(Theatrical.MOD_ID, "block/moving_beam/moving_beam_static");
+    private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/moving_beam/moving_beam_tilt");
+    private static final ResourceLocation PAN_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/moving_beam/moving_beam_pan");
+    private static final ResourceLocation STATIC_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/moving_beam/moving_beam_static");
 
     private final float[] tiltRotation = new float[]{0.5F, 0.78125F, .5F};
     private final float[] panRotation = new float[]{0.5F, 0.75F, .5F};

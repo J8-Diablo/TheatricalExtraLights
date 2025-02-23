@@ -1,5 +1,6 @@
 package com.github.dumann089.theatricalextralights.fixtures;
 
+import com.github.dumann089.theatricalextralights.TheatricalExtraLights;
 import dev.imabad.theatrical.Theatrical;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.api.HangType;
@@ -23,9 +24,9 @@ public class ParLedFixture extends Fixture {
                     .addSlot(SharedSlots.BLUE)
     );
 
-    private static final ResourceLocation TILT_MODEL = new ResourceLocation(Theatrical.MOD_ID, "block/parled/parled_tilt");
-    private static final ResourceLocation PAN_MODEL = new ResourceLocation(Theatrical.MOD_ID, "block/parled/parled_pan");
-    private static final ResourceLocation STATIC_MODEL = new ResourceLocation(Theatrical.MOD_ID, "block/parled/parled_static");
+    private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/parled/parled_tilt");
+    private static final ResourceLocation PAN_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/parled/parled_pan");
+    private static final ResourceLocation STATIC_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/parled/parled_static");
 
     private final float[] tiltRotation = new float[]{0.5F, .453125F, .5F};
     private final float[] panRotation = new float[]{0.5F, 0F, .5F};

@@ -1,5 +1,5 @@
 {
   "variants": {
-    "": {"model":  "theatrical:block/moving_scan/moving_scan_whole"}
+    "": {"model":  "theatricalextralights:block/moving_scan/moving_scan_whole"}
   }
 }
