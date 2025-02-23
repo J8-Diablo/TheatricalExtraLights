@@ -1,8 +1,8 @@
 {
 	"credit": "Made with Blockbench",
 	"textures": {
-		"0": "theatrical:block/moving_scan_body",
-		"particle": "theatrical:block/moving_scan_body"
+		"0": "theatricalextralights:block/moving_scan_body",
+		"particle": "theatricalextralights:block/moving_scan_body"
 	},
 	"elements": [
 		{

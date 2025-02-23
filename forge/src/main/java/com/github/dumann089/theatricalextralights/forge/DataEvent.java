@@ -24,7 +24,7 @@ public class DataEvent {
 
     public static class BlockState extends BlockStateProvider {
         public BlockState(PackOutput output, ExistingFileHelper exFileHelper) {
-            super(output, Theatrical.MOD_ID, exFileHelper);
+            super(output, TheatricalExtraLights.MOD_ID, exFileHelper);
         }
 
         @Override

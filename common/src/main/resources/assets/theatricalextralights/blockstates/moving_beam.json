@@ -1,5 +1,5 @@
 {
   "variants": {
-    "": {"model":  "theatrical:block/moving_beam/moving_beam_whole"}
+    "": {"model":  "theatricalextralights:block/moving_beam/moving_beam_whole"}
   }
 }
