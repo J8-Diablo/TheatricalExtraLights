@@ -51,6 +51,23 @@ public class Items {
             "par_led",
             () -> new BlockItem(Blocks.PAR_LED.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
+    public static final RegistrySupplier<Item> LASER = ITEMS.register(
+           "laser",
+           () -> new BlockItem(Blocks.LASER_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> BLINDER = ITEMS.register(
+            "blinder",
+            () -> new BlockItem(Blocks.BLINDER.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    ); 
+    public static final RegistrySupplier<Item> STROBE = ITEMS.register(
+            "strobe",
+            () -> new BlockItem(Blocks.STROBE.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    ); 
+    public static final RegistrySupplier<Item> TRUSS_3LIGHTS = ITEMS.register(
+        "truss_3lights",
+        () -> new BlockItem(Blocks.TRUSS_3LIGHTS.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    ); 
+
 
     public static void init(){
         ITEMS.register();

@@ -52,6 +52,11 @@ public class DataEvent {
             withExistingParent(Blocks.BIG_PANEL.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/bigpanel3x3/bigpanel_body"));
             withExistingParent(Blocks.BIG_PANEL2.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/bigpanel2x3/bigpanel2x3_body"));
             withExistingParent(Blocks.PAR_LED.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/parled/parled_body_whole"));
+            withExistingParent(Blocks.BLINDER.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/4x2_blinder/4x2_blinder_whole"));
+            withExistingParent(Blocks.LASER_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/laser/laser_whole"));
+            withExistingParent(Blocks.TRUSS_3LIGHTS.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/truss3x3lights/truss3x3light_whole"));
+            withExistingParent(Blocks.STROBE.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/strobe/strobe_whole"));
+
         }
     }
 
@@ -63,16 +68,20 @@ public class DataEvent {
 
         @Override
         protected void addTranslations() {
-            addBlock(Blocks.MOVING_VL2C_BLOCK, "Moving VLC2C");
-            addBlock(Blocks.MOVING_BEAM_BLOCK, "Moving Bean");
+            addBlock(Blocks.MOVING_VL2C_BLOCK, "Moving VL2");
+            addBlock(Blocks.MOVING_BEAM_BLOCK, "Moving Beam");
             addBlock(Blocks.MOVING_SCAN_BLOCK, "Moving Scan");
             addBlock(Blocks.MOVING_VL6_BLOCK, "Moving VL6");
             addBlock(Blocks.LED_FOUNTAIN, "Led Fountain");
             addBlock(Blocks.LED_PANEL_2, "LED Panel 2");
-            addBlock(Blocks.BIG_PANEL, "Big Panel");
-            addBlock(Blocks.BIG_PANEL2, "Big Panel");
-            addBlock(Blocks.PAR_LED, "LED Par");
+            addBlock(Blocks.BIG_PANEL, "Big Panel 3x3");
+            addBlock(Blocks.BIG_PANEL2, "Big Panel 3x2 ");
+            addBlock(Blocks.PAR_LED, "LED Pair");
             addBlock(Blocks.RGB_BAR, "RGB Bar");
+            addBlock(Blocks.BLINDER, "Blinder 4x2");
+            addBlock(Blocks.LASER_BLOCK, "Laser");
+            addBlock(Blocks.TRUSS_3LIGHTS, "Truss 3x3 Lights");
+            addBlock(Blocks.STROBE, "Strobe");
             add("itemGroup.theatricalextralights", "Theatrical: Extra Lights");
         }
     }

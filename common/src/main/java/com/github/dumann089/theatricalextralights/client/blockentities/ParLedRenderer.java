@@ -47,27 +47,22 @@ public class ParLedRenderer extends FixtureRenderer<ParLedBlockEntity> {
             if(hangDirection.getAxis() != Direction.Axis.Y){
                 if(hangDirection.getAxis() == Direction.Axis.Z){
                     if(hangDirection == Direction.SOUTH) {
-                        poseStack.mulPose(Axis.XP.rotationDegrees(-90));
+                        poseStack.mulPose(Axis.XP.rotationDegrees(90));
                     } else {
-                        poseStack.mulPose(Axis.XN.rotationDegrees(-90));
+                        poseStack.mulPose(Axis.XN.rotationDegrees(90));
                     }
                 } else {
                     if(hangDirection == Direction.EAST) {
-                        poseStack.mulPose(Axis.ZN.rotationDegrees(-90));
-                    } else {
                         poseStack.mulPose(Axis.ZN.rotationDegrees(90));
+                    } else {
+                        poseStack.mulPose(Axis.ZN.rotationDegrees(-90));
                     }
                 }
             } else {
-                // UP-DOWN
-                if (hangDirection == Direction.UP) {
-                    poseStack.mulPose(Axis.XP.rotationDegrees(180));
-                } else if (hangDirection == Direction.DOWN) {
-                    poseStack.mulPose(Axis.XP.rotationDegrees(180));
-                }
+                //TODO: Handle hanging up
             }
-        
-            poseStack.translate(0, -1.45, 0F);
+
+            poseStack.translate(0, -0.52, 0F);
         }
         //#endregion
         if(facing.getAxis() == Direction.Axis.X){
@@ -92,7 +87,7 @@ public class ParLedRenderer extends FixtureRenderer<ParLedBlockEntity> {
         poseStack.translate(pans[0], pans[1], pans[2]);
         int prevPan = blockEntity.getPrevPan();
         int pan = blockEntity.getPan();
-        poseStack.mulPose(Axis.YN.rotationDegrees(-(prevPan + (pan - prevPan) * partialTicks)));
+        poseStack.mulPose(Axis.YN.rotationDegrees((prevPan + (pan - prevPan) * partialTicks)));
         poseStack.translate(-pans[0], -pans[1], -pans[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedPanModel, packedLight, packedOverlay);
         //#endregion
@@ -102,7 +97,7 @@ public class ParLedRenderer extends FixtureRenderer<ParLedBlockEntity> {
         int prevTilt = blockEntity.getPrevTilt();
         int tilt = blockEntity.getTilt();
 //        poseStack.mulPose(Axis.XP.rotationDegrees(180));
-        poseStack.mulPose(Axis.XP.rotationDegrees(-(prevTilt + (tilt - prevTilt) * partialTicks)));
+        poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel,  packedLight, packedOverlay);
         //#endregion
@@ -153,27 +148,21 @@ public class ParLedRenderer extends FixtureRenderer<ParLedBlockEntity> {
             if(hangDirection.getAxis() != Direction.Axis.Y){
                 if(hangDirection.getAxis() == Direction.Axis.Z){
                     if(hangDirection == Direction.SOUTH) {
-                        poseStack.mulPose(Axis.XP.rotationDegrees(-90));
+                        poseStack.mulPose(Axis.XP.rotationDegrees(90));
                     } else {
-                        poseStack.mulPose(Axis.XN.rotationDegrees(-90));
+                        poseStack.mulPose(Axis.XN.rotationDegrees(90));
                     }
                 } else {
                     if(hangDirection == Direction.EAST) {
-                        poseStack.mulPose(Axis.ZN.rotationDegrees(-90));
-                    } else {
                         poseStack.mulPose(Axis.ZN.rotationDegrees(90));
+                    } else {
+                        poseStack.mulPose(Axis.ZN.rotationDegrees(-90));
                     }
                 }
             } else {
-               // UP-DOWN
-                if (hangDirection == Direction.UP) {
-                    poseStack.mulPose(Axis.XP.rotationDegrees(180));
-                } else if (hangDirection == Direction.DOWN) {
-                    poseStack.mulPose(Axis.XP.rotationDegrees(180));
+                 //TODO: Handle hanging up
                 }
-            }
-        
-            poseStack.translate(0, -1.45, 0F); 
+            poseStack.translate(0, -0.52, 0F);
         }
         //#endregion
         if(facing.getAxis() == Direction.Axis.X){
@@ -196,7 +185,7 @@ public class ParLedRenderer extends FixtureRenderer<ParLedBlockEntity> {
         poseStack.translate(pans[0], pans[1], pans[2]);
         int prevPan = blockEntity.getPrevPan();
         int pan = blockEntity.getPan();
-        poseStack.mulPose(Axis.YN.rotationDegrees(-(prevPan + (pan - prevPan) * partialTicks)));
+        poseStack.mulPose(Axis.YN.rotationDegrees((prevPan + (pan - prevPan) * partialTicks)));
         poseStack.translate(-pans[0], -pans[1], -pans[2]);
         //#endregion
         //#region Model Tilt
@@ -205,7 +194,7 @@ public class ParLedRenderer extends FixtureRenderer<ParLedBlockEntity> {
         int prevTilt = blockEntity.getPrevTilt();
         int tilt = blockEntity.getTilt();
 //        poseStack.mulPose(Axis.XP.rotationDegrees(180));
-        poseStack.mulPose(Axis.XP.rotationDegrees(-(prevTilt + (tilt - prevTilt) * partialTicks)));
+        poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
         //#endregion
     }

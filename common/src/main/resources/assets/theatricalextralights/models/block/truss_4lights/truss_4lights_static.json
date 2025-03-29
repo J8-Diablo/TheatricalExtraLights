@@ -1,0 +1,23 @@
+{
+	"credit": "Modeled by @johncoles",
+	"parent": "block/cube",
+	"textures": {
+		"0": "theatricalextralights:block/truss",
+		"1": "theatricalextralights:block/light_fresnel_active_full",
+		"2": "theatricalextralights:block/light_side",
+		"particle": "theatricalextralights:block/truss"
+	},
+	"display": {
+		"firstperson_righthand": {
+			"scale": [0.2, 0.2, 0.2]
+		},
+		"firstperson_lefthand": {
+			"scale": [0.2, 0.2, 0.2]
+		},
+		"gui": {
+			"rotation": [8, 161, 0],
+			"translation": [0, -2.75, 0],
+			"scale": [0.4, 0.4, 0.4]
+		}
+	}
+}

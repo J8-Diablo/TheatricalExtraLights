@@ -1,13 +1,17 @@
 {
-  "block.theatricalextralights.big_panel": "Big Panel",
-  "block.theatricalextralights.big_panel2": "Big Panel",
+  "block.theatricalextralights.big_panel": "Big Panel 3x3",
+  "block.theatricalextralights.big_panel2": "Big Panel 3x2",
   "block.theatricalextralights.led_fountain": "Led Fountain",
   "block.theatricalextralights.led_panel_2": "LED Panel 2",
-  "block.theatricalextralights.moving_beam": "Moving Bean",
+  "block.theatricalextralights.moving_beam": "Moving Beam",
   "block.theatricalextralights.moving_scan": "Moving Scan",
-  "block.theatricalextralights.moving_vl2c": "Moving VLC2C",
+  "block.theatricalextralights.moving_vl2c": "Moving VL2",
   "block.theatricalextralights.moving_vl6": "Moving VL6",
   "block.theatricalextralights.par_led": "LED Par",
   "block.theatricalextralights.rgb_bar": "RGB Bar",
+  "block.theatricalextralights.blinder": "Blinder 4x2",
+  "block.theatricalextralights.laser": "Laser",
+  "block.theatricalextralights.truss_3lights": "Truss 3x3 Lights",
+  "block.theatricalextralights.strobe": "Strobe",
   "itemGroup.theatricalextralights": "Theatrical: Extra Lights"
 }

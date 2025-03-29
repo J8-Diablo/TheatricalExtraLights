@@ -16,6 +16,10 @@ public class Fixtures {
 
     public static final RegistrySupplier<Fixture> MOVING_BEAM =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "moving_beam"), MovingBeamFixture::new);
+
+    public static final RegistrySupplier<Fixture> LASER =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "laser"), LaserFixture::new);
+
     public static final RegistrySupplier<Fixture> RGB_BAR =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "rgb_bar"), RGBbarFixture::new);
 
@@ -27,6 +31,15 @@ public class Fixtures {
 
     public static final RegistrySupplier<Fixture> LED_FOUNTAIN =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "led_fountain"), LEDfountainFixture::new);
+
+    public static final RegistrySupplier<Fixture> BLINDER =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "blinder"), BlinderFixture::new);
+
+    public static final RegistrySupplier<Fixture> STROBE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "strobe"), StrobeFixture::new);
+            
+    public static final RegistrySupplier<Fixture> TRUSS_3LIGHTS =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "truss_3lights"), truss3lightsFixture::new);
 
     public static final RegistrySupplier<Fixture> MOVING_VL2C =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "moving_vl2c"), MovingVL2CFixture::new);

@@ -19,6 +19,12 @@ public class BlockEntities {
     public static final RegistrySupplier<BlockEntityType<BigPanelBlockEntity>> BIG_PANEL = BLOCK_ENTITIES.register("big_panel", () -> BlockEntityType.Builder.of(BigPanelBlockEntity::new, Blocks.BIG_PANEL.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<BigPanel2BlockEntity>> BIG_PANEL2 = BLOCK_ENTITIES.register("big_panel2", () -> BlockEntityType.Builder.of(BigPanel2BlockEntity::new, Blocks.BIG_PANEL2.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<ParLedBlockEntity>> PAR_LED = BLOCK_ENTITIES.register("par_led", () -> BlockEntityType.Builder.of(ParLedBlockEntity::new, Blocks.PAR_LED.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<LaserBlockEntity>> LASER = BLOCK_ENTITIES.register("laser", () -> BlockEntityType.Builder.of(LaserBlockEntity::new, Blocks.LASER_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<BlinderBlockEntity>> BLINDER = BLOCK_ENTITIES.register("blinder", () -> BlockEntityType.Builder.of(BlinderBlockEntity::new, Blocks.BLINDER.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<StrobeBlockEntity>> STROBE = BLOCK_ENTITIES.register("strobe", () -> BlockEntityType.Builder.of(StrobeBlockEntity::new, Blocks.STROBE.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<truss3lightsBlockEntity>> TRUSS_3LIGHTS = BLOCK_ENTITIES.register("truss_3lights", () -> BlockEntityType.Builder.of(truss3lightsBlockEntity::new, Blocks.TRUSS_3LIGHTS.get()).build(null));
+
+
     public static void init(){
         BLOCK_ENTITIES.register();
     }

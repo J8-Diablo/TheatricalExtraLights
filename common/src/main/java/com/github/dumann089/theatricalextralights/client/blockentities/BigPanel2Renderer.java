@@ -1,6 +1,7 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.BigPanel2BlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.ParLedBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -61,7 +62,8 @@ public class BigPanel2Renderer extends FixtureRenderer<BigPanel2BlockEntity> {
             } else {
                 //TODO: Handle hanging up
             }
-            poseStack.translate(0, -0.5, 0F);
+
+            poseStack.translate(0, -0.52, 0F);
         }
         //#endregion
         if(facing.getAxis() == Direction.Axis.X){
@@ -86,7 +88,7 @@ public class BigPanel2Renderer extends FixtureRenderer<BigPanel2BlockEntity> {
         poseStack.translate(pans[0], pans[1], pans[2]);
         int prevPan = blockEntity.getPrevPan();
         int pan = blockEntity.getPan();
-        poseStack.mulPose(Axis.YN.rotationDegrees(-(prevPan + (pan - prevPan) * partialTicks)));
+        poseStack.mulPose(Axis.YN.rotationDegrees((prevPan + (pan - prevPan) * partialTicks)));
         poseStack.translate(-pans[0], -pans[1], -pans[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedPanModel, packedLight, packedOverlay);
         //#endregion
@@ -96,7 +98,7 @@ public class BigPanel2Renderer extends FixtureRenderer<BigPanel2BlockEntity> {
         int prevTilt = blockEntity.getPrevTilt();
         int tilt = blockEntity.getTilt();
 //        poseStack.mulPose(Axis.XP.rotationDegrees(180));
-        poseStack.mulPose(Axis.XP.rotationDegrees(-(prevTilt + (tilt - prevTilt) * partialTicks)));
+        poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel,  packedLight, packedOverlay);
         //#endregion
@@ -119,7 +121,7 @@ public class BigPanel2Renderer extends FixtureRenderer<BigPanel2BlockEntity> {
                     int g = (color >> 8) & 0xFF;
                     int b = color & 0xFF;
                     int a = (int) (((float) ((intensity * 1) / 255f)) * 255);
-                    poseStack.translate(0.0625, 0.5f, 0.20f);
+                    poseStack.translate(0.0, 0.5f, 0.20f);
                     Matrix4f m = poseStack.last().pose();
                     Matrix3f normal = poseStack.last().normal();
                     addVertex(beamConsumer, m, normal, r, g, b, a, -1.0f, 1.5f , 0f);
@@ -159,9 +161,9 @@ public class BigPanel2Renderer extends FixtureRenderer<BigPanel2BlockEntity> {
                     }
                 }
             } else {
-                //TODO: Handle hanging up
-            }
-            poseStack.translate(0, -0.5, 0F);
+                 //TODO: Handle hanging up
+                }
+            poseStack.translate(0, -0.52, 0F);
         }
         //#endregion
         if(facing.getAxis() == Direction.Axis.X){
@@ -184,7 +186,7 @@ public class BigPanel2Renderer extends FixtureRenderer<BigPanel2BlockEntity> {
         poseStack.translate(pans[0], pans[1], pans[2]);
         int prevPan = blockEntity.getPrevPan();
         int pan = blockEntity.getPan();
-        poseStack.mulPose(Axis.YN.rotationDegrees(-(prevPan + (pan - prevPan) * partialTicks)));
+        poseStack.mulPose(Axis.YN.rotationDegrees((prevPan + (pan - prevPan) * partialTicks)));
         poseStack.translate(-pans[0], -pans[1], -pans[2]);
         //#endregion
         //#region Model Tilt
@@ -193,7 +195,7 @@ public class BigPanel2Renderer extends FixtureRenderer<BigPanel2BlockEntity> {
         int prevTilt = blockEntity.getPrevTilt();
         int tilt = blockEntity.getTilt();
 //        poseStack.mulPose(Axis.XP.rotationDegrees(180));
-        poseStack.mulPose(Axis.XP.rotationDegrees(-(prevTilt + (tilt - prevTilt) * partialTicks)));
+        poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
         //#endregion
     }
