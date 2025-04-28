@@ -9,9 +9,30 @@
   "block.theatricalextralights.moving_vl6": "Moving VL6",
   "block.theatricalextralights.par_led": "LED Par",
   "block.theatricalextralights.rgb_bar": "RGB Bar",
+  "block.theatricalextralights.vertical_bar": "Vertical RGB Bar",
   "block.theatricalextralights.blinder": "Blinder 4x2",
   "block.theatricalextralights.laser": "Laser",
   "block.theatricalextralights.truss_3lights": "Truss 3x3 Lights",
   "block.theatricalextralights.strobe": "Strobe",
+  "block.theatricalextralights.beam_7r": "Beam 7r",
+  "block.theatricalextralights.mac_vip": "Mac Vip",
+  "block.theatricalextralights.sharplus": "Sharplus",
+  "block.theatricalextralights.moving500": "Moving 500",
+  "block.theatricalextralights.robitspot": "Robit Spot",
+  "block.theatricalextralights.vervespot": "Verve Spot",
+  "block.theatricalextralights.searchlight": "Searchlight",
+  "block.theatricalextralights.source_four": "Source Four",
+  "block.theatricalextralights.par1000_red": "Par 1000 Red",
+  "block.theatricalextralights.par1000_blue": "Par 1000 Blue",
+  "block.theatricalextralights.par1000_green": "Par 1000 Green",
+  "block.theatricalextralights.par1000_magenta": "Par 1000 Magenta",
+  "block.theatricalextralights.par1000_amber": "Par 1000 Amber",
+  "block.theatricalextralights.par1000": "Par 1000",
+  "block.theatricalextralights.par1000_purple": "Par 1000 Purple",
+  "block.theatricalextralights.par1000_lightblue": "Par 1000 Light Blue",
+  "block.theatricalextralights.par1000_white": "Par 1000 White",
+
+
+
   "itemGroup.theatricalextralights": "Theatrical: Extra Lights"
 }

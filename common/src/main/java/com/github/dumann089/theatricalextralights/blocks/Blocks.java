@@ -24,6 +24,26 @@ public class Blocks {
     public static final RegistrySupplier<Block> BLINDER = BLOCKS.register("blinder", BlinderBlock::new);
     public static final RegistrySupplier<Block> STROBE = BLOCKS.register("strobe", StrobeBlock::new);
     public static final RegistrySupplier<Block> TRUSS_3LIGHTS = BLOCKS.register("truss_3lights", truss3lightsBlock::new);
+    public static final RegistrySupplier<Block> BEAM_7R_BLOCK = BLOCKS.register("beam_7r", Beam7RBlock::new);
+    public static final RegistrySupplier<Block> SOURCE_FOUR_BLOCK = BLOCKS.register("source_four", Source4Block::new);
+    public static final RegistrySupplier<Block> MAC_VIP_BLOCK = BLOCKS.register("mac_vip", MacVipBlock::new);
+    public static final RegistrySupplier<Block> SHARPLUS_BLOCK = BLOCKS.register("sharplus", SharplusBlock::new);
+    public static final RegistrySupplier<Block> PAR1000_RED_BLOCK = BLOCKS.register("par1000_red", Par1000RedBlock::new);
+    public static final RegistrySupplier<Block> PAR1000_BLUE_BLOCK = BLOCKS.register("par1000_blue", Par1000BlueBlock::new);
+    public static final RegistrySupplier<Block> PAR1000_GREEN_BLOCK = BLOCKS.register("par1000_green", Par1000GreenBlock::new);
+    public static final RegistrySupplier<Block> PAR1000_MAGENTA_BLOCK = BLOCKS.register("par1000_magenta", Par1000MagentaBlock::new);
+    public static final RegistrySupplier<Block> PAR1000_AMBER_BLOCK = BLOCKS.register("par1000_amber", Par1000AmberBlock::new);
+    public static final RegistrySupplier<Block> PAR1000_BLOCK = BLOCKS.register("par1000", Par1000Block::new);
+    public static final RegistrySupplier<Block> PAR1000_PURPLE_BLOCK = BLOCKS.register("par1000_purple", Par1000PurpleBlock::new);
+    public static final RegistrySupplier<Block> PAR1000_LIGHTBLUE_BLOCK = BLOCKS.register("par1000_lightblue", Par1000LightblueBlock::new);
+    public static final RegistrySupplier<Block> PAR1000_WHITE_BLOCK = BLOCKS.register("par1000_white", Par1000WhiteBlock::new);
+    public static final RegistrySupplier<Block> MOVING500_BLOCK = BLOCKS.register("moving500", Moving500Block::new);
+    public static final RegistrySupplier<Block> ROBITSPOT_BLOCK = BLOCKS.register("robitspot", RobitspotBlock::new);
+    public static final RegistrySupplier<Block> VERVESPOT_BLOCK = BLOCKS.register("vervespot", VervespotBlock::new);
+    public static final RegistrySupplier<Block> VERTICALBAR_BLOCK = BLOCKS.register("vertical_bar", VerticalbarBlock::new);
+    public static final RegistrySupplier<Block> SEARCHLIGHT_BLOCK = BLOCKS.register("searchlight", SearchlightBlock::new);
+
+
 
     public static void init(){
         BLOCKS.register();

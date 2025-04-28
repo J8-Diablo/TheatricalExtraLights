@@ -65,11 +65,6 @@ public class RGBBarBlockEntity extends BaseDMXConsumerLightBlockEntity {
         return 0;
     }
 
-    @Override
-    public float getMaxLightDistance() {
-        return 1;
-    }
-
     public int convertByteToInt(byte val) {
         return Byte.toUnsignedInt(val);
     }

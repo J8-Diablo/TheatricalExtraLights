@@ -17,8 +17,7 @@ import java.util.List;
 public class LEDfountainFixture extends Fixture {
 
     private static final List<DMXPersonality> PERSONALITIES = Collections.singletonList(
-            new DMXPersonality(4, "4-Channel Mode")
-                    .addSlot(SharedSlots.INTENSITY)
+            new DMXPersonality(6, "3-Channel Mode")
                     .addSlot(SharedSlots.RED)
                     .addSlot(SharedSlots.GREEN)
                     .addSlot(SharedSlots.BLUE)

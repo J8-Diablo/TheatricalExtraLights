@@ -23,6 +23,10 @@ public class Items {
             "rgb_bar",
             () -> new BlockItem(Blocks.RGB_BAR.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
+    public static final RegistrySupplier<Item> VERTICAL_BAR = ITEMS.register(
+        "vertical_bar",
+        () -> new BlockItem(Blocks.VERTICALBAR_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+);
     public static final RegistrySupplier<Item> MOVING_BEAM = ITEMS.register(
             "moving_beam",
             () -> new BlockItem(Blocks.MOVING_BEAM_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
@@ -67,8 +71,77 @@ public class Items {
         "truss_3lights",
         () -> new BlockItem(Blocks.TRUSS_3LIGHTS.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     ); 
+    public static final RegistrySupplier<Item> BEAM_7R = ITEMS.register(
+        "beam_7r",
+        () -> new BlockItem(Blocks.BEAM_7R_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> MAC_VIP = ITEMS.register(
+        "mac_vip",
+        () -> new BlockItem(Blocks.MAC_VIP_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> SHARPLUS = ITEMS.register(
+        "sharplus",
+        () -> new BlockItem(Blocks.SHARPLUS_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> MOVING500 = ITEMS.register(
+        "moving500",
+        () -> new BlockItem(Blocks.MOVING500_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> ROBITSPOT = ITEMS.register(
+        "robitspot",
+        () -> new BlockItem(Blocks.ROBITSPOT_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> VERVESPOT = ITEMS.register(
+        "vervespot",
+        () -> new BlockItem(Blocks.VERVESPOT_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> SEARCHLIGHT = ITEMS.register(
+        "searchlight",
+        () -> new BlockItem(Blocks.SEARCHLIGHT_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> SOURCE_FOUR = ITEMS.register(
+        "source_four",
+        () -> new BlockItem(Blocks.SOURCE_FOUR_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> PAR1000_RED = ITEMS.register(
+        "par1000_red",
+        () -> new BlockItem(Blocks.PAR1000_RED_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> PAR1000_BLUE = ITEMS.register(
+        "par1000_blue",
+        () -> new BlockItem(Blocks.PAR1000_BLUE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> PAR1000_GREEN = ITEMS.register(
+        "par1000_green",
+        () -> new BlockItem(Blocks.PAR1000_GREEN_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> PAR1000_MAGENTA = ITEMS.register(
+        "par1000_magenta",
+        () -> new BlockItem(Blocks.PAR1000_MAGENTA_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> PAR1000_AMBER = ITEMS.register(
+        "par1000_amber",
+        () -> new BlockItem(Blocks.PAR1000_AMBER_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> PAR1000 = ITEMS.register(
+        "par1000",
+        () -> new BlockItem(Blocks.PAR1000_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> PAR1000_PURPLE = ITEMS.register(
+        "par1000_purple",
+        () -> new BlockItem(Blocks.PAR1000_PURPLE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> PAR1000_LIGHTBLUE = ITEMS.register(
+        "par1000_lightblue",
+        () -> new BlockItem(Blocks.PAR1000_LIGHTBLUE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> PAR1000_WHITE = ITEMS.register(
+        "par1000_white",
+        () -> new BlockItem(Blocks.PAR1000_WHITE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
 
 
+    
     public static void init(){
         ITEMS.register();
     }
