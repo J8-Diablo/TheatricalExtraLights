@@ -1,0 +1,22 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "invisiblelight",
+	"textures": {
+		"0": "theatricalextralights:block/moving_vl2c_body",
+		"particle": "theatricalextralights:block/moving_vl2c_body"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [0.2, 0.4, 0.2],
+			"faces": {
+				"north": {"uv": [6, 0, 11.9, 6], "texture": "#0"},
+				"east": {"uv": [6, 0, 11.9, 6], "texture": "#0"},
+				"south": {"uv": [6, 0, 11.9, 6], "texture": "#0"},
+				"west": {"uv": [6, 0, 11.9, 6], "texture": "#0"},
+				"up": {"uv": [6, 0, 11.9, 6], "texture": "#0"},
+				"down": {"uv": [6, 0, 11.9, 6], "texture": "#0"}
+			}
+		}
+	]
+}
