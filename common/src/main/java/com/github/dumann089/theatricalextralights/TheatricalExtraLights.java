@@ -32,6 +32,5 @@ public class TheatricalExtraLights {
         Blocks.init();
         Fixtures.init();
         Items.init();
-        BlockEntities.init();
-    }
+        BlockEntities.init();    }
 }

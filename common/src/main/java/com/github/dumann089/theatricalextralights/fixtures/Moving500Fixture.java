@@ -99,4 +99,9 @@ public class Moving500Fixture extends Fixture {
     public List<DMXPersonality> getDMXPersonalities() {
         return PERSONALITIES;
     }
+
+    @Override
+    public double getLightRadius() {
+        return 8;
+    }
 }

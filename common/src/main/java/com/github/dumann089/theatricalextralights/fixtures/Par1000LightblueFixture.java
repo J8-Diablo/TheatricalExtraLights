@@ -17,19 +17,17 @@ import java.util.List;
 public class Par1000LightblueFixture extends Fixture {
 
     private static final List<DMXPersonality> PERSONALITIES = Collections.singletonList(
-            new DMXPersonality(2, "2-Channel Mode")
+            new DMXPersonality(1, "1-Channel Mode")
                     .addSlot(SharedSlots.INTENSITY)
-                    .addSlot(SharedSlots.GREEN)
-                    .addSlot(SharedSlots.BLUE)
     );
 
     private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/par1000/par1000_lightblue");
     private static final ResourceLocation PAN_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/par1000/par1000_pan");
     private static final ResourceLocation STATIC_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/par1000/par1000_static");
 
-    private final float[] tiltRotation = new float[]{0.5F, .25F, .566F};
-    private final float[] panRotation = new float[]{0.5F, 0.75F, .5F};
-    private final float[] beamStartPosition = new float[]{0.5F, 0.25F, 0.144F};
+    private final float[] tiltRotation = new float[]{0.5F, .56F, .5F};
+    private final float[] panRotation = new float[]{0.5F, 0.01F, .5F};
+    private final float[] beamStartPosition = new float[]{0.5F, 0.56F, 0.144F};
 
     @Override
     public ResourceLocation getTiltModel() {
@@ -63,12 +61,12 @@ public class Par1000LightblueFixture extends Fixture {
 
     @Override
     public float getDefaultRotation() {
-        return 0;
+        return 90;
     }
 
     @Override
     public float getBeamWidth() {
-        return 0.16f;
+        return 0.07f;
     }
 
     @Override
@@ -84,9 +82,9 @@ public class Par1000LightblueFixture extends Fixture {
     @Override
     public float[] getTransforms(BlockState fixtureBlockState, BlockState supportBlockState) {
         if(fixtureBlockState.getValue(BaseLightBlock.HANG_DIRECTION) == Direction.UP){
-            return new float[]{0, .5f, 0};
+            return new float[]{0, .51f, 0};
         }
-        return new float[]{0, 0.5F, 0};
+        return new float[]{0, -0.365F, 0};
     }
 
     @Override
@@ -96,11 +94,16 @@ public class Par1000LightblueFixture extends Fixture {
 
     @Override
     public boolean invertTilt() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean invertPan() {
-        return true;
+        return false;
+    }
+
+    @Override
+    public double getLightRadius() {
+        return 3.5;
     }
 }

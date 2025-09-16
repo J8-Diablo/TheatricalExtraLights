@@ -16,6 +16,7 @@ public class LEDFountainBlockEntity extends BaseDMXConsumerLightBlockEntity {
         super(BlockEntities.LED_FOUNTAIN.get(), pos, state);
         setChannelCount(3);
     }
+
     @Override
     public Fixture getFixture() {
         return Fixtures.LED_FOUNTAIN.get();
@@ -23,7 +24,7 @@ public class LEDFountainBlockEntity extends BaseDMXConsumerLightBlockEntity {
 
     @Override
     public int getFocus() {
-        return 1;
+        return 255;
     }
 
     @Override

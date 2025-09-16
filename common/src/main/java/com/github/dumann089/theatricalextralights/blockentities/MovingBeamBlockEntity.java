@@ -29,7 +29,7 @@ public class MovingBeamBlockEntity extends BaseDMXConsumerLightBlockEntity {
 
     @Override
     public int getFocus() {
-        return 1;
+        return 64;
     }
 
     @Override

@@ -74,7 +74,12 @@ public class DataEvent {
             withExistingParent(Blocks.VERVESPOT_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/vervespot/vervespot_whole"));
             withExistingParent(Blocks.VERTICALBAR_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/barvertical/barvertical_whole"));
             withExistingParent(Blocks.SEARCHLIGHT_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/searchlight/searchlight_whole"));
-
+            withExistingParent(Blocks.BLINDER_WARM_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/4x2_blinder/4x2_blinder_whole"));
+            withExistingParent(Blocks.SEARCHLIGHT_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/searchlight/searchlight_whole"));
+            withExistingParent(Blocks.WASHLIGHT_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/washlight/washlight_whole"));
+            withExistingParent(Blocks.ATOMICTILT_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/atomictilt/atomictilt_whole"));
+            withExistingParent(Blocks.MINIWASH_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/miniwash/miniwash_whole"));
+            withExistingParent(Blocks.X8PAR_RED_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/x8par64/x8par64_red_whole"));
 
         }
     }
@@ -99,6 +104,7 @@ public class DataEvent {
             addBlock(Blocks.RGB_BAR, "RGB Bar");
             addBlock(Blocks.VERTICALBAR_BLOCK, "Vertical RGB Bar");
             addBlock(Blocks.BLINDER, "Blinder 4x2");
+            addBlock(Blocks.BLINDER_WARM_BLOCK, "Blinder 4x2 Warm");
             addBlock(Blocks.LASER_BLOCK, "Laser");
             addBlock(Blocks.TRUSS_3LIGHTS, "Truss 3x3 Lights");
             addBlock(Blocks.STROBE, "Strobe");
@@ -110,6 +116,9 @@ public class DataEvent {
             addBlock(Blocks.ROBITSPOT_BLOCK, "Robit Spot");
             addBlock(Blocks.VERVESPOT_BLOCK, "Verve Spot");
             addBlock(Blocks.SEARCHLIGHT_BLOCK, "Searchlight");
+            addBlock(Blocks.WASHLIGHT_BLOCK, "Wash FX648");
+            addBlock(Blocks.WASHLIGHT_BLOCK, "Mini Wash");
+            addBlock(Blocks.ATOMICTILT_BLOCK, "Atomic Tilt");
             addBlock(Blocks.PAR1000_RED_BLOCK, "Par 1000 Red");
             addBlock(Blocks.PAR1000_BLUE_BLOCK, "Par 1000 Blue");
             addBlock(Blocks.PAR1000_GREEN_BLOCK, "Par 1000 Green");
@@ -119,6 +128,8 @@ public class DataEvent {
             addBlock(Blocks.PAR1000_BLOCK, "Par 1000");
             addBlock(Blocks.PAR1000_LIGHTBLUE_BLOCK, "Par 1000 Light Blue");
             addBlock(Blocks.PAR1000_LIGHTBLUE_BLOCK, "Par 1000 White");
+            addBlock(Blocks.X8PAR_RED_BLOCK, "x8 Par 64");
+
             
 
 

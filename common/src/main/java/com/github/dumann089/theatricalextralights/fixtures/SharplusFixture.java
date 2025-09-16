@@ -99,4 +99,9 @@ public class SharplusFixture extends Fixture {
     public List<DMXPersonality> getDMXPersonalities() {
         return PERSONALITIES;
     }
+
+    @Override
+    public double getLightRadius() {
+        return 6.0;
+    }
 }

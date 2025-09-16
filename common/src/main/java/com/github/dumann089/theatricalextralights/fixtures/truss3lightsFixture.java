@@ -104,4 +104,9 @@ public class truss3lightsFixture extends Fixture {
     public boolean invertPan() {
         return true;
     }
+
+    @Override
+    public double getLightRadius() {
+        return 10.5;
+    }
 }

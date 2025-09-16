@@ -26,11 +26,74 @@
   "block.theatricalextralights.par1000_blue": "Par 1000 Blue",
   "block.theatricalextralights.par1000_green": "Par 1000 Green",
   "block.theatricalextralights.par1000_magenta": "Par 1000 Magenta",
+  "block.theatricalextralights.par1000_orange": "Par 1000 Orange",
   "block.theatricalextralights.par1000_amber": "Par 1000 Amber",
   "block.theatricalextralights.par1000": "Par 1000",
   "block.theatricalextralights.par1000_purple": "Par 1000 Purple",
   "block.theatricalextralights.par1000_lightblue": "Par 1000 Light Blue",
   "block.theatricalextralights.par1000_white": "Par 1000 White",
+  "block.theatricalextralights.washlight": "Wash FX648",
+  "block.theatricalextralights.miniwash": "Mini Wash",
+  "block.theatricalextralights.atomictilt": "Atomic Tilt",
+  "block.theatricalextralights.invisiblelight": "Invisible Light",
+  "block.theatricalextralights.x8par_red": "x8 Par64 Red",
+  "block.theatricalextralights.x8par_green": "x8 Par64 Green",
+  "block.theatricalextralights.x8par_blue": "x8 Par64 Blue",
+  "block.theatricalextralights.x8par_magenta": "x8 Par64 Magenta",
+  "block.theatricalextralights.x8par_lightblue": "x8 Par64 Lightblue",
+  "block.theatricalextralights.x8par_yellow": "x8 Par64 Yellow",
+  "block.theatricalextralights.x8par_warm": "x8 Par64 Warm",
+  "block.theatricalextralights.x8par_purple": "x8 Par64 Purple",
+  "block.theatricalextralights.x8par_orange": "x8 Par64 Orange",
+  "block.theatricalextralights.x8par_white": "x8 Par64 White",
+  "block.theatricalextralights.par56_red": "Par56 Red",
+  "block.theatricalextralights.par56_green": "Par56 Green",
+  "block.theatricalextralights.par56_blue": "Par56 Blue",
+  "block.theatricalextralights.par56_orange": "Par56 Orange",
+  "block.theatricalextralights.par56_magenta": "Par56 Magenta",
+  "block.theatricalextralights.par56_lightblue": "Par56 Lightblue",
+  "block.theatricalextralights.par56_warm": "Par56 Warm",
+  "block.theatricalextralights.par56_purple": "Par56 Purple",
+  "block.theatricalextralights.par56_yellow": "Par56 Yellow",
+  "block.theatricalextralights.par56_white": "Par56 White",
+  "block.theatricalextralights.vl6000": "VL 6000",
+  "block.theatricalextralights.followspot": "Followspot",
+  "block.theatricalextralights.a2x2par64_red": "2x2 Par64 Red",
+  "block.theatricalextralights.a2x2par64_green": "2x2 Par64 Green",
+  "block.theatricalextralights.a2x2par64_blue": "2x2 Par64 Blue",
+  "block.theatricalextralights.a2x2par64_magenta": "2x2 Par64 Magenta",
+  "block.theatricalextralights.a2x2par64_lightblue": "2x2 Par64 Lightblue",
+  "block.theatricalextralights.a2x2par64_purple": "2x2 Par64 Purple",
+  "block.theatricalextralights.a2x2par64_orange": "2x2 Par64 Orange",
+  "block.theatricalextralights.a2x2par64_yellow": "2x2 Par64 Yellow",
+  "block.theatricalextralights.a2x2par64_warm": "2x2 Par64 Warm",
+  "block.theatricalextralights.a2x2par64_white": "2x2 Par64 White",
+
+
+  "block.theatricalextralights.bigscroller": "Big Scroller",
+  "block.theatricalextralights.horizontalscroller": "Horizontal Scroller",
+  "block.theatricalextralights.verticalscroller": "Vertical Scroller",
+  "block.theatricalextralights.washled": "Wash Led",
+  "block.theatricalextralights.blinder_warm": "Blinder (warm)",
+  "block.theatricalextralights.moving_bar": "Moving Bar",
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

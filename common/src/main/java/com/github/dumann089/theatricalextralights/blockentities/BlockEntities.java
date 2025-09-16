@@ -21,6 +21,7 @@ public class BlockEntities {
     public static final RegistrySupplier<BlockEntityType<ParLedBlockEntity>> PAR_LED = BLOCK_ENTITIES.register("par_led", () -> BlockEntityType.Builder.of(ParLedBlockEntity::new, Blocks.PAR_LED.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<LaserBlockEntity>> LASER = BLOCK_ENTITIES.register("laser", () -> BlockEntityType.Builder.of(LaserBlockEntity::new, Blocks.LASER_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<BlinderBlockEntity>> BLINDER = BLOCK_ENTITIES.register("blinder", () -> BlockEntityType.Builder.of(BlinderBlockEntity::new, Blocks.BLINDER.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<BlinderwarmBlockEntity>> BLINDER_WARM = BLOCK_ENTITIES.register("blinder_warm", () -> BlockEntityType.Builder.of(BlinderwarmBlockEntity::new, Blocks.BLINDER_WARM_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<StrobeBlockEntity>> STROBE = BLOCK_ENTITIES.register("strobe", () -> BlockEntityType.Builder.of(StrobeBlockEntity::new, Blocks.STROBE.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<truss3lightsBlockEntity>> TRUSS_3LIGHTS = BLOCK_ENTITIES.register("truss_3lights", () -> BlockEntityType.Builder.of(truss3lightsBlockEntity::new, Blocks.TRUSS_3LIGHTS.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<Beam7RBlockEntity>> BEAM_7R = BLOCK_ENTITIES.register("beam_7r", () -> BlockEntityType.Builder.of(Beam7RBlockEntity::new, Blocks.BEAM_7R_BLOCK.get()).build(null));
@@ -36,11 +37,63 @@ public class BlockEntities {
     public static final RegistrySupplier<BlockEntityType<Par1000PurpleBlockEntity>> PAR1000_PURPLE = BLOCK_ENTITIES.register("par1000_purple", () -> BlockEntityType.Builder.of(Par1000PurpleBlockEntity::new, Blocks.PAR1000_PURPLE_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<Par1000LightblueBlockEntity>> PAR1000_LIGHTBLUE = BLOCK_ENTITIES.register("par1000_lightblue", () -> BlockEntityType.Builder.of(Par1000LightblueBlockEntity::new, Blocks.PAR1000_LIGHTBLUE_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<Par1000WhiteBlockEntity>> PAR1000_WHITE = BLOCK_ENTITIES.register("par1000_white", () -> BlockEntityType.Builder.of(Par1000WhiteBlockEntity::new, Blocks.PAR1000_WHITE_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<Par1000OrangeBlockEntity>> PAR1000_ORANGE = BLOCK_ENTITIES.register("par1000_orange", () -> BlockEntityType.Builder.of(Par1000OrangeBlockEntity::new, Blocks.PAR1000_ORANGE_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<Moving500BlockEntity>> MOVING500 = BLOCK_ENTITIES.register("moving500", () -> BlockEntityType.Builder.of(Moving500BlockEntity::new, Blocks.MOVING500_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<RobitspotBlockEntity>> ROBITSPOT = BLOCK_ENTITIES.register("robitspot", () -> BlockEntityType.Builder.of(RobitspotBlockEntity::new, Blocks.ROBITSPOT_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<VervespotBlockEntity>> VERVESPOT = BLOCK_ENTITIES.register("vervespot", () -> BlockEntityType.Builder.of(VervespotBlockEntity::new, Blocks.VERVESPOT_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<VerticalbarBlockEntity>> VERTICAL_BAR = BLOCK_ENTITIES.register("vertical_bar", () -> BlockEntityType.Builder.of(VerticalbarBlockEntity::new, Blocks.VERTICALBAR_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<SearchlightBlockEntity>> SEARCHLIGHT = BLOCK_ENTITIES.register("searchlight", () -> BlockEntityType.Builder.of(SearchlightBlockEntity::new, Blocks.SEARCHLIGHT_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<WashlightBlockEntity>> WASHLIGHT = BLOCK_ENTITIES.register("washlight", () -> BlockEntityType.Builder.of(WashlightBlockEntity::new, Blocks.WASHLIGHT_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<AtomictiltBlockEntity>> ATOMICTILT = BLOCK_ENTITIES.register("atomictilt", () -> BlockEntityType.Builder.of(AtomictiltBlockEntity::new, Blocks.ATOMICTILT_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<MiniwashBlockEntity>> MINIWASH = BLOCK_ENTITIES.register("miniwash", () -> BlockEntityType.Builder.of(MiniwashBlockEntity::new, Blocks.MINIWASH_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<InvisiblelightBlockEntity>> INVISIBLELIGHT = BLOCK_ENTITIES.register("invisiblelight", () -> BlockEntityType.Builder.of(InvisiblelightBlockEntity::new, Blocks.INVISIBLE_LIGHT_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<x8par_redBlockEntity>> x8PAR_RED = BLOCK_ENTITIES.register("x8par_red", () -> BlockEntityType.Builder.of(x8par_redBlockEntity::new, Blocks.X8PAR_RED_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<x8par_greenBlockEntity>> x8PAR_GREEN = BLOCK_ENTITIES.register("x8par_green", () -> BlockEntityType.Builder.of(x8par_greenBlockEntity::new, Blocks.X8PAR_GREEN_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<x8par_blueBlockEntity>> x8PAR_BLUE = BLOCK_ENTITIES.register("x8par_blue", () -> BlockEntityType.Builder.of(x8par_blueBlockEntity::new, Blocks.X8PAR_BLUE_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<x8par_magentaBlockEntity>> x8PAR_MAGENTA = BLOCK_ENTITIES.register("x8par_magenta", () -> BlockEntityType.Builder.of(x8par_magentaBlockEntity::new, Blocks.X8PAR_MAGENTA_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<x8par_lightblueBlockEntity>> x8PAR_LIGHTBLUE = BLOCK_ENTITIES.register("x8par_lightblue", () -> BlockEntityType.Builder.of(x8par_lightblueBlockEntity::new, Blocks.X8PAR_LIGHTBLUE_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<x8par_yellowBlockEntity>> x8PAR_YELLOW = BLOCK_ENTITIES.register("x8par_yellow", () -> BlockEntityType.Builder.of(x8par_yellowBlockEntity::new, Blocks.X8PAR_YELLOW_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<x8par_whiteBlockEntity>> x8PAR_WHITE = BLOCK_ENTITIES.register("x8par_white", () -> BlockEntityType.Builder.of(x8par_whiteBlockEntity::new, Blocks.X8PAR_WHITE_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<x8par_purpleBlockEntity>> x8PAR_PURPLE = BLOCK_ENTITIES.register("x8par_purple", () -> BlockEntityType.Builder.of(x8par_purpleBlockEntity::new, Blocks.X8PAR_PURPLE_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<x8par_warmBlockEntity>> x8PAR_WARM = BLOCK_ENTITIES.register("x8par_warm", () -> BlockEntityType.Builder.of(x8par_warmBlockEntity::new, Blocks.X8PAR_WARM_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<x8par_orangeBlockEntity>> x8PAR_ORANGE = BLOCK_ENTITIES.register("x8par_orange", () -> BlockEntityType.Builder.of(x8par_orangeBlockEntity::new, Blocks.X8PAR_ORANGE_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<par56_redBlockEntity>> PAR56_RED = BLOCK_ENTITIES.register("par56_red", () -> BlockEntityType.Builder.of(par56_redBlockEntity::new, Blocks.PAR56_RED_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<par56_greenBlockEntity>> PAR56_GREEN = BLOCK_ENTITIES.register("par56_green", () -> BlockEntityType.Builder.of(par56_greenBlockEntity::new, Blocks.PAR56_GREEN_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<par56_blueBlockEntity>> PAR56_BLUE = BLOCK_ENTITIES.register("par56_blue", () -> BlockEntityType.Builder.of(par56_blueBlockEntity::new, Blocks.PAR56_BLUE_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<par56_orangeBlockEntity>> PAR56_ORANGE = BLOCK_ENTITIES.register("par56_orange", () -> BlockEntityType.Builder.of(par56_orangeBlockEntity::new, Blocks.PAR56_ORANGE_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<par56_magentaBlockEntity>> PAR56_MAGENTA = BLOCK_ENTITIES.register("par56_magenta", () -> BlockEntityType.Builder.of(par56_magentaBlockEntity::new, Blocks.PAR56_MAGENTA_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<par56_lightblueBlockEntity>> PAR56_LIGHTBLUE = BLOCK_ENTITIES.register("par56_lightblue", () -> BlockEntityType.Builder.of(par56_lightblueBlockEntity::new, Blocks.PAR56_LIGHTBLUE_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<par56_purpleBlockEntity>> PAR56_PURPLE = BLOCK_ENTITIES.register("par56_purple", () -> BlockEntityType.Builder.of(par56_purpleBlockEntity::new, Blocks.PAR56_PURPLE_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<par56_whiteBlockEntity>> PAR56_WHITE = BLOCK_ENTITIES.register("par56_white", () -> BlockEntityType.Builder.of(par56_whiteBlockEntity::new, Blocks.PAR56_WHITE_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<par56_warmBlockEntity>> PAR56_WARM = BLOCK_ENTITIES.register("par56_warm", () -> BlockEntityType.Builder.of(par56_warmBlockEntity::new, Blocks.PAR56_WARM_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<par56_yellowBlockEntity>> PAR56_YELLOW = BLOCK_ENTITIES.register("par56_yellow", () -> BlockEntityType.Builder.of(par56_yellowBlockEntity::new, Blocks.PAR56_YELLOW_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<VL6000BlockEntity>> VL6000 = BLOCK_ENTITIES.register("vl6000", () -> BlockEntityType.Builder.of(VL6000BlockEntity::new, Blocks.VL6000_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<a2x2par64_redBlockEntity>> A2X2PAR64_RED = BLOCK_ENTITIES.register("a2x2par64_red", () -> BlockEntityType.Builder.of(a2x2par64_redBlockEntity::new, Blocks.A2X2PAR64_RED_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<a2x2par64_greenBlockEntity>> A2X2PAR64_GREEN = BLOCK_ENTITIES.register("a2x2par64_green", () -> BlockEntityType.Builder.of(a2x2par64_greenBlockEntity::new, Blocks.A2X2PAR64_GREEN_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<a2x2par64_blueBlockEntity>> A2X2PAR64_BLUE = BLOCK_ENTITIES.register("a2x2par64_blue", () -> BlockEntityType.Builder.of(a2x2par64_blueBlockEntity::new, Blocks.A2X2PAR64_BLUE_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<a2x2par64_magentaBlockEntity>> A2X2PAR64_MAGENTA = BLOCK_ENTITIES.register("a2x2par64_magenta", () -> BlockEntityType.Builder.of(a2x2par64_magentaBlockEntity::new, Blocks.A2X2PAR64_MAGENTA_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<a2x2par64_lightblueBlockEntity>> A2X2PAR64_LIGHTBLUE = BLOCK_ENTITIES.register("a2x2par64_lightblue", () -> BlockEntityType.Builder.of(a2x2par64_lightblueBlockEntity::new, Blocks.A2X2PAR64_LIGHTBLUE_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<a2x2par64_purpleBlockEntity>> A2X2PAR64_PURPLE = BLOCK_ENTITIES.register("a2x2par64_purple", () -> BlockEntityType.Builder.of(a2x2par64_purpleBlockEntity::new, Blocks.A2X2PAR64_PURPLE_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<a2x2par64_orangeBlockEntity>> A2X2PAR64_ORANGE = BLOCK_ENTITIES.register("a2x2par64_orange", () -> BlockEntityType.Builder.of(a2x2par64_orangeBlockEntity::new, Blocks.A2X2PAR64_ORANGE_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<a2x2par64_yellowBlockEntity>> A2X2PAR64_YELLOW = BLOCK_ENTITIES.register("a2x2par64_yellow", () -> BlockEntityType.Builder.of(a2x2par64_yellowBlockEntity::new, Blocks.A2X2PAR64_YELLOW_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<a2x2par64_warmBlockEntity>> A2X2PAR64_WARM = BLOCK_ENTITIES.register("a2x2par64_warm", () -> BlockEntityType.Builder.of(a2x2par64_warmBlockEntity::new, Blocks.A2X2PAR64_WARM_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<a2x2par64_whiteBlockEntity>> A2X2PAR64_WHITE = BLOCK_ENTITIES.register("a2x2par64_white", () -> BlockEntityType.Builder.of(a2x2par64_whiteBlockEntity::new, Blocks.A2X2PAR64_WHITE_BLOCK.get()).build(null));
+
+
+
+
+
+    public static final RegistrySupplier<BlockEntityType<FollowspotBlockEntity>> FOLLOWSPOT = BLOCK_ENTITIES.register("followspot", () -> BlockEntityType.Builder.of(FollowspotBlockEntity::new, Blocks.FOLLOWSPOT_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<bigscrollerBlockEntity>> BIGSCROLLER = BLOCK_ENTITIES.register("bigscroller", () -> BlockEntityType.Builder.of(bigscrollerBlockEntity::new, Blocks.BIGSCROLLER_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<horizontalscrollerBlockEntity>> HORIZONTALSCROLLER = BLOCK_ENTITIES.register("horizontalscroller", () -> BlockEntityType.Builder.of(horizontalscrollerBlockEntity::new, Blocks.HORIZONTALSCROLLER_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<verticalscrollerBlockEntity>> VERTICALSCROLLER = BLOCK_ENTITIES.register("verticalcroller", () -> BlockEntityType.Builder.of(verticalscrollerBlockEntity::new, Blocks.VERTICALSCROLLER_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<washledBlockEntity>> WASHLED = BLOCK_ENTITIES.register("washled", () -> BlockEntityType.Builder.of(washledBlockEntity::new, Blocks.WASHLED_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<MovingbarBlockEntity>> MOVING_BAR = BLOCK_ENTITIES.register("moving_bar", () -> BlockEntityType.Builder.of(MovingbarBlockEntity::new, Blocks.MOVING_BAR_BLOCK.get()).build(null));
+
+
+
+
+
 
 
 

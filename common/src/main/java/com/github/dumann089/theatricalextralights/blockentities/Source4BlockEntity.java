@@ -1,9 +1,12 @@
 package com.github.dumann089.theatricalextralights.blockentities;
 
+import com.github.dumann089.theatricalextralights.blocks.RobitspotBlock;
+import com.github.dumann089.theatricalextralights.blocks.Source4Block;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -23,7 +26,7 @@ public class Source4BlockEntity extends BaseDMXConsumerLightBlockEntity {
 
     @Override
     public int getFocus() {
-        return 1;
+        return 200;
     }
 
     @Override
@@ -56,6 +59,11 @@ public class Source4BlockEntity extends BaseDMXConsumerLightBlockEntity {
     }
 
     @Override
+    public boolean isUpsideDown() {
+        return getBlockState().getValue(Source4Block.HANGING) && getBlockState().getValue(Source4Block.HANG_DIRECTION) == Direction.UP;
+    }
+
+    @Override
     public ResourceLocation getFixtureId() {
         return Fixtures.SOURCE_FOUR.getId();
     }
@@ -68,5 +76,6 @@ public class Source4BlockEntity extends BaseDMXConsumerLightBlockEntity {
     public int convertByteToInt(byte val) {
         return Byte.toUnsignedInt(val);
     }
+
 
 }

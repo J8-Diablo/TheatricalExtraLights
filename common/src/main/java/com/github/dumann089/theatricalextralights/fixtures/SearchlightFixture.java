@@ -74,7 +74,7 @@ public class SearchlightFixture extends Fixture {
 
     @Override
     public float getBeamWidth() {
-        return 0.24f;
+        return 0.20f;
     }
 
     @Override
@@ -98,5 +98,10 @@ public class SearchlightFixture extends Fixture {
     @Override
     public List<DMXPersonality> getDMXPersonalities() {
         return PERSONALITIES;
+    }
+
+    @Override
+    public double getLightRadius() {
+        return 12.5;
     }
 }

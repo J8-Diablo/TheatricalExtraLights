@@ -21,9 +21,10 @@ public class truss3lightsBlockEntity extends BaseDMXConsumerLightBlockEntity {
         return Fixtures.TRUSS_3LIGHTS.get();
     }
 
+
     @Override
     public int getFocus() {
-        return 1;
+        return 255;
     }
 
     @Override
@@ -68,5 +69,6 @@ public class truss3lightsBlockEntity extends BaseDMXConsumerLightBlockEntity {
     public int convertByteToInt(byte val) {
         return Byte.toUnsignedInt(val);
     }
+
 
 }

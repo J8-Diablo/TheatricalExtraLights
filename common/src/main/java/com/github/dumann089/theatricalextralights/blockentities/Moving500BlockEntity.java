@@ -27,6 +27,7 @@ public class Moving500BlockEntity extends BaseDMXConsumerLightBlockEntity {
         return Fixtures.MOVING500.get();
     }
 
+
     @Override
     public void consume(byte[] dmxValues) {
         int start = this.getChannelStart() > 0 ? this.getChannelStart() - 1 : 0;
@@ -81,4 +82,5 @@ public class Moving500BlockEntity extends BaseDMXConsumerLightBlockEntity {
     public int getBasePan() {
         return 0;
     }
+
 }

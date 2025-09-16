@@ -1,9 +1,12 @@
 package com.github.dumann089.theatricalextralights.blockentities;
 
+import com.github.dumann089.theatricalextralights.blocks.Par1000BlueBlock;
+import com.github.dumann089.theatricalextralights.blocks.Par1000LightblueBlock;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -23,7 +26,7 @@ public class Par1000LightblueBlockEntity extends BaseDMXConsumerLightBlockEntity
 
     @Override
     public int getFocus() {
-        return 1;
+        return 200;
     }
 
     @Override
@@ -56,6 +59,11 @@ public class Par1000LightblueBlockEntity extends BaseDMXConsumerLightBlockEntity
     }
 
     @Override
+    public boolean isUpsideDown() {
+        return getBlockState().getValue(Par1000LightblueBlock.HANGING) && getBlockState().getValue(Par1000LightblueBlock.HANG_DIRECTION) == Direction.UP;
+    }
+
+    @Override
     public ResourceLocation getFixtureId() {
         return Fixtures.PAR1000_LIGHTBLUE.getId();
     }
@@ -68,5 +76,6 @@ public class Par1000LightblueBlockEntity extends BaseDMXConsumerLightBlockEntity
     public int convertByteToInt(byte val) {
         return Byte.toUnsignedInt(val);
     }
+
 
 }

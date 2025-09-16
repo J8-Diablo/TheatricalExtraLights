@@ -19,6 +19,11 @@ public class LaserBlockEntity extends BaseDMXConsumerLightBlockEntity {
         setChannelCount(7);
     }
 
+    @Override
+    public int getFocus() {
+        return 1;
+    }
+
     public LaserBlockEntity(BlockPos pos, BlockState state) {
         this(BlockEntities.LASER.get(), pos, state);
     }
@@ -81,4 +86,5 @@ public class LaserBlockEntity extends BaseDMXConsumerLightBlockEntity {
     public int getBasePan() {
         return 0;
     }
+
 }

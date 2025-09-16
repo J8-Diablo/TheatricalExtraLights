@@ -99,4 +99,9 @@ public class MovingVL2CFixture extends Fixture {
     public List<DMXPersonality> getDMXPersonalities() {
         return PERSONALITIES;
     }
+
+    @Override
+    public double getLightRadius() {
+        return 4.5;
+    }
 }

@@ -73,7 +73,7 @@ public class Beam7RFixture extends Fixture {
 
     @Override
     public float getBeamWidth() {
-        return 0.1575f;
+        return 0.09f;
     }
 
     @Override
@@ -97,5 +97,10 @@ public class Beam7RFixture extends Fixture {
     @Override
     public List<DMXPersonality> getDMXPersonalities() {
         return PERSONALITIES;
+    }
+
+    @Override
+    public double getLightRadius() {
+        return 5.5;
     }
 }

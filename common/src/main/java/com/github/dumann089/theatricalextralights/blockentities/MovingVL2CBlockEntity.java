@@ -27,6 +27,7 @@ public class MovingVL2CBlockEntity extends BaseDMXConsumerLightBlockEntity {
         return Fixtures.MOVING_VL2C.get();
     }
 
+
     @Override
     public void consume(byte[] dmxValues) {
         int start = this.getChannelStart() > 0 ? this.getChannelStart() - 1 : 0;

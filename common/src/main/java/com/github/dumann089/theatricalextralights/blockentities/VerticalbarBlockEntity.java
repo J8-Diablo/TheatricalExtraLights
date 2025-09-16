@@ -23,7 +23,7 @@ public class VerticalbarBlockEntity extends BaseDMXConsumerLightBlockEntity {
 
     @Override
     public int getFocus() {
-        return 1;
+        return 255;
     }
 
     @Override
@@ -68,5 +68,6 @@ public class VerticalbarBlockEntity extends BaseDMXConsumerLightBlockEntity {
     public int convertByteToInt(byte val) {
         return Byte.toUnsignedInt(val);
     }
+
 
 }

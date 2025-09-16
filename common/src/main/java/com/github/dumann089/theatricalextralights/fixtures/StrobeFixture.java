@@ -24,10 +24,10 @@ public class StrobeFixture extends Fixture {
                     .addSlot(SharedSlots.BLUE)
     );
 
-    private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/strobe/strobe_tilt");
-    private static final ResourceLocation PAN_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/strobe/strobe_pan");
+    private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/strobe/new_strobe_tilt");
+    private static final ResourceLocation PAN_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/strobe/new_strobe_pan");
     private static final ResourceLocation STATIC_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/strobe/strobe_static");
-    private final float[] tiltRotation = new float[]{0.5F, .18F, .43F};
+    private final float[] tiltRotation = new float[]{0.5F, .65F, .5F};
     private final float[] panRotation = new float[]{0.5F, 0.43F, .5F};
     private final float[] beamStartPosition = new float[]{0.5F, 0.31F, 0.5F};
 
@@ -63,7 +63,7 @@ public class StrobeFixture extends Fixture {
 
     @Override
     public float getDefaultRotation() {
-        return 0;
+        return 90;
     }
 
     @Override
@@ -84,9 +84,9 @@ public class StrobeFixture extends Fixture {
     @Override
     public float[] getTransforms(BlockState fixtureBlockState, BlockState supportBlockState) {
         if(fixtureBlockState.getValue(BaseLightBlock.HANG_DIRECTION) == Direction.UP){
-            return new float[]{0, .5f, 0};
+            return new float[]{0, .510f, 0};
         }
-        return new float[]{0, 0.5F, 0};
+        return new float[]{0, -0.365F, 0};
     }
 
     @Override
@@ -96,11 +96,16 @@ public class StrobeFixture extends Fixture {
 
     @Override
     public boolean invertTilt() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean invertPan() {
-        return true;
+        return false;
+    }
+
+    @Override
+    public double getLightRadius() {
+        return 14.5;
     }
 }

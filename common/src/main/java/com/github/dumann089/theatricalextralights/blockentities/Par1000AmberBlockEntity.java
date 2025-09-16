@@ -1,9 +1,12 @@
 package com.github.dumann089.theatricalextralights.blockentities;
 
+import com.github.dumann089.theatricalextralights.blocks.Par1000AmberBlock;
+import com.github.dumann089.theatricalextralights.blocks.Par1000BlueBlock;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -23,7 +26,7 @@ public class Par1000AmberBlockEntity extends BaseDMXConsumerLightBlockEntity {
 
     @Override
     public int getFocus() {
-        return 1;
+        return 200;
     }
 
     @Override
@@ -53,6 +56,11 @@ public class Par1000AmberBlockEntity extends BaseDMXConsumerLightBlockEntity {
     @Override
     public String getModelName() {
         return "Par 1000 Amber";
+    }
+
+    @Override
+    public boolean isUpsideDown() {
+        return getBlockState().getValue(Par1000AmberBlock.HANGING) && getBlockState().getValue(Par1000AmberBlock.HANG_DIRECTION) == Direction.UP;
     }
 
     @Override

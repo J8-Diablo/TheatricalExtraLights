@@ -98,4 +98,9 @@ public class LaserFixture extends Fixture {
     public List<DMXPersonality> getDMXPersonalities() {
         return PERSONALITIES;
     }
+
+    @Override
+    public double getLightRadius() {
+        return 1.0;
+    }
 }

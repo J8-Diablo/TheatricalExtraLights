@@ -7,9 +7,9 @@
 	},
 	"elements": [
 		{
-			"from": [7.75, 1.75, 8],
-			"to": [8, 2, 8.25],
-			"rotation": {"angle": 0, "axis": "y", "origin": [7.875, 2, 8.25]},
+			"from": [-1.25, 1.75, 0],
+			"to": [-1.25, 2, 0],
+			"rotation": {"angle": 0, "axis": "y", "origin": [-1.125, 2, 0.25]},
 			"faces": {
 				"north": {"uv": [0, 0, 0.25, 8], "texture": "#0"},
 				"east": {"uv": [0, 0, 1, 8], "texture": "#0"},
@@ -20,7 +20,6 @@
 			}
 		}
 	],
-	"display": {},
 	"groups": [
 		{
 			"name": "pan",

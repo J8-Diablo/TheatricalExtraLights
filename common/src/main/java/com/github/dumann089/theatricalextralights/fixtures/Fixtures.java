@@ -56,6 +56,9 @@ public class Fixtures {
     public static final RegistrySupplier<Fixture> PAR1000_RED =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "par1000_red"), Par1000RedFixture::new);
 
+    public static final RegistrySupplier<Fixture> PAR1000_ORANGE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "par1000_orange"), Par1000OrangeFixture::new);
+
     public static final RegistrySupplier<Fixture> PAR1000_WHITE =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "par1000_white"), Par1000WhiteFixture::new);
 
@@ -89,6 +92,9 @@ public class Fixtures {
     public static final RegistrySupplier<Fixture> BLINDER =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "blinder"), BlinderFixture::new);
 
+    public static final RegistrySupplier<Fixture> BLINDER_WARM =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "blinder_warm"), BlinderwarmFixture::new);
+
     public static final RegistrySupplier<Fixture> STROBE =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "strobe"), StrobeFixture::new);
             
@@ -98,6 +104,19 @@ public class Fixtures {
     public static final RegistrySupplier<Fixture> MOVING_VL2C =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "moving_vl2c"), MovingVL2CFixture::new);
 
+    public static final RegistrySupplier<Fixture> WASHLIGHT =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "washlight"), WashlightFixture::new);
+
+ public static final RegistrySupplier<Fixture> MINIWASH =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "miniwash"), MiniwashFixture::new);
+
+ public static final RegistrySupplier<Fixture> INVISIBLELIGHT =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "invisiblelight"), InvisiblelightFixture::new);
+
+    public static final RegistrySupplier<Fixture> ATOMICTILT =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "atomictilt"), AtomictiltFixture::new);
+
+
     public static final RegistrySupplier<Fixture> MOVING_SCAN =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "moving_scan"), MovingScanFixture::new);
 
@@ -105,6 +124,86 @@ public class Fixtures {
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "led_panel_2"), LEDPanel2Fixture::new);
     public static final RegistrySupplier<Fixture> PAR_LED =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "par_led"), ParLedFixture::new);
+
+
+    public static final RegistrySupplier<Fixture> x8PAR_RED =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "x8par_red"), x8par_redFixture::new);
+    public static final RegistrySupplier<Fixture> x8PAR_GREEN =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "x8par_green"), x8par_greenFixture::new);
+    public static final RegistrySupplier<Fixture> x8PAR_BLUE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "x8par_blue"), x8par_blueFixture::new);
+    public static final RegistrySupplier<Fixture> x8PAR_MAGENTA =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "x8par_magenta"), x8par_magentaFixture::new);
+    public static final RegistrySupplier<Fixture> x8PAR_LIGHTBLUE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "x8par_lightblue"), x8par_lightblueFixture::new);
+    public static final RegistrySupplier<Fixture> x8PAR_YELLOW =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "x8par_yellow"), x8par_yellowFixture::new);
+    public static final RegistrySupplier<Fixture> x8PAR_WHITE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "x8par_white"), x8par_whiteFixture::new);
+    public static final RegistrySupplier<Fixture> x8PAR_WARM =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "x8par_warm"), x8par_warmFixture::new);
+    public static final RegistrySupplier<Fixture> x8PAR_PURPLE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "x8par_purple"), x8par_purpleFixture::new);
+    public static final RegistrySupplier<Fixture> x8PAR_ORANGE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "x8par_orange"), x8par_orangeFixture::new);
+
+    public static final RegistrySupplier<Fixture> PAR56_RED =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "par56_red"), par56_redFixture::new);
+    public static final RegistrySupplier<Fixture> PAR56_GREEN =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "par56_green"), par56_greenFixture::new);
+    public static final RegistrySupplier<Fixture> PAR56_BLUE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "par56_blue"), par56_blueFixture::new);
+    public static final RegistrySupplier<Fixture> PAR56_ORANGE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "par56_orange"), par56_orangeFixture::new);
+    public static final RegistrySupplier<Fixture> PAR56_MAGENTA =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "par56_magenta"), par56_magentaFixture::new);
+    public static final RegistrySupplier<Fixture> PAR56_LIGHTBLUE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "par56_lightblue"), par56_lightblueFixture::new);
+    public static final RegistrySupplier<Fixture> PAR56_PURPLE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "par56_purple"), par56_purpleFixture::new);
+    public static final RegistrySupplier<Fixture> PAR56_YELLOW =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "par56_yellow"), par56_yellowFixture::new);
+    public static final RegistrySupplier<Fixture> PAR56_WHITE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "par56_white"), par56_whiteFixture::new);
+    public static final RegistrySupplier<Fixture> PAR56_WARM =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "par56_warm"), par56_warmFixture::new);
+
+    public static final RegistrySupplier<Fixture> A2X2PAR64_RED =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "a2x2par64_red"), a2x2par64_redFixture::new);
+    public static final RegistrySupplier<Fixture> A2X2PAR64_GREEN =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "a2x2par64_green"), a2x2par64_greenFixture::new);
+    public static final RegistrySupplier<Fixture> A2X2PAR64_BLUE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "a2x2par64_blue"), a2x2par64_blueFixture::new);
+    public static final RegistrySupplier<Fixture> A2X2PAR64_MAGENTA =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "a2x2par64_magenta"), a2x2par64_magentaFixture::new);
+    public static final RegistrySupplier<Fixture> A2X2PAR64_PURPLE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "a2x2par64_purple"), a2x2par64_purpleFixture::new);
+    public static final RegistrySupplier<Fixture> A2X2PAR64_LIGHTBLUE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "a2x2par64_lightblue"), a2x2par64_lightblueFixture::new);
+    public static final RegistrySupplier<Fixture> A2X2PAR64_ORANGE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "a2x2par64_orange"), a2x2par64_orangeFixture::new);
+    public static final RegistrySupplier<Fixture> A2X2PAR64_YELLOW =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "a2x2par64_yellow"), a2x2par64_yellowFixture::new);
+    public static final RegistrySupplier<Fixture> A2X2PAR64_WARM =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "a2x2par64_warm"), a2x2par64_warmFixture::new);
+    public static final RegistrySupplier<Fixture> A2X2PAR64_WHITE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "a2x2par64_white"), a2x2par64_whiteFixture::new);
+
+
+    public static final RegistrySupplier<Fixture> VL6000 =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "vl6000"), VL6000Fixture::new);
+    public static final RegistrySupplier<Fixture> FOLLOWSPOT =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "followspot"), FollowspotFixture::new);
+    public static final RegistrySupplier<Fixture> BIGSCROLLER =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "bigscroller"), bigscrollerFixture::new);
+    public static final RegistrySupplier<Fixture> HORIZONTALSCROLLER =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "horizontalscroller"), horizontalscrollerFixture::new);
+    public static final RegistrySupplier<Fixture> VERTICALSCROLLER =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "verticalscroller"), verticalscrollerFixture::new);
+    public static final RegistrySupplier<Fixture> WASHLED =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "washled"), washledFixture::new);
+    public static final RegistrySupplier<Fixture> MOVING_BAR =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "moving_bar"), MovingbarFixture::new);
 
     public static void init(){
         FIXTURES.register();

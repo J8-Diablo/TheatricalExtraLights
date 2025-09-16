@@ -104,4 +104,10 @@ public class BlinderFixture extends Fixture {
     public boolean invertPan() {
         return true;
     }
+
+
+    @Override
+    public double getLightRadius() {
+        return 14.9;
+    }
 }

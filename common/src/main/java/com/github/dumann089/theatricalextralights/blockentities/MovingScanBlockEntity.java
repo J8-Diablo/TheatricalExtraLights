@@ -27,6 +27,7 @@ public class MovingScanBlockEntity extends BaseDMXConsumerLightBlockEntity {
         return Fixtures.MOVING_SCAN.get();
     }
 
+
     @Override
     public void consume(byte[] dmxValues) {
         int start = this.getChannelStart() > 0 ? this.getChannelStart() - 1 : 0;

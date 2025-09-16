@@ -103,4 +103,9 @@ public class BigPanel2Fixture extends Fixture {
     public boolean invertPan() {
         return true;
     }
+
+    @Override
+    public double getLightRadius() {
+        return 9.5;
+    }
 }

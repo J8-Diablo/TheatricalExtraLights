@@ -99,4 +99,9 @@ public class RobitspotFixture extends Fixture {
     public List<DMXPersonality> getDMXPersonalities() {
         return PERSONALITIES;
     }
+
+    @Override
+    public double getLightRadius() {
+        return 9.5;
+    }
 }

@@ -28,11 +28,6 @@ public class Beam7RBlockEntity extends BaseDMXConsumerLightBlockEntity {
     }
 
     @Override
-    public int getFocus() {
-        return 1;
-    }
-
-    @Override
     public void consume(byte[] dmxValues) {
         int start = this.getChannelStart() > 0 ? this.getChannelStart() - 1 : 0;
         byte[] ourValues = Arrays.copyOfRange(dmxValues, start,
@@ -86,4 +81,6 @@ public class Beam7RBlockEntity extends BaseDMXConsumerLightBlockEntity {
     public int getBasePan() {
         return 0;
     }
+
+
 }

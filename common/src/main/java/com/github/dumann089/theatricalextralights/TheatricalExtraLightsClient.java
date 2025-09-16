@@ -3,8 +3,11 @@ package com.github.dumann089.theatricalextralights;
 import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
 import com.github.dumann089.theatricalextralights.client.blockentities.*;
 import dev.architectury.registry.client.rendering.BlockEntityRendererRegistry;
-
+import dev.architectury.registry.client.rendering.BlockEntityRendererRegistry;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.ParticleEngine;
 public class TheatricalExtraLightsClient {
+    
 
     public static void init() {
         BlockEntityRendererRegistry.register(BlockEntities.MOVING_SCAN.get(), MovingScanRenderer::new);
@@ -18,6 +21,7 @@ public class TheatricalExtraLightsClient {
         BlockEntityRendererRegistry.register(BlockEntities.RGB_BAR.get(), RGBbarRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.LASER.get(), LaserRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.BLINDER.get(), BlinderRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.BLINDER_WARM.get(), BlinderwarmRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.STROBE.get(), StrobeRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.LED_PANEL_2.get(), LEDPanel2Renderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.TRUSS_3LIGHTS.get(), truss3lightsRenderer::new);
@@ -36,9 +40,66 @@ public class TheatricalExtraLightsClient {
         BlockEntityRendererRegistry.register(BlockEntities.PAR1000_PURPLE.get(), Par1000PurpleRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.PAR1000_LIGHTBLUE.get(), Par1000LightblueRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.PAR1000_WHITE.get(), Par1000WhiteRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.PAR1000_ORANGE.get(), Par1000OrangeRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.VERVESPOT.get(), VervespotRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.VERTICAL_BAR.get(), VerticalbarRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.SEARCHLIGHT.get(), SearchlightRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.WASHLIGHT.get(), WashlightRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.ATOMICTILT.get(), AtomictiltRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.MINIWASH.get(), MiniwashRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.x8PAR_RED.get(), x8par_redRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.x8PAR_GREEN.get(), x8par_greenRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.x8PAR_BLUE.get(), x8par_blueRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.x8PAR_MAGENTA.get(), x8par_magentaRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.x8PAR_LIGHTBLUE.get(), x8par_lightblueRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.x8PAR_ORANGE.get(), x8par_orangeRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.x8PAR_PURPLE.get(), x8par_purpleRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.x8PAR_YELLOW.get(), x8par_yellowRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.x8PAR_WARM.get(), x8par_warmRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.x8PAR_WHITE.get(), x8par_whiteRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.PAR56_RED.get(), par56_redRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.PAR56_GREEN.get(), par56_greenRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.PAR56_BLUE.get(), par56_blueRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.PAR56_ORANGE.get(), par56_orangeRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.PAR56_MAGENTA.get(), par56_magentaRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.PAR56_LIGHTBLUE.get(), par56_lightblueRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.PAR56_PURPLE.get(), par56_purpleRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.PAR56_YELLOW.get(), par56_yellowRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.PAR56_WHITE.get(), par56_whiteRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.PAR56_WARM.get(), par56_warmRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.VL6000.get(), VL6000Renderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.FOLLOWSPOT.get(), FollowspotRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.A2X2PAR64_RED.get(), a2x2par64_redRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.A2X2PAR64_GREEN.get(), a2x2par64_greenRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.A2X2PAR64_BLUE.get(), a2x2par64_blueRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.A2X2PAR64_MAGENTA.get(), a2x2par64_magentaRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.A2X2PAR64_LIGHTBLUE.get(), a2x2par64_lightblueRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.A2X2PAR64_PURPLE.get(), a2x2par64_purpleRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.A2X2PAR64_ORANGE.get(), a2x2par64_orangeRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.A2X2PAR64_YELLOW.get(), a2x2par64_yellowRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.A2X2PAR64_WARM.get(), a2x2par64_warmRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.A2X2PAR64_WHITE.get(), a2x2par64_whiteRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.WASHLED.get(), washledRenderer::new);
+
+
+        BlockEntityRendererRegistry.register(BlockEntities.BIGSCROLLER.get(), bigscrollerRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.HORIZONTALSCROLLER.get(), horizontalscrollerRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.VERTICALSCROLLER.get(), verticalscrollerRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.MOVING_BAR.get(), MovingbarRenderer::new);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

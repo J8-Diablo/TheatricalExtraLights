@@ -24,13 +24,13 @@ public class Source4Fixture extends Fixture {
                     .addSlot(SharedSlots.BLUE)
     );
 
-    private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/spotlight/source_tilt");
-    private static final ResourceLocation PAN_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/spotlight/source_pan");
+    private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/spotlight/new_source_tilt");
+    private static final ResourceLocation PAN_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/spotlight/new_source_pan");
     private static final ResourceLocation STATIC_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/spotlight/source_static");
 
-    private final float[] tiltRotation = new float[]{0.5F, .125F, .707F};
+    private final float[] tiltRotation = new float[]{0.5F, .5F, .6F};
     private final float[] panRotation = new float[]{0.5F, 0.625F, .5F};
-    private final float[] beamStartPosition = new float[]{0.5F, 0.1875F, 0.09375F};
+    private final float[] beamStartPosition = new float[]{0.5F, 0.5F, 0.6F};
 
     @Override
     public ResourceLocation getTiltModel() {
@@ -64,12 +64,12 @@ public class Source4Fixture extends Fixture {
 
     @Override
     public float getDefaultRotation() {
-        return 0;
+        return 90;
     }
 
     @Override
     public float getBeamWidth() {
-        return 0.10f;
+        return 0.06f;
     }
 
     @Override
@@ -85,9 +85,9 @@ public class Source4Fixture extends Fixture {
     @Override
     public float[] getTransforms(BlockState fixtureBlockState, BlockState supportBlockState) {
         if(fixtureBlockState.getValue(BaseLightBlock.HANG_DIRECTION) == Direction.UP){
-            return new float[]{0, .5f, 0};
+            return new float[]{0, .510f, 0};
         }
-        return new float[]{0, 0.5F, 0};
+        return new float[]{0, -0.365F, 0};
     }
 
     @Override
@@ -97,11 +97,16 @@ public class Source4Fixture extends Fixture {
 
     @Override
     public boolean invertTilt() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean invertPan() {
-        return true;
+        return false;
+    }
+
+    @Override
+    public double getLightRadius() {
+        return 3.5;
     }
 }
