@@ -79,10 +79,6 @@ public class BlockEntities {
     public static final RegistrySupplier<BlockEntityType<a2x2par64_warmBlockEntity>> A2X2PAR64_WARM = BLOCK_ENTITIES.register("a2x2par64_warm", () -> BlockEntityType.Builder.of(a2x2par64_warmBlockEntity::new, Blocks.A2X2PAR64_WARM_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<a2x2par64_whiteBlockEntity>> A2X2PAR64_WHITE = BLOCK_ENTITIES.register("a2x2par64_white", () -> BlockEntityType.Builder.of(a2x2par64_whiteBlockEntity::new, Blocks.A2X2PAR64_WHITE_BLOCK.get()).build(null));
 
-
-
-
-
     public static final RegistrySupplier<BlockEntityType<FollowspotBlockEntity>> FOLLOWSPOT = BLOCK_ENTITIES.register("followspot", () -> BlockEntityType.Builder.of(FollowspotBlockEntity::new, Blocks.FOLLOWSPOT_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<bigscrollerBlockEntity>> BIGSCROLLER = BLOCK_ENTITIES.register("bigscroller", () -> BlockEntityType.Builder.of(bigscrollerBlockEntity::new, Blocks.BIGSCROLLER_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<horizontalscrollerBlockEntity>> HORIZONTALSCROLLER = BLOCK_ENTITIES.register("horizontalscroller", () -> BlockEntityType.Builder.of(horizontalscrollerBlockEntity::new, Blocks.HORIZONTALSCROLLER_BLOCK.get()).build(null));
@@ -90,12 +86,8 @@ public class BlockEntities {
     public static final RegistrySupplier<BlockEntityType<washledBlockEntity>> WASHLED = BLOCK_ENTITIES.register("washled", () -> BlockEntityType.Builder.of(washledBlockEntity::new, Blocks.WASHLED_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<MovingbarBlockEntity>> MOVING_BAR = BLOCK_ENTITIES.register("moving_bar", () -> BlockEntityType.Builder.of(MovingbarBlockEntity::new, Blocks.MOVING_BAR_BLOCK.get()).build(null));
 
-
-
-
-
-
-
+    public static final RegistrySupplier<BlockEntityType<WaterJetBlockEntity>> WATER_JET = BLOCK_ENTITIES.register("water_jet", () -> BlockEntityType.Builder.of(WaterJetBlockEntity::new, Blocks.WATER_JET_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<WhiteStrobeBlockEntity>> WHITE_STROBE = BLOCK_ENTITIES.register("white_strobe", () -> BlockEntityType.Builder.of(WhiteStrobeBlockEntity::new, Blocks.WHITE_STROBE_BLOCK.get()).build(null));
 
     public static void init(){
         BLOCK_ENTITIES.register();

@@ -8,39 +8,39 @@ import net.minecraft.core.particles.SimpleParticleType;
 
 
 @Environment(EnvType.CLIENT)
-public class WaterJetParticle extends TextureSheetParticle {
+public class WaterJet2Particle extends TextureSheetParticle {
 
-    public static WaterJetParticleProvider provider(SpriteSet spriteSet) {
-        return new WaterJetParticleProvider(spriteSet);
+    public static WaterJet2ParticleProvider provider(SpriteSet spriteSet) {
+        return new WaterJet2ParticleProvider(spriteSet);
     }
 
-    public static class WaterJetParticleProvider implements ParticleProvider<SimpleParticleType> {
+    public static class WaterJet2ParticleProvider implements ParticleProvider<SimpleParticleType> {
         private final SpriteSet spriteSet;
 
-        public WaterJetParticleProvider(SpriteSet spriteSet) {
+        public WaterJet2ParticleProvider(SpriteSet spriteSet) {
             this.spriteSet = spriteSet;
         }
 
         public Particle createParticle(SimpleParticleType typeIn, ClientLevel worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-            return new WaterJetParticle(worldIn, x, y, z, xSpeed, ySpeed, zSpeed, this.spriteSet);
+            return new WaterJet2Particle(worldIn, x, y, z, xSpeed, ySpeed, zSpeed, this.spriteSet);
         }
     }
 
     private final SpriteSet spriteSet;
     private final float rollSpeed;
 
-    protected WaterJetParticle(ClientLevel world, double x, double y, double z, double vx, double vy, double vz, SpriteSet spriteSet) {
+    protected WaterJet2Particle(ClientLevel world, double x, double y, double z, double vx, double vy, double vz, SpriteSet spriteSet) {
         super(world, x, y, z);
         this.spriteSet = spriteSet;
         this.setSize((float) 0.1, (float) 0.1);
-        this.quadSize *= 1.0F + (float)Math.random() * 2.5F;
-        this.lifetime = 65;
+        this.quadSize *= 0.1F + (float)Math.random() * 0.5F; // entre 0.5 y 1.2
+        this.lifetime = 30;
         this.gravity = (float) 0.9;
         this.hasPhysics = false;
-        double spread = 0.025;
-        this.xd = (vx + (Math.random() - 0.25) * spread);
-        this.yd = vy + (Math.random() * 0.30);
-        this.zd = (vz + (Math.random() - 0.25) * spread);
+        double spread = 0.015;
+        this.xd = (vx + (Math.random() - 0.08) * spread);
+        this.yd = vy + (Math.random() * 0.10);
+        this.zd = (vz + (Math.random() - 0.08) * spread);
         this.setSpriteFromAge(spriteSet);
 
         this.roll = (float)(Math.random() * 6 * Math.PI);

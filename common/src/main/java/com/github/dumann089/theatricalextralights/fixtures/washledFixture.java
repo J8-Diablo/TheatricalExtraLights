@@ -17,15 +17,12 @@ import java.util.List;
 public class washledFixture extends Fixture {
 
     private static final List<DMXPersonality> PERSONALITIES = Collections.singletonList(
-            new DMXPersonality(10, "10-Channel Mode")
+            new DMXPersonality(7, "7-Channel Mode")
                     .addSlot(SharedSlots.INTENSITY)
                     .addSlot(SharedSlots.RED)
                     .addSlot(SharedSlots.GREEN)
                     .addSlot(SharedSlots.BLUE)
-                    .addSlot(SharedSlots.INTENSITY)
-                    .addSlot(SharedSlots.RED)
-                    .addSlot(SharedSlots.GREEN)
-                    .addSlot(SharedSlots.BLUE)
+                    .addSlot(SharedSlots.FOCUS)
                     .addSlot(SharedSlots.PAN)
                     .addSlot(SharedSlots.TILT)
     );

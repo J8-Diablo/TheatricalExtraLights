@@ -3,11 +3,8 @@ package com.github.dumann089.theatricalextralights;
 import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
 import com.github.dumann089.theatricalextralights.client.blockentities.*;
 import dev.architectury.registry.client.rendering.BlockEntityRendererRegistry;
-import dev.architectury.registry.client.rendering.BlockEntityRendererRegistry;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.ParticleEngine;
+
 public class TheatricalExtraLightsClient {
-    
 
     public static void init() {
         BlockEntityRendererRegistry.register(BlockEntities.MOVING_SCAN.get(), MovingScanRenderer::new);
@@ -86,26 +83,8 @@ public class TheatricalExtraLightsClient {
         BlockEntityRendererRegistry.register(BlockEntities.HORIZONTALSCROLLER.get(), horizontalscrollerRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.VERTICALSCROLLER.get(), verticalscrollerRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.MOVING_BAR.get(), MovingbarRenderer::new);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        BlockEntityRendererRegistry.register(BlockEntities.WATER_JET.get(), WaterJetRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.WHITE_STROBE.get(), WhiteStrobeRenderer::new);
     }
 }
+

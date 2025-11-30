@@ -74,7 +74,11 @@ public class Items {
     public static final RegistrySupplier<Item> STROBE = ITEMS.register(
             "strobe",
             () -> new BlockItem(Blocks.STROBE.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
-    ); 
+    );
+    public static final RegistrySupplier<Item> WHITE_STROBE = ITEMS.register(
+            "white_strobe",
+            () -> new BlockItem(Blocks.WHITE_STROBE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
     public static final RegistrySupplier<Item> TRUSS_3LIGHTS = ITEMS.register(
         "truss_3lights",
         () -> new BlockItem(Blocks.TRUSS_3LIGHTS.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
@@ -312,11 +316,12 @@ public class Items {
         "verticalscroller",
         () -> new BlockItem(Blocks.VERTICALSCROLLER_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
+    public static final RegistrySupplier<Item> WATER_JET = ITEMS.register(
+            "water_jet",
+            () -> new BlockItem(Blocks.WATER_JET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
 
 
-
-
-    
     public static void init(){
         ITEMS.register();
     }

@@ -15,8 +15,9 @@ public class TheatricalExtraLightsForge {
         EventBuses.registerModEventBus(TheatricalExtraLights.MOD_ID, FMLJavaModLoadingContext.get().getModEventBus());
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClient);
         TheatricalExtraLights.init();
+        ForgeConfigInit.register();
         FMLJavaModLoadingContext.get().getModEventBus().addListener(DataEvent::onData);
-    } 
+    }
     public void onClient(FMLClientSetupEvent event){
         TheatricalExtraLightsClient.init();
     }

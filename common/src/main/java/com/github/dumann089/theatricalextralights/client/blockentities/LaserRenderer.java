@@ -1,6 +1,7 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.LaserBlockEntity;
+import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -111,30 +112,61 @@ public class LaserRenderer extends FixtureRenderer<LaserBlockEntity> {
         //#endregion
     }
     @Override
-    public void beforeRenderBeam(LaserBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer, MultiBufferSource multiBufferSource, Direction facing, float partialTicks, boolean isFlipped, BlockState blockstate, boolean isHanging, int packedLight, int packedOverlay) {
-        if(blockEntity.getIntensity() > 0){
+    public void beforeRenderBeam(LaserBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer,
+                                 MultiBufferSource multiBufferSource, Direction facing, float partialTicks, boolean isFlipped,
+                                 BlockState blockstate, boolean isHanging, int packedLight, int packedOverlay) {
+
+        if (blockEntity.getIntensity() > 0) {
             LazyRenderers.addLazyRender(new LazyRenderers.LazyRenderer() {
                 @Override
                 public void render(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, Camera camera, float partialTick) {
                     poseStack.pushPose();
+
                     Vec3 offset = Vec3.atLowerCornerOf(blockEntity.getBlockPos()).subtract(camera.getPosition());
                     poseStack.translate(offset.x, offset.y, offset.z);
+
                     preparePoseStack(blockEntity, poseStack, facing, partialTick, isFlipped, blockstate, isHanging);
-                    VertexConsumer beamConsumer = multiBufferSource.getBuffer(TheatricalRenderTypes.BEAM);
-//            poseStack.translate(blockEntity.getFixture().getBeamStartPosition()[0], blockEntity.getFixture().getBeamStartPosition()[1], blockEntity.getFixture().getBeamStartPosition()[2]);
-                    float intensity = (blockEntity.getPrevIntensity() + ((blockEntity.getIntensity()) - blockEntity.getPrevIntensity()) * partialTicks);
+
+                    VertexConsumer beamConsumer = bufferSource.getBuffer(TheatricalRenderTypes.BEAM);
+
+                    float intensity = blockEntity.getPrevIntensity() + ((blockEntity.getIntensity() - blockEntity.getPrevIntensity()) * partialTick);
                     int color = blockEntity.getColour();
                     int r = (color >> 16) & 0xFF;
                     int g = (color >> 8) & 0xFF;
                     int b = color & 0xFF;
-                    int a = (int) (((float) ((intensity * 1) / 255f)) * 255);
-                    poseStack.translate(0.5F, 0.78125F, 0.2F);
-                    Matrix4f m = poseStack.last().pose();
-                    Matrix3f normal = poseStack.last().normal();
-                    addVertex(beamConsumer, m, normal, r, g, b, a, -0.0f, 0.0f , 0f);
-                    addVertex(beamConsumer, m, normal, r, g, b, a,  0.0f, 0.0f, 0f);
-                    addVertex(beamConsumer, m, normal, r, g, b, a, 0.0f, -0.0f,0f);
-                    addVertex(beamConsumer, m, normal, r, g, b, a,-0.0f, -0.0f, 0f);
+                    int a = (int)(((float)intensity / 255f) * 255);
+
+                    Vec3 baseOrigin = new Vec3(0.5F, 0.5F, 0.0F);
+                    if (isHanging) {
+                        baseOrigin = new Vec3(baseOrigin.x, 1.0 - baseOrigin.y, baseOrigin.z);
+                    }
+
+                    int focus = blockEntity.getFocus();
+                    int beamCount = Math.max(1, Math.min(9, (int)Math.ceil(focus / 255.0f * 9)));
+                    float[] angles = generateAngles(beamCount);
+
+                    float beamLength = TheatricalExtraLightsConfig.getLaserBeamLength();
+                    float beamWidth = 0.03f;
+
+                    for (float angle : angles) {
+                        poseStack.pushPose();
+                        poseStack.translate(baseOrigin.x, baseOrigin.y, baseOrigin.z);
+
+                        double angleRad = Math.toRadians(angle);
+
+                        poseStack.mulPose(Axis.YP.rotation((float)angleRad));
+
+                        Matrix4f m = poseStack.last().pose();
+                        Matrix3f normal = poseStack.last().normal();
+
+                        addVertex(beamConsumer, m, normal, r, g, b, a, -beamWidth, beamWidth, 0f);
+                        addVertex(beamConsumer, m, normal, r, g, b, a, beamWidth, beamWidth, 0f);
+                        addVertex(beamConsumer, m, normal, r, g, b, a, beamWidth, -beamWidth, beamLength);
+                        addVertex(beamConsumer, m, normal, r, g, b, a, -beamWidth, -beamWidth, beamLength);
+
+                        poseStack.popPose();
+                    }
+
                     poseStack.popPose();
                 }
 
@@ -142,10 +174,20 @@ public class LaserRenderer extends FixtureRenderer<LaserBlockEntity> {
                 public Vec3 getPos(float partialTick) {
                     return blockEntity.getBlockPos().getCenter();
                 }
+
+                private float[] generateAngles(int count) {
+                    if (count == 1) return new float[]{0f};
+                    float[] angles = new float[count];
+                    float maxAngle = 15f;
+                    float step = (2 * maxAngle) / (count - 1);
+                    for (int i = 0; i < count; i++) {
+                        angles[i] = -maxAngle + (i * step);
+                    }
+                    return angles;
+                }
             });
         }
     }
-
     @Override
     public void preparePoseStack(LaserBlockEntity blockEntity, PoseStack poseStack, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging) {
         poseStack.translate(0.5F, 0, .5F);

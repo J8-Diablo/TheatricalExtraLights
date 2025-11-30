@@ -204,6 +204,10 @@ public class Fixtures {
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "washled"), washledFixture::new);
     public static final RegistrySupplier<Fixture> MOVING_BAR =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "moving_bar"), MovingbarFixture::new);
+    public static final RegistrySupplier<Fixture> WATER_JET =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "water_jet"), WaterJetFixture::new);
+    public static final RegistrySupplier<Fixture> WHITE_STROBE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "white_strobe"), WhiteStrobeFixture::new);
 
     public static void init(){
         FIXTURES.register();

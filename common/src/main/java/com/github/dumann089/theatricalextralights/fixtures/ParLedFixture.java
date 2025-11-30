@@ -107,6 +107,6 @@ public class ParLedFixture extends Fixture {
 
     @Override
     public double getLightRadius() {
-        return 4.5;
+        return 9.5;
     }
 }

@@ -1,7 +1,6 @@
 package com.github.dumann089.theatricalextralights.fixtures;
 
 import com.github.dumann089.theatricalextralights.TheatricalExtraLights;
-import dev.imabad.theatrical.Theatrical;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.api.HangType;
 import dev.imabad.theatrical.api.dmx.DMXPersonality;
@@ -14,27 +13,20 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.Collections;
 import java.util.List;
 
-public class LaserFixture extends Fixture {
+public class WaterJetFixture extends Fixture {
 
     private static final List<DMXPersonality> PERSONALITIES = Collections.singletonList(
-            new DMXPersonality(7, "7-Channel Mode")
+            new DMXPersonality(1, "1-Channel Mode")
                     .addSlot(SharedSlots.INTENSITY)
-                    .addSlot(SharedSlots.RED)
-                    .addSlot(SharedSlots.GREEN)
-                    .addSlot(SharedSlots.BLUE)
-                    .addSlot(SharedSlots.FOCUS)
-                    .addSlot(SharedSlots.PAN)
-                    .addSlot(SharedSlots.TILT)
     );
 
-    private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/laser/laser_tilt");
-    private static final ResourceLocation PAN_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/laser/laser_pan");
-    private static final ResourceLocation STATIC_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/laser/laser_static");
+    private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/water_pump/water_pump_tilt");
+    private static final ResourceLocation PAN_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/water_pump/water_pump_pan");
+    private static final ResourceLocation STATIC_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/water_pump/water_pump_static");
 
-    private final float[] tiltRotation = new float[]{0.5F, 0.53F, 0.0F};
-    private final float[] panRotation = new float[]{0.5F, 0.53F, 0.0F};
-//    private final float[] beamStartPosition = new float[]{0.5F, 0.53F, 0.25F};
-
+    private final float[] tiltRotation = new float[]{0.5F, 1.858F, 0.51F};
+    private final float[] panRotation = new float[]{0.5F, 0.988F, .5F};
+    private final float[] beamStartPosition = new float[]{0.5F, 1.765f, 0.518F};
 
     @Override
     public ResourceLocation getTiltModel() {
@@ -63,27 +55,27 @@ public class LaserFixture extends Fixture {
 
     @Override
     public float[] getBeamStartPosition() {
-        return new float[]{0.5F, 0.53F, 0.093f};
+        return beamStartPosition;
     }
 
     @Override
     public float getDefaultRotation() {
-        return 90;
-    }
-
-    @Override
-    public float getBeamWidth() {
-        return 0.00f;
-    }
-
-    @Override
-    public float getRayTraceRotation() {
         return 0;
     }
 
     @Override
+    public float getBeamWidth() {
+        return 0.15f;
+    }
+
+    @Override
+    public float getRayTraceRotation() {
+        return 180f;
+    }
+
+    @Override
     public HangType getHangType() {
-        return HangType.BRACE_BAR;
+        return HangType.HOOK_BAR;
     }
 
     @Override
@@ -91,12 +83,22 @@ public class LaserFixture extends Fixture {
         if(fixtureBlockState.getValue(BaseLightBlock.HANG_DIRECTION) == Direction.UP){
             return new float[]{0, .5f, 0};
         }
-        return new float[]{0, -0.35F, 0};
+        return new float[]{0, 0.5F, 0};
     }
 
     @Override
     public List<DMXPersonality> getDMXPersonalities() {
         return PERSONALITIES;
+    }
+
+    @Override
+    public boolean invertTilt() {
+        return true;
+    }
+
+    @Override
+    public boolean invertPan() {
+        return true;
     }
 
     @Override

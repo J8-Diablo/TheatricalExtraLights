@@ -45,6 +45,16 @@ dependencies {
     // Theatrical
     modImplementation  "dev.imabad:Theatrical-forge:${theatrical_version}"
 //    implementation  "dev.imabad:Theatrical-forge:${theatrical_version}"
+
+
+    if(include_shimmer == "true") {
+        // Shimmer
+        modImplementation("com.lowdragmc.shimmer:Shimmer-forge:${shimmer_version}") {
+            exclude group: "maven.modrinth"
+            exclude group: "icyllis.modernui"
+            exclude group: "com.jozufozu.flywheel"
+        }
+    }
 }
 
 processResources {

@@ -29,7 +29,7 @@ public class StrobeFixture extends Fixture {
     private static final ResourceLocation STATIC_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/strobe/strobe_static");
     private final float[] tiltRotation = new float[]{0.5F, .65F, .5F};
     private final float[] panRotation = new float[]{0.5F, 0.43F, .5F};
-    private final float[] beamStartPosition = new float[]{0.5F, 0.31F, 0.5F};
+    private final float[] beamStartPosition = new float[]{0.5F, 0.65F, 0.5F};
 
     @Override
     public ResourceLocation getTiltModel() {

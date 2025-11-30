@@ -108,6 +108,6 @@ public class VerticalbarFixture extends Fixture {
 
     @Override
     public double getLightRadius() {
-        return 5.5;
+        return 6.5;
     }
 }

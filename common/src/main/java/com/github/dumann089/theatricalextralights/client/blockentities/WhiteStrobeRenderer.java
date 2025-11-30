@@ -1,10 +1,14 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.StrobeBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.WhiteStrobeBlockEntity;
 import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Axis;
 import dev.imabad.theatrical.TheatricalExpectPlatform;
 import dev.imabad.theatrical.blocks.HangableBlock;
@@ -16,25 +20,21 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.Optional;
-
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
-public class StrobeRenderer extends FixtureRenderer<StrobeBlockEntity> {
+import java.util.Optional;
+
+public class WhiteStrobeRenderer extends FixtureRenderer<WhiteStrobeBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
-    public StrobeRenderer(BlockEntityRendererProvider.Context context) {
-        super(context);
-    }
+    public WhiteStrobeRenderer(BlockEntityRendererProvider.Context context) {super(context);}
 
         @Override
-        public void renderModel(StrobeBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging, int packedLight, int packedOverlay) {
+        public void renderModel(WhiteStrobeBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging, int packedLight, int packedOverlay) {
             if(cachedStaticModel == null){
                 cachedStaticModel = TheatricalExpectPlatform.getBakedModel(blockEntity.getFixture().getStaticModel());
             }
@@ -114,7 +114,7 @@ public class StrobeRenderer extends FixtureRenderer<StrobeBlockEntity> {
             //#endregion
         }
     @Override
-    public void beforeRenderBeam(StrobeBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer, MultiBufferSource multiBufferSource, Direction facing, float partialTicks, boolean isFlipped, BlockState blockstate, boolean isHanging, int packedLight, int packedOverlay) {
+    public void beforeRenderBeam(WhiteStrobeBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer, MultiBufferSource multiBufferSource, Direction facing, float partialTicks, boolean isFlipped, BlockState blockstate, boolean isHanging, int packedLight, int packedOverlay) {
         if(blockEntity.getIntensity() > 0){
             LazyRenderers.addLazyRender(new LazyRenderers.LazyRenderer() {
                 @Override
@@ -149,7 +149,7 @@ public class StrobeRenderer extends FixtureRenderer<StrobeBlockEntity> {
         }
     }
         @Override
-        public void preparePoseStack(StrobeBlockEntity blockEntity, PoseStack poseStack, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging) {
+        public void preparePoseStack(WhiteStrobeBlockEntity blockEntity, PoseStack poseStack, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging) {
             poseStack.translate(0.5F, 0, .5F);
             if(isHanging){
                 Direction hangDirection = blockState.getValue(HangableBlock.HANG_DIRECTION);

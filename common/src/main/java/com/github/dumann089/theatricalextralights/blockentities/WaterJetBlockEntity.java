@@ -1,31 +1,30 @@
 package com.github.dumann089.theatricalextralights.blockentities;
 
-import com.github.dumann089.theatricalextralights.blocks.RobitspotBlock;
-import com.github.dumann089.theatricalextralights.blocks.StrobeBlock;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
+import com.github.dumann089.theatricalextralights.particle.ModParticle;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
 
-public class StrobeBlockEntity extends BaseDMXConsumerLightBlockEntity {
+public class WaterJetBlockEntity extends BaseDMXConsumerLightBlockEntity {
 
-    public StrobeBlockEntity(BlockPos pos, BlockState state) {
-        super(BlockEntities.STROBE.get(), pos, state);
-        setChannelCount(4);
+    public double smoothedHeight = 0.0;
+    private int tickCounter = 0;
+
+    public WaterJetBlockEntity(BlockPos pos, BlockState state) {
+        super(BlockEntities.WATER_JET.get(), pos, state);
+        setChannelCount(1);
     }
-
-    private int strobeTick = 0;
-    private boolean strobeOn = false;
 
     @Override
     public Fixture getFixture() {
-        return Fixtures.STROBE.get();
+        return Fixtures.WATER_JET.get();
     }
 
     @Override
@@ -36,18 +35,14 @@ public class StrobeBlockEntity extends BaseDMXConsumerLightBlockEntity {
     @Override
     public void consume(byte[] dmxValues) {
         int start = this.getChannelStart() > 0 ? this.getChannelStart() - 1 : 0;
-        byte[] ourValues = Arrays.copyOfRange(dmxValues, start,
-                start+ this.getChannelCount());
-        if(ourValues.length < 4){
+        byte[] ourValues = Arrays.copyOfRange(dmxValues, start, start + this.getChannelCount());
+        if (ourValues.length < 1) {
             return;
         }
-        if(this.storePrev()){
+        if (this.storePrev()) {
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
         }
         intensity = convertByteToInt(ourValues[0]);
-        red = convertByteToInt(ourValues[1]);
-        green = convertByteToInt(ourValues[2]);
-        blue = convertByteToInt(ourValues[3]);
         level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
         setChanged();
     }
@@ -59,17 +54,12 @@ public class StrobeBlockEntity extends BaseDMXConsumerLightBlockEntity {
 
     @Override
     public String getModelName() {
-        return "Strobe";
+        return "Water Jet";
     }
 
     @Override
     public ResourceLocation getFixtureId() {
-        return Fixtures.STROBE.getId();
-    }
-
-    @Override
-    public boolean isUpsideDown() {
-        return getBlockState().getValue(StrobeBlock.HANGING) && getBlockState().getValue(StrobeBlock.HANG_DIRECTION) == Direction.UP;
+        return Fixtures.WATER_JET.getId();
     }
 
     @Override
@@ -79,5 +69,29 @@ public class StrobeBlockEntity extends BaseDMXConsumerLightBlockEntity {
 
     public int convertByteToInt(byte val) {
         return Byte.toUnsignedInt(val);
+    }
+
+    public void tick() {
+        if (!level.isClientSide || Minecraft.getInstance().isPaused()) return;
+
+        tickCounter++;
+        if (tickCounter % 8 != 0) return;
+
+        double x = worldPosition.getX() + 0.5;
+        double y = worldPosition.getY();
+        double z = worldPosition.getZ() + 0.5;
+
+        double maxHeight = 3.0;
+        double targetHeight = (intensity / 255.0) * maxHeight;
+
+
+        smoothedHeight += (targetHeight - smoothedHeight) * 0.1;
+
+
+        level.addParticle(
+                ModParticle.WATERJETPARTICLE.get(),
+                x, y, z,
+                0, smoothedHeight * 0.05, 0
+        );
     }
 }
