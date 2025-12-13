@@ -159,10 +159,8 @@ public class LaserRenderer extends FixtureRenderer<LaserBlockEntity> {
                         Matrix4f m = poseStack.last().pose();
                         Matrix3f normal = poseStack.last().normal();
 
-                        addVertex(beamConsumer, m, normal, r, g, b, a, -beamWidth, beamWidth, 0f);
-                        addVertex(beamConsumer, m, normal, r, g, b, a, beamWidth, beamWidth, 0f);
-                        addVertex(beamConsumer, m, normal, r, g, b, a, beamWidth, -beamWidth, beamLength);
-                        addVertex(beamConsumer, m, normal, r, g, b, a, -beamWidth, -beamWidth, beamLength);
+                        float alpha = intensity / 255f;
+                        renderLightBeam(beamConsumer, poseStack, blockEntity, partialTick, alpha, beamWidth, beamLength, color);
 
                         poseStack.popPose();
                     }
@@ -187,6 +185,42 @@ public class LaserRenderer extends FixtureRenderer<LaserBlockEntity> {
                 }
             });
         }
+    }
+
+    protected void renderLightBeam(VertexConsumer builder, PoseStack stack, LaserBlockEntity tileEntityFixture, float partialTicks, float alpha, float beamSize, float length, int color) {
+        int r = (color >> 16) & 0xFF;
+        int g = (color >> 8) & 0xFF;
+        int b = color & 0xFF;
+        int a = (int) (alpha * 255);
+        Matrix4f m = stack.last().pose();
+        Matrix3f normal = stack.last().normal();
+
+        float focus = 1.0f;
+        float endMultiplier = beamSize * focus;
+
+        // R Face
+        addVertex(builder, m, normal, r, g, b, 0, beamSize * endMultiplier, beamSize * endMultiplier, length);
+        addVertex(builder, m, normal, r, g, b, a, beamSize, beamSize, 0);
+        addVertex(builder, m, normal, r, g, b, a, beamSize, -beamSize, 0);
+        addVertex(builder, m, normal, r, g, b, 0, beamSize * endMultiplier, -beamSize * endMultiplier, length);
+
+        // L Face
+        addVertex(builder, m, normal, r, g, b, 0, -beamSize * endMultiplier, -beamSize * endMultiplier, length);
+        addVertex(builder, m, normal, r, g, b, a, -beamSize, -beamSize, 0);
+        addVertex(builder, m, normal, r, g, b, a, -beamSize, beamSize, 0);
+        addVertex(builder, m, normal, r, g, b, 0, -beamSize * endMultiplier, beamSize * endMultiplier, length);
+
+        // Top Face
+        addVertex(builder, m, normal, r, g, b, 0, -beamSize * endMultiplier, beamSize * endMultiplier, length);
+        addVertex(builder, m, normal, r, g, b, a, -beamSize, beamSize, 0);
+        addVertex(builder, m, normal, r, g, b, a, beamSize, beamSize, 0);
+        addVertex(builder, m, normal, r, g, b, 0, beamSize * endMultiplier, beamSize * endMultiplier, length);
+
+        // down Faces
+        addVertex(builder, m, normal, r, g, b, 0, beamSize * endMultiplier, -beamSize * endMultiplier, length);
+        addVertex(builder, m, normal, r, g, b, a, beamSize, -beamSize, 0);
+        addVertex(builder, m, normal, r, g, b, a, -beamSize, -beamSize, 0);
+        addVertex(builder, m, normal, r, g, b, 0, -beamSize * endMultiplier, -beamSize * endMultiplier, length);
     }
     @Override
     public void preparePoseStack(LaserBlockEntity blockEntity, PoseStack poseStack, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging) {

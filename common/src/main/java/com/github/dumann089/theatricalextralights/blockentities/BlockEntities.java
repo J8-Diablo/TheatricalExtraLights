@@ -87,7 +87,17 @@ public class BlockEntities {
     public static final RegistrySupplier<BlockEntityType<MovingbarBlockEntity>> MOVING_BAR = BLOCK_ENTITIES.register("moving_bar", () -> BlockEntityType.Builder.of(MovingbarBlockEntity::new, Blocks.MOVING_BAR_BLOCK.get()).build(null));
 
     public static final RegistrySupplier<BlockEntityType<WaterJetBlockEntity>> WATER_JET = BLOCK_ENTITIES.register("water_jet", () -> BlockEntityType.Builder.of(WaterJetBlockEntity::new, Blocks.WATER_JET_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<WaterJet5mBlockEntity>> WATER_JET5M = BLOCK_ENTITIES.register("water_jet5m", () -> BlockEntityType.Builder.of(WaterJet5mBlockEntity::new, Blocks.WATER_JET5M_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<WaterJet15mBlockEntity>> WATER_JET15M = BLOCK_ENTITIES.register("water_jet15m", () -> BlockEntityType.Builder.of(WaterJet15mBlockEntity::new, Blocks.WATER_JET15M_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<WaterJet35mBlockEntity>> WATER_JET35M = BLOCK_ENTITIES.register("water_jet35m", () -> BlockEntityType.Builder.of(WaterJet35mBlockEntity::new, Blocks.WATER_JET35M_BLOCK.get()).build(null));
+
     public static final RegistrySupplier<BlockEntityType<WhiteStrobeBlockEntity>> WHITE_STROBE = BLOCK_ENTITIES.register("white_strobe", () -> BlockEntityType.Builder.of(WhiteStrobeBlockEntity::new, Blocks.WHITE_STROBE_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<LaserMirrorBlockEntity>> LASER_MIRROR = BLOCK_ENTITIES.register("laser_mirror", () -> BlockEntityType.Builder.of(LaserMirrorBlockEntity::new, Blocks.LASER_MIRROR_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<ParScrollerBlockEntity>> PARSCROLLER = BLOCK_ENTITIES.register("parscroller", () -> BlockEntityType.Builder.of(ParScrollerBlockEntity::new, Blocks.PARSCROLLER_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<Blinder2x2BlockEntity>> BLINDER2X2 = BLOCK_ENTITIES.register("blinder2x2", () -> BlockEntityType.Builder.of(Blinder2x2BlockEntity::new, Blocks.BLINDER2X2_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<Blinder2x2warmBlockEntity>> BLINDER2X2WARM = BLOCK_ENTITIES.register("blinder2x2warm", () -> BlockEntityType.Builder.of(Blinder2x2warmBlockEntity::new, Blocks.BLINDER2X2WARM_BLOCK.get()).build(null));
+
+
 
     public static void init(){
         BLOCK_ENTITIES.register();

@@ -83,4 +83,9 @@ public class Moving500BlockEntity extends BaseDMXConsumerLightBlockEntity {
         return 0;
     }
 
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.moving500";
+    }
+
 }

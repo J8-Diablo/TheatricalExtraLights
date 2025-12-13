@@ -86,9 +86,20 @@ public class Blocks {
     public static final RegistrySupplier<Block> VERTICALSCROLLER_BLOCK = BLOCKS.register("verticalscroller", verticalscrollerBlock::new);
     public static final RegistrySupplier<Block> WASHLED_BLOCK = BLOCKS.register("washled", washledBlock::new);
     public static final RegistrySupplier<Block> MOVING_BAR_BLOCK = BLOCKS.register("moving_bar", MovingbarBlock::new);
+
     public static final RegistrySupplier<Block> WATER_JET_BLOCK = BLOCKS.register("water_jet", WaterJetBlock::new);
+    public static final RegistrySupplier<Block> WATER_JET5M_BLOCK = BLOCKS.register("water_jet5m", WaterJet5mBlock::new);
+    public static final RegistrySupplier<Block> WATER_JET15M_BLOCK = BLOCKS.register("water_jet15m", WaterJet15mBlock::new);
+    public static final RegistrySupplier<Block> WATER_JET35M_BLOCK = BLOCKS.register("water_jet35m", WaterJet35mBlock::new);
+
 
     public static final RegistrySupplier<Block> WHITE_STROBE_BLOCK = BLOCKS.register("white_strobe", WhiteStrobeBlock::new);
+    public static final RegistrySupplier<Block> LASER_MIRROR_BLOCK = BLOCKS.register("laser_mirror", LaserMirrorBlock::new);
+    public static final RegistrySupplier<Block> PARSCROLLER_BLOCK = BLOCKS.register("parscroller", ParScrollerBlock::new);
+    public static final RegistrySupplier<Block> BLINDER2X2_BLOCK = BLOCKS.register("blinder2x2", Blinder2x2Block::new);
+    public static final RegistrySupplier<Block> BLINDER2X2WARM_BLOCK = BLOCKS.register("blinder2x2warm", Blinder2x2warmBlock::new);
+
+
 
 
 

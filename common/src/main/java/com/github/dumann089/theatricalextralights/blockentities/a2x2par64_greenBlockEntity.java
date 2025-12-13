@@ -66,4 +66,9 @@ public class a2x2par64_greenBlockEntity extends BaseDMXConsumerLightBlockEntity 
     public int convertByteToInt(byte val) {
         return Byte.toUnsignedInt(val);
     }
+
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.a2x2par64_green";
+    }
 }

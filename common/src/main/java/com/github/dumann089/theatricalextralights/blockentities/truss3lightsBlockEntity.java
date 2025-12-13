@@ -70,5 +70,8 @@ public class truss3lightsBlockEntity extends BaseDMXConsumerLightBlockEntity {
         return Byte.toUnsignedInt(val);
     }
 
-
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.truss_3lights";
+    }
 }

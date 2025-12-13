@@ -82,4 +82,9 @@ public class VL6000BlockEntity extends BaseDMXConsumerLightBlockEntity {
         return 0;
     }
 
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.vl6000";
+    }
+
 }

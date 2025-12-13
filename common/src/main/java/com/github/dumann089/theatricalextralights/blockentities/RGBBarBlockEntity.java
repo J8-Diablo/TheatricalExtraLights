@@ -77,5 +77,8 @@ public class RGBBarBlockEntity extends BaseDMXConsumerLightBlockEntity {
         return Byte.toUnsignedInt(val);
     }
 
-
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.rgb_bar";
+    }
 }

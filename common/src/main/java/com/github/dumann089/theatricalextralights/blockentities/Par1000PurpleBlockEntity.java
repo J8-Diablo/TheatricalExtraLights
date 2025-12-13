@@ -77,4 +77,8 @@ public class Par1000PurpleBlockEntity extends BaseDMXConsumerLightBlockEntity {
         return Byte.toUnsignedInt(val);
     }
 
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.par1000_purple";
+    }
 }

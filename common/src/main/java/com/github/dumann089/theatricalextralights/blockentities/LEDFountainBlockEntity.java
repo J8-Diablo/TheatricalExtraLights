@@ -73,4 +73,9 @@ public class LEDFountainBlockEntity extends BaseDMXConsumerLightBlockEntity {
         return Byte.toUnsignedInt(val);
     }
 
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.led_fountain";
+    }
+
 }

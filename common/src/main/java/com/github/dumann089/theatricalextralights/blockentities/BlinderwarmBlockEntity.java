@@ -73,5 +73,8 @@ public class BlinderwarmBlockEntity extends BaseDMXConsumerLightBlockEntity {
         return Byte.toUnsignedInt(val);
     }
 
-
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.blinder_warm";
+    }
 }

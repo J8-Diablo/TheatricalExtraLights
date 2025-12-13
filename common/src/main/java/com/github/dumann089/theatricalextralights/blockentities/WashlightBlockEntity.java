@@ -81,4 +81,9 @@ public class WashlightBlockEntity extends BaseDMXConsumerLightBlockEntity {
     public int getBasePan() {
         return 0;
     }
+
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.washlight";
+    }
 }

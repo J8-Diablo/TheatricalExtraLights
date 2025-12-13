@@ -74,9 +74,6 @@ public class WaterJetBlockEntity extends BaseDMXConsumerLightBlockEntity {
     public void tick() {
         if (!level.isClientSide || Minecraft.getInstance().isPaused()) return;
 
-        tickCounter++;
-        if (tickCounter % 8 != 0) return;
-
         double x = worldPosition.getX() + 0.5;
         double y = worldPosition.getY();
         double z = worldPosition.getZ() + 0.5;
@@ -84,14 +81,23 @@ public class WaterJetBlockEntity extends BaseDMXConsumerLightBlockEntity {
         double maxHeight = 3.0;
         double targetHeight = (intensity / 255.0) * maxHeight;
 
+        double normalizedIntensity = intensity / 255.0;
 
         smoothedHeight += (targetHeight - smoothedHeight) * 0.1;
 
-
-        level.addParticle(
-                ModParticle.WATERJETPARTICLE.get(),
-                x, y, z,
-                0, smoothedHeight * 0.05, 0
-        );
+        if (tickCounter % 8 == 0) {
+            level.addAlwaysVisibleParticle(
+                    ModParticle.WATERJETPARTICLE.get(),
+                    true,
+                    x, y + smoothedHeight, z,
+                    0,
+                    intensity / 255.0,
+                    0
+            );
+        }
+    }
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.water_jet";
     }
 }

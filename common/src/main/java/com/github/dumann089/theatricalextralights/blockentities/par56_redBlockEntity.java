@@ -67,5 +67,8 @@ public class par56_redBlockEntity extends BaseDMXConsumerLightBlockEntity {
         return Byte.toUnsignedInt(val);
     }
 
-
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.par56_red";
+    }
 }

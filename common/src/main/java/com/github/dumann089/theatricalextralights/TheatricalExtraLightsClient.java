@@ -83,8 +83,18 @@ public class TheatricalExtraLightsClient {
         BlockEntityRendererRegistry.register(BlockEntities.HORIZONTALSCROLLER.get(), horizontalscrollerRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.VERTICALSCROLLER.get(), verticalscrollerRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.MOVING_BAR.get(), MovingbarRenderer::new);
+
         BlockEntityRendererRegistry.register(BlockEntities.WATER_JET.get(), WaterJetRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.WATER_JET5M.get(), WaterJet5mRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.WATER_JET15M.get(), WaterJet15mRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.WATER_JET35M.get(), WaterJet35mRenderer::new);
+
+
         BlockEntityRendererRegistry.register(BlockEntities.WHITE_STROBE.get(), WhiteStrobeRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.LASER_MIRROR.get(), LaserMirrorRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.PARSCROLLER.get(), ParScrollerRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.BLINDER2X2.get(), Blinder2x2Renderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.BLINDER2X2WARM.get(), Blinder2x2warmRenderer::new);
     }
 }
 

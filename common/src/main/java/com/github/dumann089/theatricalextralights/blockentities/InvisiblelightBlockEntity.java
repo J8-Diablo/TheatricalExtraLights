@@ -74,5 +74,8 @@ public class InvisiblelightBlockEntity extends BaseDMXConsumerLightBlockEntity {
         return 1;
     }
 
-
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.invisblelight";
+    }
 }

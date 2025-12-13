@@ -25,6 +25,5 @@ public class ForgeConfigInit {
 
     @SubscribeEvent
     public static void onLoad(final ModConfigEvent event) {
-        TheatricalExtraLightsConfig.setEnableOverlay(ENABLE_OVERLAY.get());
     }
 }

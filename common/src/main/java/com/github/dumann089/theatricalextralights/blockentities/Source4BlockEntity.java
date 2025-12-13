@@ -77,5 +77,8 @@ public class Source4BlockEntity extends BaseDMXConsumerLightBlockEntity {
         return Byte.toUnsignedInt(val);
     }
 
-
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.source_four";
+    }
 }

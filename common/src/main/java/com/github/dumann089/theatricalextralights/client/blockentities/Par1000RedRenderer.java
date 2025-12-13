@@ -1,8 +1,6 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.Par1000RedBlockEntity;
-import com.github.dumann089.theatricalextralights.blockentities.Par1000BlockEntity;
-import com.github.dumann089.theatricalextralights.blockentities.ParLedBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -121,13 +119,14 @@ public class Par1000RedRenderer extends FixtureRenderer<Par1000RedBlockEntity> {
                     poseStack.translate(offset.x, offset.y, offset.z);
                     preparePoseStack(blockEntity, poseStack, facing, partialTick, isFlipped, blockstate, isHanging);
                     VertexConsumer beamConsumer = multiBufferSource.getBuffer(TheatricalRenderTypes.BEAM);
-//            poseStack.translate(blockEntity.getFixture().getBeamStartPosition()[0], blockEntity.getFixture().getBeamStartPosition()[1], blockEntity.getFixture().getBeamStartPosition()[2]);
+
                     float intensity = (blockEntity.getPrevIntensity() + ((blockEntity.getIntensity()) - blockEntity.getPrevIntensity()) * partialTicks);
                     int color = blockEntity.getColour();
                     int r = (color >> 16) & 0xFF;
                     int g = (color >> 8) & 0xFF;
                     int b = color & 0xFF;
                     int a = (int) (((float) ((intensity * 1) / 255f)) * 255);
+
                     poseStack.translate(0.5, 0.56f, 0.143f);
                     Matrix4f m = poseStack.last().pose();
                     Matrix3f normal = poseStack.last().normal();

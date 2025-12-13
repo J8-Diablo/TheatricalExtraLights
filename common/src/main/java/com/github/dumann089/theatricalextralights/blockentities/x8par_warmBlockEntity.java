@@ -72,5 +72,8 @@ public class x8par_warmBlockEntity extends BaseDMXConsumerLightBlockEntity {
         return Byte.toUnsignedInt(val);
     }
 
-
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.x8par_warm";
+    }
 }

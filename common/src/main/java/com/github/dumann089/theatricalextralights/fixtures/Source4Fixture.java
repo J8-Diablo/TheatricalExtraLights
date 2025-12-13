@@ -107,6 +107,6 @@ public class Source4Fixture extends Fixture {
 
     @Override
     public double getLightRadius() {
-        return 3.5;
+        return 4.5;
     }
 }

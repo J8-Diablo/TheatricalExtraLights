@@ -104,6 +104,6 @@ public class Par1000LightblueFixture extends Fixture {
 
     @Override
     public double getLightRadius() {
-        return 3.5;
+        return 4.5;
     }
 }

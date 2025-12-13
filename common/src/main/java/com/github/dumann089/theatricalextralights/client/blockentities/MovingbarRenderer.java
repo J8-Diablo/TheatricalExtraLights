@@ -1,6 +1,7 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.MovingbarBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.RGBBarBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -9,6 +10,7 @@ import dev.imabad.theatrical.blocks.HangableBlock;
 import dev.imabad.theatrical.client.LazyRenderers;
 import dev.imabad.theatrical.client.TheatricalRenderTypes;
 import dev.imabad.theatrical.client.blockentities.FixtureRenderer;
+import dev.imabad.theatrical.config.TheatricalConfig;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -111,49 +113,37 @@ public class MovingbarRenderer extends FixtureRenderer<MovingbarBlockEntity> {
     }
     @Override
     public void beforeRenderBeam(MovingbarBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer, MultiBufferSource multiBufferSource, Direction facing, float partialTicks, boolean isFlipped, BlockState blockstate, boolean isHanging, int packedLight, int packedOverlay) {
-        if (blockEntity.getIntensity() > 0) {
+        if(blockEntity.getIntensity() > 0){
             LazyRenderers.addLazyRender(new LazyRenderers.LazyRenderer() {
                 @Override
                 public void render(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, Camera camera, float partialTick) {
-                    float intensity = blockEntity.getPrevIntensity() + (blockEntity.getIntensity() - blockEntity.getPrevIntensity()) * partialTick;
+                    poseStack.pushPose();
+                    Vec3 offset = Vec3.atLowerCornerOf(blockEntity.getBlockPos()).subtract(camera.getPosition());
+                    poseStack.translate(offset.x, offset.y, offset.z);
+                    preparePoseStack(blockEntity, poseStack, facing, partialTick, isFlipped, blockstate, isHanging);
+
+                    VertexConsumer beamConsumer = multiBufferSource.getBuffer(TheatricalRenderTypes.BEAM);
+
+                    float intensity = (blockEntity.getPrevIntensity() + ((blockEntity.getIntensity()) - blockEntity.getPrevIntensity()) * partialTicks);
+                    float alpha = intensity / 255f;
                     int color = blockEntity.getColour();
                     int r = (color >> 16) & 0xFF;
                     int g = (color >> 8) & 0xFF;
                     int b = color & 0xFF;
-                    int a = (int) ((intensity / 255f) * 255);
+                    int a = (int) (alpha * 255);
 
-                    Vec3 offset = Vec3.atLowerCornerOf(blockEntity.getBlockPos()).subtract(camera.getPosition());
-                    VertexConsumer beamConsumer = bufferSource.getBuffer(TheatricalRenderTypes.BEAM);
+                    poseStack.translate(0.496f, 0.93f, 0.318f);
 
-                    float[][] beamPositions = {
-                            {1.15F, 0.921F, 0.325F },
-                            {0.962F, 0.921F, 0.325F },
-                            {0.775F, 0.921F, 0.325F },
-                            {0.587F, 0.921F, 0.325F },
+                    Matrix4f m = poseStack.last().pose();
+                    Matrix3f normal = poseStack.last().normal();
 
-                            {0.4F, 0.921F, 0.325F },
-                            {0.212F, 0.921F, 0.325F },
-                            {0.025F, 0.921F, 0.325F },
-                            {-0.162F, 0.921F, 0.325F },
+                    addVertex(beamConsumer, m, normal, r, g, b, a, -0.725f, 0.0718f, 0f);
+                    addVertex(beamConsumer, m, normal, r, g, b, a, 0.725f, 0.0718f, 0f);
+                    addVertex(beamConsumer, m, normal, r, g, b, a, 0.725f, -0.0718f, 0f);
+                    addVertex(beamConsumer, m, normal, r, g, b, a, -0.725f, -0.0718f, 0f);
 
-                    };
-
-                    for (float[] pos : beamPositions) {
-                        poseStack.pushPose();
-                        poseStack.translate(offset.x, offset.y, offset.z);
-                        preparePoseStack(blockEntity, poseStack, facing, partialTick, isFlipped, blockstate, isHanging);
-                        poseStack.translate(pos[0], pos[1], pos[2]);
-
-                        Matrix4f matrix = poseStack.last().pose();
-                        Matrix3f normal = poseStack.last().normal();
-
-                        addVertex(beamConsumer, matrix, normal, r, g, b, a, -0.078125f, 0.078125f , 0f);
-                        addVertex(beamConsumer, matrix, normal, r, g, b, a,  0.078125f, 0.078125f, 0f);
-                        addVertex(beamConsumer, matrix, normal, r, g, b, a, 0.078125f, -0.078125f,0f);
-                        addVertex(beamConsumer, matrix, normal, r, g, b, a,-0.078125f, -0.078125f, 0f);
-
-                        poseStack.popPose();
-                    }
+                    renderLightBeam(beamConsumer, poseStack, blockEntity, partialTicks, alpha, 0.725f, 0.0718f, 5.0f, color);
+                    poseStack.popPose();
                 }
 
                 @Override
@@ -162,6 +152,43 @@ public class MovingbarRenderer extends FixtureRenderer<MovingbarBlockEntity> {
                 }
             });
         }
+    }
+
+    protected void renderLightBeam(VertexConsumer builder, PoseStack stack, MovingbarBlockEntity tileEntityFixture, float partialTicks, float alpha, float beamWidth, float beamHeight, float length, int color) {
+        alpha *= (float) TheatricalConfig.INSTANCE.CLIENT.beamOpacity;
+        int r = (color >> 16) & 0xFF;
+        int g = (color >> 8) & 0xFF;
+        int b = color & 0xFF;
+        int a = (int) (alpha * 255);
+        Matrix4f m = stack.last().pose();
+        Matrix3f normal = stack.last().normal();
+        float focus = 1.0f;
+        float endWidth = beamWidth * focus;
+        float endHeight = beamHeight * focus;
+
+        // Right Face
+        addVertex(builder, m, normal, r, g, b, 0, endWidth, endHeight, -length);
+        addVertex(builder, m, normal, r, g, b, a, beamWidth, beamHeight, 0);
+        addVertex(builder, m, normal, r, g, b, a, beamWidth, -beamHeight, 0);
+        addVertex(builder, m, normal, r, g, b, 0, endWidth, -endHeight, -length);
+
+        // Left Face
+        addVertex(builder, m, normal, r, g, b, 0, -endWidth, -endHeight, -length);
+        addVertex(builder, m, normal, r, g, b, a, -beamWidth, -beamHeight, 0);
+        addVertex(builder, m, normal, r, g, b, a, -beamWidth, beamHeight, 0);
+        addVertex(builder, m, normal, r, g, b, 0, -endWidth, endHeight, -length);
+
+        // UP Face
+        addVertex(builder, m, normal, r, g, b, 0, -endWidth, endHeight, -length);
+        addVertex(builder, m, normal, r, g, b, a, -beamWidth, beamHeight, 0);
+        addVertex(builder, m, normal, r, g, b, a, beamWidth, beamHeight, 0);
+        addVertex(builder, m, normal, r, g, b, 0, endWidth, endHeight, -length);
+
+        // Down Face
+        addVertex(builder, m, normal, r, g, b, 0, endWidth, -endHeight, -length);
+        addVertex(builder, m, normal, r, g, b, a, beamWidth, -beamHeight, 0);
+        addVertex(builder, m, normal, r, g, b, a, -beamWidth, -beamHeight, 0);
+        addVertex(builder, m, normal, r, g, b, 0, -endWidth, -endHeight, -length);
     }
 
     @Override

@@ -69,6 +69,8 @@ public class BigPanelBlockEntity extends BaseDMXConsumerLightBlockEntity {
         return Byte.toUnsignedInt(val);
     }
 
-
-
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.big_panel";
+    }
 }

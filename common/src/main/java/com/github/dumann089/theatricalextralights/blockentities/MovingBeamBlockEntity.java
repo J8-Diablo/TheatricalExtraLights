@@ -29,7 +29,7 @@ public class MovingBeamBlockEntity extends BaseDMXConsumerLightBlockEntity {
 
     @Override
     public int getFocus() {
-        return 64;
+        return 84;
     }
 
     @Override
@@ -85,5 +85,10 @@ public class MovingBeamBlockEntity extends BaseDMXConsumerLightBlockEntity {
     @Override
     public int getBasePan() {
         return 0;
+    }
+
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.moving_beam";
     }
 }

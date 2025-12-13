@@ -82,5 +82,8 @@ public class Beam7RBlockEntity extends BaseDMXConsumerLightBlockEntity {
         return 0;
     }
 
-
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.beam_7r";
+    }
 }

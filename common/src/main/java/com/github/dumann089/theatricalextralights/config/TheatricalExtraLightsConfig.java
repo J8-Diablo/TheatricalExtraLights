@@ -13,8 +13,7 @@ public class TheatricalExtraLightsConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final File FILE = new File("config/theatricalextralights.json");
 
-    private boolean enableOverlay = true;
-    private float laserBeamLength = 60.0f; // valor por defecto
+    private float laserBeamLength = 60.0f; // default value
 
     // Singleton
     private static TheatricalExtraLightsConfig INSTANCE = new TheatricalExtraLightsConfig();
@@ -23,7 +22,7 @@ public class TheatricalExtraLightsConfig {
         if (FILE.exists()) {
             try (FileReader reader = new FileReader(FILE)) {
                 INSTANCE = GSON.fromJson(reader, TheatricalExtraLightsConfig.class);
-                // Validar valor de laserBeamLength
+                // laserbeamlenght
                 if (INSTANCE.laserBeamLength < 20.0f) {
                     INSTANCE.laserBeamLength = 20.0f;
                 }
@@ -49,18 +48,12 @@ public class TheatricalExtraLightsConfig {
     }
 
     // Getters
-    public static boolean enableOverlay() {
-        return INSTANCE.enableOverlay;
-    }
 
     public static float getLaserBeamLength() {
         return INSTANCE.laserBeamLength;
     }
 
     // Setters
-    public static void setEnableOverlay(boolean value) {
-        INSTANCE.enableOverlay = value;
-    }
 
     public static void setLaserBeamLength(float value) {
         INSTANCE.laserBeamLength = Math.max(20.0f, value);

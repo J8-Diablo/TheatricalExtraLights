@@ -68,4 +68,8 @@ public class x8par_magentaBlockEntity extends BaseDMXConsumerLightBlockEntity {
         return Byte.toUnsignedInt(val);
     }
 
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.x8par_magenta";
+    }
 }

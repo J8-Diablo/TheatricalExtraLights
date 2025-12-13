@@ -83,4 +83,8 @@ public class washledBlockEntity extends BaseDMXConsumerLightBlockEntity {
         return 0;
     }
 
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.washled";
+    }
 }

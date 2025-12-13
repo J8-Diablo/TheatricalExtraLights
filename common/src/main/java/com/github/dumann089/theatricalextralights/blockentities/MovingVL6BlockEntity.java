@@ -82,4 +82,9 @@ public class MovingVL6BlockEntity extends BaseDMXConsumerLightBlockEntity {
     public int getBasePan() {
         return 0;
     }
+
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.moving_vl6";
+    }
 }

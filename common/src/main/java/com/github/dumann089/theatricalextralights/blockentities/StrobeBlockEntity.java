@@ -80,4 +80,9 @@ public class StrobeBlockEntity extends BaseDMXConsumerLightBlockEntity {
     public int convertByteToInt(byte val) {
         return Byte.toUnsignedInt(val);
     }
+
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.strobe";
+    }
 }

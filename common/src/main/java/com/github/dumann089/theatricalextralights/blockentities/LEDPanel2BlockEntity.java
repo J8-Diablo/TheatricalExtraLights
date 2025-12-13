@@ -68,4 +68,9 @@ public class LEDPanel2BlockEntity extends BaseDMXConsumerLightBlockEntity {
     public float getMaxLightDistance() {
         return 1;
     }
+
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.led_panel_2";
+    }
 }

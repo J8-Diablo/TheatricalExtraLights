@@ -69,4 +69,8 @@ public class a2x2par64_whiteBlockEntity extends BaseDMXConsumerLightBlockEntity 
         return Byte.toUnsignedInt(val);
     }
 
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.a2x2par64_white";
+    }
 }

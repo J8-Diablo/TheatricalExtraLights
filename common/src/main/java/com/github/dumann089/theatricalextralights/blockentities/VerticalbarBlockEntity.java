@@ -69,5 +69,8 @@ public class VerticalbarBlockEntity extends BaseDMXConsumerLightBlockEntity {
         return Byte.toUnsignedInt(val);
     }
 
-
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.vertical_bar";
+    }
 }

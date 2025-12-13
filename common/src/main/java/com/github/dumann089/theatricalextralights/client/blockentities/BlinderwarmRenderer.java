@@ -1,8 +1,6 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
-import com.github.dumann089.theatricalextralights.blockentities.BlinderBlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.BlinderwarmBlockEntity;
-import com.github.dumann089.theatricalextralights.fixtures.BlinderwarmFixture;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -21,8 +19,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
 
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
+import org.joml.*;
 
 public class BlinderwarmRenderer extends FixtureRenderer<BlinderwarmBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
@@ -139,6 +136,7 @@ public class BlinderwarmRenderer extends FixtureRenderer<BlinderwarmBlockEntity>
             });
         }
     }
+
     @Override
     public void preparePoseStack(BlinderwarmBlockEntity blockEntity, PoseStack poseStack, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging) {
         //#region Fixture Hanging

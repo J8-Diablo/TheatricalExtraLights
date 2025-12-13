@@ -67,4 +67,9 @@ public class x8par_yellowBlockEntity extends BaseDMXConsumerLightBlockEntity {
     public int convertByteToInt(byte val) {
         return Byte.toUnsignedInt(val);
     }
+
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.x8par_yellow";
+    }
 }

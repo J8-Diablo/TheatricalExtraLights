@@ -69,5 +69,9 @@ public class verticalscrollerBlockEntity extends BaseDMXConsumerLightBlockEntity
         return Byte.toUnsignedInt(val);
     }
 
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.verticalscroller";
+    }
 
 }

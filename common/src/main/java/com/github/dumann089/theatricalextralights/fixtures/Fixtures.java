@@ -204,10 +204,26 @@ public class Fixtures {
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "washled"), washledFixture::new);
     public static final RegistrySupplier<Fixture> MOVING_BAR =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "moving_bar"), MovingbarFixture::new);
+
     public static final RegistrySupplier<Fixture> WATER_JET =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "water_jet"), WaterJetFixture::new);
+    public static final RegistrySupplier<Fixture> WATER_JET5M =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "water_jet5m"), WaterJet5mFixture::new);
+    public static final RegistrySupplier<Fixture> WATER_JET15M =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "water_jet15m"), WaterJet15mFixture::new);
+    public static final RegistrySupplier<Fixture> WATER_JET35M =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "water_jet35m"), WaterJet35mFixture::new);
+
     public static final RegistrySupplier<Fixture> WHITE_STROBE =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "white_strobe"), WhiteStrobeFixture::new);
+    public static final RegistrySupplier<Fixture> LASER_MIRROR =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "laser_mirror"), LaserMirrorFixture::new);
+    public static final RegistrySupplier<Fixture> PARSCROLLER =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "parscroller"), ParScrollerFixture::new);
+    public static final RegistrySupplier<Fixture> BLINDER2X2 =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "blinder2x2"), Blinder2x2Fixture::new);
+    public static final RegistrySupplier<Fixture> BLINDER2X2WARM =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "blinder2x2warm"), Blinder2x2warmFixture::new);
 
     public static void init(){
         FIXTURES.register();

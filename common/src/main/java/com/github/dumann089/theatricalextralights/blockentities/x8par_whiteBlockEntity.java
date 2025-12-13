@@ -69,4 +69,8 @@ public class x8par_whiteBlockEntity extends BaseDMXConsumerLightBlockEntity {
         return Byte.toUnsignedInt(val);
     }
 
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.x8par_white";
+    }
 }

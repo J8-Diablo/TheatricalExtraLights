@@ -75,8 +75,19 @@
   "block.theatricalextralights.washled": "Wash Led",
   "block.theatricalextralights.blinder_warm": "Blinder (warm)",
   "block.theatricalextralights.moving_bar": "Moving Bar",
+
   "block.theatricalextralights.water_jet": "Water Jet (25m)",
+  "block.theatricalextralights.water_jet15m": "Water Jet (15m)",
+  "block.theatricalextralights.water_jet5m": "Water Jet (5m)",
+  "block.theatricalextralights.water_jet35m": "Water Jet (35m)",
+
+
   "block.theatricalextralights.white_strobe": "White Strobe (1 Channel)",
+  "block.theatricalextralights.laser_mirror": "Laser Mirror",
+  "block.theatricalextralights.parscroller": "Par64 (Scroller)",
+  "block.theatricalextralights.blinder2x2": "2x2 Blinder",
+  "block.theatricalextralights.blinder2x2warm": "2x2 Blinder (warm)",
+
 
 
   "itemGroup.theatricalextralights": "Theatrical: Extra Lights"

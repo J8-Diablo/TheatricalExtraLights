@@ -67,6 +67,14 @@ public class Items {
             "blinder",
             () -> new BlockItem(Blocks.BLINDER.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
+    public static final RegistrySupplier<Item> BLINDER2X2 = ITEMS.register(
+            "blinder2x2",
+            () -> new BlockItem(Blocks.BLINDER2X2_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> BLINDER2X2WARM = ITEMS.register(
+            "blinder2x2warm",
+            () -> new BlockItem(Blocks.BLINDER2X2WARM_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
     public static final RegistrySupplier<Item> BLINDER_WARM = ITEMS.register(
             "blinder_warm",
             () -> new BlockItem(Blocks.BLINDER_WARM_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
@@ -138,6 +146,10 @@ public class Items {
     public static final RegistrySupplier<Item> SOURCE_FOUR = ITEMS.register(
         "source_four",
         () -> new BlockItem(Blocks.SOURCE_FOUR_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> PARSCROLLER = ITEMS.register(
+            "parscroller",
+            () -> new BlockItem(Blocks.PARSCROLLER_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
     public static final RegistrySupplier<Item> PAR1000_RED = ITEMS.register(
         "par1000_red",
@@ -316,9 +328,25 @@ public class Items {
         "verticalscroller",
         () -> new BlockItem(Blocks.VERTICALSCROLLER_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
+    public static final RegistrySupplier<Item> LASER_MIRROR = ITEMS.register(
+            "laser_mirror",
+            () -> new BlockItem(Blocks.LASER_MIRROR_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> WATER_JET35M = ITEMS.register(
+            "water_jet35m",
+            () -> new BlockItem(Blocks.WATER_JET35M_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
     public static final RegistrySupplier<Item> WATER_JET = ITEMS.register(
             "water_jet",
             () -> new BlockItem(Blocks.WATER_JET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> WATER_JET15M = ITEMS.register(
+            "water_jet15m",
+            () -> new BlockItem(Blocks.WATER_JET15M_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> WATER_JET5M = ITEMS.register(
+            "water_jet5m",
+            () -> new BlockItem(Blocks.WATER_JET5M_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
 
 

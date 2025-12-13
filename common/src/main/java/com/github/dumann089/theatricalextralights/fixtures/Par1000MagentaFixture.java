@@ -103,6 +103,6 @@ public class Par1000MagentaFixture extends Fixture {
 
     @Override
     public double getLightRadius() {
-        return 3.5;
+        return 4.5;
     }
 }

@@ -85,4 +85,9 @@ public class MovingbarBlockEntity extends BaseDMXConsumerLightBlockEntity {
         return 0;
     }
 
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.moving_bar";
+    }
+
 }

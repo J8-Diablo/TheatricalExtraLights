@@ -83,4 +83,8 @@ public class SharplusBlockEntity extends BaseDMXConsumerLightBlockEntity {
         return 0;
     }
 
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.sharplus";
+    }
 }
