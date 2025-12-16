@@ -40,18 +40,18 @@ public class WaterJetParticle extends TextureSheetParticle {
         this.targetIntensity = (float) vy;
         this.currentIntensity = this.targetIntensity;
 
-        float minSize = 0.09F;
-        float maxSize = 0.20F;
+        float minSize = 0.05F;
+        float maxSize = 0.28F;
         this.quadSize = minSize + (maxSize - minSize) * this.currentIntensity;
 
         this.lifetime = 60;
         this.gravity = (float) 1.4;
         this.hasPhysics = false;
 
-        double spread = 0.030;
-        this.xd = (vx + (Math.random() - 0.16) * spread);
-        this.yd = vy + (Math.random() * 0.25);
-        this.zd = (vz + (Math.random() - 0.16) * spread);
+        double spread = 0.020;
+        this.xd = (vx + (Math.random() - 0.12) * spread);
+        this.yd = vy + (Math.random() * 0.12);
+        this.zd = (vz + (Math.random() - 0.12) * spread);
 
         this.setSpriteFromAge(spriteSet);
 

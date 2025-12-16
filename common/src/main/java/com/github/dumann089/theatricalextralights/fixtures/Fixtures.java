@@ -65,6 +65,9 @@ public class Fixtures {
     public static final RegistrySupplier<Fixture> SOURCE_FOUR =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "source_four"), Source4Fixture::new);
 
+    public static final RegistrySupplier<Fixture> SOURCE_FOUR_WARM =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "source_four_warm"), Source4warmFixture::new);
+
     public static final RegistrySupplier<Fixture> MAC_VIP =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "mac_vip"), MacVipFixture::new);
 
@@ -124,7 +127,8 @@ public class Fixtures {
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "led_panel_2"), LEDPanel2Fixture::new);
     public static final RegistrySupplier<Fixture> PAR_LED =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "par_led"), ParLedFixture::new);
-
+    public static final RegistrySupplier<Fixture> MOVING_JET =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "moving_jet"), MovingJetFixture::new);
 
     public static final RegistrySupplier<Fixture> x8PAR_RED =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "x8par_red"), x8par_redFixture::new);

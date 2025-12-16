@@ -6,7 +6,9 @@ import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -15,11 +17,19 @@ import java.util.Arrays;
 public class WaterJet35mBlockEntity extends BaseDMXConsumerLightBlockEntity {
 
     public double smoothedHeight = 0.0;
+    private float jetHeight = 10.0f;
     private int tickCounter = 0;
+
+    // Constantes configurables
+    private static final float MIN_JET_HEIGHT = 0.1f; // ming height
+    private static final float MAX_JET_HEIGHT = 95.0f; // max height
+    private static final float DEFAULT_JET_HEIGHT = 20.0f; //default value
+
 
     public WaterJet35mBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntities.WATER_JET35M.get(), pos, state);
         setChannelCount(1);
+        this.jetHeight = DEFAULT_JET_HEIGHT;
     }
 
     @Override
@@ -67,6 +77,39 @@ public class WaterJet35mBlockEntity extends BaseDMXConsumerLightBlockEntity {
         return 0;
     }
 
+    public float getJetHeight() {
+        return jetHeight;
+    }
+
+    public void setJetHeight(float h) {
+        jetHeight = Mth.clamp(h, MIN_JET_HEIGHT, MAX_JET_HEIGHT);
+        setChanged();
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+        tag.putFloat("JetHeight", jetHeight);
+    }
+
+    @Override
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        if (tag.contains("JetHeight")) {
+            jetHeight = tag.getFloat("JetHeight");
+        }
+    }
+
+    @Override
+    public CompoundTag getUpdateTag() {
+        CompoundTag tag = super.getUpdateTag();
+        tag.putFloat("JetHeight", jetHeight);
+        return tag;
+    }
+
     public int convertByteToInt(byte val) {
         return Byte.toUnsignedInt(val);
     }
@@ -78,7 +121,7 @@ public class WaterJet35mBlockEntity extends BaseDMXConsumerLightBlockEntity {
         double y = worldPosition.getY();
         double z = worldPosition.getZ() + 0.5;
 
-        double maxHeight = 3.0;
+        double maxHeight = jetHeight; // AHORA USA EL VALOR CONFIGURADO
         double targetHeight = (intensity / 255.0) * maxHeight;
 
         double normalizedIntensity = intensity / 255.0;
@@ -92,10 +135,13 @@ public class WaterJet35mBlockEntity extends BaseDMXConsumerLightBlockEntity {
                     x, y + smoothedHeight, z,
                     0,
                     intensity / 255.0,
-                    0                   
+                    0
             );
         }
+
+        tickCounter++;
     }
+
     @Override
     public String getTranslationKey() {
         return "block.theatricalextralights.water_jet35m";

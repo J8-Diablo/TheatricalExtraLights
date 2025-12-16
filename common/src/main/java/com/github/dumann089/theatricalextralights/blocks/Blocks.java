@@ -26,6 +26,7 @@ public class Blocks {
     public static final RegistrySupplier<Block> TRUSS_3LIGHTS = BLOCKS.register("truss_3lights", truss3lightsBlock::new);
     public static final RegistrySupplier<Block> BEAM_7R_BLOCK = BLOCKS.register("beam_7r", Beam7RBlock::new);
     public static final RegistrySupplier<Block> SOURCE_FOUR_BLOCK = BLOCKS.register("source_four", Source4Block::new);
+    public static final RegistrySupplier<Block> SOURCE_FOUR_WARM_BLOCK = BLOCKS.register("source_four_warm", Source4warmBlock::new);
     public static final RegistrySupplier<Block> MAC_VIP_BLOCK = BLOCKS.register("mac_vip", MacVipBlock::new);
     public static final RegistrySupplier<Block> SHARPLUS_BLOCK = BLOCKS.register("sharplus", SharplusBlock::new);
     public static final RegistrySupplier<Block> PAR1000_RED_BLOCK = BLOCKS.register("par1000_red", Par1000RedBlock::new);
@@ -91,7 +92,7 @@ public class Blocks {
     public static final RegistrySupplier<Block> WATER_JET5M_BLOCK = BLOCKS.register("water_jet5m", WaterJet5mBlock::new);
     public static final RegistrySupplier<Block> WATER_JET15M_BLOCK = BLOCKS.register("water_jet15m", WaterJet15mBlock::new);
     public static final RegistrySupplier<Block> WATER_JET35M_BLOCK = BLOCKS.register("water_jet35m", WaterJet35mBlock::new);
-
+    public static final RegistrySupplier<Block> MOVING_JET_BLOCK = BLOCKS.register("moving_jet", MovingJetBlock::new);
 
     public static final RegistrySupplier<Block> WHITE_STROBE_BLOCK = BLOCKS.register("white_strobe", WhiteStrobeBlock::new);
     public static final RegistrySupplier<Block> LASER_MIRROR_BLOCK = BLOCKS.register("laser_mirror", LaserMirrorBlock::new);

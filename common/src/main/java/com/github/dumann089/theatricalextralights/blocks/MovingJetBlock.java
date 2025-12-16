@@ -1,0 +1,164 @@
+package com.github.dumann089.theatricalextralights.blocks;
+
+import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
+import com.github.dumann089.theatricalextralights.blockentities.MovingJetBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.WaterJet35mBlockEntity;
+import com.github.dumann089.theatricalextralights.client.gui.WaterJetGenericScreen;
+import com.github.dumann089.theatricalextralights.client.gui.WaterJetPanTiltScreen;
+import dev.imabad.theatrical.TheatricalClient;
+import dev.imabad.theatrical.blocks.Blocks;
+import dev.imabad.theatrical.blocks.light.BaseLightBlock;
+import dev.imabad.theatrical.items.Items;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
+
+public class MovingJetBlock extends BaseLightBlock {
+
+    public MovingJetBlock() {
+        super(Properties.of()
+                .requiresCorrectToolForDrops()
+                .strength(3, 3)
+                .noOcclusion()
+                .isValidSpawn(Blocks::neverAllowSpawn)
+                .mapColor(MapColor.METAL)
+                .sound(SoundType.METAL)
+                .pushReaction(PushReaction.DESTROY));
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+        return new MovingJetBlockEntity(blockPos, blockState);
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(BlockGetter level, BlockPos pos, BlockState state) {
+        ItemStack stack = super.getCloneItemStack(level, pos, state);
+
+        if (level.getBlockEntity(pos) instanceof MovingJetBlockEntity be) {
+            stack.getOrCreateTag().putFloat("JetHeight", be.getJetHeight());
+        }
+
+        return stack;
+    }
+
+    @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+
+        if (stack.hasTag() && level.getBlockEntity(pos) instanceof MovingJetBlockEntity be) {
+            if (stack.getTag().contains("JetHeight")) {
+                be.setJetHeight(stack.getTag().getFloat("JetHeight"));
+            }
+        }
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
+    }
+
+    @Nullable
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext blockPlaceContext) {
+        return super.getStateForPlacement(blockPlaceContext).setValue(HANGING,
+                blockPlaceContext.getClickedFace() == Direction.DOWN ||
+                        isHanging(blockPlaceContext.getLevel(), blockPlaceContext.getClickedPos()));
+    }
+
+    @Override
+    public boolean canSurvive(BlockState blockState, LevelReader levelReader, BlockPos blockPos) {
+        if(blockState.getValue(HANGING)){
+            return isHanging(levelReader, blockPos);
+        }
+        return !levelReader.getBlockState(blockPos.below()).isAir();
+    }
+
+    @Override
+    public Direction getLightFacing(Direction hangDirection, Player placingPlayer) {
+        if(hangDirection == Direction.UP){
+            return placingPlayer.getDirection();
+        }
+        Direction playerFacing = placingPlayer.getDirection();
+        if(playerFacing.getAxis() == Direction.Axis.X){
+            if(playerFacing == Direction.WEST){
+                return Direction.SOUTH;
+            } else {
+                return Direction.NORTH;
+            }
+        } else {
+            if(playerFacing == Direction.SOUTH){
+                return Direction.WEST;
+            } else {
+                return Direction.EAST;
+            }
+        }
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
+        return blockEntityType == BlockEntities.MOVING_JET.get() ? MovingJetBlockEntity::tick : null;
+    }
+
+    @Override
+    public VoxelShape getVisualShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        if(context instanceof EntityCollisionContext entityCollisionContext && entityCollisionContext.getEntity() == null){
+            return Shapes.empty();
+        }
+        return super.getVisualShape(state, level, pos, context);
+    }
+
+    @Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos,
+                                 Player player, InteractionHand hand,
+                                 BlockHitResult hit) {
+
+        // Primero dejar que BaseLightBlock maneje la Configuration Card
+        if (super.use(state, level, pos, player, hand, hit) == InteractionResult.PASS) {
+            // Solo abrir tu GUI si super.use() retornó PASS (no había Configuration Card)
+            if (level.isClientSide) {
+                if (level.getBlockEntity(pos) instanceof MovingJetBlockEntity be) {
+                    Minecraft.getInstance().setScreen(
+                            new WaterJetGenericScreen(be, be.getTranslationKey())
+                    );
+                }
+            }
+        }
+        return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    public void destroy(LevelAccessor level, BlockPos pos, BlockState state) {
+        if(level.isClientSide()) {
+            TheatricalClient.DEBUG_BLOCKS.remove(pos);
+        }
+        super.destroy(level, pos, state);
+    }
+}

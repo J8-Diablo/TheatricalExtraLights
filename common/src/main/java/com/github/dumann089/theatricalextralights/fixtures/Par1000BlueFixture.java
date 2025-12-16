@@ -27,7 +27,7 @@ public class Par1000BlueFixture extends Fixture {
 
     private final float[] tiltRotation = new float[]{0.5F, .56F, .5F};
     private final float[] panRotation = new float[]{0.5F, 0.01F, .5F};
-    private final float[] beamStartPosition = new float[]{0.5F, 0.56F, 0.144F};
+    private final float[] beamStartPosition = new float[]{0.5F, 0.56F, 0.5F};
 
     @Override
     public ResourceLocation getTiltModel() {

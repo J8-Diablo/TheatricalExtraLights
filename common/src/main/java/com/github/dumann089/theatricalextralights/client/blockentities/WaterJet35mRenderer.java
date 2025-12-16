@@ -140,12 +140,12 @@ public class WaterJet35mRenderer extends FixtureRenderer<WaterJet35mBlockEntity>
                         case SOUTH, UP, DOWN -> {}
                     }
 
-                    double maxHeight = 46.0;
+                    double maxHeight = blockEntity.getJetHeight();
                     double targetHeight = (blockEntity.getIntensity() / 255.0) * maxHeight;
 
                     blockEntity.smoothedHeight += (targetHeight - blockEntity.smoothedHeight) * 0.1;
 
-                    double speed = blockEntity.smoothedHeight * 0.05;
+                    double speed = blockEntity.smoothedHeight * 0.07;
 
                     if (blockEntity.getLevel() !=null)
                         blockEntity.getLevel().addAlwaysVisibleParticle(ModParticle.WATERJETPARTICLE.get(),

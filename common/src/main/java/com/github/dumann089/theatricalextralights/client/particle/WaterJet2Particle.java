@@ -39,8 +39,8 @@ public class WaterJet2Particle extends TextureSheetParticle {
         this.targetIntensity = (float) vy;
         this.currentIntensity = this.targetIntensity;
 
-        float minSize = 0.08F;
-        float maxSize = 0.21F;
+        float minSize = 0.10F;
+        float maxSize = 0.20F;
         this.quadSize = minSize + (maxSize - minSize) * this.currentIntensity;
 
         this.lifetime = 45;

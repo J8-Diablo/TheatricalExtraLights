@@ -26,6 +26,7 @@ public class BlockEntities {
     public static final RegistrySupplier<BlockEntityType<truss3lightsBlockEntity>> TRUSS_3LIGHTS = BLOCK_ENTITIES.register("truss_3lights", () -> BlockEntityType.Builder.of(truss3lightsBlockEntity::new, Blocks.TRUSS_3LIGHTS.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<Beam7RBlockEntity>> BEAM_7R = BLOCK_ENTITIES.register("beam_7r", () -> BlockEntityType.Builder.of(Beam7RBlockEntity::new, Blocks.BEAM_7R_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<Source4BlockEntity>> SOURCE_FOUR = BLOCK_ENTITIES.register("source_four", () -> BlockEntityType.Builder.of(Source4BlockEntity::new, Blocks.SOURCE_FOUR_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<Source4warmBlockEntity>> SOURCE_FOUR_WARM = BLOCK_ENTITIES.register("source_four_warm", () -> BlockEntityType.Builder.of(Source4warmBlockEntity::new, Blocks.SOURCE_FOUR_WARM_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<MacVipBlockEntity>> MAC_VIP = BLOCK_ENTITIES.register("mac_vip", () -> BlockEntityType.Builder.of(MacVipBlockEntity::new, Blocks.MAC_VIP_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<SharplusBlockEntity>> SHARPLUS = BLOCK_ENTITIES.register("sharplus", () -> BlockEntityType.Builder.of(SharplusBlockEntity::new, Blocks.SHARPLUS_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<Par1000RedBlockEntity>> PAR1000_RED = BLOCK_ENTITIES.register("par1000_red", () -> BlockEntityType.Builder.of(Par1000RedBlockEntity::new, Blocks.PAR1000_RED_BLOCK.get()).build(null));
@@ -90,6 +91,8 @@ public class BlockEntities {
     public static final RegistrySupplier<BlockEntityType<WaterJet5mBlockEntity>> WATER_JET5M = BLOCK_ENTITIES.register("water_jet5m", () -> BlockEntityType.Builder.of(WaterJet5mBlockEntity::new, Blocks.WATER_JET5M_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<WaterJet15mBlockEntity>> WATER_JET15M = BLOCK_ENTITIES.register("water_jet15m", () -> BlockEntityType.Builder.of(WaterJet15mBlockEntity::new, Blocks.WATER_JET15M_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<WaterJet35mBlockEntity>> WATER_JET35M = BLOCK_ENTITIES.register("water_jet35m", () -> BlockEntityType.Builder.of(WaterJet35mBlockEntity::new, Blocks.WATER_JET35M_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<MovingJetBlockEntity>> MOVING_JET = BLOCK_ENTITIES.register("moving_jet", () -> BlockEntityType.Builder.of(MovingJetBlockEntity::new, Blocks.MOVING_JET_BLOCK.get()).build(null));
+
 
     public static final RegistrySupplier<BlockEntityType<WhiteStrobeBlockEntity>> WHITE_STROBE = BLOCK_ENTITIES.register("white_strobe", () -> BlockEntityType.Builder.of(WhiteStrobeBlockEntity::new, Blocks.WHITE_STROBE_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<LaserMirrorBlockEntity>> LASER_MIRROR = BLOCK_ENTITIES.register("laser_mirror", () -> BlockEntityType.Builder.of(LaserMirrorBlockEntity::new, Blocks.LASER_MIRROR_BLOCK.get()).build(null));

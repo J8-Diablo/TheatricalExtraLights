@@ -73,7 +73,7 @@ public class MovingBeamFixture extends Fixture {
 
     @Override
     public float getBeamWidth() {
-        return 0.13f;
+        return 0.11f;
     }
 
     @Override
@@ -102,6 +102,6 @@ public class MovingBeamFixture extends Fixture {
 
     @Override
     public double getLightRadius() {
-        return 4.5;
+        return 9.5;
     }
 }

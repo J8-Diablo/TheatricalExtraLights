@@ -2,17 +2,21 @@ package com.github.dumann089.theatricalextralights.blocks;
 
 import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
 import com.github.dumann089.theatricalextralights.blockentities.WaterJet35mBlockEntity;
+import com.github.dumann089.theatricalextralights.client.gui.WaterJetPanTiltScreen;
 import dev.imabad.theatrical.TheatricalClient;
 import dev.imabad.theatrical.TheatricalScreen;
 import dev.imabad.theatrical.blocks.Blocks;
 import dev.imabad.theatrical.blocks.light.BaseLightBlock;
 import dev.imabad.theatrical.net.OpenScreen;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -50,6 +54,28 @@ public class WaterJet35mBlock extends BaseLightBlock {
     @Override
     public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
         return new WaterJet35mBlockEntity(blockPos, blockState);
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(BlockGetter level, BlockPos pos, BlockState state) {
+        ItemStack stack = super.getCloneItemStack(level, pos, state);
+
+        if (level.getBlockEntity(pos) instanceof WaterJet35mBlockEntity be) {
+            stack.getOrCreateTag().putFloat("JetHeight", be.getJetHeight());
+        }
+
+        return stack;
+    }
+
+    @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+
+        if (stack.hasTag() && level.getBlockEntity(pos) instanceof WaterJet35mBlockEntity be) {
+            if (stack.getTag().contains("JetHeight")) {
+                be.setJetHeight(stack.getTag().getFloat("JetHeight"));
+            }
+        }
     }
 
     @Override
@@ -109,20 +135,28 @@ public class WaterJet35mBlock extends BaseLightBlock {
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        if(super.use(state, level, pos, player, hand, hit) == InteractionResult.PASS) {
-            if (!level.isClientSide) {
-                if (player.isCrouching()) {
-                    if (TheatricalClient.DEBUG_BLOCKS.contains(pos)) {
-                        TheatricalClient.DEBUG_BLOCKS.remove(pos);
-                    } else {
-                        TheatricalClient.DEBUG_BLOCKS.add(pos);
-                    }
-                    return InteractionResult.SUCCESS;
-                }
-                new OpenScreen(pos, TheatricalScreen.GENERIC_PAN_TILT).sendTo((ServerPlayer) player);
-            }
+    public InteractionResult use(BlockState state, Level level, BlockPos pos,
+                                 Player player, InteractionHand hand, BlockHitResult hit) {
+
+        ItemStack heldItem = player.getItemInHand(hand);
+
+        if (heldItem.getItem() == dev.imabad.theatrical.items.Items.CONFIGURATION_CARD.get()) {
+            return super.use(state, level, pos, player, hand, hit);
         }
+
+        if (!level.isClientSide && player.isCrouching()) {
+            if (TheatricalClient.DEBUG_BLOCKS.contains(pos)) {
+                TheatricalClient.DEBUG_BLOCKS.remove(pos);
+            } else {
+                TheatricalClient.DEBUG_BLOCKS.add(pos);
+            }
+            return InteractionResult.SUCCESS;
+        }
+
+        if (level.isClientSide && level.getBlockEntity(pos) instanceof WaterJet35mBlockEntity be) {
+            Minecraft.getInstance().setScreen(new WaterJetPanTiltScreen(be, be.getTranslationKey()));
+        }
+
         return InteractionResult.SUCCESS;
     }
 

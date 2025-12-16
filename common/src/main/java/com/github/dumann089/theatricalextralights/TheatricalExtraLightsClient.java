@@ -1,8 +1,13 @@
 package com.github.dumann089.theatricalextralights;
 
 import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
+import com.github.dumann089.theatricalextralights.blockentities.WaterJet35mBlockEntity;
 import com.github.dumann089.theatricalextralights.client.blockentities.*;
+import com.github.dumann089.theatricalextralights.client.gui.WaterJetPanTiltScreen;
 import dev.architectury.registry.client.rendering.BlockEntityRendererRegistry;
+import dev.imabad.theatrical.TheatricalScreen;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class TheatricalExtraLightsClient {
 
@@ -24,6 +29,7 @@ public class TheatricalExtraLightsClient {
         BlockEntityRendererRegistry.register(BlockEntities.TRUSS_3LIGHTS.get(), truss3lightsRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.BEAM_7R.get(), Beam7RRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.SOURCE_FOUR.get(), Source4Renderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.SOURCE_FOUR_WARM.get(), Source4warmRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.MAC_VIP.get(), MacVipRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.SHARPLUS.get(), SharplusRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.MOVING500.get(), Moving500Renderer::new);
@@ -88,6 +94,7 @@ public class TheatricalExtraLightsClient {
         BlockEntityRendererRegistry.register(BlockEntities.WATER_JET5M.get(), WaterJet5mRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.WATER_JET15M.get(), WaterJet15mRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.WATER_JET35M.get(), WaterJet35mRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.MOVING_JET.get(), MovingJetRenderer::new);
 
 
         BlockEntityRendererRegistry.register(BlockEntities.WHITE_STROBE.get(), WhiteStrobeRenderer::new);
@@ -97,4 +104,3 @@ public class TheatricalExtraLightsClient {
         BlockEntityRendererRegistry.register(BlockEntities.BLINDER2X2WARM.get(), Blinder2x2warmRenderer::new);
     }
 }
-

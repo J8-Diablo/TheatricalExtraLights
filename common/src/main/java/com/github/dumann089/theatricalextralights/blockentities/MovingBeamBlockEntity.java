@@ -28,11 +28,6 @@ public class MovingBeamBlockEntity extends BaseDMXConsumerLightBlockEntity {
     }
 
     @Override
-    public int getFocus() {
-        return 84;
-    }
-
-    @Override
     public void consume(byte[] dmxValues) {
         int start = this.getChannelStart() > 0 ? this.getChannelStart() - 1 : 0;
         byte[] ourValues = Arrays.copyOfRange(dmxValues, start,

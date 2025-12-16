@@ -42,9 +42,9 @@ public class MovingVL2CBlockEntity extends BaseDMXConsumerLightBlockEntity {
         red = convertByteToInt(ourValues[1]);
         green = convertByteToInt(ourValues[2]);
         blue = convertByteToInt(ourValues[3]);
-        focus = convertByteToInt(ourValues[5]);
-        pan = (int) ((convertByteToInt(ourValues[6]) * 360) / 255f) - 180;
-        tilt = (int) ((convertByteToInt(ourValues[7]) * 270) / 255F) - 225;
+        focus = convertByteToInt(ourValues[4]);
+        pan = (int) ((convertByteToInt(ourValues[5]) * 360) / 255f) - 180;
+        tilt = (int) ((convertByteToInt(ourValues[6]) * 270) / 255F) - 225;
         level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
         setChanged();
     }

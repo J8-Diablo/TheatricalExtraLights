@@ -147,6 +147,10 @@ public class Items {
         "source_four",
         () -> new BlockItem(Blocks.SOURCE_FOUR_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
+    public static final RegistrySupplier<Item> SOURCE_FOUR_warm = ITEMS.register(
+            "source_four_warm",
+            () -> new BlockItem(Blocks.SOURCE_FOUR_WARM_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
     public static final RegistrySupplier<Item> PARSCROLLER = ITEMS.register(
             "parscroller",
             () -> new BlockItem(Blocks.PARSCROLLER_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
@@ -332,23 +336,14 @@ public class Items {
             "laser_mirror",
             () -> new BlockItem(Blocks.LASER_MIRROR_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
+    public static final RegistrySupplier<Item> MOVING_JET = ITEMS.register(
+            "moving_jet",
+            () -> new BlockItem(Blocks.MOVING_JET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
     public static final RegistrySupplier<Item> WATER_JET35M = ITEMS.register(
             "water_jet35m",
             () -> new BlockItem(Blocks.WATER_JET35M_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
-    public static final RegistrySupplier<Item> WATER_JET = ITEMS.register(
-            "water_jet",
-            () -> new BlockItem(Blocks.WATER_JET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
-    );
-    public static final RegistrySupplier<Item> WATER_JET15M = ITEMS.register(
-            "water_jet15m",
-            () -> new BlockItem(Blocks.WATER_JET15M_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
-    );
-    public static final RegistrySupplier<Item> WATER_JET5M = ITEMS.register(
-            "water_jet5m",
-            () -> new BlockItem(Blocks.WATER_JET5M_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
-    );
-
 
     public static void init(){
         ITEMS.register();

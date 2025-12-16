@@ -1,6 +1,8 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
+import com.github.dumann089.theatricalextralights.blockentities.Blinder2x2BlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.Blinder2x2warmBlockEntity;
+import com.github.dumann089.theatricalextralights.client.LensRenderTypes;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -61,7 +63,7 @@ public class Blinder2x2warmRenderer extends FixtureRenderer<Blinder2x2warmBlockE
                 //TODO: Handle hanging up
             }
 
-            poseStack.translate(0, 1.12, 0F);
+            poseStack.translate(0, -0.66, 0F);
         }
         //#endregion
         if(facing.getAxis() == Direction.Axis.X){
@@ -102,23 +104,49 @@ public class Blinder2x2warmRenderer extends FixtureRenderer<Blinder2x2warmBlockE
         //#endregion
     }
     @Override
-    public void beforeRenderBeam(Blinder2x2warmBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer, MultiBufferSource multiBufferSource, Direction facing, float partialTicks, boolean isFlipped, BlockState blockstate, boolean isHanging, int packedLight, int packedOverlay) {
-        if(blockEntity.getIntensity() > 0){
+    public void beforeRenderBeam(
+            Blinder2x2warmBlockEntity blockEntity,
+            PoseStack poseStack,
+            VertexConsumer vertexConsumer,
+            MultiBufferSource multiBufferSource,
+            Direction facing,
+            float partialTicks,
+            boolean isFlipped,
+            BlockState blockstate,
+            boolean isHanging,
+            int packedLight,
+            int packedOverlay
+    ) {
+        if (blockEntity.getIntensity() > 0) {
             LazyRenderers.addLazyRender(new LazyRenderers.LazyRenderer() {
+
                 @Override
                 public void render(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, Camera camera, float partialTick) {
                     poseStack.pushPose();
-                    Vec3 offset = Vec3.atLowerCornerOf(blockEntity.getBlockPos()).subtract(camera.getPosition());
+                    Vec3 offset = Vec3.atLowerCornerOf(blockEntity.getBlockPos())
+                            .subtract(camera.getPosition());
                     poseStack.translate(offset.x, offset.y, offset.z);
-                    preparePoseStack(blockEntity, poseStack, facing, partialTick, isFlipped, blockstate, isHanging);
-                    VertexConsumer beamConsumer = multiBufferSource.getBuffer(TheatricalRenderTypes.BEAM);
-//            poseStack.translate(blockEntity.getFixture().getBeamStartPosition()[0], blockEntity.getFixture().getBeamStartPosition()[1], blockEntity.getFixture().getBeamStartPosition()[2]);
-                    float intensity = (blockEntity.getPrevIntensity() + ((blockEntity.getIntensity()) - blockEntity.getPrevIntensity()) * partialTicks);
+                    preparePoseStack(
+                            blockEntity,
+                            poseStack,
+                            facing,
+                            partialTick,
+                            isFlipped,
+                            blockstate,
+                            isHanging
+                    );
+                    VertexConsumer beamConsumer =
+                            multiBufferSource.getBuffer(TheatricalRenderTypes.BEAM);
+
+                    float intensity = blockEntity.getPrevIntensity()
+                            + (blockEntity.getIntensity() - blockEntity.getPrevIntensity()) * partialTicks;
+
                     int color = blockEntity.getColour();
                     int r = (color >> 16) & 0xFF;
                     int g = (color >> 8) & 0xFF;
                     int b = color & 0xFF;
-                    int a = (int) (((float) ((intensity * 1) / 255f)) * 255);
+                    int a = (int) ((intensity / 255f) * 255f);
+                    poseStack.pushPose();
                     poseStack.translate(0.5, 0.415f, 0.422f);
                     Matrix4f m = poseStack.last().pose();
                     Matrix3f normal = poseStack.last().normal();
@@ -127,14 +155,53 @@ public class Blinder2x2warmRenderer extends FixtureRenderer<Blinder2x2warmBlockE
                     addVertex(beamConsumer, m, normal, r, g, b, a, 0.3125f, -0.284375f,0f);
                     addVertex(beamConsumer, m, normal, r, g, b, a,-0.3125f, -0.284375f, 0f);
                     poseStack.popPose();
-                }
 
+                    //LENS
+                    VertexConsumer lensConsumer =
+                            multiBufferSource.getBuffer(LensRenderTypes.LENS);
+
+                    poseStack.pushPose();
+
+                    poseStack.translate(0.5f, 0.415f, 0.4f);
+
+                    Matrix4f m1 = poseStack.last().pose();
+
+                    float lensAlphaMul = 0.45f;
+                    float lensColorMul = 0.45f;
+
+                    int la = (int)(a * lensAlphaMul);
+                    int lr = (int)(r * lensColorMul);
+                    int lg = (int)(g * lensColorMul);
+                    int lb = (int)(b * lensColorMul);
+
+                    float size = 1.50f;
+
+                    addLensVertex(lensConsumer, m1, lr, lg, lb, la, -size,  size, 0f, 0f, 0f);
+                    addLensVertex(lensConsumer, m1, lr, lg, lb, la,  size,  size, 0f, 1f, 0f);
+                    addLensVertex(lensConsumer, m1, lr, lg, lb, la,  size, -size, 0f, 1f, 1f);
+                    addLensVertex(lensConsumer, m1, lr, lg, lb, la, -size, -size, 0f, 0f, 1f);
+
+                    poseStack.popPose();
+                    poseStack.popPose();
+                }
                 @Override
                 public Vec3 getPos(float partialTick) {
                     return blockEntity.getBlockPos().getCenter();
                 }
             });
         }
+    }
+    private static void addLensVertex(
+            VertexConsumer vc,
+            Matrix4f m,
+            int r, int g, int b, int a,
+            float x, float y, float z,
+            float u, float v
+    ) {
+        vc.vertex(m, x, y, z)
+                .color(r, g, b, a)
+                .uv(u, v)
+                .endVertex();
     }
 
     @Override
@@ -161,7 +228,7 @@ public class Blinder2x2warmRenderer extends FixtureRenderer<Blinder2x2warmBlockE
             } else {
                  //TODO: Handle hanging up
                 }
-            poseStack.translate(0, 1.32, 0F);
+            poseStack.translate(0, -0.66, 0F);
         }
         //#endregion
         if(facing.getAxis() == Direction.Axis.X){

@@ -102,69 +102,69 @@ public class bigscrollerRenderer extends FixtureRenderer<bigscrollerBlockEntity>
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel,  packedLight, packedOverlay);
         //#endregion
     }
-@Override
-public void beforeRenderBeam(bigscrollerBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer, MultiBufferSource multiBufferSource, Direction facing, float partialTicks, boolean isFlipped, BlockState blockstate, boolean isHanging, int packedLight, int packedOverlay) {
-    if (blockEntity.getIntensity() > 0) {
-        LazyRenderers.addLazyRender(new LazyRenderers.LazyRenderer() {
-            @Override
-            public void render(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, Camera camera, float partialTick) {
-                float intensity = blockEntity.getPrevIntensity() + (blockEntity.getIntensity() - blockEntity.getPrevIntensity()) * partialTick;
-                int color = blockEntity.getColour();
-                int r = (color >> 16) & 0xFF;
-                int g = (color >> 8) & 0xFF;
-                int b = color & 0xFF;
-                int a = (int) ((intensity / 255f) * 255);
+    @Override
+    public void beforeRenderBeam(bigscrollerBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer, MultiBufferSource multiBufferSource, Direction facing, float partialTicks, boolean isFlipped, BlockState blockstate, boolean isHanging, int packedLight, int packedOverlay) {
+        if (blockEntity.getIntensity() > 0) {
+            LazyRenderers.addLazyRender(new LazyRenderers.LazyRenderer() {
+                @Override
+                public void render(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, Camera camera, float partialTick) {
+                    float intensity = blockEntity.getPrevIntensity() + (blockEntity.getIntensity() - blockEntity.getPrevIntensity()) * partialTick;
+                    int color = blockEntity.getColour();
+                    int r = (color >> 16) & 0xFF;
+                    int g = (color >> 8) & 0xFF;
+                    int b = color & 0xFF;
+                    int a = (int) ((intensity / 255f) * 255);
 
-                Vec3 offset = Vec3.atLowerCornerOf(blockEntity.getBlockPos()).subtract(camera.getPosition());
-                VertexConsumer beamConsumer = bufferSource.getBuffer(TheatricalRenderTypes.BEAM);
+                    Vec3 offset = Vec3.atLowerCornerOf(blockEntity.getBlockPos()).subtract(camera.getPosition());
+                    VertexConsumer beamConsumer = bufferSource.getBuffer(TheatricalRenderTypes.BEAM);
 
-                float[][] beamPositions = {
-                    {0.625F, -0.625F, 0.812F},
-                    {0.625F, -0.1875F, 0.812F},
-                    {0.625F, 0.25F, 0.812F},
-                    {0.625F, 0.6875F, 0.812F},   // Beam 4
-                    {0.625F, 1.125F, 0.812F},   // Beam 5
-                    {0.625F, 1.5625F, 0.812F},   // Beam 6
-                    {0.0F, -0.625F, 0.812F},   // Beam 7
-                    {0.0F, -0.1875F, 0.812F},   // Beam 8
-                    {0.0F, 0.25F, 0.812F},   // Beam 9
-                    {0.0F, 0.6875F, 0.812F},   // Beam 10
-                    {0.0F, 1.125F, 0.812F},   // Beam 11
-                    {0.0F, 1.5625F, 0.812F},   // Beam 12
-                    {-0.618F, -0.625F, 0.812F},   // Beam 13
-                    {-0.618F, -0.1875F, 0.812F},   // Beam 14
-                    {-0.618F, 0.25F, 0.812F},   // Beam 15
-                    {-0.618F, 0.6875F, 0.812F},   // Beam 16
-                    {-0.618F, 1.125F, 0.812F},   // Beam 17
-                    {-0.618F, 1.5625F, 0.812F},   // Beam 18
-                };
+                    float[][] beamPositions = {
+                            {0.625F, -0.625F, 0.812F},
+                            {0.625F, -0.1875F, 0.812F},
+                            {0.625F, 0.25F, 0.812F},
+                            {0.625F, 0.6875F, 0.812F},   // Beam 4
+                            {0.625F, 1.125F, 0.812F},   // Beam 5
+                            {0.625F, 1.5625F, 0.812F},   // Beam 6
+                            {0.0F, -0.625F, 0.812F},   // Beam 7
+                            {0.0F, -0.1875F, 0.812F},   // Beam 8
+                            {0.0F, 0.25F, 0.812F},   // Beam 9
+                            {0.0F, 0.6875F, 0.812F},   // Beam 10
+                            {0.0F, 1.125F, 0.812F},   // Beam 11
+                            {0.0F, 1.5625F, 0.812F},   // Beam 12
+                            {-0.618F, -0.625F, 0.812F},   // Beam 13
+                            {-0.618F, -0.1875F, 0.812F},   // Beam 14
+                            {-0.618F, 0.25F, 0.812F},   // Beam 15
+                            {-0.618F, 0.6875F, 0.812F},   // Beam 16
+                            {-0.618F, 1.125F, 0.812F},   // Beam 17
+                            {-0.618F, 1.5625F, 0.812F},   // Beam 18
+                    };
 
-                for (float[] pos : beamPositions) {
-                    poseStack.pushPose();
-                    poseStack.translate(offset.x, offset.y, offset.z);
-                    preparePoseStack(blockEntity, poseStack, facing, partialTick, isFlipped, blockstate, isHanging);
-                    poseStack.translate(pos[0], pos[1], pos[2]);
+                    for (float[] pos : beamPositions) {
+                        poseStack.pushPose();
+                        poseStack.translate(offset.x, offset.y, offset.z);
+                        preparePoseStack(blockEntity, poseStack, facing, partialTick, isFlipped, blockstate, isHanging);
+                        poseStack.translate(pos[0], pos[1], pos[2]);
 
-                    Matrix4f matrix = poseStack.last().pose();
-                    Matrix3f normal = poseStack.last().normal();
+                        Matrix4f matrix = poseStack.last().pose();
+                        Matrix3f normal = poseStack.last().normal();
 
 
-                    addVertex(beamConsumer, matrix, normal, r, g, b, a, -0.1333f,  0.1333f, 0f);
-                    addVertex(beamConsumer, matrix, normal, r, g, b, a,  0.1333f,  0.1333f, 0f);
-                    addVertex(beamConsumer, matrix, normal, r, g, b, a,  0.1333f, -0.1333f, 0f);
-                    addVertex(beamConsumer, matrix, normal, r, g, b, a, -0.1333f, -0.1333f, 0f);
+                        addVertex(beamConsumer, matrix, normal, r, g, b, a, -0.1333f,  0.1333f, 0f);
+                        addVertex(beamConsumer, matrix, normal, r, g, b, a,  0.1333f,  0.1333f, 0f);
+                        addVertex(beamConsumer, matrix, normal, r, g, b, a,  0.1333f, -0.1333f, 0f);
+                        addVertex(beamConsumer, matrix, normal, r, g, b, a, -0.1333f, -0.1333f, 0f);
 
-                    poseStack.popPose();
+                        poseStack.popPose();
+                    }
                 }
-            }
 
-            @Override
-            public Vec3 getPos(float partialTick) {
-                return blockEntity.getBlockPos().getCenter();
-            }
-        });
+                @Override
+                public Vec3 getPos(float partialTick) {
+                    return blockEntity.getBlockPos().getCenter();
+                }
+            });
+        }
     }
-}
 
 
     @Override
@@ -189,8 +189,8 @@ public void beforeRenderBeam(bigscrollerBlockEntity blockEntity, PoseStack poseS
                     }
                 }
             } else {
-                 //TODO: Handle hanging up
-                }
+                //TODO: Handle hanging up
+            }
             poseStack.translate(0, -0.35, 0F);
         }
         //#endregion

@@ -16,11 +16,9 @@ import java.util.List;
 public class ParScrollerFixture extends Fixture {
 
     private static final List<DMXPersonality> PERSONALITIES = Collections.singletonList(
-            new DMXPersonality(4, "4-Channel Mode")
+            new DMXPersonality(2, "2-Channel Mode")
                     .addSlot(SharedSlots.INTENSITY)
-                    .addSlot(SharedSlots.RED)
-                    .addSlot(SharedSlots.GREEN)
-                    .addSlot(SharedSlots.BLUE)
+                    .addSlot(SharedSlots.INTENSITY)
 
     );
 
@@ -30,7 +28,7 @@ public class ParScrollerFixture extends Fixture {
 
     private final float[] tiltRotation = new float[]{0.5F, .56F, .5F};
     private final float[] panRotation = new float[]{0.5F, 0.01F, .5F};
-    private final float[] beamStartPosition = new float[]{0.5F, 0.56F, 0.051F};
+    private final float[] beamStartPosition = new float[]{0.5F, 0.56F, 0.5F};
 
     @Override
     public ResourceLocation getTiltModel() {
