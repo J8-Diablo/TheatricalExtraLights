@@ -1,15 +1,13 @@
 package com.github.dumann089.theatricalextralights.net;
 
+import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasJetHeight;
 import dev.architectury.networking.NetworkManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
-import java.lang.reflect.Method;
+import java.util.function.Supplier;
 
 public class SetJetHeightPacket {
-    public static final ResourceLocation ID = new ResourceLocation("theatricalextralights", "set_jet_height");
 
     private final BlockPos pos;
     private final float height;
@@ -20,9 +18,7 @@ public class SetJetHeightPacket {
     }
 
     public static SetJetHeightPacket decode(FriendlyByteBuf buf) {
-        BlockPos pos = buf.readBlockPos();
-        float height = buf.readFloat();
-        return new SetJetHeightPacket(pos, height);
+        return new SetJetHeightPacket(buf.readBlockPos(), buf.readFloat());
     }
 
     public void encode(FriendlyByteBuf buf) {
@@ -30,18 +26,11 @@ public class SetJetHeightPacket {
         buf.writeFloat(height);
     }
 
-    public void handle(java.util.function.Supplier<NetworkManager.PacketContext> contextSupplier) {
-        NetworkManager.PacketContext context = contextSupplier.get();
-        context.queue(() -> {
-            if (context.getPlayer() != null) {
-                BlockEntity be = context.getPlayer().level().getBlockEntity(pos);
-                if (be != null) {
-                    try {
-                        Method setJetHeight = be.getClass().getMethod("setJetHeight", float.class);
-                        setJetHeight.invoke(be, height);
-                    } catch (Exception ignored) {
-                    }
-                }
+    public void handle(Supplier<NetworkManager.PacketContext> contextSupplier) {
+        contextSupplier.get().queue(() -> {
+            var be = contextSupplier.get().getPlayer().level().getBlockEntity(pos);
+            if (be instanceof HasJetHeight jet) {
+                jet.setJetHeight(height);
             }
         });
     }

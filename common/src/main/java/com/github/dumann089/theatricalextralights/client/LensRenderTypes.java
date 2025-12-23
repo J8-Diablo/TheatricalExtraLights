@@ -29,30 +29,7 @@ public class LensRenderTypes {
                             false
                     ))
                     .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-                    .setCullState(RenderStateShard.NO_CULL)
-                    .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-                    .createCompositeState(false));
-
-    public static final RenderType GLOW = RenderType.create(
-            "Glow",
-            DefaultVertexFormat.POSITION_COLOR_TEX,
-            VertexFormat.Mode.QUADS,
-            256,
-            false,
-            true,
-            RenderType.CompositeState.builder()
-                    .setShaderState(new RenderStateShard.ShaderStateShard(
-                            GameRenderer::getPositionColorTexShader
-                    ))
-                    .setTextureState(new RenderStateShard.TextureStateShard(
-                            new ResourceLocation(
-                                    "theatricalextralights",
-                                    "textures/misc/glow.png"
-                            ),
-                            true,
-                            false
-                    ))
-                    .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
+                    .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
                     .setCullState(RenderStateShard.NO_CULL)
                     .setWriteMaskState(RenderStateShard.COLOR_WRITE)
                     .createCompositeState(false)

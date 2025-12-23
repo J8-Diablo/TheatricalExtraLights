@@ -1,13 +1,8 @@
 package com.github.dumann089.theatricalextralights;
 
 import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
-import com.github.dumann089.theatricalextralights.blockentities.WaterJet35mBlockEntity;
 import com.github.dumann089.theatricalextralights.client.blockentities.*;
-import com.github.dumann089.theatricalextralights.client.gui.WaterJetPanTiltScreen;
 import dev.architectury.registry.client.rendering.BlockEntityRendererRegistry;
-import dev.imabad.theatrical.TheatricalScreen;
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class TheatricalExtraLightsClient {
 
@@ -91,11 +86,14 @@ public class TheatricalExtraLightsClient {
         BlockEntityRendererRegistry.register(BlockEntities.MOVING_BAR.get(), MovingbarRenderer::new);
 
         BlockEntityRendererRegistry.register(BlockEntities.WATER_JET.get(), WaterJetRenderer::new);
-        BlockEntityRendererRegistry.register(BlockEntities.WATER_JET5M.get(), WaterJet5mRenderer::new);
-        BlockEntityRendererRegistry.register(BlockEntities.WATER_JET15M.get(), WaterJet15mRenderer::new);
-        BlockEntityRendererRegistry.register(BlockEntities.WATER_JET35M.get(), WaterJet35mRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.MOVING_JET.get(), MovingJetRenderer::new);
-
+        BlockEntityRendererRegistry.register(BlockEntities.WATER_JET_THIN.get(), WaterJetThinRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.SPINNER.get(), SpinnerRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.ORGANPIPES.get(), OrganPipesRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.ORGANPIPES_INV.get(), OrganPipesInvRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.WATER_JET_SPREAD.get(), WaterJetSpreadRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.WATER_JET_BIG.get(), WaterJetBigRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.WATER_JET_CENTRAL.get(), WaterJetCentralRenderer::new);
 
         BlockEntityRendererRegistry.register(BlockEntities.WHITE_STROBE.get(), WhiteStrobeRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.LASER_MIRROR.get(), LaserMirrorRenderer::new);

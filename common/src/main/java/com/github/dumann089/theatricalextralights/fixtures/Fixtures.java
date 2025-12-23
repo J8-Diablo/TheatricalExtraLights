@@ -129,6 +129,10 @@ public class Fixtures {
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "par_led"), ParLedFixture::new);
     public static final RegistrySupplier<Fixture> MOVING_JET =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "moving_jet"), MovingJetFixture::new);
+    public static final RegistrySupplier<Fixture> WATER_JET_THIN =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "water_jet_thin"), WaterJetThinFixture::new);
+    public static final RegistrySupplier<Fixture> WATER_JET_SPREAD =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "water_jet_spread"), WaterJetSpreadFixture::new);
 
     public static final RegistrySupplier<Fixture> x8PAR_RED =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "x8par_red"), x8par_redFixture::new);
@@ -211,12 +215,16 @@ public class Fixtures {
 
     public static final RegistrySupplier<Fixture> WATER_JET =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "water_jet"), WaterJetFixture::new);
-    public static final RegistrySupplier<Fixture> WATER_JET5M =
-            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "water_jet5m"), WaterJet5mFixture::new);
-    public static final RegistrySupplier<Fixture> WATER_JET15M =
-            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "water_jet15m"), WaterJet15mFixture::new);
-    public static final RegistrySupplier<Fixture> WATER_JET35M =
-            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "water_jet35m"), WaterJet35mFixture::new);
+    public static final RegistrySupplier<Fixture> SPINNER =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "spinner"), SpinnerFixture::new);
+    public static final RegistrySupplier<Fixture> ORGANPIPES =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "organpipes"), OrganPipesFixture::new);
+    public static final RegistrySupplier<Fixture> ORGANPIPES_INV =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "organpipes_inv"), OrganPipesInvFixture::new);
+    public static final RegistrySupplier<Fixture> WATER_JET_BIG =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "water_jet_inv"), WaterJetBigFixture::new);
+    public static final RegistrySupplier<Fixture> WATER_JET_CENTRAL =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "water_jet_central"), WaterJetCentralFixture::new);
 
     public static final RegistrySupplier<Fixture> WHITE_STROBE =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "white_strobe"), WhiteStrobeFixture::new);

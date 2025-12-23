@@ -340,9 +340,33 @@ public class Items {
             "moving_jet",
             () -> new BlockItem(Blocks.MOVING_JET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
-    public static final RegistrySupplier<Item> WATER_JET35M = ITEMS.register(
-            "water_jet35m",
-            () -> new BlockItem(Blocks.WATER_JET35M_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    public static final RegistrySupplier<Item> WATER_JET_THIN = ITEMS.register(
+            "water_jet_thin",
+            () -> new BlockItem(Blocks.WATER_JET_THIN_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> WATER_JET_SPREAD = ITEMS.register(
+            "water_jet_spread",
+            () -> new BlockItem(Blocks.WATER_JET_SPREAD_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> WATER_JET_BIG = ITEMS.register(
+            "water_jet_big",
+            () -> new BlockItem(Blocks.WATER_JET_BIG_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> WATER_JET_CENTRAL = ITEMS.register(
+            "water_jet_central",
+            () -> new BlockItem(Blocks.WATER_JET_CENTRAL_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> SPINNER = ITEMS.register(
+            "spinner",
+            () -> new BlockItem(Blocks.SPINNER_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> ORGANPIPES = ITEMS.register(
+            "organpipes",
+            () -> new BlockItem(Blocks.ORGANPIPES_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> ORGANPIPES_INV = ITEMS.register(
+            "organpipes_inv",
+            () -> new BlockItem(Blocks.ORGANPIPES_INV_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
 
     public static void init(){

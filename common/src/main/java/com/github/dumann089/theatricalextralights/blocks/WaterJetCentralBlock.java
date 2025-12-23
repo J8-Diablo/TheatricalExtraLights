@@ -1,18 +1,20 @@
 package com.github.dumann089.theatricalextralights.blocks;
 
+import com.github.dumann089.theatricalextralights.TheatricalExtraLightsScreens;
 import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
-import com.github.dumann089.theatricalextralights.blockentities.WaterJet5mBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.WaterJetCentralBlockEntity;
+import com.github.dumann089.theatricalextralights.net.OpenExtraLightsScreenPacket;
 import dev.imabad.theatrical.TheatricalClient;
-import dev.imabad.theatrical.TheatricalScreen;
 import dev.imabad.theatrical.blocks.Blocks;
 import dev.imabad.theatrical.blocks.light.BaseLightBlock;
-import dev.imabad.theatrical.net.OpenScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -34,9 +36,9 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class WaterJet5mBlock extends BaseLightBlock {
+public class WaterJetCentralBlock extends BaseLightBlock {
 
-    public WaterJet5mBlock() {
+    public WaterJetCentralBlock() {
         super(Properties.of()
                 .requiresCorrectToolForDrops()
                 .strength(3, 3)
@@ -49,7 +51,29 @@ public class WaterJet5mBlock extends BaseLightBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return new WaterJet5mBlockEntity(blockPos, blockState);
+        return new WaterJetCentralBlockEntity(blockPos, blockState);
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(BlockGetter level, BlockPos pos, BlockState state) {
+        ItemStack stack = super.getCloneItemStack(level, pos, state);
+
+        if (level.getBlockEntity(pos) instanceof WaterJetCentralBlockEntity be) {
+            stack.getOrCreateTag().putFloat("JetHeight", be.getJetHeight());
+        }
+
+        return stack;
+    }
+
+    @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+
+        if (stack.hasTag() && level.getBlockEntity(pos) instanceof WaterJetCentralBlockEntity be) {
+            if (stack.getTag().contains("JetHeight")) {
+                be.setJetHeight(stack.getTag().getFloat("JetHeight"));
+            }
+        }
     }
 
     @Override
@@ -97,7 +121,7 @@ public class WaterJet5mBlock extends BaseLightBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        return blockEntityType == BlockEntities.WATER_JET5M.get() ? WaterJet5mBlockEntity::tick : null;
+        return blockEntityType == BlockEntities.WATER_JET_CENTRAL.get() ? WaterJetCentralBlockEntity::tick : null;
     }
 
     @Override
@@ -120,13 +144,13 @@ public class WaterJet5mBlock extends BaseLightBlock {
                     }
                     return InteractionResult.SUCCESS;
                 }
-                new OpenScreen(pos, TheatricalScreen.GENERIC_PAN_TILT).sendTo((ServerPlayer) player);
+                new OpenExtraLightsScreenPacket(pos, TheatricalExtraLightsScreens.WATER_MANUAL).sendTo((ServerPlayer) player);
             }
         }
         return InteractionResult.SUCCESS;
     }
 
-    @Override
+        @Override
     public void destroy(LevelAccessor level, BlockPos pos, BlockState state) {
         if(level.isClientSide()) {
             TheatricalClient.DEBUG_BLOCKS.remove(pos);

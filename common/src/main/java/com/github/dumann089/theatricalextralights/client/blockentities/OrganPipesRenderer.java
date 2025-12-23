@@ -1,7 +1,8 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
-import com.github.dumann089.theatricalextralights.blockentities.WaterJet15mBlockEntity;
-import com.github.dumann089.theatricalextralights.particle.ModParticle;
+import com.github.dumann089.theatricalextralights.blockentities.OrganPipesBlockEntity;
+import com.github.dumann089.theatricalextralights.client.particle.JetVariant;
+import com.github.dumann089.theatricalextralights.client.particle.WaterJetParticleOptions;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -20,14 +21,23 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
 
-public class WaterJet15mRenderer extends FixtureRenderer<WaterJet15mBlockEntity> {
+public class OrganPipesRenderer extends FixtureRenderer<OrganPipesBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
-    public WaterJet15mRenderer(BlockEntityRendererProvider.Context context) {
+
+    private static final double[] PARTICLE_X_OFFSETS = {
+            -0.9375, -0.625, -0.25, 0.125, 0.5, 0.875, 1.25, 1.625, 1.9375
+    };
+
+    private static final double[] HEIGHT_MULTIPLIERS = {
+            0.6, 0.7, 0.8, 0.9, 1.0, 0.9, 0.8, 0.7, 0.6
+    };
+
+    public OrganPipesRenderer(BlockEntityRendererProvider.Context context) {
         super(context);
     }
 
     @Override
-    public void renderModel(WaterJet15mBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging, int packedLight, int packedOverlay) {
+    public void renderModel(OrganPipesBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging, int packedLight, int packedOverlay) {
         if(cachedStaticModel == null){
             cachedStaticModel = TheatricalExpectPlatform.getBakedModel(blockEntity.getFixture().getStaticModel());
         }
@@ -93,14 +103,14 @@ public class WaterJet15mRenderer extends FixtureRenderer<WaterJet15mBlockEntity>
         poseStack.translate(tilts[0], tilts[1], tilts[2]);
         int prevTilt = blockEntity.getPrevTilt();
         int tilt = blockEntity.getTilt();
-//        poseStack.mulPose(Axis.XP.rotationDegrees(180));
         poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel,  packedLight, packedOverlay);
         //#endregion
     }
+
     @Override
-    public void beforeRenderBeam(WaterJet15mBlockEntity blockEntity, PoseStack poseStack,
+    public void beforeRenderBeam(OrganPipesBlockEntity blockEntity, PoseStack poseStack,
                                  VertexConsumer vertexConsumer, MultiBufferSource multiBufferSource,
                                  Direction facing, float partialTicks, boolean isFlipped,
                                  BlockState blockstate, boolean isHanging, int packedLight, int packedOverlay) {
@@ -117,10 +127,6 @@ public class WaterJet15mRenderer extends FixtureRenderer<WaterJet15mBlockEntity>
                     poseStack.translate(offset.x, offset.y, offset.z);
 
                     preparePoseStack(blockEntity, poseStack, facing, partialTicks, isFlipped, blockstate, isHanging);
-
-                    double x = blockEntity.getBlockPos().getX() + 0.5;
-                    double y = blockEntity.getBlockPos().getY() + 1.81f;
-                    double z = blockEntity.getBlockPos().getZ() + 0.5;
 
                     float pan = blockEntity.getPrevPan() + (blockEntity.getPan() - blockEntity.getPrevPan()) * partialTicks;
                     float tilt = blockEntity.getPrevTilt() + (blockEntity.getTilt() - blockEntity.getPrevTilt()) * partialTicks;
@@ -139,18 +145,78 @@ public class WaterJet15mRenderer extends FixtureRenderer<WaterJet15mBlockEntity>
                         case SOUTH, UP, DOWN -> {}
                     }
 
-                    double maxHeight = 28.0;
-                    double targetHeight = (blockEntity.getIntensity() / 255.0) * maxHeight;
+                    double maxHeight = blockEntity.getJetHeight();
+                    double baseTargetHeight = (blockEntity.getIntensity() / 255.0) * maxHeight;
 
-                    blockEntity.smoothedHeight += (targetHeight - blockEntity.smoothedHeight) * 0.1;
+                    blockEntity.smoothedHeight += (baseTargetHeight - blockEntity.smoothedHeight) * 0.1;
 
-                    double speed = blockEntity.smoothedHeight * 0.05;
+                    double baseSpeed = blockEntity.smoothedHeight * 0.09;
 
-                    if (blockEntity.getLevel() !=null)
-                        blockEntity.getLevel().addAlwaysVisibleParticle(ModParticle.WATERJETPARTICLE.get(),
-                            true,
-                            x, y, z,
-                            dirX * speed, dirY * speed, dirZ * speed);
+                    if (blockEntity.getLevel() != null) {
+                        float intensity = blockEntity.getIntensity() / 255.0f;
+                        float thickness = blockEntity.getJetThickness();
+
+                        for (int i = 0; i < PARTICLE_X_OFFSETS.length; i++) {
+                            double xOffset = PARTICLE_X_OFFSETS[i];
+                            double heightMultiplier = HEIGHT_MULTIPLIERS[i];
+
+                            double baseX = blockEntity.getBlockPos().getX() + xOffset;
+                            double baseY = blockEntity.getBlockPos().getY() + 2.0;
+                            double baseZ = blockEntity.getBlockPos().getZ() + 0.51;
+
+                            double blockCenterX = blockEntity.getBlockPos().getX() + 0.5;
+                            double blockCenterZ = blockEntity.getBlockPos().getZ() + 0.5;
+
+                            double relativeX = baseX - blockCenterX;
+                            double relativeZ = baseZ - blockCenterZ;
+
+                            double cosYaw = Math.cos(yaw);
+                            double sinYaw = Math.sin(yaw);
+
+                            double rotatedX = relativeX * cosYaw - relativeZ * sinYaw;
+                            double rotatedZ = relativeX * sinYaw + relativeZ * cosYaw;
+
+                            double finalRelX = rotatedX;
+                            double finalRelZ = rotatedZ;
+
+                            switch(facing) {
+                                case NORTH -> {
+                                    finalRelX = -rotatedX;
+                                    finalRelZ = -rotatedZ;
+                                }
+                                case EAST -> {
+                                    double tmp = rotatedX;
+                                    finalRelX = rotatedZ;
+                                    finalRelZ = -tmp;
+                                }
+                                case WEST -> {
+                                    double tmp = rotatedX;
+                                    finalRelX = -rotatedZ;
+                                    finalRelZ = tmp;
+                                }
+                                case SOUTH, UP, DOWN -> {}
+                            }
+
+                            double particleX = blockCenterX + finalRelX;
+                            double particleY = baseY;
+                            double particleZ = blockCenterZ + finalRelZ;
+
+                            double particleSpeed = baseSpeed * heightMultiplier;
+
+                            WaterJetParticleOptions options = new WaterJetParticleOptions(
+                                    intensity * (float) heightMultiplier,
+                                    thickness,
+                                    JetVariant.JET3
+                            );
+
+                            blockEntity.getLevel().addAlwaysVisibleParticle(
+                                    options,
+                                    true,
+                                    particleX, particleY, particleZ,
+                                    dirX * particleSpeed, dirY * particleSpeed, dirZ * particleSpeed
+                            );
+                        }
+                    }
                     poseStack.popPose();
                 }
 
@@ -164,7 +230,7 @@ public class WaterJet15mRenderer extends FixtureRenderer<WaterJet15mBlockEntity>
 
 
     @Override
-    public void preparePoseStack(WaterJet15mBlockEntity blockEntity, PoseStack poseStack, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging) {
+    public void preparePoseStack(OrganPipesBlockEntity blockEntity, PoseStack poseStack, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging) {
         //#region Fixture Hanging
         poseStack.translate(0.5F, 0, .5F);
         if(isHanging){
@@ -218,7 +284,6 @@ public class WaterJet15mRenderer extends FixtureRenderer<WaterJet15mBlockEntity>
         poseStack.translate(tilts[0], tilts[1], tilts[2]);
         int prevTilt = blockEntity.getPrevTilt();
         int tilt = blockEntity.getTilt();
-//        poseStack.mulPose(Axis.XP.rotationDegrees(180));
         poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
         //#endregion

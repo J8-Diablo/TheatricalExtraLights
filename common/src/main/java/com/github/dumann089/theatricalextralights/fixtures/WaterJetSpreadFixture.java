@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.Collections;
 import java.util.List;
 
-public class WaterJet5mFixture extends Fixture {
+public class WaterJetSpreadFixture extends Fixture {
 
     private static final List<DMXPersonality> PERSONALITIES = Collections.singletonList(
             new DMXPersonality(1, "1-Channel Mode")

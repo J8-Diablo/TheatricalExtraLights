@@ -2,6 +2,8 @@ package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.MovingJetBlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.MovingJetBlockEntity;
+import com.github.dumann089.theatricalextralights.client.particle.JetVariant;
+import com.github.dumann089.theatricalextralights.client.particle.WaterJetParticleOptions;
 import com.github.dumann089.theatricalextralights.particle.ModParticle;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -145,13 +147,23 @@ public class MovingJetRenderer extends FixtureRenderer<MovingJetBlockEntity> {
 
                     blockEntity.smoothedHeight += (targetHeight - blockEntity.smoothedHeight) * 0.1;
 
-                    double speed = blockEntity.smoothedHeight * 0.07;
+                    double speed = blockEntity.smoothedHeight * 0.09;
 
-                    if (blockEntity.getLevel() !=null)
-                        blockEntity.getLevel().addAlwaysVisibleParticle(ModParticle.WATERMOVINGJETPARTICLE.get(),
-                            true,
-                            x, y, z,
-                            dirX * speed, dirY * speed, dirZ * speed);
+                    if (blockEntity.getLevel() != null) {
+                        float intensity = blockEntity.getIntensity() / 255.0f;
+                        float thickness = blockEntity.getJetThickness();
+                        WaterJetParticleOptions options = new WaterJetParticleOptions(
+                                intensity,
+                                thickness,
+                                JetVariant.JET3
+                        );
+                        blockEntity.getLevel().addAlwaysVisibleParticle(
+                                options,
+                                true,
+                                x, y, z,
+                                dirX * speed, dirY * speed, dirZ * speed
+                        );
+                    }
                     poseStack.popPose();
                 }
 

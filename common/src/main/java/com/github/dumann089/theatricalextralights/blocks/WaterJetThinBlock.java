@@ -1,8 +1,10 @@
 package com.github.dumann089.theatricalextralights.blocks;
 
+import com.github.dumann089.theatricalextralights.TheatricalExtraLightsScreens;
 import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
-import com.github.dumann089.theatricalextralights.blockentities.WaterJet35mBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.WaterJetThinBlockEntity;
 import com.github.dumann089.theatricalextralights.client.gui.WaterJetPanTiltScreen;
+import com.github.dumann089.theatricalextralights.net.OpenExtraLightsScreenPacket;
 import dev.imabad.theatrical.TheatricalClient;
 import dev.imabad.theatrical.TheatricalScreen;
 import dev.imabad.theatrical.blocks.Blocks;
@@ -38,9 +40,9 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class WaterJet35mBlock extends BaseLightBlock {
+public class WaterJetThinBlock extends BaseLightBlock {
 
-    public WaterJet35mBlock() {
+    public WaterJetThinBlock() {
         super(Properties.of()
                 .requiresCorrectToolForDrops()
                 .strength(3, 3)
@@ -53,14 +55,14 @@ public class WaterJet35mBlock extends BaseLightBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return new WaterJet35mBlockEntity(blockPos, blockState);
+        return new WaterJetThinBlockEntity(blockPos, blockState);
     }
 
     @Override
     public ItemStack getCloneItemStack(BlockGetter level, BlockPos pos, BlockState state) {
         ItemStack stack = super.getCloneItemStack(level, pos, state);
 
-        if (level.getBlockEntity(pos) instanceof WaterJet35mBlockEntity be) {
+        if (level.getBlockEntity(pos) instanceof WaterJetThinBlockEntity be) {
             stack.getOrCreateTag().putFloat("JetHeight", be.getJetHeight());
         }
 
@@ -71,7 +73,7 @@ public class WaterJet35mBlock extends BaseLightBlock {
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
 
-        if (stack.hasTag() && level.getBlockEntity(pos) instanceof WaterJet35mBlockEntity be) {
+        if (stack.hasTag() && level.getBlockEntity(pos) instanceof WaterJetThinBlockEntity be) {
             if (stack.getTag().contains("JetHeight")) {
                 be.setJetHeight(stack.getTag().getFloat("JetHeight"));
             }
@@ -123,7 +125,7 @@ public class WaterJet35mBlock extends BaseLightBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        return blockEntityType == BlockEntities.WATER_JET35M.get() ? WaterJet35mBlockEntity::tick : null;
+        return blockEntityType == BlockEntities.WATER_JET_THIN.get() ? WaterJetThinBlockEntity::tick : null;
     }
 
     @Override
@@ -135,32 +137,24 @@ public class WaterJet35mBlock extends BaseLightBlock {
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos,
-                                 Player player, InteractionHand hand, BlockHitResult hit) {
-
-        ItemStack heldItem = player.getItemInHand(hand);
-
-        if (heldItem.getItem() == dev.imabad.theatrical.items.Items.CONFIGURATION_CARD.get()) {
-            return super.use(state, level, pos, player, hand, hit);
-        }
-
-        if (!level.isClientSide && player.isCrouching()) {
-            if (TheatricalClient.DEBUG_BLOCKS.contains(pos)) {
-                TheatricalClient.DEBUG_BLOCKS.remove(pos);
-            } else {
-                TheatricalClient.DEBUG_BLOCKS.add(pos);
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if(super.use(state, level, pos, player, hand, hit) == InteractionResult.PASS) {
+            if (!level.isClientSide) {
+                if (player.isCrouching()) {
+                    if (TheatricalClient.DEBUG_BLOCKS.contains(pos)) {
+                        TheatricalClient.DEBUG_BLOCKS.remove(pos);
+                    } else {
+                        TheatricalClient.DEBUG_BLOCKS.add(pos);
+                    }
+                    return InteractionResult.SUCCESS;
+                }
+                new OpenExtraLightsScreenPacket(pos, TheatricalExtraLightsScreens.WATER_MANUAL).sendTo((ServerPlayer) player);
             }
-            return InteractionResult.SUCCESS;
         }
-
-        if (level.isClientSide && level.getBlockEntity(pos) instanceof WaterJet35mBlockEntity be) {
-            Minecraft.getInstance().setScreen(new WaterJetPanTiltScreen(be, be.getTranslationKey()));
-        }
-
         return InteractionResult.SUCCESS;
     }
 
-    @Override
+        @Override
     public void destroy(LevelAccessor level, BlockPos pos, BlockState state) {
         if(level.isClientSide()) {
             TheatricalClient.DEBUG_BLOCKS.remove(pos);

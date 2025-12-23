@@ -1,17 +1,15 @@
 package com.github.dumann089.theatricalextralights.blocks;
 
+import com.github.dumann089.theatricalextralights.TheatricalExtraLightsScreens;
 import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
 import com.github.dumann089.theatricalextralights.blockentities.MovingJetBlockEntity;
-import com.github.dumann089.theatricalextralights.blockentities.WaterJet35mBlockEntity;
-import com.github.dumann089.theatricalextralights.client.gui.WaterJetGenericScreen;
-import com.github.dumann089.theatricalextralights.client.gui.WaterJetPanTiltScreen;
+import com.github.dumann089.theatricalextralights.net.OpenExtraLightsScreenPacket;
 import dev.imabad.theatrical.TheatricalClient;
 import dev.imabad.theatrical.blocks.Blocks;
 import dev.imabad.theatrical.blocks.light.BaseLightBlock;
-import dev.imabad.theatrical.items.Items;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -136,19 +134,18 @@ public class MovingJetBlock extends BaseLightBlock {
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos,
-                                 Player player, InteractionHand hand,
-                                 BlockHitResult hit) {
-
-        // Primero dejar que BaseLightBlock maneje la Configuration Card
-        if (super.use(state, level, pos, player, hand, hit) == InteractionResult.PASS) {
-            // Solo abrir tu GUI si super.use() retornó PASS (no había Configuration Card)
-            if (level.isClientSide) {
-                if (level.getBlockEntity(pos) instanceof MovingJetBlockEntity be) {
-                    Minecraft.getInstance().setScreen(
-                            new WaterJetGenericScreen(be, be.getTranslationKey())
-                    );
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if(super.use(state, level, pos, player, hand, hit) == InteractionResult.PASS) {
+            if (!level.isClientSide) {
+                if (player.isCrouching()) {
+                    if (TheatricalClient.DEBUG_BLOCKS.contains(pos)) {
+                        TheatricalClient.DEBUG_BLOCKS.remove(pos);
+                    } else {
+                        TheatricalClient.DEBUG_BLOCKS.add(pos);
+                    }
+                    return InteractionResult.SUCCESS;
                 }
+                new OpenExtraLightsScreenPacket(pos, TheatricalExtraLightsScreens.WATER_GENERIC).sendTo((ServerPlayer) player);
             }
         }
         return InteractionResult.SUCCESS;

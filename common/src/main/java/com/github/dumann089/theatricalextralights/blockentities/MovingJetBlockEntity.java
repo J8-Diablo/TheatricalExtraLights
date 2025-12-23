@@ -1,7 +1,11 @@
 package com.github.dumann089.theatricalextralights.blockentities;
 
+import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasJetHeight;
+import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasJetSpread;
+import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasJetThickness;
+import com.github.dumann089.theatricalextralights.client.particle.JetVariant;
+import com.github.dumann089.theatricalextralights.client.particle.WaterJetParticleOptions;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
-import com.github.dumann089.theatricalextralights.particle.ModParticle;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
 import net.minecraft.client.Minecraft;
@@ -14,23 +18,124 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
 
-public class MovingJetBlockEntity extends BaseDMXConsumerLightBlockEntity  {
+public class MovingJetBlockEntity extends BaseDMXConsumerLightBlockEntity
+        implements HasJetHeight, HasJetThickness {
 
     public double smoothedHeight = 0.0;
-    private float jetHeight = 10.0f;
+
+    private float jetHeight = 20.0f;
+    private float jetThickness = 0.2f;
+
     private int tickCounter = 0;
 
-    // Constantes configurables
-    private static final float MIN_JET_HEIGHT = 0.1f; // ming height
-    private static final float MAX_JET_HEIGHT = 95.0f; // max height
-    private static final float DEFAULT_JET_HEIGHT = 20.0f; //default value
-
+    public static final float MIN_THICKNESS = 0.05f;
+    public static final float MAX_THICKNESS = 9.5f;
+    public static final float MIN_JET_HEIGHT = 0.1f;
+    public static final float MAX_JET_HEIGHT = 99.0f;
 
     public MovingJetBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntities.MOVING_JET.get(), pos, state);
-        setChannelCount(3);
-        this.jetHeight = DEFAULT_JET_HEIGHT;
+        setChannelCount(3); // Intensity + Pan + Tilt
     }
+
+    // -------------------
+    // GETTERS / SETTERS
+    // -------------------
+
+    @Override
+    public float getJetThickness() {
+        return jetThickness;
+    }
+
+    @Override
+    public void setJetThickness(float thickness) {
+        this.jetThickness = Mth.clamp(thickness, MIN_THICKNESS, MAX_THICKNESS);
+        setChanged();
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+        }
+    }
+
+    @Override
+    public float getJetHeight() {
+        return jetHeight;
+    }
+
+    @Override
+    public void setJetHeight(float h) {
+        this.jetHeight = Mth.clamp(h, MIN_JET_HEIGHT, MAX_JET_HEIGHT);
+        setChanged();
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+        }
+    }
+
+    // -------------------
+    // DMX
+    // -------------------
+
+    @Override
+    public void consume(byte[] dmxValues) {
+        int start = getChannelStart() > 0 ? getChannelStart() - 1 : 0;
+        byte[] ourValues = Arrays.copyOfRange(dmxValues, start, start + getChannelCount());
+        if (ourValues.length < 3) return;
+
+        intensity = convertByteToInt(ourValues[0]);
+        pan  = (int) ((convertByteToInt(ourValues[1]) * 360f) / 255f) - 180;
+        tilt = (int) ((convertByteToInt(ourValues[2]) / 255f) * 180f - 90f);
+
+        if (storePrev()) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+        }
+        setChanged();
+    }
+
+    public int convertByteToInt(byte val) {
+        return Byte.toUnsignedInt(val);
+    }
+
+    // -------------------
+    // PARTICLE TICK
+    // -------------------
+
+    public void tick() {
+        if (!level.isClientSide || Minecraft.getInstance().isPaused()) return;
+
+        tickCounter++;
+
+        double x = worldPosition.getX() + 0.5;
+        double y = worldPosition.getY();
+        double z = worldPosition.getZ() + 0.5;
+
+        double targetHeight = (intensity / 255.0) * jetHeight;
+        smoothedHeight += (targetHeight - smoothedHeight) * 0.1;
+
+        if (tickCounter % 8 == 0) {
+            float intensityNorm = intensity / 255.0f;
+
+            float spread = 0.015f;
+            if (this instanceof HasJetSpread js) {
+                spread = js.getJetSpreadX(); // o getJetSpread()
+            }
+
+            level.addAlwaysVisibleParticle(
+                    new WaterJetParticleOptions(
+                            intensityNorm,
+                            jetThickness,
+                            JetVariant.JET3
+                    ),
+                    true,
+                    x,
+                    y + smoothedHeight,
+                    z,
+                    0, 0, 0
+            );
+        }
+    }
+
+    // -------------------
+    // FIXTURE OVERRIDES
+    // -------------------
 
     @Override
     public Fixture getFixture() {
@@ -40,23 +145,6 @@ public class MovingJetBlockEntity extends BaseDMXConsumerLightBlockEntity  {
     @Override
     public int getFocus() {
         return 255;
-    }
-
-    @Override
-    public void consume(byte[] dmxValues) {
-        int start = this.getChannelStart() > 0 ? this.getChannelStart() - 1 : 0;
-        byte[] ourValues = Arrays.copyOfRange(dmxValues, start, start + this.getChannelCount());
-        if (ourValues.length < 3) {
-            return;
-        }
-        if (this.storePrev()) {
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        }
-        intensity = convertByteToInt(ourValues[0]);
-        pan = (int) ((convertByteToInt(ourValues[1]) * 360) / 255f) - 180;
-        tilt = (int) ((convertByteToInt(ourValues[2]) / 255F) * 180F - 90F);
-        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        setChanged();
     }
 
     @Override
@@ -79,73 +167,34 @@ public class MovingJetBlockEntity extends BaseDMXConsumerLightBlockEntity  {
         return 0;
     }
 
-    public float getJetHeight() {
-        return jetHeight;
-    }
-
-    public void setJetHeight(float h) {
-        jetHeight = Mth.clamp(h, MIN_JET_HEIGHT, MAX_JET_HEIGHT);
-        setChanged();
-        if (level != null && !level.isClientSide) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-        }
-    }
+    // -------------------
+    // NBT
+    // -------------------
 
     @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.putFloat("JetHeight", jetHeight);
+        tag.putFloat("JetThickness", jetThickness);
     }
 
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
-        if (tag.contains("JetHeight")) {
-            jetHeight = tag.getFloat("JetHeight");
-        }
+        if (tag.contains("JetHeight")) jetHeight = tag.getFloat("JetHeight");
+        if (tag.contains("JetThickness")) jetThickness = tag.getFloat("JetThickness");
     }
 
     @Override
     public CompoundTag getUpdateTag() {
         CompoundTag tag = super.getUpdateTag();
         tag.putFloat("JetHeight", jetHeight);
+        tag.putFloat("JetThickness", jetThickness);
         return tag;
-    }
-
-    public int convertByteToInt(byte val) {
-        return Byte.toUnsignedInt(val);
-    }
-
-    public void tick() {
-        if (!level.isClientSide || Minecraft.getInstance().isPaused()) return;
-
-        double x = worldPosition.getX() + 0.5;
-        double y = worldPosition.getY();
-        double z = worldPosition.getZ() + 0.5;
-
-        double maxHeight = jetHeight; // AHORA USA EL VALOR CONFIGURADO
-        double targetHeight = (intensity / 255.0) * maxHeight;
-
-        double normalizedIntensity = intensity / 255.0;
-
-        smoothedHeight += (targetHeight - smoothedHeight) * 0.1;
-
-        if (tickCounter % 8 == 0) {
-            level.addAlwaysVisibleParticle(
-                    ModParticle.WATERMOVINGJETPARTICLE.get(),
-                    true,
-                    x, y + smoothedHeight, z,
-                    0,
-                    intensity / 255.0,
-                    0
-            );
-        }
-
-        tickCounter++;
     }
 
     @Override
     public String getTranslationKey() {
-        return "block.theatricalextralights.water_jet35m";
+        return "block.theatricalextralights.moving_jet";
     }
 }

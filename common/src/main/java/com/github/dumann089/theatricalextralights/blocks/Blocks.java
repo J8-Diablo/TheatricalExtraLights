@@ -89,10 +89,15 @@ public class Blocks {
     public static final RegistrySupplier<Block> MOVING_BAR_BLOCK = BLOCKS.register("moving_bar", MovingbarBlock::new);
 
     public static final RegistrySupplier<Block> WATER_JET_BLOCK = BLOCKS.register("water_jet", WaterJetBlock::new);
-    public static final RegistrySupplier<Block> WATER_JET5M_BLOCK = BLOCKS.register("water_jet5m", WaterJet5mBlock::new);
-    public static final RegistrySupplier<Block> WATER_JET15M_BLOCK = BLOCKS.register("water_jet15m", WaterJet15mBlock::new);
-    public static final RegistrySupplier<Block> WATER_JET35M_BLOCK = BLOCKS.register("water_jet35m", WaterJet35mBlock::new);
     public static final RegistrySupplier<Block> MOVING_JET_BLOCK = BLOCKS.register("moving_jet", MovingJetBlock::new);
+    public static final RegistrySupplier<Block> WATER_JET_THIN_BLOCK = BLOCKS.register("water_jet_thin", WaterJetThinBlock::new);
+    public static final RegistrySupplier<Block> SPINNER_BLOCK = BLOCKS.register("spinner", SpinnerBlock::new);
+    public static final RegistrySupplier<Block> ORGANPIPES_BLOCK = BLOCKS.register("organpipes", OrganPipesBlock::new);
+    public static final RegistrySupplier<Block> ORGANPIPES_INV_BLOCK = BLOCKS.register("organpipes_inv", OrganPipesInvBlock::new);
+    public static final RegistrySupplier<Block> WATER_JET_SPREAD_BLOCK = BLOCKS.register("water_jet_spread", WaterJetSpreadBlock::new);
+    public static final RegistrySupplier<Block> WATER_JET_BIG_BLOCK = BLOCKS.register("water_jet_big", WaterJetBigBlock::new);
+    public static final RegistrySupplier<Block> WATER_JET_CENTRAL_BLOCK = BLOCKS.register("water_jet_central", WaterJetCentralBlock::new);
+
 
     public static final RegistrySupplier<Block> WHITE_STROBE_BLOCK = BLOCKS.register("white_strobe", WhiteStrobeBlock::new);
     public static final RegistrySupplier<Block> LASER_MIRROR_BLOCK = BLOCKS.register("laser_mirror", LaserMirrorBlock::new);
