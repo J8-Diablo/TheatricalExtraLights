@@ -7,16 +7,18 @@ import com.github.dumann089.theatricalextralights.net.SetJetHeightPacket;
 import com.github.dumann089.theatricalextralights.net.SetJetThicknessPacket;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
 import dev.imabad.theatrical.client.gui.screen.GenericDMXConfigurationScreen;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-
-import java.lang.reflect.Method;
 
 public class WaterJetGenericScreen extends GenericDMXConfigurationScreen {
 
     private final BaseDMXConsumerLightBlockEntity blockEntity;
+    private final BlockPos pos;
+
     private EditBox heightField;
     private ThicknessSlider thicknessSlider;
 
@@ -25,24 +27,30 @@ public class WaterJetGenericScreen extends GenericDMXConfigurationScreen {
     private int thicknessSliderX;
     private int thicknessSliderY;
 
-    public WaterJetGenericScreen(BaseDMXConsumerLightBlockEntity be, String title) {
-        super(be, be.getBlockPos(), title);
+    public WaterJetGenericScreen(BaseDMXConsumerLightBlockEntity be, BlockPos pos, String title) {
+        super(be, pos, title);
         this.blockEntity = be;
+        this.pos = pos;
     }
 
     @Override
     protected void init() {
+        if (blockEntity == null) {
+
+            Minecraft.getInstance().setScreen(null);
+            return;
+        }
+
         super.init();
 
         int fieldWidth = 80;
         int fieldHeight = 20;
 
+        /* ================= HEIGHT ================= */
+
         heightFieldX = (int) (this.width * 0.75);
         heightFieldY = (int) (this.height * 0.45);
 
-        // =========================
-        // HEIGHT FIELD
-        // =========================
         heightField = new EditBox(
                 this.font,
                 heightFieldX,
@@ -61,9 +69,8 @@ public class WaterJetGenericScreen extends GenericDMXConfigurationScreen {
         heightField.setFilter(s -> s.matches("\\d*(\\.\\d*)?"));
         addRenderableWidget(heightField);
 
-        // =========================
-        // THICKNESS SLIDER
-        // =========================
+        /* ================= THICKNESS ================= */
+
         thicknessSliderX = heightFieldX;
         thicknessSliderY = heightFieldY + 40;
 
@@ -87,12 +94,10 @@ public class WaterJetGenericScreen extends GenericDMXConfigurationScreen {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-
-        // Labels
-        drawCenteredLabel(guiGraphics, "Height", heightFieldX, heightFieldY);
-        drawCenteredLabel(guiGraphics, "Thickness", thicknessSliderX, thicknessSliderY);
+    public void render(GuiGraphics gg, int mouseX, int mouseY, float partialTick) {
+        super.render(gg, mouseX, mouseY, partialTick);
+        drawCenteredLabel(gg, "Height", heightFieldX, heightFieldY);
+        drawCenteredLabel(gg, "Thickness", thicknessSliderX, thicknessSliderY);
     }
 
     private void drawCenteredLabel(GuiGraphics gg, String text, int fieldX, int fieldY) {
@@ -105,15 +110,17 @@ public class WaterJetGenericScreen extends GenericDMXConfigurationScreen {
     public void removed() {
         super.removed();
 
-        // Enviar Height
+        if (blockEntity == null) return;
+
         if (blockEntity instanceof HasJetHeight jet) {
-            float h = Float.parseFloat(heightField.getValue());
-            ModNetworkHandler.CHANNEL.sendToServer(
-                    new SetJetHeightPacket(blockEntity.getBlockPos(), h)
-            );
+            try {
+                float h = Float.parseFloat(heightField.getValue());
+                ModNetworkHandler.CHANNEL.sendToServer(
+                        new SetJetHeightPacket(blockEntity.getBlockPos(), h)
+                );
+            } catch (NumberFormatException ignored) {}
         }
 
-        // Enviar Thickness
         if (blockEntity instanceof HasJetThickness jt) {
             float t = thicknessSlider.getValue();
             ModNetworkHandler.CHANNEL.sendToServer(
@@ -122,9 +129,8 @@ public class WaterJetGenericScreen extends GenericDMXConfigurationScreen {
         }
     }
 
-    // =========================
-    // THICKNESS SLIDER INNER CLASS
-    // =========================
+    /* ================= SLIDER ================= */
+
     private static class ThicknessSlider extends AbstractSliderButton {
 
         private final float min;
@@ -138,19 +144,20 @@ public class WaterJetGenericScreen extends GenericDMXConfigurationScreen {
             this.min = min;
             this.max = max;
             this.blockEntity = blockEntity;
-            this.value = (current - min) / (max - min); // normalizamos
+            this.value = (current - min) / (max - min);
             updateMessage();
-            applyValue(); // aplica valor inicial al BlockEntity
+            applyValue();
         }
 
         @Override
         protected void updateMessage() {
-            this.setMessage(Component.literal("Thickness: " + String.format("%.2f", getValue())));
+            this.setMessage(
+                    Component.literal("Thickness: " + String.format("%.2f", getValue()))
+            );
         }
 
         @Override
         protected void applyValue() {
-            // Aplica el valor al BlockEntity en tiempo real
             if (blockEntity instanceof HasJetThickness jt) {
                 jt.setJetThickness(getValue());
             }

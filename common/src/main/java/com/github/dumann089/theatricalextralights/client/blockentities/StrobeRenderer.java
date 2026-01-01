@@ -169,8 +169,9 @@ public class StrobeRenderer extends FixtureRenderer<StrobeBlockEntity> {
                     poseStack.popPose();
 
                     //LENS
-                    VertexConsumer lensConsumer =
-                            multiBufferSource.getBuffer(LensRenderTypes.LENS);
+                    if (TheatricalExtraLightsConfig.shouldRenderLens()) {
+                        VertexConsumer lensConsumer =
+                                multiBufferSource.getBuffer(LensRenderTypes.LENS);
 
                     poseStack.pushPose();
 
@@ -194,6 +195,7 @@ public class StrobeRenderer extends FixtureRenderer<StrobeBlockEntity> {
                     addLensVertex(lensConsumer, m1, lr, lg, lb, la, -size, -size, 0f, 0f, 1f);
 
                     poseStack.popPose();
+                    }
                     poseStack.popPose();
                 }
                 @Override

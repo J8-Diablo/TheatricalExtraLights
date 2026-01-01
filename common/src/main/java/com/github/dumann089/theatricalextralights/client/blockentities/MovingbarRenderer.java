@@ -2,6 +2,7 @@ package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.MovingbarBlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.RGBBarBlockEntity;
+import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -142,7 +143,9 @@ public class MovingbarRenderer extends FixtureRenderer<MovingbarBlockEntity> {
                     addVertex(beamConsumer, m, normal, r, g, b, a, 0.725f, -0.0718f, 0f);
                     addVertex(beamConsumer, m, normal, r, g, b, a, -0.725f, -0.0718f, 0f);
 
-                    renderLightBeam(beamConsumer, poseStack, blockEntity, partialTicks, alpha, 0.725f, 0.0718f, 5.0f, color);
+                    float beamLength = TheatricalExtraLightsConfig.getRgbBarBeamLength();
+
+                    renderLightBeam(beamConsumer, poseStack, blockEntity, partialTicks, alpha, 0.725f, 0.0718f, beamLength, color);
                     poseStack.popPose();
                 }
 

@@ -5,7 +5,12 @@ public enum JetVariant {
     JET1,
     JET2,
     JET3,
-    JET4;
+    JET4,
+    JETCone,
+    JETBloom,
+    JETFog,
+    JETFan;
+
 
     public static final Codec<JetVariant> CODEC =
             Codec.STRING.xmap(

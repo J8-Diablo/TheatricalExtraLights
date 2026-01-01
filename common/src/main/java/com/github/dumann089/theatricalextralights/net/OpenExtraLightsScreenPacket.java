@@ -1,17 +1,17 @@
 package com.github.dumann089.theatricalextralights.net;
 
+import com.github.dumann089.theatricalextralights.TheatricalExtraLightsScreens;
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.networking.simple.BaseS2CMessage;
 import dev.architectury.networking.simple.MessageType;
-import com.github.dumann089.theatricalextralights.client.gui.screen.TheatricalExtraLightsScreen;
-import com.github.dumann089.theatricalextralights.TheatricalExtraLightsScreens;
+import net.fabricmc.api.EnvType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 
 public class OpenExtraLightsScreenPacket extends BaseS2CMessage {
 
-    private BlockPos pos;
-    private TheatricalExtraLightsScreens screen;
+    private final BlockPos pos;
+    private final TheatricalExtraLightsScreens screen;
 
     public OpenExtraLightsScreenPacket(BlockPos pos, TheatricalExtraLightsScreens screen) {
         this.pos = pos;
@@ -36,9 +36,21 @@ public class OpenExtraLightsScreenPacket extends BaseS2CMessage {
 
     @Override
     public void handle(NetworkManager.PacketContext context) {
-        context.queue(() -> TheatricalExtraLightsScreen.handleOpenScreen(this));
+        context.queue(() -> {
+            if (context.getEnv() == EnvType.CLIENT) {
+                com.github.dumann089.theatricalextralights.client.ExtraLightsClientScreens.open(
+                        screen,
+                        pos
+                );
+            }
+        });
     }
 
-    public BlockPos getPos() { return pos; }
-    public TheatricalExtraLightsScreens getScreen() { return screen; }
+    public BlockPos getPos() {
+        return pos;
+    }
+
+    public TheatricalExtraLightsScreens getScreen() {
+        return screen;
+    }
 }

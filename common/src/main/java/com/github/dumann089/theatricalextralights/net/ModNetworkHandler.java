@@ -12,5 +12,6 @@ public class ModNetworkHandler {
     public static void register() {
         CHANNEL.register(SetJetHeightPacket.class, SetJetHeightPacket::encode, SetJetHeightPacket::decode, SetJetHeightPacket::handle);
         CHANNEL.register(SetJetThicknessPacket.class, SetJetThicknessPacket::encode, SetJetThicknessPacket::decode, SetJetThicknessPacket::handle);
+        CHANNEL.register(SetJetConeAnglePacket.class, SetJetConeAnglePacket::encode, SetJetConeAnglePacket::decode, SetJetConeAnglePacket::handle);
     }
 }

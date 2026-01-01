@@ -13,23 +13,46 @@ public class TheatricalExtraLightsConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final File FILE = new File("config/theatricalextralights.json");
 
-    private float laserBeamLength = 60.0f; // default value
+    /* ================= DEFAULT VALUES ================= */
 
-    // Singleton
+    private Float laserBeamLength = 60.0f;
+    private Float rgbBarBeamLength = 9.0f;
+    private Boolean renderLens = true;
+
+    /* ================= SINGLETON ================= */
+
     private static TheatricalExtraLightsConfig INSTANCE = new TheatricalExtraLightsConfig();
 
     public static void load() {
+        TheatricalExtraLightsConfig defaults = new TheatricalExtraLightsConfig();
+
         if (FILE.exists()) {
             try (FileReader reader = new FileReader(FILE)) {
-                INSTANCE = GSON.fromJson(reader, TheatricalExtraLightsConfig.class);
-                // laserbeamlenght
-                if (INSTANCE.laserBeamLength < 20.0f) {
-                    INSTANCE.laserBeamLength = 20.0f;
+
+                TheatricalExtraLightsConfig loaded =
+                        GSON.fromJson(reader, TheatricalExtraLightsConfig.class);
+
+                if (loaded != null) {
+
+                    if (loaded.laserBeamLength != null)
+                        defaults.laserBeamLength = loaded.laserBeamLength;
+
+                    if (loaded.rgbBarBeamLength != null)
+                        defaults.rgbBarBeamLength = loaded.rgbBarBeamLength;
+
+                    if (loaded.renderLens != null)
+                        defaults.renderLens = loaded.renderLens;
                 }
+
+                INSTANCE = defaults;
+                INSTANCE.ensureValidValues();
+                save();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
+            INSTANCE = defaults;
             save();
         }
     }
@@ -41,21 +64,43 @@ public class TheatricalExtraLightsConfig {
             e.printStackTrace();
         }
     }
-    private void ensureValidValues() {
-        if (laserBeamLength < 20f) {
-            laserBeamLength = 20f;
-        }
-    }
 
-    // Getters
+    private void ensureValidValues() {
+        if (laserBeamLength == null || laserBeamLength < 20f)
+            laserBeamLength = 20f;
+
+        if (rgbBarBeamLength == null || rgbBarBeamLength < 1f)
+            rgbBarBeamLength = 1f;
+
+        if (renderLens == null)
+            renderLens = true;
+    }
+    
+    /* ================= GETTERS ================= */
 
     public static float getLaserBeamLength() {
         return INSTANCE.laserBeamLength;
     }
 
-    // Setters
+    public static float getRgbBarBeamLength() {
+        return INSTANCE.rgbBarBeamLength;
+    }
+
+    public static boolean shouldRenderLens() {
+        return INSTANCE.renderLens;
+    }
+
+    /* ================= SETTERS ================= */
 
     public static void setLaserBeamLength(float value) {
-        INSTANCE.laserBeamLength = Math.max(20.0f, value);
+        INSTANCE.laserBeamLength = Math.max(20f, value);
+    }
+
+    public static void setRgbBarBeamLength(float value) {
+        INSTANCE.rgbBarBeamLength = Math.max(1f, value);
+    }
+
+    public static void setRenderLens(boolean value) {
+        INSTANCE.renderLens = value;
     }
 }

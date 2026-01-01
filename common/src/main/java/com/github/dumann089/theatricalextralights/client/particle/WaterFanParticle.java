@@ -64,7 +64,7 @@ public class WaterFanParticle extends TextureSheetParticle {
 
         Vec3 finalDir = dir.add(side.scale(factor)).normalize();
 
-        double speed = dimmer * 0.6; // ajustá este factor
+        double speed = dimmer * 0.6;
 
         this.xd = finalDir.x * speed;
         this.yd = finalDir.y * speed;

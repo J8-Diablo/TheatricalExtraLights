@@ -7,14 +7,18 @@ import com.github.dumann089.theatricalextralights.net.SetJetHeightPacket;
 import com.github.dumann089.theatricalextralights.net.SetJetThicknessPacket;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
 import dev.imabad.theatrical.client.gui.screen.GenericManualPanTiltScreen;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 
 public class WaterJetPanTiltScreen extends GenericManualPanTiltScreen {
 
-    private final BaseDMXConsumerLightBlockEntity blockEntity;
+    private final BlockPos pos;
+    private BaseDMXConsumerLightBlockEntity blockEntity;
+
     private EditBox heightField;
     private ThicknessSlider thicknessSlider;
 
@@ -23,13 +27,25 @@ public class WaterJetPanTiltScreen extends GenericManualPanTiltScreen {
     private int thicknessSliderX;
     private int thicknessSliderY;
 
-    public WaterJetPanTiltScreen(BaseDMXConsumerLightBlockEntity be, String title) {
-        super(be, title);
-        this.blockEntity = be;
+    public WaterJetPanTiltScreen(BlockPos pos, String title) {
+        super(
+                (BaseDMXConsumerLightBlockEntity)
+                        Minecraft.getInstance().level.getBlockEntity(pos),
+                title
+        );
+        this.pos = pos;
+        this.blockEntity =
+                (BaseDMXConsumerLightBlockEntity)
+                        Minecraft.getInstance().level.getBlockEntity(pos);
     }
 
     @Override
     protected void init() {
+        if (blockEntity == null) {
+            Minecraft.getInstance().setScreen(null);
+            return;
+        }
+
         super.init();
 
         int fieldWidth = 80;
@@ -38,9 +54,6 @@ public class WaterJetPanTiltScreen extends GenericManualPanTiltScreen {
         heightFieldX = (int) (this.width * 0.75);
         heightFieldY = (int) (this.height * 0.45);
 
-        // =========================
-        // HEIGHT FIELD
-        // =========================
         heightField = new EditBox(
                 this.font,
                 heightFieldX,
@@ -59,9 +72,6 @@ public class WaterJetPanTiltScreen extends GenericManualPanTiltScreen {
         heightField.setFilter(s -> s.matches("\\d*(\\.\\d*)?"));
         addRenderableWidget(heightField);
 
-        // =========================
-        // THICKNESS SLIDER
-        // =========================
         thicknessSliderX = heightFieldX;
         thicknessSliderY = heightFieldY + 40;
 
@@ -87,8 +97,6 @@ public class WaterJetPanTiltScreen extends GenericManualPanTiltScreen {
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-
-        // Labels
         drawCenteredLabel(guiGraphics, "Height", heightFieldX, heightFieldY);
         drawCenteredLabel(guiGraphics, "Thickness", thicknessSliderX, thicknessSliderY);
     }
@@ -103,7 +111,8 @@ public class WaterJetPanTiltScreen extends GenericManualPanTiltScreen {
     public void removed() {
         super.removed();
 
-        // Enviar Height
+        if (blockEntity == null) return;
+
         if (blockEntity instanceof HasJetHeight jet) {
             float h = Float.parseFloat(heightField.getValue());
             ModNetworkHandler.CHANNEL.sendToServer(
@@ -111,7 +120,6 @@ public class WaterJetPanTiltScreen extends GenericManualPanTiltScreen {
             );
         }
 
-        // Enviar Thickness
         if (blockEntity instanceof HasJetThickness jt) {
             float t = thicknessSlider.getValue();
             ModNetworkHandler.CHANNEL.sendToServer(
@@ -120,9 +128,6 @@ public class WaterJetPanTiltScreen extends GenericManualPanTiltScreen {
         }
     }
 
-    // =========================
-    // THICKNESS SLIDER INNER CLASS
-    // =========================
     private static class ThicknessSlider extends AbstractSliderButton {
 
         private final float min;
@@ -136,19 +141,20 @@ public class WaterJetPanTiltScreen extends GenericManualPanTiltScreen {
             this.min = min;
             this.max = max;
             this.blockEntity = blockEntity;
-            this.value = (current - min) / (max - min); // normalizamos
+            this.value = (current - min) / (max - min);
             updateMessage();
-            applyValue(); // aplica valor inicial al BlockEntity
+            applyValue();
         }
 
         @Override
         protected void updateMessage() {
-            this.setMessage(Component.literal("Thickness: " + String.format("%.2f", getValue())));
+            this.setMessage(
+                    Component.literal("Thickness: " + String.format("%.2f", getValue()))
+            );
         }
 
         @Override
         protected void applyValue() {
-            // Aplica el valor al BlockEntity en tiempo real
             if (blockEntity instanceof HasJetThickness jt) {
                 jt.setJetThickness(getValue());
             }

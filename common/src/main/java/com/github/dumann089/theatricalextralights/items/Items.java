@@ -23,6 +23,10 @@ public class Items {
             "rgb_bar",
             () -> new BlockItem(Blocks.RGB_BAR.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
+    public static final RegistrySupplier<Item> MINI_BAR = ITEMS.register(
+            "mini_bar",
+            () -> new BlockItem(Blocks.MINI_BAR_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
     public static final RegistrySupplier<Item> VERTICAL_BAR = ITEMS.register(
         "vertical_bar",
         () -> new BlockItem(Blocks.VERTICALBAR_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
@@ -367,6 +371,18 @@ public class Items {
     public static final RegistrySupplier<Item> ORGANPIPES_INV = ITEMS.register(
             "organpipes_inv",
             () -> new BlockItem(Blocks.ORGANPIPES_INV_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> WATER_JET_CONE = ITEMS.register(
+            "water_jet_cone",
+            () -> new BlockItem(Blocks.WATER_JET_CONE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> WATER_JET_BLOOM = ITEMS.register(
+            "water_jet_bloom",
+            () -> new BlockItem(Blocks.WATER_JET_BLOOM_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> WATER_JET_FOG = ITEMS.register(
+            "water_jet_fog",
+            () -> new BlockItem(Blocks.WATER_JET_FOG_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
 
     public static void init(){

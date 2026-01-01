@@ -5,6 +5,7 @@ import com.github.dumann089.theatricalextralights.blocks.Blocks;
 import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import com.github.dumann089.theatricalextralights.items.Items;
+import com.github.dumann089.theatricalextralights.net.ExtraLightsNet;
 import com.github.dumann089.theatricalextralights.net.ModNetworkHandler;
 import com.github.dumann089.theatricalextralights.particle.ModParticle;
 import dev.architectury.registry.CreativeTabRegistry;
@@ -38,6 +39,7 @@ public class TheatricalExtraLights {
         BlockEntities.init();
         ModParticle.initialize();
         ModNetworkHandler.register();
+        ExtraLightsNet.init();
         TheatricalExtraLightsConfig.load();
     }
 }

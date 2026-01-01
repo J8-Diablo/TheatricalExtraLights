@@ -133,6 +133,10 @@ public class Fixtures {
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "water_jet_thin"), WaterJetThinFixture::new);
     public static final RegistrySupplier<Fixture> WATER_JET_SPREAD =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "water_jet_spread"), WaterJetSpreadFixture::new);
+    public static final RegistrySupplier<Fixture> WATER_JET_BLOOM =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "water_jet_bloom"), WaterJetBloomFixture::new);
+    public static final RegistrySupplier<Fixture> WATER_JET_FOG =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "water_jet_fog"), WaterJetFogFixture::new);
 
     public static final RegistrySupplier<Fixture> x8PAR_RED =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "x8par_red"), x8par_redFixture::new);
@@ -225,6 +229,8 @@ public class Fixtures {
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "water_jet_inv"), WaterJetBigFixture::new);
     public static final RegistrySupplier<Fixture> WATER_JET_CENTRAL =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "water_jet_central"), WaterJetCentralFixture::new);
+    public static final RegistrySupplier<Fixture> WATER_JET_CONE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "water_jet_cone"), WaterJetConeFixture::new);
 
     public static final RegistrySupplier<Fixture> WHITE_STROBE =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "white_strobe"), WhiteStrobeFixture::new);
@@ -236,6 +242,8 @@ public class Fixtures {
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "blinder2x2"), Blinder2x2Fixture::new);
     public static final RegistrySupplier<Fixture> BLINDER2X2WARM =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "blinder2x2warm"), Blinder2x2warmFixture::new);
+    public static final RegistrySupplier<Fixture> MINI_BAR =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "mini_bar"), MiniBarFixture::new);
 
     public static void init(){
         FIXTURES.register();

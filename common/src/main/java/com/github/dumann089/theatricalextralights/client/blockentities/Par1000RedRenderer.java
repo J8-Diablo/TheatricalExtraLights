@@ -3,6 +3,7 @@ package com.github.dumann089.theatricalextralights.client.blockentities;
 import com.github.dumann089.theatricalextralights.blockentities.Par1000AmberBlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.Par1000RedBlockEntity;
 import com.github.dumann089.theatricalextralights.client.LensRenderTypes;
+import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -169,8 +170,9 @@ public class Par1000RedRenderer extends FixtureRenderer<Par1000RedBlockEntity> {
                     poseStack.popPose();
 
                     //LENS
-                    VertexConsumer lensConsumer =
-                            multiBufferSource.getBuffer(LensRenderTypes.LENS);
+                    if (TheatricalExtraLightsConfig.shouldRenderLens()) {
+                        VertexConsumer lensConsumer =
+                                multiBufferSource.getBuffer(LensRenderTypes.LENS);
 
                     poseStack.pushPose();
 
@@ -194,6 +196,7 @@ public class Par1000RedRenderer extends FixtureRenderer<Par1000RedBlockEntity> {
                     addLensVertex(lensConsumer, m1, lr, lg, lb, la, -size, -size, 0f, 0f, 1f);
 
                     poseStack.popPose();
+                    }
                     poseStack.popPose();
                 }
                 @Override

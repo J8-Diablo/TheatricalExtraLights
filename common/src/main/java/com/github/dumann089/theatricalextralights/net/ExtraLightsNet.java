@@ -1,15 +1,21 @@
 package com.github.dumann089.theatricalextralights.net;
 
-import com.github.dumann089.theatricalextralights.net.OpenExtraLightsScreenPacket;
 import dev.architectury.networking.simple.MessageType;
 import dev.architectury.networking.simple.SimpleNetworkManager;
-import net.minecraft.resources.ResourceLocation;
 
-public interface ExtraLightsNet {
-    SimpleNetworkManager MAIN = SimpleNetworkManager.create("theatricalextralights");
+public final class ExtraLightsNet {
 
-    // S2C
-    MessageType OPEN_SCREEN = MAIN.registerS2C("open_extra_lights_screen", OpenExtraLightsScreenPacket::new);
+    public static final SimpleNetworkManager MAIN =
+            SimpleNetworkManager.create("theatricalextralights");
 
-    static void init(){}
+    public static final MessageType OPEN_SCREEN =
+            MAIN.registerS2C(
+                    "open_extra_lights_screen",
+                    OpenExtraLightsScreenPacket::new
+            );
+
+    public static void init() {
+        // Intentionally empty
+        // Calling this forces class loading
+    }
 }

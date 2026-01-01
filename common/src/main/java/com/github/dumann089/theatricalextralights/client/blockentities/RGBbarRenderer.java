@@ -1,6 +1,7 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.RGBBarBlockEntity;
+import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import dev.imabad.theatrical.config.TheatricalConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -141,7 +142,9 @@ public class RGBbarRenderer extends FixtureRenderer<RGBBarBlockEntity> {
                     addVertex(beamConsumer, m, normal, r, g, b, a, 1.375f, -0.125f, 0f);
                     addVertex(beamConsumer, m, normal, r, g, b, a, -1.375f, -0.125f, 0f);
 
-                    renderLightBeam(beamConsumer, poseStack, blockEntity, partialTicks, alpha, 1.375f, 0.125f, 5.0f, color);
+                    float beamLength = TheatricalExtraLightsConfig.getRgbBarBeamLength();
+
+                    renderLightBeam(beamConsumer, poseStack, blockEntity, partialTicks, alpha, 1.375f, 0.125f, beamLength, color);
                     poseStack.popPose();
                 }
 

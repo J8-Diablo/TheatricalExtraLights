@@ -77,7 +77,7 @@
   "block.theatricalextralights.moving_bar": "Moving Bar",
 
   "block.theatricalextralights.water_jet": "Water Jet (25m)",
-  "block.theatricalextralights.moving_jet": "Moving Jet (Adjustable Height/Thickness)",
+  "block.theatricalextralights.moving_jet": "Moving Jet (Adjustable)",
   "block.theatricalextralights.water_jet_thin": "Water Jet 1 (Adjustable)",
   "block.theatricalextralights.spinner": "Spinner (Water Jet Effect)",
   "block.theatricalextralights.organpipes": "Organ Pipes (Water Jet Effect)",
@@ -85,6 +85,11 @@
   "block.theatricalextralights.water_jet_spread": "Water Jet 2 (Adjustable)",
   "block.theatricalextralights.water_jet_big": "Conifer Water Jet (Adjustable)",
   "block.theatricalextralights.water_jet_central": "Central Water Jet (Adjustable)",
+  "block.theatricalextralights.water_jet_cone": "Water Jet Cone (Adjustable)",
+  "block.theatricalextralights.water_jet_bloom": "Bloom Jet (Adjustable)",
+  "block.theatricalextralights.water_jet_fog": "Fog Cone Jet (Adjustable)",
+  "block.theatricalextralights.moving_jet_fan": "Moving Fan Jet (Adjustable)",
+
 
 
   "block.theatricalextralights.white_strobe": "White Strobe (1 Channel)",
@@ -93,6 +98,7 @@
   "block.theatricalextralights.blinder2x2": "2x2 Blinder",
   "block.theatricalextralights.blinder2x2warm": "2x2 Blinder (Warm)",
   "block.theatricalextralights.source_four_warm": "Source Four (Warm)",
+  "block.theatricalextralights.mini_bar": "Mini RGB Bar",
 
 
 

@@ -27,6 +27,42 @@ public class WaterJetParticleProvider
     ) {
         return switch (options.variant) {
 
+
+            case JETCone -> new WaterJetConeParticle(
+                    level,
+                    x, y, z,
+                    vx, vy, vz,
+                    options.intensity,
+                    options.thickness,
+                    options.coneAngle,
+                    spriteSet
+            );
+            case JETFan -> new WaterJetFanParticle(
+                    level,
+                    x, y, z,
+                    vx, vy, vz,
+                    options.intensity,
+                    options.thickness,
+                    spriteSet
+            );
+            case JETBloom -> new WaterJetBloomParticle(
+                    level,
+                    x, y, z,
+                    vx, vy, vz,
+                    options.intensity,
+                    options.thickness,
+                    options.coneAngle,
+                    spriteSet
+            );
+            case JETFog -> new WaterJetFogParticle(
+                    level,
+                    x, y, z,
+                    vx, vy, vz,
+                    options.intensity,
+                    options.thickness,
+                    options.coneAngle,
+                    spriteSet
+            );
             case JET4 -> new WaterJet4Particle(
                     level,
                     x, y, z,
@@ -35,7 +71,6 @@ public class WaterJetParticleProvider
                     options.thickness,
                     spriteSet
             );
-
             case JET3 -> new WaterJet3Particle(
                     level,
                     x, y, z,

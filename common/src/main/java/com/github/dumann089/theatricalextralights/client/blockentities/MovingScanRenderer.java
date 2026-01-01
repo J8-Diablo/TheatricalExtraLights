@@ -1,6 +1,9 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
+import com.github.dumann089.theatricalextralights.blockentities.MovingBeamBlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.MovingScanBlockEntity;
+import com.github.dumann089.theatricalextralights.client.LensRenderTypes;
+import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -111,39 +114,106 @@ public class MovingScanRenderer extends FixtureRenderer<MovingScanBlockEntity> {
         //#endregion
     }
     @Override
-    public void beforeRenderBeam(MovingScanBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer, MultiBufferSource multiBufferSource, Direction facing, float partialTicks, boolean isFlipped, BlockState blockstate, boolean isHanging, int packedLight, int packedOverlay) {
-        if(blockEntity.getIntensity() > 0){
+    public void beforeRenderBeam(
+            MovingScanBlockEntity blockEntity,
+            PoseStack poseStack,
+            VertexConsumer vertexConsumer,
+            MultiBufferSource multiBufferSource,
+            Direction facing,
+            float partialTicks,
+            boolean isFlipped,
+            BlockState blockstate,
+            boolean isHanging,
+            int packedLight,
+            int packedOverlay
+    ) {
+        if (blockEntity.getIntensity() > 0) {
             LazyRenderers.addLazyRender(new LazyRenderers.LazyRenderer() {
+
                 @Override
                 public void render(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, Camera camera, float partialTick) {
                     poseStack.pushPose();
-                    Vec3 offset = Vec3.atLowerCornerOf(blockEntity.getBlockPos()).subtract(camera.getPosition());
+                    Vec3 offset = Vec3.atLowerCornerOf(blockEntity.getBlockPos())
+                            .subtract(camera.getPosition());
                     poseStack.translate(offset.x, offset.y, offset.z);
-                    preparePoseStack(blockEntity, poseStack, facing, partialTick, isFlipped, blockstate, isHanging);
-                    VertexConsumer beamConsumer = multiBufferSource.getBuffer(TheatricalRenderTypes.BEAM);
-//            poseStack.translate(blockEntity.getFixture().getBeamStartPosition()[0], blockEntity.getFixture().getBeamStartPosition()[1], blockEntity.getFixture().getBeamStartPosition()[2]);
-                    float intensity = (blockEntity.getPrevIntensity() + ((blockEntity.getIntensity()) - blockEntity.getPrevIntensity()) * partialTicks);
+                    preparePoseStack(
+                            blockEntity,
+                            poseStack,
+                            facing,
+                            partialTick,
+                            isFlipped,
+                            blockstate,
+                            isHanging
+                    );
+                    VertexConsumer beamConsumer =
+                            multiBufferSource.getBuffer(TheatricalRenderTypes.BEAM);
+
+                    float intensity = blockEntity.getPrevIntensity()
+                            + (blockEntity.getIntensity() - blockEntity.getPrevIntensity()) * partialTicks;
+
                     int color = blockEntity.getColour();
                     int r = (color >> 16) & 0xFF;
                     int g = (color >> 8) & 0xFF;
                     int b = color & 0xFF;
-                    int a = (int) (((float) ((intensity * 1) / 255f)) * 255);
-                    poseStack.translate(0.5F, 1.25F, .41875F);
+                    int a = (int) ((intensity / 255f) * 255f);
+                    poseStack.pushPose();
+                    poseStack.translate(0.5f, 1.25f, 0.41875F);
                     Matrix4f m = poseStack.last().pose();
-                    Matrix3f normal = poseStack.last().normal();
-                    addVertex(beamConsumer, m, normal, r, g, b, a, -0.1875f, 0.1875f , 0f);
-                    addVertex(beamConsumer, m, normal, r, g, b, a,  0.1875f, 0.1875f, 0f);
-                    addVertex(beamConsumer, m, normal, r, g, b, a, 0.1875f, -0.1875f,0f);
-                    addVertex(beamConsumer, m, normal, r, g, b, a,-0.1875f, -0.1875f, 0f);
+                    Matrix3f n = poseStack.last().normal();
+                    addVertex(beamConsumer, m, n, r, g, b, a, -0.1875f, 0.1875f , 0f);
+                    addVertex(beamConsumer, m, n, r, g, b, a,  0.1875f, 0.1875f, 0f);
+                    addVertex(beamConsumer, m, n, r, g, b, a, 0.1875f, -0.1875f,0f);
+                    addVertex(beamConsumer, m, n, r, g, b, a,-0.1875f, -0.1875f, 0f);
+                    poseStack.popPose();
+
+                    //LENS
+                    if (TheatricalExtraLightsConfig.shouldRenderLens()) {
+                        VertexConsumer lensConsumer =
+                                multiBufferSource.getBuffer(LensRenderTypes.LENS);
+
+                    poseStack.pushPose();
+
+                    poseStack.translate(0.5f, 1.28f, 0.41875f);
+
+                    Matrix4f m1 = poseStack.last().pose();
+
+                    float lensAlphaMul = 0.80f;
+                    float lensColorMul = 0.80f;
+
+                    int la = (int)(a * lensAlphaMul);
+                    int lr = (int)(r * lensColorMul);
+                    int lg = (int)(g * lensColorMul);
+                    int lb = (int)(b * lensColorMul);
+
+                    float size = 0.52f;
+
+                    addLensVertex(lensConsumer, m1, lr, lg, lb, la, -size,  size, 0f, 0f, 0f);
+                    addLensVertex(lensConsumer, m1, lr, lg, lb, la,  size,  size, 0f, 1f, 0f);
+                    addLensVertex(lensConsumer, m1, lr, lg, lb, la,  size, -size, 0f, 1f, 1f);
+                    addLensVertex(lensConsumer, m1, lr, lg, lb, la, -size, -size, 0f, 0f, 1f);
+
+                    poseStack.popPose();
+                    }
                     poseStack.popPose();
                 }
-
                 @Override
                 public Vec3 getPos(float partialTick) {
                     return blockEntity.getBlockPos().getCenter();
                 }
             });
         }
+    }
+    private static void addLensVertex(
+            VertexConsumer vc,
+            Matrix4f m,
+            int r, int g, int b, int a,
+            float x, float y, float z,
+            float u, float v
+    ) {
+        vc.vertex(m, x, y, z)
+                .color(r, g, b, a)
+                .uv(u, v)
+                .endVertex();
     }
 
     @Override
