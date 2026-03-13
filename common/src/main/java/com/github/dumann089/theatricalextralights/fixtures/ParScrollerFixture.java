@@ -67,7 +67,7 @@ public class ParScrollerFixture extends Fixture {
 
     @Override
     public float getBeamWidth() {
-        return 0.07f;
+        return 0.00f;
     }
 
     @Override

@@ -1,12 +1,13 @@
 package com.github.dumann089.theatricalextralights.blocks;
 
+import com.github.dumann089.theatricalextralights.TheatricalExtraLightsScreens;
 import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
 import com.github.dumann089.theatricalextralights.blockentities.MacVipBlockEntity;
+import com.github.dumann089.theatricalextralights.net.OpenExtraLightsScreenPacket;
 import dev.imabad.theatrical.TheatricalClient;
-import dev.imabad.theatrical.TheatricalScreen;
+import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
 import dev.imabad.theatrical.blocks.Blocks;
 import dev.imabad.theatrical.blocks.light.BaseLightBlock;
-import dev.imabad.theatrical.net.OpenScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -36,17 +37,17 @@ import org.jetbrains.annotations.Nullable;
 
 public class MacVipBlock extends BaseLightBlock {
 
-
     public MacVipBlock() {
         super(Properties.of()
-            .requiresCorrectToolForDrops()
-            .strength(3, 3)
-            .noOcclusion()
-            .isValidSpawn(Blocks::neverAllowSpawn)
-            .mapColor(MapColor.METAL)
-            .sound(SoundType.METAL)
-            .pushReaction(PushReaction.DESTROY));
+                .requiresCorrectToolForDrops()
+                .strength(3, 3)
+                .noOcclusion()
+                .isValidSpawn(Blocks::neverAllowSpawn)
+                .mapColor(MapColor.METAL)
+                .sound(SoundType.METAL)
+                .pushReaction(PushReaction.DESTROY));
     }
+
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
@@ -68,7 +69,7 @@ public class MacVipBlock extends BaseLightBlock {
 
     @Override
     public boolean canSurvive(BlockState blockState, LevelReader levelReader, BlockPos blockPos) {
-        if(blockState.getValue(HANGING)){
+        if (blockState.getValue(HANGING)) {
             return isHanging(levelReader, blockPos);
         }
         return !levelReader.getBlockState(blockPos.below()).isAir();
@@ -76,11 +77,10 @@ public class MacVipBlock extends BaseLightBlock {
 
     @Override
     public Direction getLightFacing(Direction hangDirection, Player placingPlayer) {
-        if(hangDirection == Direction.UP){
+        if (hangDirection == Direction.UP) {
             return placingPlayer.getDirection();
         }
-        Direction playerFacing = placingPlayer.getDirection();
-        return playerFacing.getOpposite();
+        return placingPlayer.getDirection().getOpposite();
     }
 
     @Nullable
@@ -91,7 +91,7 @@ public class MacVipBlock extends BaseLightBlock {
 
     @Override
     public VoxelShape getVisualShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        if(context instanceof EntityCollisionContext entityCollisionContext && entityCollisionContext.getEntity() == null){
+        if (context instanceof EntityCollisionContext ecc && ecc.getEntity() == null) {
             return Shapes.empty();
         }
         return super.getVisualShape(state, level, pos, context);
@@ -99,8 +99,8 @@ public class MacVipBlock extends BaseLightBlock {
 
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        if(super.use(state, level, pos, player, hand, hit) == InteractionResult.PASS) {
-            if (level.isClientSide) {
+        if (super.use(state, level, pos, player, hand, hit) == InteractionResult.PASS) {
+            if (!level.isClientSide) {
                 if (player.isCrouching()) {
                     if (TheatricalClient.DEBUG_BLOCKS.contains(pos)) {
                         TheatricalClient.DEBUG_BLOCKS.remove(pos);
@@ -109,8 +109,8 @@ public class MacVipBlock extends BaseLightBlock {
                     }
                     return InteractionResult.SUCCESS;
                 }
-            } else {
-                new OpenScreen(pos, TheatricalScreen.GENERIC_DMX).sendTo((ServerPlayer) player);
+                new OpenExtraLightsScreenPacket(pos, TheatricalExtraLightsScreens.CHANNEL_MENU)
+                        .sendTo((ServerPlayer) player);
             }
         }
         return InteractionResult.SUCCESS;
@@ -118,7 +118,7 @@ public class MacVipBlock extends BaseLightBlock {
 
     @Override
     public void destroy(LevelAccessor level, BlockPos pos, BlockState state) {
-        if(level.isClientSide()) {
+        if (level.isClientSide()) {
             TheatricalClient.DEBUG_BLOCKS.remove(pos);
         }
         super.destroy(level, pos, state);

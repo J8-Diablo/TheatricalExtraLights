@@ -25,8 +25,8 @@ public class x8par_lightblueFixture extends Fixture {
     private static final ResourceLocation PAN_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/x8par64/x8par64_basepan");
     private static final ResourceLocation STATIC_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/x8par64/x8par64_static");
 
-    private final float[] tiltRotation = new float[]{0.5F, .25F, .566F};
-    private final float[] panRotation = new float[]{0.5F, 0.75F, .5F};
+    private final float[] tiltRotation = new float[]{0.5F, .625F, .5F};
+    private final float[] panRotation = new float[]{0.5F, 1.04F, .5F};
     private final float[] beamStartPosition = new float[]{0.5F, 0.25F, 0.144F};
 
     @Override

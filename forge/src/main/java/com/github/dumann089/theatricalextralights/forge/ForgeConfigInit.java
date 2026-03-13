@@ -13,10 +13,6 @@ public class ForgeConfigInit {
 
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
-    private static final ForgeConfigSpec.BooleanValue ENABLE_OVERLAY =
-            BUILDER.comment("Extra Lights Settings")
-                    .define("enableOverlay", true);
-
     public static final ForgeConfigSpec SPEC = BUILDER.build();
 
     public static void register() {

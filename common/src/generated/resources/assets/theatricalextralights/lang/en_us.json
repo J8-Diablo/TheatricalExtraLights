@@ -3,10 +3,10 @@
   "block.theatricalextralights.big_panel2": "Big Panel 3x2",
   "block.theatricalextralights.led_fountain": "Led Fountain",
   "block.theatricalextralights.led_panel_2": "LED Panel 2",
-  "block.theatricalextralights.moving_beam": "Moving Beam",
-  "block.theatricalextralights.moving_scan": "Moving Scan",
-  "block.theatricalextralights.moving_vl2c": "Moving VL2",
-  "block.theatricalextralights.moving_vl6": "Moving VL6",
+  "block.theatricalextralights.moving_beam": "Moving Beam (7Ch/10Ch)",
+  "block.theatricalextralights.moving_scan": "Moving Scan (7Ch/10Ch)",
+  "block.theatricalextralights.moving_vl2c": "Moving VL2 (7Ch/10Ch)",
+  "block.theatricalextralights.moving_vl6": "Moving VL6 (7Ch/10Ch)",
   "block.theatricalextralights.par_led": "LED Par",
   "block.theatricalextralights.rgb_bar": "RGB Bar",
   "block.theatricalextralights.vertical_bar": "Vertical RGB Bar",
@@ -14,10 +14,10 @@
   "block.theatricalextralights.laser": "Laser",
   "block.theatricalextralights.truss_3lights": "Truss 3x3 Lights",
   "block.theatricalextralights.strobe": "Strobe",
-  "block.theatricalextralights.beam_7r": "Beam 7r",
-  "block.theatricalextralights.mac_vip": "Mac Vip",
+  "block.theatricalextralights.beam_7r": "Beam 7r (7Ch/10Ch)",
+  "block.theatricalextralights.mac_vip": "Mac Vip (7Ch/10Ch)",
   "block.theatricalextralights.sharplus": "Sharplus",
-  "block.theatricalextralights.moving500": "Moving 500",
+  "block.theatricalextralights.moving500": "Moving 500 (7Ch/10Ch)",
   "block.theatricalextralights.robitspot": "Robit Spot",
   "block.theatricalextralights.vervespot": "Verve Spot",
   "block.theatricalextralights.searchlight": "Searchlight",
@@ -99,6 +99,10 @@
   "block.theatricalextralights.blinder2x2warm": "2x2 Blinder (Warm)",
   "block.theatricalextralights.source_four_warm": "Source Four (Warm)",
   "block.theatricalextralights.mini_bar": "Mini RGB Bar",
+  "block.theatricalextralights.moving_vl2c_beams": "Moving VL2 (Prism)",
+  "block.theatricalextralights.moving_scan_beams": "Moving Scan (Prism)",
+
+
 
 
 

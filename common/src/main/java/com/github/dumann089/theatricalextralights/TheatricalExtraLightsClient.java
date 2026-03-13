@@ -1,7 +1,9 @@
 package com.github.dumann089.theatricalextralights;
 
 import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
+import com.github.dumann089.theatricalextralights.client.ExtraLightsClientScreens;
 import com.github.dumann089.theatricalextralights.client.blockentities.*;
+import com.github.dumann089.theatricalextralights.net.OpenExtraLightsScreenPacket;
 import dev.architectury.registry.client.rendering.BlockEntityRendererRegistry;
 
 public class TheatricalExtraLightsClient {
@@ -105,5 +107,15 @@ public class TheatricalExtraLightsClient {
         BlockEntityRendererRegistry.register(BlockEntities.BLINDER2X2WARM.get(), Blinder2x2warmRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.MINI_BAR.get(), MiniBarRenderer::new);
 
+        BlockEntityRendererRegistry.register(BlockEntities.MOVING_VL2C_BEAMS.get(), MovingVL2CBeamsRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.MOVING_SCAN_BEAMS.get(), MovingScanBeamsRenderer::new);
+
+
     }
-}
+        public static void handleOpenScreen(OpenExtraLightsScreenPacket packet) {
+            ExtraLightsClientScreens.open(
+                    packet.getScreen(),
+                    packet.getPos()
+            );
+        }
+    }

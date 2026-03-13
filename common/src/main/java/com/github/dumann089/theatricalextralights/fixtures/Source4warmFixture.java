@@ -65,7 +65,7 @@ public class Source4warmFixture extends Fixture {
 
     @Override
     public float getBeamWidth() {
-        return 0.04f;
+        return 0.00f;
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.a2x2par64_redBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.a2x2par64_warmBlockEntity;
+import com.github.dumann089.theatricalextralights.client.Beam2DRenderTypes;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -9,6 +11,7 @@ import dev.imabad.theatrical.blocks.HangableBlock;
 import dev.imabad.theatrical.client.LazyRenderers;
 import dev.imabad.theatrical.client.TheatricalRenderTypes;
 import dev.imabad.theatrical.client.blockentities.FixtureRenderer;
+import dev.imabad.theatrical.config.TheatricalConfig;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -102,54 +105,55 @@ public class a2x2par64_redRenderer extends FixtureRenderer<a2x2par64_redBlockEnt
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel,  packedLight, packedOverlay);
         //#endregion
     }
-@Override
-public void beforeRenderBeam(a2x2par64_redBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer, MultiBufferSource multiBufferSource, Direction facing, float partialTicks, boolean isFlipped, BlockState blockstate, boolean isHanging, int packedLight, int packedOverlay) {
-    if (blockEntity.getIntensity() > 0) {
-        LazyRenderers.addLazyRender(new LazyRenderers.LazyRenderer() {
-            @Override
-            public void render(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, Camera camera, float partialTick) {
-                float intensity = blockEntity.getPrevIntensity() + (blockEntity.getIntensity() - blockEntity.getPrevIntensity()) * partialTick;
-                int color = blockEntity.getColour();
-                int r = (color >> 16) & 0xFF;
-                int g = (color >> 8) & 0xFF;
-                int b = color & 0xFF;
-                int a = (int) ((intensity / 255f) * 255);
 
-                Vec3 offset = Vec3.atLowerCornerOf(blockEntity.getBlockPos()).subtract(camera.getPosition());
-                VertexConsumer beamConsumer = bufferSource.getBuffer(TheatricalRenderTypes.BEAM);
+    @Override
+    public void beforeRenderBeam(a2x2par64_redBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer, MultiBufferSource multiBufferSource, Direction facing, float partialTicks, boolean isFlipped, BlockState blockstate, boolean isHanging, int packedLight, int packedOverlay) {
+        if (blockEntity.getIntensity() > 0) {
+            LazyRenderers.addLazyRender(new LazyRenderers.LazyRenderer() {
+                @Override
+                public void render(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, Camera camera, float partialTick) {
+                    float intensity = blockEntity.getPrevIntensity() + (blockEntity.getIntensity() - blockEntity.getPrevIntensity()) * partialTick;
+                    int color = blockEntity.getColour();
+                    int r = (color >> 16) & 0xFF;
+                    int g = (color >> 8) & 0xFF;
+                    int b = color & 0xFF;
+                    int a = (int) ((intensity / 255f) * 255);
 
-                float[][] beamPositions = {
-                    { 0.56F, 1.43F, 0.201F },
-                    {-0.56F, 1.43F, 0.201F },
-                    { 0.56F, 0.43F, 0.201F },
-                    {-0.56F, 0.43F, 0.201F }
-                };
+                    Vec3 offset = Vec3.atLowerCornerOf(blockEntity.getBlockPos()).subtract(camera.getPosition());
+                    VertexConsumer beamConsumer = bufferSource.getBuffer(TheatricalRenderTypes.BEAM);
 
-                for (float[] pos : beamPositions) {
-                    poseStack.pushPose();
-                    poseStack.translate(offset.x, offset.y, offset.z);
-                    preparePoseStack(blockEntity, poseStack, facing, partialTick, isFlipped, blockstate, isHanging);
-                    poseStack.translate(pos[0], pos[1], pos[2]);
+                    float[][] beamPositions = {
+                            { 0.56F, 1.43F, 0.201F },
+                            {-0.56F, 1.43F, 0.201F },
+                            { 0.56F, 0.43F, 0.201F },
+                            {-0.56F, 0.43F, 0.201F }
+                    };
 
-                    Matrix4f matrix = poseStack.last().pose();
-                    Matrix3f normal = poseStack.last().normal();
+                    for (float[] pos : beamPositions) {
+                        poseStack.pushPose();
+                        poseStack.translate(offset.x, offset.y, offset.z);
+                        preparePoseStack(blockEntity, poseStack, facing, partialTick, isFlipped, blockstate, isHanging);
+                        poseStack.translate(pos[0], pos[1], pos[2]);
 
-                    addVertex(beamConsumer, matrix, normal, r, g, b, a, -0.1875f, 0.1875f , 0f);
-                    addVertex(beamConsumer, matrix, normal, r, g, b, a,  0.1875f, 0.1875f, 0f);
-                    addVertex(beamConsumer, matrix, normal, r, g, b, a, 0.1875f, -0.1875f,0f);
-                    addVertex(beamConsumer, matrix, normal, r, g, b, a,-0.1875f, -0.1875f, 0f);
+                        Matrix4f matrix = poseStack.last().pose();
+                        Matrix3f normal = poseStack.last().normal();
 
-                    poseStack.popPose();
+                        addVertex(beamConsumer, matrix, normal, r, g, b, a, -0.1875f, 0.1875f , 0f);
+                        addVertex(beamConsumer, matrix, normal, r, g, b, a,  0.1875f, 0.1875f, 0f);
+                        addVertex(beamConsumer, matrix, normal, r, g, b, a, 0.1875f, -0.1875f,0f);
+                        addVertex(beamConsumer, matrix, normal, r, g, b, a,-0.1875f, -0.1875f, 0f);
+
+                        poseStack.popPose();
+                    }
                 }
-            }
 
-            @Override
-            public Vec3 getPos(float partialTick) {
-                return blockEntity.getBlockPos().getCenter();
-            }
-        });
+                @Override
+                public Vec3 getPos(float partialTick) {
+                    return blockEntity.getBlockPos().getCenter();
+                }
+            });
+        }
     }
-}
 
 
     @Override

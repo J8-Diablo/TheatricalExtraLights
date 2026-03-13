@@ -1,5 +1,6 @@
 package com.github.dumann089.theatricalextralights.net;
 
+import com.github.dumann089.theatricalextralights.TheatricalExtraLightsClient;
 import com.github.dumann089.theatricalextralights.TheatricalExtraLightsScreens;
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.networking.simple.BaseS2CMessage;
@@ -36,14 +37,7 @@ public class OpenExtraLightsScreenPacket extends BaseS2CMessage {
 
     @Override
     public void handle(NetworkManager.PacketContext context) {
-        context.queue(() -> {
-            if (context.getEnv() == EnvType.CLIENT) {
-                com.github.dumann089.theatricalextralights.client.ExtraLightsClientScreens.open(
-                        screen,
-                        pos
-                );
-            }
-        });
+        context.queue(() -> TheatricalExtraLightsClient.handleOpenScreen(this));
     }
 
     public BlockPos getPos() {

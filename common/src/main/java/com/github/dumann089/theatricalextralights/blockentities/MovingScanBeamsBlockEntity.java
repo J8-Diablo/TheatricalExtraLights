@@ -1,0 +1,139 @@
+package com.github.dumann089.theatricalextralights.blockentities;
+
+import com.github.dumann089.theatricalextralights.blocks.MovingVL2CBlock;
+import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
+import dev.imabad.theatrical.api.Fixture;
+import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.Arrays;
+
+public class MovingScanBeamsBlockEntity extends BaseDMXConsumerLightBlockEntity {
+
+    private int gobo = 0;
+    private int prevGobo = 0;
+    private int zoom = 0;
+    private int prevZoom = 0;
+
+    private int goboSpin = 0;
+    private float goboRotation = 0f;
+
+    public int getGoboSpin() { return goboSpin; }
+    public float getGoboRotation() { return goboRotation; }
+
+    public MovingScanBeamsBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
+        super(blockEntityType, blockPos, blockState);
+        setChannelCount(10);
+    }
+
+    public MovingScanBeamsBlockEntity(BlockPos pos, BlockState state) {
+        this(BlockEntities.MOVING_SCAN_BEAMS.get(), pos, state);
+    }
+
+    public int getGobo() { return gobo; }
+    public int getPrevGobo() { return prevGobo; }
+    public int getZoom() { return zoom; }
+    public int getPrevZoom() { return prevZoom; }
+    public float getPartialZoom(float partialTicks) {
+        return prevZoom + (zoom - prevZoom) * partialTicks;
+    }
+
+    @Override
+    public void lightTick() {
+        super.lightTick();
+        if (this.level != null && this.level.isClientSide) {
+            this.prevGobo = this.gobo;
+            this.prevZoom = this.zoom;
+
+            if (goboSpin > 0) {
+                float speed = (goboSpin / 255f) * 12f; // máximo 5° por tick
+                goboRotation = (goboRotation + speed) % 360f;
+            }
+        }
+    }
+
+    @Override
+    public void consume(byte[] dmxValues) {
+        int start = this.getChannelStart() > 0 ? this.getChannelStart() - 1 : 0;
+        byte[] ourValues = Arrays.copyOfRange(dmxValues, start, start + this.getChannelCount());
+
+        if (ourValues.length < 10) return;
+
+        intensity = convertByteToInt(ourValues[0]);
+        red = convertByteToInt(ourValues[1]);
+        green = convertByteToInt(ourValues[2]);
+        blue = convertByteToInt(ourValues[3]);
+        focus = convertByteToInt(ourValues[4]);
+        pan = (int) ((convertByteToInt(ourValues[5]) * 360) / 255f) - 180;
+        tilt = (int) ((convertByteToInt(ourValues[6]) * 270) / 255F) - 225;
+
+        int newGobo = convertByteToInt(ourValues[7]);
+        int newZoom = convertByteToInt(ourValues[8]);
+        int newGoboSpin = convertByteToInt(ourValues[9]);
+
+        boolean customChanged = (newGobo != this.gobo || newZoom != this.zoom || newGoboSpin != this.goboSpin);
+
+        if (customChanged) {
+            this.gobo = newGobo;
+            this.zoom = newZoom;
+            this.goboSpin = newGoboSpin;
+        }
+
+        if (super.storePrev() || customChanged) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+            setChanged();
+        }
+    }
+
+    @Override
+    public void write(CompoundTag compoundTag) {
+        super.write(compoundTag);
+        compoundTag.putInt("gobo", gobo);
+        compoundTag.putInt("zoom", zoom);
+        compoundTag.putInt("goboSpin", goboSpin);
+    }
+
+    @Override
+    public void read(CompoundTag compoundTag) {
+        super.read(compoundTag);
+        this.gobo = compoundTag.getInt("gobo");
+        this.zoom = compoundTag.getInt("zoom");
+        goboSpin = compoundTag.getInt("goboSpin");
+        this.prevGobo = this.gobo;
+        this.prevZoom = this.zoom;
+    }
+
+    @Override
+    public Fixture getFixture() { return Fixtures.MOVING_SCAN_BEAMS.get(); }
+
+    @Override
+    public ResourceLocation getFixtureId() { return Fixtures.MOVING_SCAN_BEAMS.getId(); }
+
+    @Override
+    public int getDeviceTypeId() { return 0x01; }
+
+    @Override
+    public String getModelName() { return "Moving Scan Beams"; }
+
+    @Override
+    public int getActivePersonality() { return 0; }
+
+    @Override
+    public String getTranslationKey() { return "block.theatricalextralights.moving_scan_beams"; }
+
+    @Override
+    public int getBasePan() { return 0; }
+
+    @Override
+    public boolean isUpsideDown() {
+        return getBlockState().getValue(MovingVL2CBlock.HANGING) && getBlockState().getValue(MovingVL2CBlock.HANG_DIRECTION) == Direction.UP;
+    }
+
+    public int convertByteToInt(byte val) { return Byte.toUnsignedInt(val); }
+}

@@ -48,35 +48,26 @@ public class WaterJetFanParticle extends TextureSheetParticle {
         this.hasPhysics = false;
 
         /* =========================
-           INTENSITY → ALTURA (Y)
+           INTENSITY
            ========================= */
         double intensityClamped = Mth.clamp(vy, 0.0, 1.0);
         double verticalSpeed = intensityClamped * 0.6;
 
-        /* =========================
-           PAN → SOLO X / Z
-           ========================= */
         Vec3 dir = new Vec3(vx, 0.0, vz);
         if (dir.lengthSqr() < 1.0E-4) {
             dir = new Vec3(0, 0, 1);
         }
         dir = dir.normalize();
 
-        /* =========================
-           FAN / ABANICO
-           ========================= */
-        Vec3 side = new Vec3(-dir.z, 0, dir.x); // perpendicular horizontal
+        Vec3 side = new Vec3(-dir.z, 0, dir.x);
 
         double spread = 0.4;
         double factor = (Math.random() * 2 - 1) * spread;
 
         Vec3 finalDir = dir.add(side.scale(factor)).normalize();
 
-        /* =========================
-           VELOCIDADES FINALES
-           ========================= */
         this.xd = finalDir.x * verticalSpeed;
-        this.yd = verticalSpeed;        // 🔥 SOLO INTENSITY
+        this.yd = verticalSpeed;
         this.zd = finalDir.z * verticalSpeed;
 
         this.setSpriteFromAge(spriteSet);
@@ -88,7 +79,7 @@ public class WaterJetFanParticle extends TextureSheetParticle {
 
     @Override
     public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+        return ParticleRenderType.PARTICLE_SHEET_OPAQUE;
     }
 
     @Override

@@ -107,6 +107,8 @@ public class BlockEntities {
     public static final RegistrySupplier<BlockEntityType<Blinder2x2warmBlockEntity>> BLINDER2X2WARM = BLOCK_ENTITIES.register("blinder2x2warm", () -> BlockEntityType.Builder.of(Blinder2x2warmBlockEntity::new, Blocks.BLINDER2X2WARM_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<MiniBarBlockEntity>> MINI_BAR = BLOCK_ENTITIES.register("mini_bar", () -> BlockEntityType.Builder.of(MiniBarBlockEntity::new, Blocks.MINI_BAR_BLOCK.get()).build(null));
 
+    public static final RegistrySupplier<BlockEntityType<MovingVL2CBeamsBlockEntity>> MOVING_VL2C_BEAMS = BLOCK_ENTITIES.register("moving_vl2c_beams", () -> BlockEntityType.Builder.of(MovingVL2CBeamsBlockEntity::new, Blocks.MOVING_VL2C_BEAMS_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<MovingScanBeamsBlockEntity>> MOVING_SCAN_BEAMS = BLOCK_ENTITIES.register("moving_scan_beams", () -> BlockEntityType.Builder.of(MovingScanBeamsBlockEntity::new, Blocks.MOVING_SCAN_BEAMS_BLOCK.get()).build(null));
 
 
     public static void init(){

@@ -107,6 +107,13 @@ public class Fixtures {
     public static final RegistrySupplier<Fixture> MOVING_VL2C =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "moving_vl2c"), MovingVL2CFixture::new);
 
+    public static final RegistrySupplier<Fixture> MOVING_VL2C_BEAMS =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "moving_vl2c_beams"), MovingVL2CBeamsFixture::new);
+    public static final RegistrySupplier<Fixture> MOVING_SCAN_BEAMS =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "moving_scan_beams"), MovingScanBeamsFixture::new);
+
+
+
     public static final RegistrySupplier<Fixture> WASHLIGHT =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "washlight"), WashlightFixture::new);
 

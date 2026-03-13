@@ -79,7 +79,7 @@ public class WaterJetFogParticle extends TextureSheetParticle {
 
     @Override
     public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+        return ParticleRenderType.PARTICLE_SHEET_OPAQUE;
     }
 
     public void tick() {
