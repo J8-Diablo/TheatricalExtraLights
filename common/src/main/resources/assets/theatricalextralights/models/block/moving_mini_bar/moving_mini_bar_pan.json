@@ -1,0 +1,8 @@
+{
+  "credit": "Codex",
+  "textures": {
+    "0": "theatricalextralights:block/moving_mini_bar_body",
+    "particle": "theatricalextralights:block/moving_mini_bar_body"
+  },
+  "elements": []
+}

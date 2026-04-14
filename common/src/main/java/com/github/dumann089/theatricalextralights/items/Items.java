@@ -35,6 +35,10 @@ public class Items {
             "moving_bar",
             () -> new BlockItem(Blocks.MOVING_BAR_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
+    public static final RegistrySupplier<Item> MOVING_MINI_BAR = ITEMS.register(
+            "moving_mini_bar",
+            () -> new BlockItem(Blocks.MOVING_MINI_BAR_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
     public static final RegistrySupplier<Item> MOVING_BEAM = ITEMS.register(
             "moving_beam",
             () -> new BlockItem(Blocks.MOVING_BEAM_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))

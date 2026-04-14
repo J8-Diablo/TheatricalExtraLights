@@ -86,6 +86,7 @@ public class BlockEntities {
     public static final RegistrySupplier<BlockEntityType<verticalscrollerBlockEntity>> VERTICALSCROLLER = BLOCK_ENTITIES.register("verticalcroller", () -> BlockEntityType.Builder.of(verticalscrollerBlockEntity::new, Blocks.VERTICALSCROLLER_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<washledBlockEntity>> WASHLED = BLOCK_ENTITIES.register("washled", () -> BlockEntityType.Builder.of(washledBlockEntity::new, Blocks.WASHLED_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<MovingbarBlockEntity>> MOVING_BAR = BLOCK_ENTITIES.register("moving_bar", () -> BlockEntityType.Builder.of(MovingbarBlockEntity::new, Blocks.MOVING_BAR_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<MovingMiniBarBlockEntity>> MOVING_MINI_BAR = BLOCK_ENTITIES.register("moving_mini_bar", () -> BlockEntityType.Builder.of(MovingMiniBarBlockEntity::new, Blocks.MOVING_MINI_BAR_BLOCK.get()).build(null));
 
     public static final RegistrySupplier<BlockEntityType<WaterJetBlockEntity>> WATER_JET = BLOCK_ENTITIES.register("water_jet", () -> BlockEntityType.Builder.of(WaterJetBlockEntity::new, Blocks.WATER_JET_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<MovingJetBlockEntity>> MOVING_JET = BLOCK_ENTITIES.register("moving_jet", () -> BlockEntityType.Builder.of(MovingJetBlockEntity::new, Blocks.MOVING_JET_BLOCK.get()).build(null));

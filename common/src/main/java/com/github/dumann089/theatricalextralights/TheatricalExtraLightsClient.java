@@ -86,6 +86,7 @@ public class TheatricalExtraLightsClient {
         BlockEntityRendererRegistry.register(BlockEntities.HORIZONTALSCROLLER.get(), horizontalscrollerRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.VERTICALSCROLLER.get(), verticalscrollerRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.MOVING_BAR.get(), MovingbarRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.MOVING_MINI_BAR.get(), MovingMiniBarRenderer::new);
 
         BlockEntityRendererRegistry.register(BlockEntities.WATER_JET.get(), WaterJetRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.MOVING_JET.get(), MovingJetRenderer::new);
