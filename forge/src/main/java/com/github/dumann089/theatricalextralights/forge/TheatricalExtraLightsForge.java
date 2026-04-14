@@ -2,6 +2,7 @@ package com.github.dumann089.theatricalextralights.forge;
 
 import com.github.dumann089.theatricalextralights.TheatricalExtraLights;
 import com.github.dumann089.theatricalextralights.TheatricalExtraLightsClient;
+
 import dev.architectury.platform.forge.EventBuses;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -16,7 +17,6 @@ public class TheatricalExtraLightsForge {
         TheatricalExtraLights.init();
         FMLJavaModLoadingContext.get().getModEventBus().addListener(DataEvent::onData);
     }
-
     public void onClient(FMLClientSetupEvent event){
         TheatricalExtraLightsClient.init();
     }

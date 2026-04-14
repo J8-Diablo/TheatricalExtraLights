@@ -86,7 +86,7 @@ public class LEDfountainRenderer extends FixtureRenderer<LEDFountainBlockEntity>
         poseStack.translate(pans[0], pans[1], pans[2]);
         int prevPan = blockEntity.getPrevPan();
         int pan = blockEntity.getPan();
-        poseStack.mulPose(Axis.YN.rotationDegrees(-(prevPan + (pan - prevPan) * partialTicks)));
+        poseStack.mulPose(Axis.YN.rotationDegrees((prevPan + (pan - prevPan) * partialTicks)));
         poseStack.translate(-pans[0], -pans[1], -pans[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedPanModel, packedLight, packedOverlay);
         //#endregion
@@ -96,7 +96,7 @@ public class LEDfountainRenderer extends FixtureRenderer<LEDFountainBlockEntity>
         int prevTilt = blockEntity.getPrevTilt();
         int tilt = blockEntity.getTilt();
 //        poseStack.mulPose(Axis.XP.rotationDegrees(180));
-        poseStack.mulPose(Axis.XP.rotationDegrees(-(prevTilt + (tilt - prevTilt) * partialTicks)));
+        poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel,  packedLight, packedOverlay);
         //#endregion
@@ -184,7 +184,7 @@ public class LEDfountainRenderer extends FixtureRenderer<LEDFountainBlockEntity>
         poseStack.translate(pans[0], pans[1], pans[2]);
         int prevPan = blockEntity.getPrevPan();
         int pan = blockEntity.getPan();
-        poseStack.mulPose(Axis.YN.rotationDegrees(-(prevPan + (pan - prevPan) * partialTicks)));
+        poseStack.mulPose(Axis.YN.rotationDegrees((prevPan + (pan - prevPan) * partialTicks)));
         poseStack.translate(-pans[0], -pans[1], -pans[2]);
         //#endregion
         //#region Model Tilt
@@ -193,7 +193,7 @@ public class LEDfountainRenderer extends FixtureRenderer<LEDFountainBlockEntity>
         int prevTilt = blockEntity.getPrevTilt();
         int tilt = blockEntity.getTilt();
 //        poseStack.mulPose(Axis.XP.rotationDegrees(180));
-        poseStack.mulPose(Axis.XP.rotationDegrees(-(prevTilt + (tilt - prevTilt) * partialTicks)));
+        poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
         //#endregion
     }

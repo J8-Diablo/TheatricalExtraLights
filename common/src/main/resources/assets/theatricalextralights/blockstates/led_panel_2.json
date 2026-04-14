@@ -1,5 +1,5 @@
 {
   "variants": {
-    "": {"model":  "theatricalextralights:block/ledpanel/led_panel_body"}
+    "": {"model":  "theatricalextralights:block/ledpanel/led_panel_whole"}
   }
 }

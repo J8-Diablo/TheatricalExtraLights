@@ -2,8 +2,12 @@ package com.github.dumann089.theatricalextralights;
 
 import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
 import com.github.dumann089.theatricalextralights.blocks.Blocks;
+import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import com.github.dumann089.theatricalextralights.items.Items;
+import com.github.dumann089.theatricalextralights.net.ExtraLightsNet;
+import com.github.dumann089.theatricalextralights.net.ModNetworkHandler;
+import com.github.dumann089.theatricalextralights.particle.ModParticle;
 import dev.architectury.registry.CreativeTabRegistry;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
@@ -33,5 +37,11 @@ public class TheatricalExtraLights {
         Fixtures.init();
         Items.init();
         BlockEntities.init();
+        ModParticle.initialize();
+        ModNetworkHandler.register();
+        ExtraLightsNet.init();
+        TheatricalExtraLightsConfig.load();
     }
 }
+
+

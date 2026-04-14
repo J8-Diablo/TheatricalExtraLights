@@ -1,0 +1,56 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "washlight",
+	"textures": {
+		"1": "theatricalextralights:block/moving_vl2c_body",
+		"particle": "theatricalextralights:block/light_fresnel_active_full"
+	},
+	"elements": [
+		{
+			"from": [3, 2, 3],
+			"to": [13, 3, 13],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 4, 0]},
+			"faces": {
+				"north": {"uv": [0, 13.44444, 13, 16], "texture": "#1"},
+				"east": {"uv": [0, 13, 16, 16], "texture": "#1"},
+				"south": {"uv": [0, 13, 14, 16], "texture": "#1"},
+				"west": {"uv": [0, 13, 16, 16], "texture": "#1"},
+				"up": {"uv": [0, 13, 14, 16], "texture": "#1"},
+				"down": {"uv": [0, 13, 14, 16], "texture": "#1"}
+			}
+		},
+		{
+			"from": [2, 0, 3],
+			"to": [14, 2, 13],
+			"faces": {
+				"north": {"uv": [0, 13.44444, 15, 16], "texture": "#1"},
+				"east": {"uv": [0, 13, 16, 16], "texture": "#1"},
+				"south": {"uv": [0, 13, 16, 16], "texture": "#1"},
+				"west": {"uv": [0, 13, 16, 16], "texture": "#1"},
+				"up": {"uv": [0, 13, 16, 16], "texture": "#1"},
+				"down": {"uv": [0, 13, 16, 16], "texture": "#1"}
+			}
+		}
+	],
+	"display": {
+		"firstperson_righthand": {
+			"scale": [0.5, 0.5, 0.5]
+		},
+		"firstperson_lefthand": {
+			"scale": [0.5, 0.5, 0.5]
+		},
+		"gui": {
+			"rotation": [8, 169, 0],
+			"translation": [0, -0.75, 0],
+			"scale": [0.7, 0.7, 0.7]
+		}
+	},
+	"groups": [
+		{
+			"name": "Static",
+			"origin": [0, 0, 0],
+			"color": 0,
+			"children": [0, 1]
+		}
+	]
+}

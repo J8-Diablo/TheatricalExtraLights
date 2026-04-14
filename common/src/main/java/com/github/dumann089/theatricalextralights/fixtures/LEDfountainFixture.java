@@ -17,8 +17,7 @@ import java.util.List;
 public class LEDfountainFixture extends Fixture {
 
     private static final List<DMXPersonality> PERSONALITIES = Collections.singletonList(
-            new DMXPersonality(4, "4-Channel Mode")
-                    .addSlot(SharedSlots.INTENSITY)
+            new DMXPersonality(3, "3-Channel Mode")
                     .addSlot(SharedSlots.RED)
                     .addSlot(SharedSlots.GREEN)
                     .addSlot(SharedSlots.BLUE)
@@ -93,5 +92,20 @@ public class LEDfountainFixture extends Fixture {
     @Override
     public List<DMXPersonality> getDMXPersonalities() {
         return PERSONALITIES;
+    }
+
+    @Override
+    public boolean invertTilt() {
+        return true;
+    }
+
+    @Override
+    public boolean invertPan() {
+        return true;
+    }
+
+    @Override
+    public double getLightRadius() {
+        return 13.0;
     }
 }

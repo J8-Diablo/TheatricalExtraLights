@@ -25,7 +25,7 @@ public class ParLedFixture extends Fixture {
     );
 
     private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/parled/parled_tilt");
-    private static final ResourceLocation PAN_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/parled/parled_pan");
+    private static final ResourceLocation PAN_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/parled/parled_pan_floor");
     private static final ResourceLocation STATIC_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/parled/parled_static");
 
     private final float[] tiltRotation = new float[]{0.5F, .453125F, .5F};
@@ -64,7 +64,7 @@ public class ParLedFixture extends Fixture {
 
     @Override
     public float getDefaultRotation() {
-        return 0;
+        return 90;
     }
 
     @Override
@@ -85,13 +85,28 @@ public class ParLedFixture extends Fixture {
     @Override
     public float[] getTransforms(BlockState fixtureBlockState, BlockState supportBlockState) {
         if(fixtureBlockState.getValue(BaseLightBlock.HANG_DIRECTION) == Direction.UP){
-            return new float[]{0, .5f, 0};
+            return new float[]{0, .51f, 0};
         }
-        return new float[]{0, 0.5F, 0};
+        return new float[]{0, -0.365F, 0};
     }
 
     @Override
     public List<DMXPersonality> getDMXPersonalities() {
         return PERSONALITIES;
+    }
+
+    @Override
+    public boolean invertTilt() {
+        return false;
+    }
+
+    @Override
+    public boolean invertPan() {
+        return false;
+    }
+
+    @Override
+    public double getLightRadius() {
+        return 9.5;
     }
 }

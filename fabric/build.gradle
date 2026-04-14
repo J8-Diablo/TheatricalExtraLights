@@ -32,6 +32,14 @@ dependencies {
 
     // Theatrical
     modImplementation "dev.imabad:Theatrical-fabric:${theatrical_version}"
+
+    if(include_shimmer == "true") {
+        //Shimmer
+        modImplementation("com.lowdragmc.shimmer:Shimmer-fabric:${shimmer_version}") {
+            exclude group: "maven.modrinth"
+            exclude group: "com.jozufozu.flywheel"
+        }
+    }
 }
 
 processResources {

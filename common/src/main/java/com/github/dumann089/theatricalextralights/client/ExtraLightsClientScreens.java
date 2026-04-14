@@ -1,0 +1,40 @@
+package com.github.dumann089.theatricalextralights.client;
+
+import com.github.dumann089.theatricalextralights.TheatricalExtraLightsScreens;
+import com.github.dumann089.theatricalextralights.client.gui.ExtraLightsConfigScreen;
+import com.github.dumann089.theatricalextralights.client.gui.WaterJetConeScreen;
+import com.github.dumann089.theatricalextralights.client.gui.WaterJetGenericScreen;
+import com.github.dumann089.theatricalextralights.client.gui.WaterJetPanTiltScreen;
+import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
+@Environment(EnvType.CLIENT)
+public class ExtraLightsClientScreens {
+
+    public static void open(TheatricalExtraLightsScreens screenType, BlockPos pos) {
+
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return;
+
+        BlockEntity be = mc.level.getBlockEntity(pos);
+        if (!(be instanceof BaseDMXConsumerLightBlockEntity lightBE)) return;
+
+        Screen gui = switch (screenType) {
+            case WATER_GENERIC ->
+                    new WaterJetGenericScreen(lightBE, pos, "Water Generic");
+            case WATER_MANUAL ->
+                    new WaterJetPanTiltScreen(pos, "Water Manual");
+            case WATER_CONE ->
+                    new WaterJetConeScreen(pos, "Water Cone");
+            case CHANNEL_MENU ->
+                    new ExtraLightsConfigScreen(lightBE, pos, lightBE.getTranslationKey());
+        };
+
+        mc.setScreen(gui);
+    }
+}

@@ -23,7 +23,7 @@ public class BigPanel2BlockEntity extends BaseDMXConsumerLightBlockEntity {
 
     @Override
     public int getFocus() {
-        return 1;
+        return 255;
     }
 
     @Override
@@ -67,6 +67,11 @@ public class BigPanel2BlockEntity extends BaseDMXConsumerLightBlockEntity {
 
     public int convertByteToInt(byte val) {
         return Byte.toUnsignedInt(val);
+    }
+
+    @Override
+    public String getTranslationKey() {
+        return "block.theatricalextralights.big_panel2";
     }
 
 }

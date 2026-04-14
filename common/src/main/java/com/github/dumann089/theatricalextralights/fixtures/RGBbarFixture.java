@@ -24,13 +24,14 @@ public class RGBbarFixture extends Fixture {
                     .addSlot(SharedSlots.BLUE)
     );
 
-    private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/ledbar/ledbar_body_only");
-    private static final ResourceLocation PAN_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/ledbar/ledbar_handle_only");
+    private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/ledbar/ledbar_tilt");
+    private static final ResourceLocation PAN_MODEL= new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/ledbar/ledbar_handle_only");
     private static final ResourceLocation STATIC_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/ledbar/ledbar_hook_bar");
 
     private final float[] tiltRotation = new float[]{0.5F, .5F, .5F};
-    private final float[] panRotation = new float[]{0.5F, 0F, .41F};
+    private final float[] panRotation = new float[]{0.5F, 0F, .5F};
     private final float[] beamStartPosition = new float[]{0.5F, 0.24F, 0.1F};
+
 
     @Override
     public ResourceLocation getTiltModel() {
@@ -64,17 +65,17 @@ public class RGBbarFixture extends Fixture {
 
     @Override
     public float getDefaultRotation() {
-        return 0;
+        return 90;
     }
 
     @Override
     public float getBeamWidth() {
         return 0.0f;
     }
-
+    
     @Override
     public float getRayTraceRotation() {
-        return 180f;
+        return 0f;
     }
 
     @Override
@@ -85,13 +86,28 @@ public class RGBbarFixture extends Fixture {
     @Override
     public float[] getTransforms(BlockState fixtureBlockState, BlockState supportBlockState) {
         if(fixtureBlockState.getValue(BaseLightBlock.HANG_DIRECTION) == Direction.UP){
-            return new float[]{0, .5f, 0};
+            return new float[]{0, .510f, 0};
         }
-        return new float[]{0, 0.5F, 0};
+        return new float[]{0, -0.365F, 0};
     }
 
     @Override
     public List<DMXPersonality> getDMXPersonalities() {
         return PERSONALITIES;
+    }
+
+    @Override
+    public boolean invertTilt() {
+        return false;
+    }
+
+    @Override
+    public boolean invertPan() {
+        return false;
+    }
+
+    @Override
+    public double getLightRadius() {
+        return 7.5;
     }
 }

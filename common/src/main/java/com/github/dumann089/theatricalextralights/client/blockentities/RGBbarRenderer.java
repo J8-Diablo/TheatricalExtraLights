@@ -1,6 +1,8 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.RGBBarBlockEntity;
+import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
+import dev.imabad.theatrical.config.TheatricalConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -24,6 +26,7 @@ import org.joml.Matrix4f;
 
 public class RGBbarRenderer extends FixtureRenderer<RGBBarBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
+
     public RGBbarRenderer(BlockEntityRendererProvider.Context context) {
         super(context);
     }
@@ -49,8 +52,9 @@ public class RGBbarRenderer extends FixtureRenderer<RGBBarBlockEntity> {
                     if(hangDirection == Direction.SOUTH) {
                         poseStack.mulPose(Axis.XP.rotationDegrees(-90));
                     } else {
-                        poseStack.mulPose(Axis.XN.rotationDegrees(-90));
+                        poseStack.mulPose(Axis.XP.rotationDegrees(90));
                     }
+                    poseStack.mulPose(Axis.YP.rotationDegrees(180));
                 } else {
                     if(hangDirection == Direction.EAST) {
                         poseStack.mulPose(Axis.ZN.rotationDegrees(-90));
@@ -59,22 +63,12 @@ public class RGBbarRenderer extends FixtureRenderer<RGBBarBlockEntity> {
                     }
                 }
             } else {
-                // UP-DOWN
-                if (hangDirection == Direction.UP) {
-                    poseStack.mulPose(Axis.XP.rotationDegrees(180));
-                } else if (hangDirection == Direction.DOWN) {
-                    poseStack.mulPose(Axis.XP.rotationDegrees(180));
-                }
+                //TODO: Handle hanging up
             }
-        
-            poseStack.translate(0, -1.45, 0F);
+            poseStack.translate(0, -0.5, 0F);
         }
         //#endregion
-        if(facing.getAxis() == Direction.Axis.X){
-            poseStack.mulPose(Axis.YP.rotationDegrees(facing.toYRot()));
-        } else {
-            poseStack.mulPose(Axis.YP.rotationDegrees(facing.getOpposite().toYRot()));
-        }
+        poseStack.mulPose(Axis.YP.rotationDegrees(facing.toYRot()));
         poseStack.translate(-0.5F, 0, -.5F);
         if (isHanging) {
             Optional<BlockState> optionalSupport = blockEntity.getSupportingStructure();
@@ -84,6 +78,12 @@ public class RGBbarRenderer extends FixtureRenderer<RGBBarBlockEntity> {
             } else {
                 poseStack.translate(0, 0.19, 0);
             }
+            poseStack.translate(0, -0.08, 0);
+        }
+        if (isFlipped) {
+            poseStack.translate(0.5F, 0.5, .5F);
+            poseStack.mulPose(Axis.ZP.rotationDegrees(180));
+            poseStack.translate(-0.5F, -0.5, -.5F);
         }
         // Static Model Render
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedStaticModel, packedLight, packedOverlay);
@@ -92,7 +92,7 @@ public class RGBbarRenderer extends FixtureRenderer<RGBBarBlockEntity> {
         poseStack.translate(pans[0], pans[1], pans[2]);
         int prevPan = blockEntity.getPrevPan();
         int pan = blockEntity.getPan();
-        poseStack.mulPose(Axis.YN.rotationDegrees(-(prevPan + (pan - prevPan) * partialTicks)));
+        poseStack.mulPose(Axis.YP.rotationDegrees((prevPan + (pan - prevPan) * partialTicks)));
         poseStack.translate(-pans[0], -pans[1], -pans[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedPanModel, packedLight, packedOverlay);
         //#endregion
@@ -101,10 +101,14 @@ public class RGBbarRenderer extends FixtureRenderer<RGBBarBlockEntity> {
         poseStack.translate(tilts[0], tilts[1], tilts[2]);
         int prevTilt = blockEntity.getPrevTilt();
         int tilt = blockEntity.getTilt();
-//        poseStack.mulPose(Axis.XP.rotationDegrees(180));
-        poseStack.mulPose(Axis.XP.rotationDegrees(-(prevTilt + (tilt - prevTilt) * partialTicks)));
+        if (isFlipped) {
+            poseStack.mulPose(Axis.XP.rotationDegrees(-180));
+        } else {
+            poseStack.mulPose(Axis.XP.rotationDegrees(180));
+        }
+        poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
-        minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel,  packedLight, packedOverlay);
+        minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel, packedLight, packedOverlay);
         //#endregion
     }
     @Override
@@ -117,21 +121,30 @@ public class RGBbarRenderer extends FixtureRenderer<RGBBarBlockEntity> {
                     Vec3 offset = Vec3.atLowerCornerOf(blockEntity.getBlockPos()).subtract(camera.getPosition());
                     poseStack.translate(offset.x, offset.y, offset.z);
                     preparePoseStack(blockEntity, poseStack, facing, partialTick, isFlipped, blockstate, isHanging);
+
                     VertexConsumer beamConsumer = multiBufferSource.getBuffer(TheatricalRenderTypes.BEAM);
-//            poseStack.translate(blockEntity.getFixture().getBeamStartPosition()[0], blockEntity.getFixture().getBeamStartPosition()[1], blockEntity.getFixture().getBeamStartPosition()[2]);
+
                     float intensity = (blockEntity.getPrevIntensity() + ((blockEntity.getIntensity()) - blockEntity.getPrevIntensity()) * partialTicks);
+                    float alpha = intensity / 255f;
                     int color = blockEntity.getColour();
                     int r = (color >> 16) & 0xFF;
                     int g = (color >> 8) & 0xFF;
                     int b = color & 0xFF;
-                    int a = (int) (((float) ((intensity * 1) / 255f)) * 255);
+                    int a = (int) (alpha * 255);
+
                     poseStack.translate(0.5, 0.5f, 0.38f);
+
                     Matrix4f m = poseStack.last().pose();
                     Matrix3f normal = poseStack.last().normal();
-                    addVertex(beamConsumer, m, normal, r, g, b, a, -1.375f, 0.125f , 0f);
-                    addVertex(beamConsumer, m, normal, r, g, b, a,  1.375f, 0.125f, 0f);
-                    addVertex(beamConsumer, m, normal, r, g, b, a, 1.375f, -0.125f,0f);
-                    addVertex(beamConsumer, m, normal, r, g, b, a,-1.375f, -0.125f, 0f);
+
+                    addVertex(beamConsumer, m, normal, r, g, b, a, -1.375f, 0.125f, 0f);
+                    addVertex(beamConsumer, m, normal, r, g, b, a, 1.375f, 0.125f, 0f);
+                    addVertex(beamConsumer, m, normal, r, g, b, a, 1.375f, -0.125f, 0f);
+                    addVertex(beamConsumer, m, normal, r, g, b, a, -1.375f, -0.125f, 0f);
+
+                    float beamLength = TheatricalExtraLightsConfig.getRgbBarBeamLength();
+
+                    renderLightBeam(beamConsumer, poseStack, blockEntity, partialTicks, alpha, 1.375f, 0.125f, beamLength, color);
                     poseStack.popPose();
                 }
 
@@ -143,9 +156,47 @@ public class RGBbarRenderer extends FixtureRenderer<RGBBarBlockEntity> {
         }
     }
 
+
+
+    protected void renderLightBeam(VertexConsumer builder, PoseStack stack, RGBBarBlockEntity tileEntityFixture, float partialTicks, float alpha, float beamWidth, float beamHeight, float length, int color) {
+        alpha *= (float) TheatricalConfig.INSTANCE.CLIENT.beamOpacity;
+        int r = (color >> 16) & 0xFF;
+        int g = (color >> 8) & 0xFF;
+        int b = color & 0xFF;
+        int a = (int) (alpha * 255);
+        Matrix4f m = stack.last().pose();
+        Matrix3f normal = stack.last().normal();
+        float focus = 1.0f;
+        float endWidth = beamWidth * focus;
+        float endHeight = beamHeight * focus;
+
+        // Right Face
+        addVertex(builder, m, normal, r, g, b, 0, endWidth, endHeight, -length);
+        addVertex(builder, m, normal, r, g, b, a, beamWidth, beamHeight, 0);
+        addVertex(builder, m, normal, r, g, b, a, beamWidth, -beamHeight, 0);
+        addVertex(builder, m, normal, r, g, b, 0, endWidth, -endHeight, -length);
+
+        // Left Face
+        addVertex(builder, m, normal, r, g, b, 0, -endWidth, -endHeight, -length);
+        addVertex(builder, m, normal, r, g, b, a, -beamWidth, -beamHeight, 0);
+        addVertex(builder, m, normal, r, g, b, a, -beamWidth, beamHeight, 0);
+        addVertex(builder, m, normal, r, g, b, 0, -endWidth, endHeight, -length);
+
+        // UP Face
+        addVertex(builder, m, normal, r, g, b, 0, -endWidth, endHeight, -length);
+        addVertex(builder, m, normal, r, g, b, a, -beamWidth, beamHeight, 0);
+        addVertex(builder, m, normal, r, g, b, a, beamWidth, beamHeight, 0);
+        addVertex(builder, m, normal, r, g, b, 0, endWidth, endHeight, -length);
+
+        // Down Face
+        addVertex(builder, m, normal, r, g, b, 0, endWidth, -endHeight, -length);
+        addVertex(builder, m, normal, r, g, b, a, beamWidth, -beamHeight, 0);
+        addVertex(builder, m, normal, r, g, b, a, -beamWidth, -beamHeight, 0);
+        addVertex(builder, m, normal, r, g, b, 0, -endWidth, -endHeight, -length);
+    }
+
     @Override
     public void preparePoseStack(RGBBarBlockEntity blockEntity, PoseStack poseStack, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging) {
-        //#region Fixture Hanging
         poseStack.translate(0.5F, 0, .5F);
         if(isHanging){
             Direction hangDirection = blockState.getValue(HangableBlock.HANG_DIRECTION);
@@ -155,8 +206,9 @@ public class RGBbarRenderer extends FixtureRenderer<RGBBarBlockEntity> {
                     if(hangDirection == Direction.SOUTH) {
                         poseStack.mulPose(Axis.XP.rotationDegrees(-90));
                     } else {
-                        poseStack.mulPose(Axis.XN.rotationDegrees(-90));
+                        poseStack.mulPose(Axis.XP.rotationDegrees(90));
                     }
+                    poseStack.mulPose(Axis.YP.rotationDegrees(180));
                 } else {
                     if(hangDirection == Direction.EAST) {
                         poseStack.mulPose(Axis.ZN.rotationDegrees(-90));
@@ -165,22 +217,12 @@ public class RGBbarRenderer extends FixtureRenderer<RGBBarBlockEntity> {
                     }
                 }
             } else {
-               // UP-DOWN
-                if (hangDirection == Direction.UP) {
-                    poseStack.mulPose(Axis.XP.rotationDegrees(180));
-                } else if (hangDirection == Direction.DOWN) {
-                    poseStack.mulPose(Axis.XP.rotationDegrees(180));
-                }
+                //TODO: Handle hanging up
             }
-        
-            poseStack.translate(0, -1.45, 0F); 
+            poseStack.translate(0, -0.5, 0F);
         }
         //#endregion
-        if(facing.getAxis() == Direction.Axis.X){
-            poseStack.mulPose(Axis.YP.rotationDegrees(facing.toYRot()));
-        } else {
-            poseStack.mulPose(Axis.YP.rotationDegrees(facing.getOpposite().toYRot()));
-        }
+        poseStack.mulPose(Axis.YP.rotationDegrees(facing.toYRot()));
         poseStack.translate(-0.5F, 0, -.5F);
         if (isHanging) {
             Optional<BlockState> optionalSupport = blockEntity.getSupportingStructure();
@@ -190,13 +232,18 @@ public class RGBbarRenderer extends FixtureRenderer<RGBBarBlockEntity> {
             } else {
                 poseStack.translate(0, 0.19, 0);
             }
+            poseStack.translate(0, -0.08, 0);
         }
-        //#region Model Pan
+        if (isFlipped) {
+            poseStack.translate(0.5F, 0.5, .5F);
+            poseStack.mulPose(Axis.ZP.rotationDegrees(180));
+            poseStack.translate(-0.5F, -0.5, -.5F);
+        }
         float[] pans = blockEntity.getFixture().getPanRotationPosition();
         poseStack.translate(pans[0], pans[1], pans[2]);
         int prevPan = blockEntity.getPrevPan();
         int pan = blockEntity.getPan();
-        poseStack.mulPose(Axis.YN.rotationDegrees(-(prevPan + (pan - prevPan) * partialTicks)));
+        poseStack.mulPose(Axis.YP.rotationDegrees((prevPan + (pan - prevPan) * partialTicks)));
         poseStack.translate(-pans[0], -pans[1], -pans[2]);
         //#endregion
         //#region Model Tilt
@@ -204,8 +251,12 @@ public class RGBbarRenderer extends FixtureRenderer<RGBBarBlockEntity> {
         poseStack.translate(tilts[0], tilts[1], tilts[2]);
         int prevTilt = blockEntity.getPrevTilt();
         int tilt = blockEntity.getTilt();
-//        poseStack.mulPose(Axis.XP.rotationDegrees(180));
-        poseStack.mulPose(Axis.XP.rotationDegrees(-(prevTilt + (tilt - prevTilt) * partialTicks)));
+        if (isFlipped) {
+            poseStack.mulPose(Axis.XP.rotationDegrees(-180));
+        } else {
+            poseStack.mulPose(Axis.XP.rotationDegrees(180));
+        }
+        poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
         //#endregion
     }

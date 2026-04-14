@@ -52,6 +52,35 @@ public class DataEvent {
             withExistingParent(Blocks.BIG_PANEL.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/bigpanel3x3/bigpanel_body"));
             withExistingParent(Blocks.BIG_PANEL2.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/bigpanel2x3/bigpanel2x3_body"));
             withExistingParent(Blocks.PAR_LED.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/parled/parled_body_whole"));
+            withExistingParent(Blocks.BLINDER.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/4x2_blinder/4x2_blinder_whole"));
+            withExistingParent(Blocks.LASER_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/laser/laser_whole"));
+            withExistingParent(Blocks.TRUSS_3LIGHTS.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/truss3x3lights/truss3x3light_whole"));
+            withExistingParent(Blocks.STROBE.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/strobe/strobe_whole"));
+            withExistingParent(Blocks.BEAM_7R_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/seven_beam/seven_whole"));
+            withExistingParent(Blocks.SOURCE_FOUR_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/spotlight/source_whole"));
+            withExistingParent(Blocks.MAC_VIP_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/macvip/macvip_whole"));
+            withExistingParent(Blocks.SHARPLUS_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/sharplus/sharplus_whole"));
+            withExistingParent(Blocks.MOVING500_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/moving500/moving500_whole"));
+            withExistingParent(Blocks.PAR1000_RED_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/par1000/par1000_red_whole"));
+            withExistingParent(Blocks.PAR1000_BLUE_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/par1000/par1000_blue_whole"));
+            withExistingParent(Blocks.PAR1000_GREEN_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/par1000/par1000_green_whole"));
+            withExistingParent(Blocks.PAR1000_MAGENTA_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/par1000/par1000_magenta_whole"));
+            withExistingParent(Blocks.PAR1000_AMBER_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/par1000/par1000_amber_whole"));
+            withExistingParent(Blocks.PAR1000_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/par1000/par1000_warm_whole"));
+            withExistingParent(Blocks.PAR1000_PURPLE_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/par1000/par1000_purple_whole"));
+            withExistingParent(Blocks.PAR1000_LIGHTBLUE_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/par1000/par1000_lightblue_whole"));
+            withExistingParent(Blocks.PAR1000_WHITE_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/par1000/par1000_white_whole"));
+            withExistingParent(Blocks.ROBITSPOT_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/robitspot/robitspot_whole"));
+            withExistingParent(Blocks.VERVESPOT_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/vervespot/vervespot_whole"));
+            withExistingParent(Blocks.VERTICALBAR_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/barvertical/barvertical_whole"));
+            withExistingParent(Blocks.SEARCHLIGHT_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/searchlight/searchlight_whole"));
+            withExistingParent(Blocks.BLINDER_WARM_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/4x2_blinder/4x2_blinder_whole"));
+            withExistingParent(Blocks.SEARCHLIGHT_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/searchlight/searchlight_whole"));
+            withExistingParent(Blocks.WASHLIGHT_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/washlight/washlight_whole"));
+            withExistingParent(Blocks.ATOMICTILT_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/atomictilt/atomictilt_whole"));
+            withExistingParent(Blocks.MINIWASH_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/miniwash/miniwash_whole"));
+            withExistingParent(Blocks.X8PAR_RED_BLOCK.getId().getPath(), new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/x8par64/x8par64_red_whole"));
+
         }
     }
 
@@ -63,16 +92,50 @@ public class DataEvent {
 
         @Override
         protected void addTranslations() {
-            addBlock(Blocks.MOVING_VL2C_BLOCK, "Moving VLC2C");
-            addBlock(Blocks.MOVING_BEAM_BLOCK, "Moving Bean");
+            addBlock(Blocks.MOVING_VL2C_BLOCK, "Moving VL2");
+            addBlock(Blocks.MOVING_BEAM_BLOCK, "Moving Beam");
             addBlock(Blocks.MOVING_SCAN_BLOCK, "Moving Scan");
             addBlock(Blocks.MOVING_VL6_BLOCK, "Moving VL6");
             addBlock(Blocks.LED_FOUNTAIN, "Led Fountain");
             addBlock(Blocks.LED_PANEL_2, "LED Panel 2");
-            addBlock(Blocks.BIG_PANEL, "Big Panel");
-            addBlock(Blocks.BIG_PANEL2, "Big Panel");
-            addBlock(Blocks.PAR_LED, "LED Par");
+            addBlock(Blocks.BIG_PANEL, "Big Panel 3x3");
+            addBlock(Blocks.BIG_PANEL2, "Big Panel 3x2 ");
+            addBlock(Blocks.PAR_LED, "LED Pair");
             addBlock(Blocks.RGB_BAR, "RGB Bar");
+            addBlock(Blocks.VERTICALBAR_BLOCK, "Vertical RGB Bar");
+            addBlock(Blocks.BLINDER, "Blinder 4x2");
+            addBlock(Blocks.BLINDER_WARM_BLOCK, "Blinder 4x2 Warm");
+            addBlock(Blocks.LASER_BLOCK, "Laser");
+            addBlock(Blocks.TRUSS_3LIGHTS, "Truss 3x3 Lights");
+            addBlock(Blocks.STROBE, "Strobe");
+            addBlock(Blocks.BEAM_7R_BLOCK, "Beam 7r");
+            addBlock(Blocks.SOURCE_FOUR_BLOCK, "Source Four");
+            addBlock(Blocks.MAC_VIP_BLOCK, "Mac Vip");
+            addBlock(Blocks.SHARPLUS_BLOCK, "Sharplus");
+            addBlock(Blocks.MOVING500_BLOCK, "Moving 500");
+            addBlock(Blocks.ROBITSPOT_BLOCK, "Robit Spot");
+            addBlock(Blocks.VERVESPOT_BLOCK, "Verve Spot");
+            addBlock(Blocks.SEARCHLIGHT_BLOCK, "Searchlight");
+            addBlock(Blocks.WASHLIGHT_BLOCK, "Wash FX648");
+            addBlock(Blocks.WASHLIGHT_BLOCK, "Mini Wash");
+            addBlock(Blocks.ATOMICTILT_BLOCK, "Atomic Tilt");
+            addBlock(Blocks.PAR1000_RED_BLOCK, "Par 1000 Red");
+            addBlock(Blocks.PAR1000_BLUE_BLOCK, "Par 1000 Blue");
+            addBlock(Blocks.PAR1000_GREEN_BLOCK, "Par 1000 Green");
+            addBlock(Blocks.PAR1000_MAGENTA_BLOCK, "Par 1000 Magenta");
+            addBlock(Blocks.PAR1000_AMBER_BLOCK, "Par 1000 Amber");
+            addBlock(Blocks.PAR1000_PURPLE_BLOCK, "Par 1000 Purple");
+            addBlock(Blocks.PAR1000_BLOCK, "Par 1000");
+            addBlock(Blocks.PAR1000_LIGHTBLUE_BLOCK, "Par 1000 Light Blue");
+            addBlock(Blocks.PAR1000_LIGHTBLUE_BLOCK, "Par 1000 White");
+            addBlock(Blocks.X8PAR_RED_BLOCK, "x8 Par 64");
+
+            
+
+
+
+
+
             add("itemGroup.theatricalextralights", "Theatrical: Extra Lights");
         }
     }

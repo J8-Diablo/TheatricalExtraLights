@@ -1,0 +1,119 @@
+package com.github.dumann089.theatricalextralights.fixtures;
+
+import com.github.dumann089.theatricalextralights.TheatricalExtraLights;
+import dev.imabad.theatrical.api.Fixture;
+import dev.imabad.theatrical.api.HangType;
+import dev.imabad.theatrical.api.dmx.DMXPersonality;
+import dev.imabad.theatrical.blocks.light.BaseLightBlock;
+import dev.imabad.theatrical.fixtures.SharedSlots;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.List;
+
+public class MovingMiniBarFixture extends Fixture {
+
+    private static final List<DMXPersonality> PERSONALITIES = List.of(
+            new DMXPersonality(5, "5ch - Unite Beam")
+                    .addSlot(SharedSlots.INTENSITY)
+                    .addSlot(SharedSlots.TILT)
+                    .addSlot(SharedSlots.RED)
+                    .addSlot(SharedSlots.GREEN)
+                    .addSlot(SharedSlots.BLUE),
+            new DMXPersonality(35, "35ch - Alone Beam")
+                    .addSlot(SharedSlots.INTENSITY).addSlot(SharedSlots.TILT).addSlot(SharedSlots.RED).addSlot(SharedSlots.GREEN).addSlot(SharedSlots.BLUE)
+                    .addSlot(SharedSlots.INTENSITY).addSlot(SharedSlots.TILT).addSlot(SharedSlots.RED).addSlot(SharedSlots.GREEN).addSlot(SharedSlots.BLUE)
+                    .addSlot(SharedSlots.INTENSITY).addSlot(SharedSlots.TILT).addSlot(SharedSlots.RED).addSlot(SharedSlots.GREEN).addSlot(SharedSlots.BLUE)
+                    .addSlot(SharedSlots.INTENSITY).addSlot(SharedSlots.TILT).addSlot(SharedSlots.RED).addSlot(SharedSlots.GREEN).addSlot(SharedSlots.BLUE)
+                    .addSlot(SharedSlots.INTENSITY).addSlot(SharedSlots.TILT).addSlot(SharedSlots.RED).addSlot(SharedSlots.GREEN).addSlot(SharedSlots.BLUE)
+                    .addSlot(SharedSlots.INTENSITY).addSlot(SharedSlots.TILT).addSlot(SharedSlots.RED).addSlot(SharedSlots.GREEN).addSlot(SharedSlots.BLUE)
+                    .addSlot(SharedSlots.INTENSITY).addSlot(SharedSlots.TILT).addSlot(SharedSlots.RED).addSlot(SharedSlots.GREEN).addSlot(SharedSlots.BLUE)
+    );
+
+    private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/moving_mini_bar/moving_mini_bar_tilt");
+    private static final ResourceLocation PAN_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/moving_mini_bar/moving_mini_bar_pan");
+    private static final ResourceLocation STATIC_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/moving_mini_bar/moving_mini_bar_static");
+
+    private final float[] tiltRotation = new float[]{0.5F, 0.1875F, .5F};
+    private final float[] panRotation = new float[]{0.5F, 0F, .5F};
+    private final float[] beamStartPosition = new float[]{0.5F, 0.203125F, 0.34375F};
+
+    @Override
+    public ResourceLocation getTiltModel() {
+        return TILT_MODEL;
+    }
+
+    @Override
+    public ResourceLocation getPanModel() {
+        return PAN_MODEL;
+    }
+
+    @Override
+    public ResourceLocation getStaticModel() {
+        return STATIC_MODEL;
+    }
+
+    @Override
+    public float[] getTiltRotationPosition() {
+        return tiltRotation;
+    }
+
+    @Override
+    public float[] getPanRotationPosition() {
+        return panRotation;
+    }
+
+    @Override
+    public float[] getBeamStartPosition() {
+        return beamStartPosition;
+    }
+
+    @Override
+    public float getDefaultRotation() {
+        return 90;
+    }
+
+    @Override
+    public float getBeamWidth() {
+        return 0.0f;
+    }
+
+    @Override
+    public float getRayTraceRotation() {
+        return 0f;
+    }
+
+    @Override
+    public HangType getHangType() {
+        return HangType.HOOK_BAR;
+    }
+
+    @Override
+    public float[] getTransforms(BlockState fixtureBlockState, BlockState supportBlockState) {
+        if (fixtureBlockState.getValue(BaseLightBlock.HANG_DIRECTION) == Direction.UP) {
+            return new float[]{0, .510f, 0};
+        }
+        return new float[]{0, -0.365F, 0};
+    }
+
+    @Override
+    public List<DMXPersonality> getDMXPersonalities() {
+        return PERSONALITIES;
+    }
+
+    @Override
+    public boolean invertTilt() {
+        return false;
+    }
+
+    @Override
+    public boolean invertPan() {
+        return false;
+    }
+
+    @Override
+    public double getLightRadius() {
+        return 4.0;
+    }
+}
