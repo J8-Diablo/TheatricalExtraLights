@@ -87,6 +87,7 @@ public class Blocks {
     public static final RegistrySupplier<Block> VERTICALSCROLLER_BLOCK = BLOCKS.register("verticalscroller", verticalscrollerBlock::new);
     public static final RegistrySupplier<Block> WASHLED_BLOCK = BLOCKS.register("washled", washledBlock::new);
     public static final RegistrySupplier<Block> MOVING_BAR_BLOCK = BLOCKS.register("moving_bar", MovingbarBlock::new);
+    public static final RegistrySupplier<Block> MOVING_MINI_BAR_BLOCK = BLOCKS.register("moving_mini_bar", MovingMiniBarBlock::new);
 
     public static final RegistrySupplier<Block> WATER_JET_BLOCK = BLOCKS.register("water_jet", WaterJetBlock::new);
     public static final RegistrySupplier<Block> MOVING_JET_BLOCK = BLOCKS.register("moving_jet", MovingJetBlock::new);
