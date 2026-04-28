@@ -3,6 +3,7 @@ package com.github.dumann089.theatricalextralights;
 import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
 import com.github.dumann089.theatricalextralights.blocks.Blocks;
 import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
+import com.github.dumann089.theatricalextralights.entities.ModEntities;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import com.github.dumann089.theatricalextralights.items.Items;
 import com.github.dumann089.theatricalextralights.net.ExtraLightsNet;
@@ -28,6 +29,13 @@ public class TheatricalExtraLights {
                     () -> new ItemStack(Items.BIG_PANEL.get())
             )
     );
+    public static final RegistrySupplier<CreativeModeTab> PYRO_TAB = TABS.register(
+            "theatrical_pyro",
+            () -> CreativeTabRegistry.create(
+                    Component.translatable("itemGroup." + TheatricalExtraLights.MOD_ID + ".pyro"),
+                    () -> new ItemStack(Items.FIREWORK_RED_PEONY.get())
+            )
+    );
 
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
@@ -37,6 +45,7 @@ public class TheatricalExtraLights {
         Fixtures.init();
         Items.init();
         BlockEntities.init();
+        ModEntities.init();
         ModParticle.initialize();
         ModNetworkHandler.register();
         ExtraLightsNet.init();
