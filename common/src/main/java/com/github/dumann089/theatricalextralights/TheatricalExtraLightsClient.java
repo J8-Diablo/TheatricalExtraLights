@@ -3,8 +3,11 @@ package com.github.dumann089.theatricalextralights;
 import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
 import com.github.dumann089.theatricalextralights.client.ExtraLightsClientScreens;
 import com.github.dumann089.theatricalextralights.client.blockentities.*;
+import com.github.dumann089.theatricalextralights.client.entities.FireworkRocketRenderer;
+import com.github.dumann089.theatricalextralights.entities.ModEntities;
 import com.github.dumann089.theatricalextralights.net.OpenExtraLightsScreenPacket;
 import dev.architectury.registry.client.rendering.BlockEntityRendererRegistry;
+import dev.architectury.registry.client.level.entity.EntityRendererRegistry;
 
 public class TheatricalExtraLightsClient {
 
@@ -102,6 +105,7 @@ public class TheatricalExtraLightsClient {
         BlockEntityRendererRegistry.register(BlockEntities.WATER_JET_FOG.get(), WaterJetFogRenderer::new);
 
         BlockEntityRendererRegistry.register(BlockEntities.WHITE_STROBE.get(), WhiteStrobeRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.FIREWORK_LAUNCHER.get(), FireworkLauncherRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.LASER_MIRROR.get(), LaserMirrorRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.PARSCROLLER.get(), ParScrollerRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.BLINDER2X2.get(), Blinder2x2Renderer::new);
@@ -110,6 +114,8 @@ public class TheatricalExtraLightsClient {
 
         BlockEntityRendererRegistry.register(BlockEntities.MOVING_VL2C_BEAMS.get(), MovingVL2CBeamsRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.MOVING_SCAN_BEAMS.get(), MovingScanBeamsRenderer::new);
+
+        EntityRendererRegistry.register(ModEntities.FIREWORK_ROCKET, FireworkRocketRenderer::new);
 
 
     }

@@ -1,0 +1,34 @@
+{
+  "credit": "Codex",
+  "textures": {
+    "body_metal": "minecraft:block/iron_block",
+    "accent": "minecraft:block/red_concrete",
+    "particle": "minecraft:block/iron_block"
+  },
+  "elements": [
+    {
+      "from": [5, 4, 5],
+      "to": [11, 13, 11],
+      "faces": {
+        "north": { "uv": [5, 3, 11, 12], "texture": "#body_metal" },
+        "east":  { "uv": [5, 3, 11, 12], "texture": "#body_metal" },
+        "south": { "uv": [5, 3, 11, 12], "texture": "#body_metal" },
+        "west":  { "uv": [5, 3, 11, 12], "texture": "#body_metal" },
+        "up":    { "uv": [5, 5, 11, 11], "texture": "#body_metal" },
+        "down":  { "uv": [5, 5, 11, 11], "texture": "#body_metal" }
+      }
+    },
+    {
+      "from": [4, 13, 4],
+      "to": [12, 14, 12],
+      "faces": {
+        "north": { "uv": [4, 2, 12, 3], "texture": "#body_metal" },
+        "east":  { "uv": [4, 2, 12, 3], "texture": "#body_metal" },
+        "south": { "uv": [4, 2, 12, 3], "texture": "#body_metal" },
+        "west":  { "uv": [4, 2, 12, 3], "texture": "#body_metal" },
+        "up":    { "uv": [4, 4, 12, 12], "texture": "#accent" },
+        "down":  { "uv": [4, 4, 12, 12], "texture": "#body_metal" }
+      }
+    }
+  ]
+}

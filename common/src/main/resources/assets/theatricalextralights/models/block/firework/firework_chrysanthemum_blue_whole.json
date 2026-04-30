@@ -1,0 +1,8 @@
+{
+  "parent": "theatricalextralights:block/firework/launcher_whole_base",
+  "textures": {
+    "body": "theatricalextralights:block/moving_head_body",
+    "tube": "theatricalextralights:block/light_side",
+    "accent": "minecraft:block/blue_concrete"
+  }
+}
