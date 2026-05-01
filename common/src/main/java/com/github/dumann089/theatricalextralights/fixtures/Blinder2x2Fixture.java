@@ -107,6 +107,6 @@ public class Blinder2x2Fixture extends Fixture {
 
     @Override
     public double getLightRadius() {
-        return 14.9;
+        return 35;
     }
 }

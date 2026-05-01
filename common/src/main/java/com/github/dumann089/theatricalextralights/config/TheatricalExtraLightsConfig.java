@@ -18,6 +18,7 @@ public class TheatricalExtraLightsConfig {
     private Float laserBeamLength = 60.0f;
     private Float rgbBarBeamLength = 9.0f;
     private Boolean renderLens = true;
+    private Boolean render2DBeam = false;
 
     /* ================= SINGLETON ================= */
 
@@ -42,6 +43,9 @@ public class TheatricalExtraLightsConfig {
 
                     if (loaded.renderLens != null)
                         defaults.renderLens = loaded.renderLens;
+
+                    if (loaded.render2DBeam != null)
+                        defaults.render2DBeam = loaded.render2DBeam;
                 }
 
                 INSTANCE = defaults;
@@ -74,6 +78,9 @@ public class TheatricalExtraLightsConfig {
 
         if (renderLens == null)
             renderLens = true;
+
+        if (render2DBeam == null)
+            render2DBeam = true;
     }
     
     /* ================= GETTERS ================= */
@@ -90,6 +97,10 @@ public class TheatricalExtraLightsConfig {
         return INSTANCE.renderLens;
     }
 
+    public static boolean shouldRender2DBeam() {
+        return INSTANCE.render2DBeam;
+    }
+
     /* ================= SETTERS ================= */
 
     public static void setLaserBeamLength(float value) {
@@ -102,5 +113,9 @@ public class TheatricalExtraLightsConfig {
 
     public static void setRenderLens(boolean value) {
         INSTANCE.renderLens = value;
+    }
+
+    public static void setRender2DBeam(boolean value) {
+        INSTANCE.render2DBeam = value;
     }
 }

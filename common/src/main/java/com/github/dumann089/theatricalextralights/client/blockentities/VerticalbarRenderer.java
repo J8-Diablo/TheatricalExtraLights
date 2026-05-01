@@ -2,6 +2,7 @@ package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.RGBBarBlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.VerticalbarBlockEntity;
+import com.github.dumann089.theatricalextralights.client.Beam2DRenderTypes;
 import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -13,6 +14,7 @@ import dev.imabad.theatrical.client.TheatricalRenderTypes;
 import dev.imabad.theatrical.client.blockentities.FixtureRenderer;
 import dev.imabad.theatrical.config.TheatricalConfig;
 import net.minecraft.client.Camera;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
@@ -121,7 +123,7 @@ public class VerticalbarRenderer extends FixtureRenderer<VerticalbarBlockEntity>
                     poseStack.translate(offset.x, offset.y, offset.z);
                     preparePoseStack(blockEntity, poseStack, facing, partialTick, isFlipped, blockstate, isHanging);
 
-                    VertexConsumer beamConsumer = multiBufferSource.getBuffer(TheatricalRenderTypes.BEAM);
+                    VertexConsumer builder = multiBufferSource.getBuffer(Beam2DRenderTypes.getBeam());
 
                     float intensity = (blockEntity.getPrevIntensity() + ((blockEntity.getIntensity()) - blockEntity.getPrevIntensity()) * partialTicks);
                     float alpha = intensity / 255f;
@@ -136,14 +138,14 @@ public class VerticalbarRenderer extends FixtureRenderer<VerticalbarBlockEntity>
                     Matrix4f m = poseStack.last().pose();
                     Matrix3f normal = poseStack.last().normal();
 
-                    addVertex(beamConsumer, m, normal, r, g, b, a, -0.125f, 1.4375f , 0f);
-                    addVertex(beamConsumer, m, normal, r, g, b, a,  0.125f, 1.4375f, 0f);
-                    addVertex(beamConsumer, m, normal, r, g, b, a, 0.125f, -1.4375f,0f);
-                    addVertex(beamConsumer, m, normal, r, g, b, a,-0.125f, -1.4375f, 0f);
+                    addVertex(builder, m, normal, r, g, b, a, -0.125f, 1.4375f , 0f);
+                    addVertex(builder, m, normal, r, g, b, a,  0.125f, 1.4375f, 0f);
+                    addVertex(builder, m, normal, r, g, b, a, 0.125f, -1.4375f,0f);
+                    addVertex(builder, m, normal, r, g, b, a,-0.125f, -1.4375f, 0f);
 
                     float beamLength = TheatricalExtraLightsConfig.getRgbBarBeamLength();
 
-                    renderLightBeam(beamConsumer, poseStack, blockEntity, partialTicks, alpha, 0.125f, 1.4375f, beamLength, color);
+                    renderLightBeam(builder, poseStack, blockEntity, partialTicks, alpha, 0.125f, 1.4375f, beamLength, color);
                     poseStack.popPose();
                 }
 
@@ -155,7 +157,20 @@ public class VerticalbarRenderer extends FixtureRenderer<VerticalbarBlockEntity>
         }
     }
 
-
+    @Override
+    protected void addVertex(VertexConsumer builder, Matrix4f m, Matrix3f nm,
+                             int r, int g, int b, int a,
+                             float x, float y, float z) {
+        if (Beam2DRenderTypes.isShadersActive()) {
+            builder.vertex(m, x, y, z)
+                    .color(r, g, b, a)
+                    .uv(0f, 0f)
+                    .uv2(LightTexture.FULL_BRIGHT)
+                    .endVertex();
+        } else {
+            super.addVertex(builder, m, nm, r, g, b, a, x, y, z);
+        }
+    }
 
     protected void renderLightBeam(VertexConsumer builder, PoseStack stack, VerticalbarBlockEntity tileEntityFixture, float partialTicks, float alpha, float beamWidth, float beamHeight, float length, int color) {
         alpha *= (float) TheatricalConfig.INSTANCE.CLIENT.beamOpacity;

@@ -1,12 +1,18 @@
 package com.github.dumann089.theatricalextralights.blocks;
 
 import com.github.dumann089.theatricalextralights.TheatricalExtraLightsRegistry;
-import dev.architectury.registry.registries.DeferredRegister;
+import com.github.dumann089.theatricalextralights.blocks.rig.TrussBlock;
+import com.github.dumann089.theatricalextralights.blocks.rig.TrussJointBlock;
+import com.github.dumann089.theatricalextralights.blocks.rig.TrussCornerBlock;
+import com.github.dumann089.theatricalextralights.blocks.rig.TrussCornerTBlock;
+;import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import dev.imabad.theatrical.blocks.interfaces.ArtNetInterfaceBlock;
 import dev.imabad.theatrical.blocks.light.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RotatedPillarBlock;
+
 
 public class Blocks {
     public static final DeferredRegister<Block> BLOCKS = TheatricalExtraLightsRegistry.get(Registries.BLOCK);
@@ -111,27 +117,14 @@ public class Blocks {
     public static final RegistrySupplier<Block> MOVING_VL2C_BEAMS_BLOCK = BLOCKS.register("moving_vl2c_beams", MovingVL2CBeamsBlock::new);
     public static final RegistrySupplier<Block> MOVING_SCAN_BEAMS_BLOCK = BLOCKS.register("moving_scan_beams", MovingScanBeamsBlock::new);
 
+    public static final RegistrySupplier<Block> A1X1PAR64_BLOCK = BLOCKS.register("a1x1par64", a1x1par64Block::new);
+    public static final RegistrySupplier<Block> A2X8PAR64_BLOCK = BLOCKS.register("a2x8par64", a2x8par64Block::new);
+    public static final RegistrySupplier<Block> A6X3PAR64_VERTICAL_BLOCK = BLOCKS.register("a6x3par64_vertical", a6x3par64_verticalBlock::new);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    public static final RegistrySupplier<Block> TRUSS_BLOCK = BLOCKS.register("truss", TrussBlock::new);
+    public static final RegistrySupplier<Block> TRUSS_JOINT_BLOCK = BLOCKS.register("truss_joint", TrussJointBlock::new);
+    public static final RegistrySupplier<Block> TRUSS_CORNER_BLOCK = BLOCKS.register("truss_corner", TrussCornerBlock::new);
+    public static final RegistrySupplier<Block> TRUSS_CORNER_T_BLOCK = BLOCKS.register("truss_corner_t", TrussCornerTBlock::new);
 
 
 

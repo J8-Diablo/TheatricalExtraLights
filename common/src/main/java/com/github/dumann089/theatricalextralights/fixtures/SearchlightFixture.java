@@ -17,8 +17,20 @@ import java.util.List;
 
 public class SearchlightFixture extends Fixture {
 
-    private static final List<DMXPersonality> PERSONALITIES = Collections.singletonList(
-            new DMXPersonality(7, "7-Channel Mode")
+    private static final List<DMXPersonality> PERSONALITIES = List.of(
+
+            // 7 channels (BASE)
+            new DMXPersonality(7, "7ch - Standard")
+                    .addSlot(SharedSlots.INTENSITY)
+                    .addSlot(SharedSlots.RED)
+                    .addSlot(SharedSlots.GREEN)
+                    .addSlot(SharedSlots.BLUE)
+                    .addSlot(SharedSlots.FOCUS)
+                    .addSlot(SharedSlots.PAN)
+                    .addSlot(SharedSlots.TILT),
+
+            // 10 channels
+            new DMXPersonality(10, "10ch - Extended")
                     .addSlot(SharedSlots.INTENSITY)
                     .addSlot(SharedSlots.RED)
                     .addSlot(SharedSlots.GREEN)
@@ -26,6 +38,9 @@ public class SearchlightFixture extends Fixture {
                     .addSlot(SharedSlots.FOCUS)
                     .addSlot(SharedSlots.PAN)
                     .addSlot(SharedSlots.TILT)
+                    .addSlot(SharedSlots.FOCUS)       // Prism
+                    .addSlot(SharedSlots.FOCUS)       // Prism Zoom
+                    .addSlot(SharedSlots.FOCUS)  // Prism Rotation
     );
 
     private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/searchlight/searchlight_tilt");
@@ -74,7 +89,7 @@ public class SearchlightFixture extends Fixture {
 
     @Override
     public float getBeamWidth() {
-        return 0.20f;
+        return 0.0f;
     }
 
     @Override

@@ -111,6 +111,10 @@ public class TheatricalExtraLightsClient {
         BlockEntityRendererRegistry.register(BlockEntities.MOVING_VL2C_BEAMS.get(), MovingVL2CBeamsRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.MOVING_SCAN_BEAMS.get(), MovingScanBeamsRenderer::new);
 
+        BlockEntityRendererRegistry.register(BlockEntities.A1X1PAR64.get(), a1x1par64Renderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.A2X8PAR64.get(), a2x8par64Renderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.A6X3PAR64_VERTICAL.get(), a6x3par64_verticalRenderer::new);
+
 
     }
         public static void handleOpenScreen(OpenExtraLightsScreenPacket packet) {

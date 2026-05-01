@@ -16,11 +16,11 @@
   "block.theatricalextralights.strobe": "Strobe",
   "block.theatricalextralights.beam_7r": "Beam 7r (7Ch/10Ch)",
   "block.theatricalextralights.mac_vip": "Mac Vip (7Ch/10Ch)",
-  "block.theatricalextralights.sharplus": "Sharplus",
+  "block.theatricalextralights.sharplus": "Sharplus (7Ch/10Ch)",
   "block.theatricalextralights.moving500": "Moving 500 (7Ch/10Ch)",
-  "block.theatricalextralights.robitspot": "Robit Spot",
-  "block.theatricalextralights.vervespot": "Verve Spot",
-  "block.theatricalextralights.searchlight": "Searchlight",
+  "block.theatricalextralights.robitspot": "Robit Spot (7Ch/10Ch)",
+  "block.theatricalextralights.vervespot": "Verve Spot (7Ch/10Ch)",
+  "block.theatricalextralights.searchlight": "Searchlight (7Ch/10Ch)",
   "block.theatricalextralights.source_four": "Source Four",
   "block.theatricalextralights.par1000_red": "Par 1000 Red",
   "block.theatricalextralights.par1000_blue": "Par 1000 Blue",
@@ -102,6 +102,38 @@
   "block.theatricalextralights.mini_bar": "Mini RGB Bar",
   "block.theatricalextralights.moving_vl2c_beams": "Moving VL2 (Prism)",
   "block.theatricalextralights.moving_scan_beams": "Moving Scan (Prism)",
+
+  "block.theatricalextralights.led_panels": "LED Panels (Shapes)",
+
+  "block.theatricalextralights.panel_1x3": "1x3 Panel",
+  "block.theatricalextralights.panel_2x1": "2x1 Panel",
+  "block.theatricalextralights.panel_2x2": "2x2 Panel",
+  "block.theatricalextralights.panel_2x3h": "2x3 Half Panel",
+  "block.theatricalextralights.panel_2x2h": "2x2 Half Panel",
+
+  "block.theatricalextralights.a1x1par64": "2x2 Par64 (Block/Color Preset)",
+  "block.theatricalextralights.a2x8par64": "2x8 Par64 (Color Preset)",
+  "block.theatricalextralights.a6x3par64_vertical": "6x3 Par64 Vertical (Color Preset)",
+
+  "block.theatricalextralights.truss": "Mini Truss",
+  "block.theatricalextralights.truss_joint": "Mini Truss Cross",
+  "block.theatricalextralights.truss_corner": "Mini Truss Corner (L)",
+  "block.theatricalextralights.truss_corner_t": "Mini Truss Corner (T)",
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

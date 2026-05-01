@@ -11,6 +11,22 @@ import net.minecraft.world.item.Item;
 
 public class Items {
     public static final DeferredRegister<Item> ITEMS = TheatricalExtraLightsRegistry.get(Registries.ITEM);
+    public static final RegistrySupplier<Item> TRUSS = ITEMS.register(
+            "truss",
+            () -> new BlockItem(Blocks.TRUSS_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> TRUSS_JOINT = ITEMS.register(
+            "truss_joint",
+            () -> new BlockItem(Blocks.TRUSS_JOINT_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> TRUSS_CORNER = ITEMS.register(
+            "truss_corner",
+            () -> new BlockItem(Blocks.TRUSS_CORNER_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> TRUSS_CORNER_T = ITEMS.register(
+            "truss_corner_t",
+            () -> new BlockItem(Blocks.TRUSS_CORNER_T_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
     public static final RegistrySupplier<Item> MOVING_VL2C = ITEMS.register(
             "moving_vl2c",
             () -> new BlockItem(Blocks.MOVING_VL2C_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
@@ -323,6 +339,18 @@ public class Items {
     public static final RegistrySupplier<Item> A2X2PAR64_WHITE = ITEMS.register(
             "a2x2par64_white",
             () -> new BlockItem(Blocks.A2X2PAR64_WHITE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> A1X1PAR64 = ITEMS.register(
+            "a1x1par64",
+            () -> new BlockItem(Blocks.A1X1PAR64_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> A2X8PAR64 = ITEMS.register(
+            "a2x8par64",
+            () -> new BlockItem(Blocks.A2X8PAR64_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> A6X3PAR64_VERTICAL = ITEMS.register(
+            "a6x3par64_vertical",
+            () -> new BlockItem(Blocks.A6X3PAR64_VERTICAL_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
     public static final RegistrySupplier<Item> FOLLOWSPOT = ITEMS.register(
         "followspot",

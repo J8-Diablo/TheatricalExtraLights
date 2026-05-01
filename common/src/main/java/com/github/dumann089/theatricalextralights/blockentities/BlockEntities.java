@@ -111,6 +111,10 @@ public class BlockEntities {
     public static final RegistrySupplier<BlockEntityType<MovingVL2CBeamsBlockEntity>> MOVING_VL2C_BEAMS = BLOCK_ENTITIES.register("moving_vl2c_beams", () -> BlockEntityType.Builder.of(MovingVL2CBeamsBlockEntity::new, Blocks.MOVING_VL2C_BEAMS_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<MovingScanBeamsBlockEntity>> MOVING_SCAN_BEAMS = BLOCK_ENTITIES.register("moving_scan_beams", () -> BlockEntityType.Builder.of(MovingScanBeamsBlockEntity::new, Blocks.MOVING_SCAN_BEAMS_BLOCK.get()).build(null));
 
+    public static final RegistrySupplier<BlockEntityType<a1x1par64BlockEntity>> A1X1PAR64 = BLOCK_ENTITIES.register("a1x1par64", () -> BlockEntityType.Builder.of(a1x1par64BlockEntity::new, Blocks.A1X1PAR64_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<a2x8par64BlockEntity>> A2X8PAR64 = BLOCK_ENTITIES.register("a2x8par64", () -> BlockEntityType.Builder.of(a2x8par64BlockEntity::new, Blocks.A2X8PAR64_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<a6x3par64_verticalBlockEntity>> A6X3PAR64_VERTICAL = BLOCK_ENTITIES.register("a6x3par64_vertical", () -> BlockEntityType.Builder.of(a6x3par64_verticalBlockEntity::new, Blocks.A6X3PAR64_VERTICAL_BLOCK.get()).build(null));
+
 
     public static void init(){
         BLOCK_ENTITIES.register();

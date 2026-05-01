@@ -141,10 +141,10 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
                     float alpha = (intensity / 255f) * beamOpacity.floatValue();
 
                     // BEAM
-                    VertexConsumer beamConsumer = bufferSource.getBuffer(Beam2DRenderTypes.BEAM);
+                    VertexConsumer builder = multiBufferSource.getBuffer(Beam2DRenderTypes.getBeam());
                     poseStack.pushPose();
                     poseStack.translate(0.5f, 0.78125f, 0.2f);
-                    renderLightBeam2D(beamConsumer, poseStack, blockEntity, camera, alpha, 0.07f, (float) blockEntity.getDistance(), color, 0.01f);
+                    renderLightBeam2D(builder, poseStack, blockEntity, camera, alpha, 0.07f, (float) blockEntity.getDistance(), color, 0.01f);
                     poseStack.popPose();
 
                     //Gobo
@@ -167,7 +167,7 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
                             poseStack.mulPose(Axis.ZP.rotationDegrees(blockEntity.getGoboRotation()));
                         }
 
-                        renderGoboBeams(beamConsumer, poseStack, blockEntity, camera,
+                        renderGoboBeams(builder, poseStack, blockEntity, camera,
                                 alpha, 0.07f, (float) blockEntity.getDistance(), color,
                                 0.01f, beamCount, spreadAngle);
                         poseStack.popPose();
@@ -176,7 +176,7 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
                     // LENS GLOW
                     poseStack.pushPose();
                     poseStack.translate(0.5f, 0.78125f, 0.2f);
-                    renderLensGlow(beamConsumer, poseStack, color, 0.15f);
+                    renderLensGlow(builder, poseStack, color, 0.15f);
                     poseStack.popPose();
 
                     // LENS

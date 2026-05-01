@@ -145,15 +145,24 @@ public class Source4Renderer extends ExtraLightsFixtureRenderer<Source4BlockEnti
                     float alpha = (intensity / 255f) * beamOpacity.floatValue();
 
                     // BEAM
-                    VertexConsumer beamConsumer = bufferSource.getBuffer(Beam2DRenderTypes.BEAM);
-                    poseStack.pushPose();
-                    poseStack.translate(0.5f, 0.5, 0.122f);
-                    renderLightBeam2D(beamConsumer, poseStack, blockEntity, camera, alpha, 0.11f, (float) blockEntity.getDistance(), color, 0.002f);                    poseStack.popPose();
+                    VertexConsumer builder = multiBufferSource.getBuffer(Beam2DRenderTypes.getBeam());
+
+                    if (TheatricalExtraLightsConfig.shouldRender2DBeam()) {
+                        poseStack.pushPose();
+                        poseStack.translate(0.5f, 0.5f, 0.122f);
+                        renderLightBeam2D(builder, poseStack, blockEntity, camera, alpha, 0.08f, (float) blockEntity.getDistance(), color, 0.002f);
+                        poseStack.popPose();
+                    } else {
+                        poseStack.pushPose();
+                        poseStack.translate(0.5f, 0.5f, 0.122);
+                        renderLightBeam4D(builder, poseStack, blockEntity, partialTick, alpha, 0.08f, (float) blockEntity.getDistance(), color, 0.002f);
+                        poseStack.popPose();
+                    }
 
                     // LENS 2D GLOW
                     poseStack.pushPose();
                     poseStack.translate(0.5, 0.5f, 0.122f);
-                    renderLensGlow(beamConsumer, poseStack, color, 0.1f);
+                    renderLensGlow(builder, poseStack, color, 0.1f);
                     poseStack.popPose();
 
                     // LENS

@@ -146,16 +146,24 @@ public class ParScrollerRenderer extends ExtraLightsFixtureRenderer<ParScrollerB
                     float alpha = (intensity / 255f) * beamOpacity.floatValue();
 
                     // BEAM
-                    VertexConsumer beamConsumer = bufferSource.getBuffer(Beam2DRenderTypes.BEAM);
-                    poseStack.pushPose();
-                    poseStack.translate(0.5f, 0.56f, 0.043f);
-                    renderLightBeam2D(beamConsumer, poseStack, blockEntity, camera, alpha, 0.18f, (float) blockEntity.getDistance(), color, 0.009f);
-                    poseStack.popPose();
+                    VertexConsumer builder = multiBufferSource.getBuffer(Beam2DRenderTypes.getBeam());
+
+                    if (TheatricalExtraLightsConfig.shouldRender2DBeam()) {
+                        poseStack.pushPose();
+                        poseStack.translate(0.5f, 0.56f, 0.143f);
+                        renderLightBeam2D(builder, poseStack, blockEntity, camera, alpha, 0.14f, (float) blockEntity.getDistance(), color, 0.002f);
+                        poseStack.popPose();
+                    } else {
+                        poseStack.pushPose();
+                        poseStack.translate(0.5f, 0.56f, 0.143f);
+                        renderLightBeam4D(builder, poseStack, blockEntity, partialTick, alpha, 0.14f, (float) blockEntity.getDistance(), color, 0.002f);
+                        poseStack.popPose();
+                    }
 
                     // LENS 2D GLOW
                     poseStack.pushPose();
                     poseStack.translate(0.5f, 0.56f, 0.04);
-                    renderLensGlow(beamConsumer, poseStack, color, 0.15f);
+                    renderLensGlow(builder, poseStack, color, 0.15f);
                     poseStack.popPose();
 
                     // LENS

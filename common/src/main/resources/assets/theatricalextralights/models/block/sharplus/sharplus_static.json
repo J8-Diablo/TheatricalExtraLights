@@ -2,8 +2,8 @@
 	"credit": "Made with Blockbench",
 	"parent": "sharplus",
 	"textures": {
-		"0": "theatricalextralights:block/moving_vl2c_body",
-		"particle": "theatricalextralights:block/moving_vl2c_body"
+		"0": "theatricalextralights:block/new_texture1",
+		"particle": "theatricalextralights:block/new_texture1"
 	},
 	"elements": [
 		{
@@ -11,12 +11,38 @@
 			"to": [13, 1, 12],
 			"rotation": {"angle": 0, "axis": "y", "origin": [7.875, 1.375, 8]},
 			"faces": {
-				"north": {"uv": [0, 0, 6, 5], "texture": "#0"},
-				"east": {"uv": [0, 0, 6, 5], "texture": "#0"},
-				"south": {"uv": [0, 0, 6, 5], "texture": "#0"},
-				"west": {"uv": [0, 0, 6, 5], "texture": "#0"},
-				"up": {"uv": [0, 0, 6, 5], "texture": "#0"},
-				"down": {"uv": [0, 0, 6, 5], "texture": "#0"}
+				"north": {"uv": [0, 12.75, 7, 16], "texture": "#0"},
+				"east": {"uv": [0, 12.75, 7, 16], "texture": "#0"},
+				"south": {"uv": [0, 12.75, 7, 16], "texture": "#0"},
+				"west": {"uv": [0, 12.75, 7, 16], "texture": "#0"},
+				"up": {"uv": [0, 12.75, 7, 16], "texture": "#0"},
+				"down": {"uv": [0, 12.75, 7, 16], "texture": "#0"}
+			}
+		},
+		{
+			"from": [6, 0, 3.75],
+			"to": [10, 2, 4],
+			"rotation": {"angle": 0, "axis": "y", "origin": [7.875, 1.375, 7]},
+			"faces": {
+				"north": {"uv": [8, 8.5, 15.5, 12], "texture": "#0"},
+				"east": {"uv": [0, 12.75, 7, 16], "texture": "#0"},
+				"south": {"uv": [0, 12.75, 7, 16], "texture": "#0"},
+				"west": {"uv": [0, 12.75, 7, 16], "texture": "#0"},
+				"up": {"uv": [0, 12.75, 7, 16], "texture": "#0"},
+				"down": {"uv": [0, 12.75, 7, 16], "texture": "#0"}
+			}
+		},
+		{
+			"from": [6, 0, 12],
+			"to": [10, 2, 12.25],
+			"rotation": {"angle": 0, "axis": "y", "origin": [7.875, 1.375, 15.25]},
+			"faces": {
+				"north": {"uv": [8, 8.5, 15.5, 12], "texture": "#0"},
+				"east": {"uv": [0, 12.75, 7, 16], "texture": "#0"},
+				"south": {"uv": [8, 12.625, 15.5, 16], "texture": "#0"},
+				"west": {"uv": [0, 12.75, 7, 16], "texture": "#0"},
+				"up": {"uv": [0, 12.75, 7, 16], "texture": "#0"},
+				"down": {"uv": [0, 12.75, 7, 16], "texture": "#0"}
 			}
 		},
 		{
@@ -24,12 +50,12 @@
 			"to": [12.5, 1.5, 12],
 			"rotation": {"angle": 0, "axis": "y", "origin": [7.875, 1.375, 8]},
 			"faces": {
-				"north": {"uv": [0, 0, 5, 4.5], "texture": "#0"},
-				"east": {"uv": [0, 0, 6, 5], "texture": "#0"},
-				"south": {"uv": [0, 0, 6, 5], "texture": "#0"},
-				"west": {"uv": [0, 0, 6, 5], "texture": "#0"},
-				"up": {"uv": [0, 0, 6, 5], "texture": "#0"},
-				"down": {"uv": [0, 0, 6, 5], "texture": "#0"}
+				"north": {"uv": [0, 12.75, 7, 16], "texture": "#0"},
+				"east": {"uv": [0, 12.75, 7, 16], "texture": "#0"},
+				"south": {"uv": [0, 12.75, 7, 16], "texture": "#0"},
+				"west": {"uv": [0, 12.75, 7, 16], "texture": "#0"},
+				"up": {"uv": [0, 12.75, 7, 16], "texture": "#0"},
+				"down": {"uv": [0, 12.75, 7, 16], "texture": "#0"}
 			}
 		},
 		{
@@ -37,12 +63,12 @@
 			"to": [12, 2, 12],
 			"rotation": {"angle": 0, "axis": "y", "origin": [7.875, 1.375, 8]},
 			"faces": {
-				"north": {"uv": [0, 0, 3.75, 4.5], "texture": "#0"},
-				"east": {"uv": [0, 0, 6, 5], "texture": "#0"},
-				"south": {"uv": [0, 0, 6, 5], "texture": "#0"},
-				"west": {"uv": [0, 0, 6, 5], "texture": "#0"},
-				"up": {"uv": [0, 0, 6, 5], "texture": "#0"},
-				"down": {"uv": [0, 0, 6, 5], "texture": "#0"}
+				"north": {"uv": [0, 12.75, 7, 16], "texture": "#0"},
+				"east": {"uv": [0, 12.75, 7, 16], "texture": "#0"},
+				"south": {"uv": [0, 12.75, 7, 16], "texture": "#0"},
+				"west": {"uv": [0, 12.75, 7, 16], "texture": "#0"},
+				"up": {"uv": [0, 12.75, 7, 16], "texture": "#0"},
+				"down": {"uv": [0, 12.75, 7, 16], "texture": "#0"}
 			}
 		}
 	],
@@ -51,15 +77,24 @@
 			"scale": [0.5, 0.5, 0.5]
 		},
 		"gui": {
-			"rotation": [9, 159, 0]
+			"rotation": [9, 159, 0],
+			"translation": [0, -0.5, 0],
+			"scale": [0.8, 0.8, 0.8]
 		}
 	},
 	"groups": [
 		{
-			"name": "static",
-			"origin": [-1, 2, 3],
+			"name": "sharplus_static",
+			"origin": [8, 8, 8],
 			"color": 0,
-			"children": [0, 1, 2]
+			"children": [
+				{
+					"name": "static",
+					"origin": [-1, 2, 3],
+					"color": 0,
+					"children": [0, 1, 2, 3, 4]
+				}
+			]
 		}
 	]
 }

@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=south": { "model": "theatricalextralights:block/truss/truss_corner_t" },
+    "facing=west":  { "model": "theatricalextralights:block/truss/truss_corner_t", "y": 90 },
+    "facing=north": { "model": "theatricalextralights:block/truss/truss_corner_t", "y": 180 },
+    "facing=east":  { "model": "theatricalextralights:block/truss/truss_corner_t", "y": 270 }
+  }
+}

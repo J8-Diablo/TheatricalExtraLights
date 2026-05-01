@@ -1,8 +1,8 @@
 {
 	"credit": "Made with Blockbench",
 	"textures": {
-		"1": "theatrical:block/light_fresnel_active_full",
-		"2": "theatrical:block/light_side"
+		"1": "theatricalextralights:block/light_fresnel_active_full",
+		"2": "theatricalextralights:block/light_side"
 	},
 	"elements": [
 		{
