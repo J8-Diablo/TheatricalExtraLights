@@ -111,6 +111,222 @@ public class Items {
             "white_strobe",
             () -> new BlockItem(Blocks.WHITE_STROBE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
+    public static final RegistrySupplier<Item> FIREWORK_RED_COMET = ITEMS.register(
+            "firework_red_comet",
+            () -> new BlockItem(Blocks.FIREWORK_RED_COMET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_BLUE_COMET = ITEMS.register(
+            "firework_blue_comet",
+            () -> new BlockItem(Blocks.FIREWORK_BLUE_COMET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_GREEN_COMET = ITEMS.register(
+            "firework_green_comet",
+            () -> new BlockItem(Blocks.FIREWORK_GREEN_COMET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_GOLD_COMET = ITEMS.register(
+            "firework_gold_comet",
+            () -> new BlockItem(Blocks.FIREWORK_GOLD_COMET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_GOLD_BELL_COMET = ITEMS.register(
+            "firework_gold_bell_comet",
+            () -> new BlockItem(Blocks.FIREWORK_GOLD_BELL_COMET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_RED_PEONY = ITEMS.register(
+            "firework_red_peony",
+            () -> new BlockItem(Blocks.FIREWORK_RED_PEONY_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_BLUE_PEONY = ITEMS.register(
+            "firework_blue_peony",
+            () -> new BlockItem(Blocks.FIREWORK_BLUE_PEONY_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_GREEN_PEONY = ITEMS.register(
+            "firework_green_peony",
+            () -> new BlockItem(Blocks.FIREWORK_GREEN_PEONY_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_GOLD_PEONY = ITEMS.register(
+            "firework_gold_peony",
+            () -> new BlockItem(Blocks.FIREWORK_GOLD_PEONY_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_WHITE_PEONY = ITEMS.register(
+            "firework_white_peony",
+            () -> new BlockItem(Blocks.FIREWORK_WHITE_PEONY_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_AMBER_PEONY = ITEMS.register(
+            "firework_amber_peony",
+            () -> new BlockItem(Blocks.FIREWORK_AMBER_PEONY_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_VIOLET_PEONY = ITEMS.register(
+            "firework_violet_peony",
+            () -> new BlockItem(Blocks.FIREWORK_VIOLET_PEONY_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_WHITE_STROBE_BURST = ITEMS.register(
+            "firework_white_strobe_burst",
+            () -> new BlockItem(Blocks.FIREWORK_WHITE_STROBE_BURST_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_GOLD_WILLOW = ITEMS.register(
+            "firework_gold_willow",
+            () -> new BlockItem(Blocks.FIREWORK_GOLD_WILLOW_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_RED_WILLOW = ITEMS.register(
+            "firework_red_willow",
+            () -> new BlockItem(Blocks.FIREWORK_RED_WILLOW_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_BLUE_WILLOW = ITEMS.register(
+            "firework_blue_willow",
+            () -> new BlockItem(Blocks.FIREWORK_BLUE_WILLOW_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_GREEN_WILLOW = ITEMS.register(
+            "firework_green_willow",
+            () -> new BlockItem(Blocks.FIREWORK_GREEN_WILLOW_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_WHITE_WILLOW = ITEMS.register(
+            "firework_white_willow",
+            () -> new BlockItem(Blocks.FIREWORK_WHITE_WILLOW_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_AMBER_WILLOW = ITEMS.register(
+            "firework_amber_willow",
+            () -> new BlockItem(Blocks.FIREWORK_AMBER_WILLOW_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_VIOLET_WILLOW = ITEMS.register(
+            "firework_violet_willow",
+            () -> new BlockItem(Blocks.FIREWORK_VIOLET_WILLOW_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_MULTICOLOR_BURST = ITEMS.register(
+            "firework_multicolor_burst",
+            () -> new BlockItem(Blocks.FIREWORK_MULTICOLOR_BURST_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_PALM_GOLD = ITEMS.register(
+            "firework_palm_gold",
+            () -> new BlockItem(Blocks.FIREWORK_PALM_GOLD_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_CHRYSANTHEMUM_BLUE = ITEMS.register(
+            "firework_chrysanthemum_blue",
+            () -> new BlockItem(Blocks.FIREWORK_CHRYSANTHEMUM_BLUE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_CHRYSANTHEMUM_RED = ITEMS.register(
+            "firework_chrysanthemum_red",
+            () -> new BlockItem(Blocks.FIREWORK_CHRYSANTHEMUM_RED_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_CHRYSANTHEMUM_GREEN = ITEMS.register(
+            "firework_chrysanthemum_green",
+            () -> new BlockItem(Blocks.FIREWORK_CHRYSANTHEMUM_GREEN_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_CHRYSANTHEMUM_GOLD = ITEMS.register(
+            "firework_chrysanthemum_gold",
+            () -> new BlockItem(Blocks.FIREWORK_CHRYSANTHEMUM_GOLD_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_CHRYSANTHEMUM_WHITE = ITEMS.register(
+            "firework_chrysanthemum_white",
+            () -> new BlockItem(Blocks.FIREWORK_CHRYSANTHEMUM_WHITE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_CHRYSANTHEMUM_AMBER = ITEMS.register(
+            "firework_chrysanthemum_amber",
+            () -> new BlockItem(Blocks.FIREWORK_CHRYSANTHEMUM_AMBER_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_CHRYSANTHEMUM_VIOLET = ITEMS.register(
+            "firework_chrysanthemum_violet",
+            () -> new BlockItem(Blocks.FIREWORK_CHRYSANTHEMUM_VIOLET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_HORSETAIL_SILVER = ITEMS.register(
+            "firework_horsetail_silver",
+            () -> new BlockItem(Blocks.FIREWORK_HORSETAIL_SILVER_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_RING_RED = ITEMS.register(
+            "firework_ring_red",
+            () -> new BlockItem(Blocks.FIREWORK_RING_RED_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_SPINNER_GOLD = ITEMS.register(
+            "firework_spinner_gold",
+            () -> new BlockItem(Blocks.FIREWORK_SPINNER_GOLD_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_CROSSETTE_RED = ITEMS.register(
+            "firework_crossette_red",
+            () -> new BlockItem(Blocks.FIREWORK_CROSSETTE_RED_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_CROSSETTE_BLUE = ITEMS.register(
+            "firework_crossette_blue",
+            () -> new BlockItem(Blocks.FIREWORK_CROSSETTE_BLUE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_CROSSETTE_GREEN = ITEMS.register(
+            "firework_crossette_green",
+            () -> new BlockItem(Blocks.FIREWORK_CROSSETTE_GREEN_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_CROSSETTE_GOLD = ITEMS.register(
+            "firework_crossette_gold",
+            () -> new BlockItem(Blocks.FIREWORK_CROSSETTE_GOLD_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_CROSSETTE_WHITE = ITEMS.register(
+            "firework_crossette_white",
+            () -> new BlockItem(Blocks.FIREWORK_CROSSETTE_WHITE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_CROSSETTE_AMBER = ITEMS.register(
+            "firework_crossette_amber",
+            () -> new BlockItem(Blocks.FIREWORK_CROSSETTE_AMBER_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_CROSSETTE_VIOLET = ITEMS.register(
+            "firework_crossette_violet",
+            () -> new BlockItem(Blocks.FIREWORK_CROSSETTE_VIOLET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_MINE_BLUE = ITEMS.register(
+            "firework_mine_blue",
+            () -> new BlockItem(Blocks.FIREWORK_MINE_BLUE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_MINE_RED = ITEMS.register(
+            "firework_mine_red",
+            () -> new BlockItem(Blocks.FIREWORK_MINE_RED_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_MINE_GREEN = ITEMS.register(
+            "firework_mine_green",
+            () -> new BlockItem(Blocks.FIREWORK_MINE_GREEN_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_MINE_GOLD = ITEMS.register(
+            "firework_mine_gold",
+            () -> new BlockItem(Blocks.FIREWORK_MINE_GOLD_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_MINE_WHITE = ITEMS.register(
+            "firework_mine_white",
+            () -> new BlockItem(Blocks.FIREWORK_MINE_WHITE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_MINE_AMBER = ITEMS.register(
+            "firework_mine_amber",
+            () -> new BlockItem(Blocks.FIREWORK_MINE_AMBER_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_MINE_VIOLET = ITEMS.register(
+            "firework_mine_violet",
+            () -> new BlockItem(Blocks.FIREWORK_MINE_VIOLET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_SPIDER_WHITE = ITEMS.register(
+            "firework_spider_white",
+            () -> new BlockItem(Blocks.FIREWORK_SPIDER_WHITE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_DIADEM_BLUE = ITEMS.register(
+            "firework_diadem_blue",
+            () -> new BlockItem(Blocks.FIREWORK_DIADEM_BLUE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_SALUTE_WHITE = ITEMS.register(
+            "firework_salute_white",
+            () -> new BlockItem(Blocks.FIREWORK_SALUTE_WHITE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_HEART_PINK = ITEMS.register(
+            "firework_heart_pink",
+            () -> new BlockItem(Blocks.FIREWORK_HEART_PINK_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_DOUBLE_BURST_PURPLE = ITEMS.register(
+            "firework_double_burst_purple",
+            () -> new BlockItem(Blocks.FIREWORK_DOUBLE_BURST_PURPLE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_WHISTLER_SILVER = ITEMS.register(
+            "firework_whistler_silver",
+            () -> new BlockItem(Blocks.FIREWORK_WHISTLER_SILVER_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> GERB_GOLD = ITEMS.register(
+            "gerb_gold",
+            () -> new BlockItem(Blocks.GERB_GOLD_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FLAME_PROJECTOR = ITEMS.register(
+            "flame_projector",
+            () -> new BlockItem(Blocks.FLAME_PROJECTOR_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
     public static final RegistrySupplier<Item> TRUSS_3LIGHTS = ITEMS.register(
         "truss_3lights",
         () -> new BlockItem(Blocks.TRUSS_3LIGHTS.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))

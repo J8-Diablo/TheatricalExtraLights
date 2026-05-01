@@ -3,8 +3,11 @@ package com.github.dumann089.theatricalextralights;
 import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
 import com.github.dumann089.theatricalextralights.client.ExtraLightsClientScreens;
 import com.github.dumann089.theatricalextralights.client.blockentities.*;
+import com.github.dumann089.theatricalextralights.client.entities.FireworkRocketRenderer;
+import com.github.dumann089.theatricalextralights.entities.ModEntities;
 import com.github.dumann089.theatricalextralights.net.OpenExtraLightsScreenPacket;
 import dev.architectury.registry.client.rendering.BlockEntityRendererRegistry;
+import dev.architectury.registry.client.level.entity.EntityRendererRegistry;
 
 public class TheatricalExtraLightsClient {
 
@@ -114,6 +117,8 @@ public class TheatricalExtraLightsClient {
         BlockEntityRendererRegistry.register(BlockEntities.A1X1PAR64.get(), a1x1par64Renderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.A2X8PAR64.get(), a2x8par64Renderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.A6X3PAR64_VERTICAL.get(), a6x3par64_verticalRenderer::new);
+
+        EntityRendererRegistry.register(ModEntities.FIREWORK_ROCKET, FireworkRocketRenderer::new);
 
 
     }
