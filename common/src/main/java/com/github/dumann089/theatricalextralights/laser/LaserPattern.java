@@ -89,34 +89,30 @@ public enum LaserPattern {
         float speed01 = clamp01(speedRaw / 255f);
         float rot01 = clamp01(rotationRaw / 255f);
 
-        // Animated motion with a 5% deadzone so DMX 0-12 are guaranteed static.
-        // Above the deadzone, speed scales linearly. For shape-rotating patterns
-        // (Circle, Square, Spiral, ...) Speed = rotation rate up to 360 deg/s.
-        // For Wave, Speed = phase-shift rate so the undulations slide along the
-        // line (1 cycle per second at max speed) — that's what users intuitively
-        // expect when they think "wave animation speed".
+        // Rotation comes ONLY from the Rotation DMX channel — Speed never
+        // rotates patterns. Speed DMX feeds shape animations that aren't
+        // rotation: wave phase sliding, scatter jitter rate, etc.
+        float staticRotDeg = rot01 * 360f;
+        // 5% deadzone so DMX 0-12 are static. Above that, scales linearly.
         final float speedDeadzone = 0.05f;
         float effectiveSpeed = (speed01 < speedDeadzone) ? 0f
                 : (speed01 - speedDeadzone) / (1f - speedDeadzone);
-        float speedDegPerSec = effectiveSpeed * 360f;
-        float animYawDeg = (float) (animTimeSec * speedDegPerSec);
-        float baseRotDeg = rot01 * 360f + animYawDeg;
-        float staticRotDeg = rot01 * 360f;
-        float animPhase = (float) (animTimeSec * effectiveSpeed);
+        // Wave phase advances at up to 2 cycles per second at max speed.
+        float animPhase = (float) (animTimeSec * effectiveSpeed * 2f);
 
         switch (this) {
             case BEAM_SIMPLE:    return beamSimple(size01, c1);
-            case LINE:           return line(size01, amp01, baseRotDeg, c1, c2, c3);
-            case CIRCLE:         return circle(size01, amp01, baseRotDeg, c1, c2, c3);
-            case SQUARE:         return square(size01, amp01, baseRotDeg, c1, c2, c3);
+            case LINE:           return line(size01, amp01, staticRotDeg, c1, c2, c3);
+            case CIRCLE:         return circle(size01, amp01, staticRotDeg, c1, c2, c3);
+            case SQUARE:         return square(size01, amp01, staticRotDeg, c1, c2, c3);
             case WAVE:           return wave(size01, amp01, staticRotDeg, animPhase, c1, c2, c3);
-            case TUNNEL:         return tunnel(size01, amp01, baseRotDeg, c1, c2, c3);
-            case STAR:           return star(size01, amp01, baseRotDeg, c1, c2, c3);
-            case CROSS:          return cross(size01, amp01, baseRotDeg, c1, c2, c3);
-            case TRIANGLE:       return triangle(size01, baseRotDeg, c1, c2, c3);
-            case SPIRAL:         return spiral(size01, amp01, baseRotDeg, c1, c2, c3);
-            case PARALLEL_LINES: return parallelLines(size01, amp01, baseRotDeg, c1, c2, c3);
-            case DOUBLE_CIRCLE:  return doubleCircle(size01, amp01, baseRotDeg, c1, c2, c3);
+            case TUNNEL:         return tunnel(size01, amp01, staticRotDeg, c1, c2, c3);
+            case STAR:           return star(size01, amp01, staticRotDeg, c1, c2, c3);
+            case CROSS:          return cross(size01, amp01, staticRotDeg, c1, c2, c3);
+            case TRIANGLE:       return triangle(size01, staticRotDeg, c1, c2, c3);
+            case SPIRAL:         return spiral(size01, amp01, staticRotDeg, c1, c2, c3);
+            case PARALLEL_LINES: return parallelLines(size01, amp01, staticRotDeg, c1, c2, c3);
+            case DOUBLE_CIRCLE:  return doubleCircle(size01, amp01, staticRotDeg, c1, c2, c3);
             case BURST:          return burst(size01, amp01, animTimeSec, c1, c2, c3);
             case SCATTER:        return scatter(size01, amp01, speed01, animTimeSec, c1, c2, c3);
         }
@@ -136,7 +132,7 @@ public enum LaserPattern {
      */
     private static List<LaserBeam> line(float size01, float amp01, float rotDeg,
                                         int c1, int c2, int c3) {
-        int count = 30;
+        int count = 80;
         float spanDeg = lerp(size01, 8f, 70f);
         float archDeg = lerp(amp01, 0f, 14f); // amp = arch height (parabolic)
         List<LaserBeam> out = new ArrayList<>(count);
@@ -159,7 +155,7 @@ public enum LaserPattern {
 
     private static List<LaserBeam> circle(float size01, float amp01, float rotDeg,
                                           int c1, int c2, int c3) {
-        int count = 24;
+        int count = 72;
         float radiusDeg = lerp(size01, 4f, 35f);
         float vertRadiusDeg = radiusDeg * lerp(amp01, 0.3f, 1.4f); // amp = ovale
         List<LaserBeam> out = new ArrayList<>(count);
@@ -176,7 +172,7 @@ public enum LaserPattern {
 
     private static List<LaserBeam> square(float size01, float amp01, float rotDeg,
                                           int c1, int c2, int c3) {
-        int perSide = 6;
+        int perSide = 18;
         float halfDeg = lerp(size01, 4f, 35f);
         float ratio = lerp(amp01, 1.0f, 1.8f); // amp = ratio largeur/hauteur
         float halfX = halfDeg * ratio;
@@ -214,7 +210,7 @@ public enum LaserPattern {
 
     private static List<LaserBeam> wave(float size01, float amp01, float rotDeg,
                                         float animPhase, int c1, int c2, int c3) {
-        int count = 60;
+        int count = 150;
         float spanDeg = lerp(size01, 12f, 70f);   // total horizontal span
         float ampDeg = lerp(amp01, 2f, 25f);       // wave height
         int waves = 3;
@@ -239,7 +235,7 @@ public enum LaserPattern {
     private static List<LaserBeam> tunnel(float size01, float amp01, float rotDeg,
                                           int c1, int c2, int c3) {
         int rings = 4;
-        int perRing = 12;
+        int perRing = 28;
         float baseRadiusDeg = lerp(size01, 3f, 20f);
         float ringSpacingDeg = lerp(amp01, 1f, 8f); // amp = depth
         List<LaserBeam> out = new ArrayList<>(rings * perRing);
@@ -265,7 +261,7 @@ public enum LaserPattern {
                                         int c1, int c2, int c3) {
         int points = 5;
         int verticesTotal = points * 2;
-        int perEdge = 4;
+        int perEdge = 12;
         float outerRadius = lerp(size01, 6f, 35f);
         float innerRadius = outerRadius * lerp(amp01, 0.55f, 0.20f); // smaller inner = sharper points
         float[][] verts = new float[verticesTotal][2];
@@ -295,7 +291,7 @@ public enum LaserPattern {
 
     private static List<LaserBeam> cross(float size01, float amp01, float rotDeg,
                                          int c1, int c2, int c3) {
-        int perBranch = 6;
+        int perBranch = 18;
         float length = lerp(size01, 6f, 35f);
         float thickness = lerp(amp01, 0.5f, 4f);
         // 4 branches: +X, -X, +Y, -Y, each is a small rectangle drawn as a line of beams
@@ -323,7 +319,7 @@ public enum LaserPattern {
 
     private static List<LaserBeam> triangle(float size01, float rotDeg,
                                             int c1, int c2, int c3) {
-        int perEdge = 8;
+        int perEdge = 24;
         float radius = lerp(size01, 6f, 35f);
         float[][] verts = new float[3][2];
         for (int v = 0; v < 3; v++) {
@@ -351,7 +347,7 @@ public enum LaserPattern {
 
     private static List<LaserBeam> spiral(float size01, float amp01, float rotDeg,
                                           int c1, int c2, int c3) {
-        int count = 28;
+        int count = 90;
         float maxRadius = lerp(size01, 8f, 35f);
         float pitch01 = lerp(amp01, 0.4f, 2.0f); // tighter or looser turns
         float turns = 2.5f * pitch01;
@@ -371,7 +367,7 @@ public enum LaserPattern {
     private static List<LaserBeam> parallelLines(float size01, float amp01, float rotDeg,
                                                  int c1, int c2, int c3) {
         int lineCount = 4 + (int) (amp01 * 8); // amp = number of lines (4..12)
-        int perLine = 8;
+        int perLine = 24;
         float spacingDeg = lerp(size01, 2f, 8f);
         float lineLengthDeg = 30f;
         List<LaserBeam> out = new ArrayList<>(lineCount * perLine);
@@ -399,8 +395,8 @@ public enum LaserPattern {
 
     private static List<LaserBeam> doubleCircle(float size01, float amp01, float rotDeg,
                                                 int c1, int c2, int c3) {
-        int countOuter = 16;
-        int countInner = 16;
+        int countOuter = 48;
+        int countInner = 48;
         float outer = lerp(size01, 6f, 35f);
         float inner = outer * lerp(amp01, 0.85f, 0.40f); // amp = écart entre cercles
         List<LaserBeam> out = new ArrayList<>(countOuter + countInner);
