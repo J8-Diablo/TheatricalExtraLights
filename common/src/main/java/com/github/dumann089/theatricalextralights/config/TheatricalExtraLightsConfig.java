@@ -7,6 +7,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class TheatricalExtraLightsConfig {
 
@@ -15,9 +20,24 @@ public class TheatricalExtraLightsConfig {
 
     /* ================= DEFAULT VALUES ================= */
 
-    private Float laserBeamLength = 60.0f;
+    private Float laserBeamLength = 400.0f;
     private Float rgbBarBeamLength = 9.0f;
     private Boolean renderLens = true;
+    /**
+     * Block IDs (e.g. "minecraft:black_concrete") that lasers pass through
+     * instead of stopping on. Use this for scenic decor blocks (backdrops,
+     * trusses made of regular blocks, etc.) so beams continue to a real wall
+     * behind them. Mod blocks from "theatrical" and "theatricalextralights"
+     * are always skipped — no need to list them.
+     */
+    private List<String> laserPassThroughBlocks = new java.util.ArrayList<>(Arrays.asList(
+            "minecraft:glass",
+            "minecraft:tinted_glass",
+            "minecraft:iron_bars",
+            "minecraft:barrier"
+    ));
+
+    private transient Set<String> laserPassThroughSet = null;
     private Boolean render2DBeam = false;
 
     /* ================= SINGLETON ================= */
@@ -43,6 +63,9 @@ public class TheatricalExtraLightsConfig {
 
                     if (loaded.renderLens != null)
                         defaults.renderLens = loaded.renderLens;
+
+                    if (loaded.laserPassThroughBlocks != null)
+                        defaults.laserPassThroughBlocks = loaded.laserPassThroughBlocks;
 
                     if (loaded.render2DBeam != null)
                         defaults.render2DBeam = loaded.render2DBeam;
@@ -79,6 +102,10 @@ public class TheatricalExtraLightsConfig {
         if (renderLens == null)
             renderLens = true;
 
+        if (laserPassThroughBlocks == null)
+            laserPassThroughBlocks = new java.util.ArrayList<>();
+        laserPassThroughSet = new HashSet<>(laserPassThroughBlocks);
+
         if (render2DBeam == null)
             render2DBeam = true;
     }
@@ -95,6 +122,15 @@ public class TheatricalExtraLightsConfig {
 
     public static boolean shouldRenderLens() {
         return INSTANCE.renderLens;
+    }
+
+    public static boolean isLaserPassThrough(String blockId) {
+        if (INSTANCE.laserPassThroughSet == null) {
+            INSTANCE.laserPassThroughSet = INSTANCE.laserPassThroughBlocks == null
+                    ? new HashSet<>()
+                    : new HashSet<>(INSTANCE.laserPassThroughBlocks);
+        }
+        return INSTANCE.laserPassThroughSet.contains(blockId);
     }
 
     public static boolean shouldRender2DBeam() {

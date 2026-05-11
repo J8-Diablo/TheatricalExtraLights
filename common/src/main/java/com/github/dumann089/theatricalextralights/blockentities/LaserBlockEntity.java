@@ -230,6 +230,7 @@ public class LaserBlockEntity extends BaseDMXConsumerLightBlockEntity {
         public final float[] pitches;
         public final float[] lengths;
         public final int[] colors;
+        public final boolean[] hits;
         public int ageFrames;
 
         public TrailFrame(int n) {
@@ -237,6 +238,7 @@ public class LaserBlockEntity extends BaseDMXConsumerLightBlockEntity {
             this.pitches = new float[n];
             this.lengths = new float[n];
             this.colors = new int[n];
+            this.hits = new boolean[n];
             this.ageFrames = 0;
         }
     }
