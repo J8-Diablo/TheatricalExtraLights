@@ -18,8 +18,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
-import dev.imabad.theatrical.blockentities.light.BaseLightBlockEntity;
-import dev.imabad.theatrical.blocks.light.BaseLightBlock;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -29,7 +29,6 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
-import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
 
@@ -169,7 +168,7 @@ public class LaserRenderer extends FixtureRenderer<LaserBlockEntity> {
                 }
 
                 int focus = blockEntity.getFocus();
-                float beamWidth = 0.02f + (focus / 255f) * 0.06f;
+                float beamWidth = 0.04f + (focus / 255f) * 0.10f;
                 float baseLength = TheatricalExtraLightsConfig.getLaserBeamLength();
 
                 Vec3 baseOrigin = new Vec3(0.5F, 0.5F, 0.0F);
@@ -177,112 +176,32 @@ public class LaserRenderer extends FixtureRenderer<LaserBlockEntity> {
                     baseOrigin = new Vec3(baseOrigin.x, 1.0 - baseOrigin.y, baseOrigin.z);
                 }
 
-                // ----- Single raycast on the laser's main aim direction. Every beam in
-                // the pattern uses this same effective length so the polyline shape
-                // stays uniform (drawn on whatever surface the laser is pointing at,
-                // or projected to max length in open space). Per-beam clipping caused
-                // ugly artifacts in complex scenes where beams hit nearby truss/decor.
-                float baseEffLen = raycastBeamLength(blockEntity, 0f, 0f, baseLength);
+                // ----- Beam length: DMX-driven max length, but each beam clips
+                // at the first solid wall it hits so beams don't pass through
+                // surfaces. Pattern size (angular spread) is independent and
+                // set in LaserPattern via the Size DMX channel.
                 float[] effLengths = new float[beams.size()];
+                boolean[] beamHits = new boolean[beams.size()];
                 for (int i = 0; i < beams.size(); i++) {
                     LaserBeam beam = beams.get(i);
-                    effLengths[i] = baseEffLen * (beam.length / 32f);
+                    float maxLen = baseLength * (beam.length / 32f);
+                    boolean[] hit = new boolean[1];
+                    effLengths[i] = raycastBeamLengthDebug(blockEntity, beam.yawDeg, beam.pitchDeg, maxLen, hit, null);
+                    beamHits[i] = true; // always render — pattern keeps its shape even when no wall
                 }
+                boolean anyHit = true;
 
-                int persistenceRaw = blockEntity.getPersistenceRaw();
-                Deque<LaserBlockEntity.TrailFrame> trail = blockEntity.getTrailBuffer();
+                blockEntity.getTrailBuffer().clear();
 
-                // ----- Scanning beam mode for polyline patterns -----
-                // Real lasers project a SINGLE beam that scans the pattern at high speed.
-                // Persistence (eye/trail) makes the full shape visible. We replicate this:
-                // each beam in the pattern is rendered with a fade-out alpha based on its
-                // distance from the current "scan position" (which moves over time).
-                // - Persistence DMX low  → narrow fade window → only 1-2 bright beams visible
-                //   = clearly looks like one scanning beam
-                // - Persistence DMX high → wide fade window → most/all of the pattern visible
-                //   = the full pattern's shape is drawn
-                // Scan rate is half the render frame rate (~30 sweeps/sec at 60 fps).
-                // Faster than this aliases badly; slower makes motion look laggy.
-                // Real galvos run at 30-100k pps which equals hundreds of sweeps/sec,
-                // but at MC's 60 fps that's not perceivable — 30 Hz here matches the
-                // "feels like a fast continuous laser" sweet spot.
-                final float scanRate = 15.0f;
-                int patternN = beams.size();
-                float scanPos = (float) (((animTimeSec * scanRate) % 1.0) * patternN);
-                // Wide fade window by default so the pattern stays readable at high
-                // scan rate. Persistence still controls the trail length, but the
-                // floor (patternN * 0.6f) ensures the scan motion never makes the
-                // pattern unreadable.
-                float fadeWindow = Math.max(patternN * 0.6f,
-                        (persistenceRaw / 255f) * patternN + 1f);
-                boolean scanning = pattern.usesPolyline() && patternN >= 2;
-
-                LaserBlockEntity.TrailFrame snapshot = new LaserBlockEntity.TrailFrame(beams.size());
-                for (int i = 0; i < beams.size(); i++) {
-                    LaserBeam beam = beams.get(i);
-                    snapshot.yaws[i] = beam.yawDeg;
-                    snapshot.pitches[i] = beam.pitchDeg;
-                    snapshot.lengths[i] = effLengths[i];
-                    snapshot.colors[i] = beam.color;
-                }
-
-                if (scanning) {
-                    // Render each beam with a fading alpha relative to the scan position.
-                    float[] alphasByBeam = new float[patternN];
-                    for (int i = 0; i < patternN; i++) {
-                        // Distance "behind" the scan (pattern wraps around)
-                        float dist = scanPos - i;
-                        if (dist < 0) dist += patternN;
-                        if (dist < fadeWindow) {
-                            float t = dist / fadeWindow;
-                            alphasByBeam[i] = (1.0f - t) * intensity01;
-                        } else {
-                            alphasByBeam[i] = 0f;
-                        }
-                    }
-                    for (int i = 0; i < patternN; i++) {
-                        if (alphasByBeam[i] < 0.005f) continue;
-                        LaserBeam beam = beams.get(i);
+                // Render every beam at full intensity — no scan effect.
+                if (anyHit) {
+                    for (int idx = 0; idx < beams.size(); idx++) {
+                        if (!beamHits[idx]) continue;
+                        LaserBeam beam = beams.get(idx);
                         renderOneBeam(beamConsumer, poseStack, baseOrigin,
-                                beam.yawDeg, beam.pitchDeg, effLengths[i], beamWidth, beam.color, alphasByBeam[i]);
+                                beam.yawDeg, beam.pitchDeg, effLengths[idx], beamWidth,
+                                beam.color, intensity01);
                     }
-
-                    // Polyline ribbons between consecutive endpoints, with the same scan-fade alpha.
-                    float ribbonHalfWidth = beamWidth * 1.4f;
-                    Vec3 prevPt = computeEndpoint(baseOrigin, beams.get(0).yawDeg, beams.get(0).pitchDeg, effLengths[0]);
-                    for (int i = 1; i < patternN; i++) {
-                        LaserBeam beam = beams.get(i);
-                        Vec3 currPt = computeEndpoint(baseOrigin, beam.yawDeg, beam.pitchDeg, effLengths[i]);
-                        // Use the smaller of the two beams' fade alphas so segments behind the
-                        // scan front are dimmed consistently.
-                        float segAlpha = Math.min(alphasByBeam[i - 1], alphasByBeam[i]) * 0.75f;
-                        if (segAlpha > 0.005f) {
-                            renderRibbon(beamConsumer, poseStack, prevPt, currPt, ribbonHalfWidth, beam.color, segAlpha);
-                        }
-                        prevPt = currPt;
-                    }
-                    if (pattern.isClosed()) {
-                        Vec3 firstPt = computeEndpoint(baseOrigin, beams.get(0).yawDeg, beams.get(0).pitchDeg, effLengths[0]);
-                        float segAlpha = Math.min(alphasByBeam[patternN - 1], alphasByBeam[0]) * 0.75f;
-                        if (segAlpha > 0.005f) {
-                            renderRibbon(beamConsumer, poseStack, prevPt, firstPt, ribbonHalfWidth, beams.get(0).color, segAlpha);
-                        }
-                    }
-                } else {
-                    // Non-polyline patterns (BEAM_SIMPLE, SCATTER, BURST): render every beam
-                    // at full intensity. They're inherently radial/random so scanning doesn't apply.
-                    for (int i = 0; i < beams.size(); i++) {
-                        LaserBeam beam = beams.get(i);
-                        renderOneBeam(beamConsumer, poseStack, baseOrigin,
-                                beam.yawDeg, beam.pitchDeg, effLengths[i], beamWidth, beam.color, intensity01);
-                    }
-                }
-
-                // Trail buffer is no longer used (scanning + fade-window approach
-                // computes alpha analytically from animTimeSec and persistenceRaw).
-                // Keep it cleared so old code paths don't accumulate stale frames.
-                if (!trail.isEmpty()) {
-                    trail.clear();
                 }
 
                 poseStack.popPose();
@@ -318,30 +237,58 @@ public class LaserRenderer extends FixtureRenderer<LaserBlockEntity> {
      *  Real walls beyond this distance still block beams. */
     private static final float RAYCAST_SKIP_RADIUS = 2.5f;
 
-    private float raycastBeamLength(LaserBlockEntity be, float yawDeg, float pitchDeg, float maxLen) {
+    /**
+     * @param hitOut single-element array; set to {@code true} if the ray actually
+     *               hit a surface beyond the skip radius (real wall/floor) and
+     *               {@code false} if it goes into open space (no surface to
+     *               project the polyline onto). Caller can decide whether to
+     *               draw the trace.
+     */
+    private float raycastBeamLengthDebug(LaserBlockEntity be, float yawDeg, float pitchDeg,
+                                         float maxLen, boolean[] hitOut, String[] dbgOut) {
+        hitOut[0] = false;
+        if (dbgOut != null && dbgOut.length > 0) dbgOut[0] = null;
         if (be == null || be.getLevel() == null || maxLen <= 0.001f) return maxLen;
         Vec3 origin = be.getBlockPos().getCenter();
         Vec3 dir = getBeamWorldDir(be, yawDeg, pitchDeg);
         if (dir.lengthSqr() < 1e-8) return maxLen;
         Vec3 endWorld = origin.add(dir.scale(maxLen));
 
-        // Iteratively skip hits that fall within the mounting-structure radius
-        // around the laser. Once the ray finds a hit beyond this radius, that's
-        // a real wall and we stop there. Cap iterations so we never loop forever
-        // on weird geometry.
+        // Iteratively skip:
+        //   - hits within the mounting-structure radius (close truss/laser block)
+        //   - hits on Theatrical/TheatricalExtraLights blocks at any distance (the
+        //     whole rig can be made of these and shouldn't catch beams)
+        // Stop only when we find a non-mod block beyond the skip radius.
         Vec3 rayStart = origin;
-        int safety = 16;
+        int safety = 24;
         while (safety-- > 0) {
             BlockHitResult hit = be.getLevel().clip(new ClipContext(rayStart, endWorld,
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null));
             if (hit.getType() == HitResult.Type.MISS) {
                 return maxLen;
             }
+            BlockState hitState = be.getLevel().getBlockState(hit.getBlockPos());
+            ResourceLocation key = BuiltInRegistries.BLOCK.getKey(hitState.getBlock());
+            boolean isModBlock = key != null
+                    && (key.getNamespace().equals("theatrical")
+                        || key.getNamespace().equals("theatricalextralights"));
+            boolean isPassThrough = key != null
+                    && TheatricalExtraLightsConfig.isLaserPassThrough(key.toString());
             float dist = (float) hit.getLocation().distanceTo(origin);
-            if (dist >= RAYCAST_SKIP_RADIUS) {
+
+            if (!isModBlock && !isPassThrough && dist >= RAYCAST_SKIP_RADIUS) {
+                hitOut[0] = true;
+                if (dbgOut != null && dbgOut.length > 0) {
+                    Vec3 hl = hit.getLocation();
+                    dbgOut[0] = "hit=" + (key == null ? "?" : key.toString())
+                            + "@dist=" + String.format("%.1f", dist)
+                            + " worldXYZ=(" + String.format("%.0f", hl.x)
+                            + "," + String.format("%.0f", hl.y)
+                            + "," + String.format("%.0f", hl.z) + ")";
+                }
                 return Math.min(maxLen, dist);
             }
-            // Skip this hit, continue past it
+            // Skip this hit (mod block, or close truss/mounting), continue past it.
             rayStart = hit.getLocation().add(dir.scale(0.01));
             if (rayStart.distanceToSqr(endWorld) < 1e-4) {
                 return maxLen;
@@ -351,44 +298,70 @@ public class LaserRenderer extends FixtureRenderer<LaserBlockEntity> {
     }
 
     /**
-     * Compute a beam's world-space direction by combining the laser's effective
-     * pan/tilt (which already accounts for facing/hanging/upside-down) with per-beam
-     * yaw/pitch offsets, then converting to a unit vector via the same view-vector
-     * formula used by Theatrical's {@code rayTraceDir}.
+     * Compute the world-space direction of a beam by replicating EXACTLY the
+     * pose-stack rotation chain used by {@link #preparePoseStack} and
+     * {@link #renderOneBeam}, applied to the local +Z forward vector. This
+     * guarantees the raycast direction matches what's actually rendered
+     * regardless of facing, hanging direction, flipped state, pan, or tilt.
      */
     private static Vec3 getBeamWorldDir(LaserBlockEntity be, float beamYawDeg, float beamPitchDeg) {
-        BlockState bs = be.getBlockState();
-        net.minecraft.core.Direction hangDir = bs.getValue(BaseLightBlock.HANG_DIRECTION);
-        net.minecraft.core.Direction facing = bs.getValue(BaseLightBlock.FACING);
-        boolean isHangingNonVertically = BaseLightBlockEntity.isHangingNonVertically(
-                hangDir, bs.getValue(BaseLightBlock.HANGING));
+        BlockState state = be.getBlockState();
+        Direction facing = state.getValue(dev.imabad.theatrical.blocks.light.BaseLightBlock.FACING);
+        Direction hangDir = Direction.UP;
+        boolean isHanging = false;
+        try {
+            hangDir = state.getValue(dev.imabad.theatrical.blocks.HangableBlock.HANG_DIRECTION);
+            isHanging = state.getValue(dev.imabad.theatrical.blocks.HangableBlock.HANGING);
+        } catch (Exception ignored) {}
+        boolean isFlipped = be.isUpsideDown();
+        float pan = be.getPan();
+        float tilt = be.getTilt();
 
-        if (!isHangingNonVertically) {
-            float tilt = be.getTilt();
-            if (be.isUpsideDown() || be.getFixture().invertTilt()) {
-                tilt = -tilt;
-            }
-            float pan = (facing.toYRot() - be.getPan());
-            if (facing.getAxis() == net.minecraft.core.Direction.Axis.X) {
-                pan -= 180;
-            }
-            if (be.getFixture().invertPan()) {
-                pan *= -1;
-            }
-            if (be.isUpsideDown()) {
-                if (facing.getAxis() == net.minecraft.core.Direction.Axis.X) {
-                    pan = facing.getOpposite().toYRot() + be.getPan();
+        PoseStack temp = new PoseStack();
+
+        // ---- Mirror preparePoseStack rotations (translates omitted — they
+        // don't affect direction). The pose calls right-multiply, and vertex
+        // transforms apply in REVERSE-push order, but that's exactly what
+        // we want when feeding a pure +Z vertex in at the end. ----
+        if (isHanging && hangDir.getAxis() != Direction.Axis.Y) {
+            if (hangDir.getAxis() == Direction.Axis.Z) {
+                temp.mulPose(Axis.ZP.rotationDegrees(90));
+                if (hangDir == Direction.SOUTH) {
+                    temp.mulPose(Axis.XP.rotationDegrees(-90));
                 } else {
-                    pan = facing.toYRot() + be.getPan();
+                    temp.mulPose(Axis.XP.rotationDegrees(90));
+                }
+            } else {
+                if (hangDir == Direction.EAST) {
+                    temp.mulPose(Axis.ZN.rotationDegrees(-90));
+                } else {
+                    temp.mulPose(Axis.ZN.rotationDegrees(90));
                 }
             }
-            // Per-beam offsets: panPerBeam = panBase - beamYaw, tiltPerBeam = tiltBase + beamPitch
-            return BaseLightBlockEntity.calculateViewVector(tilt + beamPitchDeg, pan - beamYawDeg);
         }
-        // Non-vertical hanging is rare for lasers; fall back to base direction
-        // (per-beam offsets ignored — the pattern won't raycast individually but at
-        // least it stays consistent regardless of camera angle).
-        return BaseLightBlockEntity.rayTraceDir(be);
+        temp.mulPose(Axis.YP.rotationDegrees(facing.toYRot()));
+        if (isFlipped) {
+            temp.mulPose(Axis.ZP.rotationDegrees(180));
+        }
+        temp.mulPose(Axis.YP.rotationDegrees(pan));
+        if (isFlipped) {
+            temp.mulPose(Axis.XP.rotationDegrees(-180));
+        } else {
+            temp.mulPose(Axis.XP.rotationDegrees(180));
+        }
+        temp.mulPose(Axis.XP.rotationDegrees(tilt));
+
+        // ---- Beam-local rotations (renderOneBeam) ----
+        temp.mulPose(Axis.YP.rotationDegrees(beamYawDeg));
+        temp.mulPose(Axis.XP.rotationDegrees(beamPitchDeg));
+
+        // Apply the composed matrix to the model +Z vector.
+        Matrix4f m = temp.last().pose();
+        org.joml.Vector4f v = new org.joml.Vector4f(0f, 0f, 1f, 0f);
+        v.mul(m);
+        Vec3 dir = new Vec3(v.x, v.y, v.z);
+        if (dir.lengthSqr() < 1e-8) return Vec3.ZERO;
+        return dir.normalize();
     }
 
     /**
@@ -465,37 +438,59 @@ public class LaserRenderer extends FixtureRenderer<LaserBlockEntity> {
         int g = (color >> 8) & 0xFF;
         int b = color & 0xFF;
         int a = (int) (Math.max(0f, Math.min(1f, alpha)) * 255);
-        // Far end keeps 40% of the start alpha so the beam tip stays visible
-        // (instead of fading to nothing) — like a real laser hitting fog/surface.
-        int aFar = Math.max(0, (int) (a * 0.4f));
         Matrix4f m = stack.last().pose();
         Matrix3f normal = stack.last().normal();
 
-        float endMultiplier = beamSize;
+        // Beam splits into two segments: full opacity for the first 80% of
+        // the length, then a linear fade from 100% → 0% alpha over the last
+        // 20%. Thickness stays uniform so the cone keeps a clean shape.
+        float zMid = length * 0.8f;
+        float s = beamSize;
 
-        // R Face
-        addVertex(builder, m, normal, r, g, b, aFar, beamSize * endMultiplier, beamSize * endMultiplier, length);
-        addVertex(builder, m, normal, r, g, b, a, beamSize, beamSize, 0);
-        addVertex(builder, m, normal, r, g, b, a, beamSize, -beamSize, 0);
-        addVertex(builder, m, normal, r, g, b, aFar, beamSize * endMultiplier, -beamSize * endMultiplier, length);
+        // Segment 1: [0 .. 0.8 length], uniform full alpha
+        // R face
+        addVertex(builder, m, normal, r, g, b, a,  s,  s, zMid);
+        addVertex(builder, m, normal, r, g, b, a,  s,  s, 0);
+        addVertex(builder, m, normal, r, g, b, a,  s, -s, 0);
+        addVertex(builder, m, normal, r, g, b, a,  s, -s, zMid);
+        // L face
+        addVertex(builder, m, normal, r, g, b, a, -s, -s, zMid);
+        addVertex(builder, m, normal, r, g, b, a, -s, -s, 0);
+        addVertex(builder, m, normal, r, g, b, a, -s,  s, 0);
+        addVertex(builder, m, normal, r, g, b, a, -s,  s, zMid);
+        // Top face
+        addVertex(builder, m, normal, r, g, b, a, -s,  s, zMid);
+        addVertex(builder, m, normal, r, g, b, a, -s,  s, 0);
+        addVertex(builder, m, normal, r, g, b, a,  s,  s, 0);
+        addVertex(builder, m, normal, r, g, b, a,  s,  s, zMid);
+        // Down face
+        addVertex(builder, m, normal, r, g, b, a,  s, -s, zMid);
+        addVertex(builder, m, normal, r, g, b, a,  s, -s, 0);
+        addVertex(builder, m, normal, r, g, b, a, -s, -s, 0);
+        addVertex(builder, m, normal, r, g, b, a, -s, -s, zMid);
 
-        // L Face
-        addVertex(builder, m, normal, r, g, b, aFar, -beamSize * endMultiplier, -beamSize * endMultiplier, length);
-        addVertex(builder, m, normal, r, g, b, a, -beamSize, -beamSize, 0);
-        addVertex(builder, m, normal, r, g, b, a, -beamSize, beamSize, 0);
-        addVertex(builder, m, normal, r, g, b, aFar, -beamSize * endMultiplier, beamSize * endMultiplier, length);
-
-        // Top Face
-        addVertex(builder, m, normal, r, g, b, aFar, -beamSize * endMultiplier, beamSize * endMultiplier, length);
-        addVertex(builder, m, normal, r, g, b, a, -beamSize, beamSize, 0);
-        addVertex(builder, m, normal, r, g, b, a, beamSize, beamSize, 0);
-        addVertex(builder, m, normal, r, g, b, aFar, beamSize * endMultiplier, beamSize * endMultiplier, length);
-
-        // Down Face
-        addVertex(builder, m, normal, r, g, b, aFar, beamSize * endMultiplier, -beamSize * endMultiplier, length);
-        addVertex(builder, m, normal, r, g, b, a, beamSize, -beamSize, 0);
-        addVertex(builder, m, normal, r, g, b, a, -beamSize, -beamSize, 0);
-        addVertex(builder, m, normal, r, g, b, aFar, -beamSize * endMultiplier, -beamSize * endMultiplier, length);
+        // Segment 2: [0.8 length .. length], alpha fades to 0
+        int aEnd = 0;
+        // R face
+        addVertex(builder, m, normal, r, g, b, aEnd,  s,  s, length);
+        addVertex(builder, m, normal, r, g, b, a,    s,  s, zMid);
+        addVertex(builder, m, normal, r, g, b, a,    s, -s, zMid);
+        addVertex(builder, m, normal, r, g, b, aEnd,  s, -s, length);
+        // L face
+        addVertex(builder, m, normal, r, g, b, aEnd, -s, -s, length);
+        addVertex(builder, m, normal, r, g, b, a,   -s, -s, zMid);
+        addVertex(builder, m, normal, r, g, b, a,   -s,  s, zMid);
+        addVertex(builder, m, normal, r, g, b, aEnd, -s,  s, length);
+        // Top face
+        addVertex(builder, m, normal, r, g, b, aEnd, -s,  s, length);
+        addVertex(builder, m, normal, r, g, b, a,   -s,  s, zMid);
+        addVertex(builder, m, normal, r, g, b, a,    s,  s, zMid);
+        addVertex(builder, m, normal, r, g, b, aEnd,  s,  s, length);
+        // Down face
+        addVertex(builder, m, normal, r, g, b, aEnd,  s, -s, length);
+        addVertex(builder, m, normal, r, g, b, a,    s, -s, zMid);
+        addVertex(builder, m, normal, r, g, b, a,   -s, -s, zMid);
+        addVertex(builder, m, normal, r, g, b, aEnd, -s, -s, length);
     }
 
     @Override
