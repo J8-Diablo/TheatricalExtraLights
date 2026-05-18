@@ -14,6 +14,7 @@ import dev.imabad.theatrical.client.LazyRenderers;
 import dev.imabad.theatrical.client.TheatricalRenderTypes;
 import dev.imabad.theatrical.client.blockentities.FixtureRenderer;
 import net.minecraft.client.Camera;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
@@ -197,6 +198,7 @@ public class StrobeRenderer extends ExtraLightsFixtureRenderer<StrobeBlockEntity
         vc.vertex(m, x, y, z)
                 .color(r, g, b, a)
                 .uv(u, v)
+                .uv2(LightTexture.FULL_BRIGHT)
                 .endVertex();
     }
 

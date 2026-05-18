@@ -107,6 +107,6 @@ public class InvisiblelightFixture extends Fixture {
 
     @Override
     public double getLightRadius() {
-        return 14.9;
+        return 25;
     }
 }

@@ -632,6 +632,10 @@ public class Items {
             "water_jet_fog",
             () -> new BlockItem(Blocks.WATER_JET_FOG_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
+    public static final RegistrySupplier<Item> MOVING_VL2C_BEAMS = ITEMS.register(
+            "moving_vl2c_beams",
+            () -> new BlockItem(Blocks.MOVING_VL2C_BEAMS_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
 
     public static void init(){
         ITEMS.register();

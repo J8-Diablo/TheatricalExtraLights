@@ -7,6 +7,7 @@ import com.github.dumann089.theatricalextralights.firework.Spark;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -143,7 +144,17 @@ public class FireworkRocketRenderer extends EntityRenderer<FireworkRocketEntity>
         addVertex(consumer, matrix, r, g, b, a, -size, -size, 0.0f, 0.0f, 1.0f);
     }
 
-    private static void addVertex(VertexConsumer consumer, Matrix4f matrix, int r, int g, int b, int a, float x, float y, float z, float u, float v) {
-        consumer.vertex(matrix, x, y, z).color(r, g, b, a).uv(u, v).endVertex();
+    private static void addVertex(
+            VertexConsumer vc,
+            Matrix4f m,
+            int r, int g, int b, int a,
+            float x, float y, float z,
+            float u, float v
+    ) {
+        vc.vertex(m, x, y, z)
+                .color(r, g, b, a)
+                .uv(u, v)
+                .uv2(LightTexture.FULL_BRIGHT)
+                .endVertex();
     }
 }
