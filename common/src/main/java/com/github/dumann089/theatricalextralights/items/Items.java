@@ -107,6 +107,10 @@ public class Items {
             "strobe",
             () -> new BlockItem(Blocks.STROBE.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
+    public static final RegistrySupplier<Item> ATOMIC_STROBE = ITEMS.register(
+            "atomic_strobe",
+            () -> new BlockItem(Blocks.ATOMIC_STROBE.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
     public static final RegistrySupplier<Item> WHITE_STROBE = ITEMS.register(
             "white_strobe",
             () -> new BlockItem(Blocks.WHITE_STROBE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
@@ -635,6 +639,22 @@ public class Items {
     public static final RegistrySupplier<Item> MOVING_VL2C_BEAMS = ITEMS.register(
             "moving_vl2c_beams",
             () -> new BlockItem(Blocks.MOVING_VL2C_BEAMS_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> MOVING_SCAN_BEAMS = ITEMS.register(
+            "moving_scan_beams",
+            () -> new BlockItem(Blocks.MOVING_SCAN_BEAMS_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> SPOT_XTREME_GOBO = ITEMS.register(
+            "spot_xtreme_gobo",
+            () -> new BlockItem(Blocks.SPOT_XTREME_GOBO_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> VL6C_GOBO = ITEMS.register(
+            "vl6c_gobo",
+            () -> new BlockItem(Blocks.VL6C_GOBO_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> IRIS_700_GOBO = ITEMS.register(
+            "iris_700_gobo",
+            () -> new BlockItem(Blocks.IRIS_700_GOBO_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
 
     public static void init(){

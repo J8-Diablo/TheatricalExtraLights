@@ -9,9 +9,12 @@ import com.github.dumann089.theatricalextralights.net.OpenExtraLightsScreenPacke
 import dev.architectury.registry.client.rendering.BlockEntityRendererRegistry;
 import dev.architectury.registry.client.level.entity.EntityRendererRegistry;
 
+
 public class TheatricalExtraLightsClient {
 
+
     public static void init() {
+
         BlockEntityRendererRegistry.register(BlockEntities.MOVING_SCAN.get(), MovingScanRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.MOVING_VL2C.get(), MovingVL2CRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.MOVING_VL6.get(), MovingVL6Renderer::new);
@@ -25,6 +28,7 @@ public class TheatricalExtraLightsClient {
         BlockEntityRendererRegistry.register(BlockEntities.BLINDER.get(), BlinderRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.BLINDER_WARM.get(), BlinderwarmRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.STROBE.get(), StrobeRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.ATOMIC_STROBE.get(), AtomicStrobeRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.LED_PANEL_2.get(), LEDPanel2Renderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.TRUSS_3LIGHTS.get(), truss3lightsRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.BEAM_7R.get(), Beam7RRenderer::new);
@@ -117,16 +121,18 @@ public class TheatricalExtraLightsClient {
         BlockEntityRendererRegistry.register(BlockEntities.A1X1PAR64.get(), a1x1par64Renderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.A2X8PAR64.get(), a2x8par64Renderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.A6X3PAR64_VERTICAL.get(), a6x3par64_verticalRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.SPOT_XTREME_GOBO.get(), SpotXtremeGoboRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.VL6C_GOBO.get(), VL6CGoboRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.IRIS_700_GOBO.get(), Iris700GoboRenderer::new);
 
 
         EntityRendererRegistry.register(ModEntities.FIREWORK_ROCKET, FireworkRocketRenderer::new);
-
-
     }
-        public static void handleOpenScreen(OpenExtraLightsScreenPacket packet) {
-            ExtraLightsClientScreens.open(
-                    packet.getScreen(),
-                    packet.getPos()
-            );
-        }
+
+    public static void handleOpenScreen(OpenExtraLightsScreenPacket packet) {
+        ExtraLightsClientScreens.open(
+                packet.getScreen(),
+                packet.getPos()
+        );
     }
+}
