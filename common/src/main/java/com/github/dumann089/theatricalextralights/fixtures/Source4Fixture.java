@@ -69,7 +69,7 @@ public class Source4Fixture extends Fixture {
 
     @Override
     public float getBeamWidth() {
-        return 0.06f;
+        return 0.00f;
     }
 
     @Override

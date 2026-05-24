@@ -16,14 +16,40 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-
 import java.util.Optional;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL2CBeamsBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
+    private final Double beamOpacity = TheatricalConfig.INSTANCE.CLIENT.beamOpacity;
+    private final GoboGPUProjector goboProjector = new GoboGPUProjector();
+
+    // CACHÉ ESTRUCTURAL: Evita llamar a getSupportingStructure() en cada fotograma
+    private final Map<MovingVL2CBeamsBlockEntity, float[]> structuralCache = new WeakHashMap<>();
+    private final Map<MovingVL2CBeamsBlockEntity, Long> structuralCacheTicks = new WeakHashMap<>();
 
     public MovingVL2CBeamsRenderer(BlockEntityRendererProvider.Context context) {
         super(context);
+    }
+
+    private float[] getThrottledStructuralTransforms(MovingVL2CBeamsBlockEntity be, BlockState state) {
+        long currentTick = be.getLevel().getGameTime();
+        Long lastTick = structuralCacheTicks.get(be);
+
+        if (lastTick == null || currentTick != lastTick || !structuralCache.containsKey(be)) {
+            float[] transforms;
+            Optional<BlockState> optionalSupport = be.getSupportingStructure();
+            if (optionalSupport.isPresent() && be.getFixture() != null) {
+                transforms = be.getFixture().getTransforms(state, optionalSupport.get());
+            } else {
+                transforms = new float[]{0f, 0.19f, 0f};
+            }
+            structuralCache.put(be, transforms);
+            structuralCacheTicks.put(be, currentTick);
+            return transforms;
+        }
+        return structuralCache.get(be);
     }
 
     @Override
@@ -37,7 +63,8 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
         if (cachedTiltModel == null){
             cachedTiltModel = TheatricalExpectPlatform.getBakedModel(blockEntity.getFixture().getTiltModel());
         }
-        //#region Fixture Hanging
+
+        poseStack.pushPose();
         poseStack.translate(0.5F, 0, .5F);
         if(isHanging){
             Direction hangDirection = blockState.getValue(HangableBlock.HANG_DIRECTION);
@@ -58,22 +85,15 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
                         poseStack.mulPose(Axis.ZN.rotationDegrees(90));
                     }
                 }
-            } else {
-                //TODO: Handle hanging up
             }
             poseStack.translate(0, -0.5, 0F);
         }
-        //#endregion
+
         poseStack.mulPose(Axis.YP.rotationDegrees(facing.toYRot()));
         poseStack.translate(-0.5F, 0, -.5F);
         if (isHanging) {
-            Optional<BlockState> optionalSupport = blockEntity.getSupportingStructure();
-            if (optionalSupport.isPresent()) {
-                float[] transforms = blockEntity.getFixture().getTransforms(blockState, optionalSupport.get());
-                poseStack.translate(transforms[0], transforms[1], transforms[2]);
-            } else {
-                poseStack.translate(0, 0.19, 0);
-            }
+            float[] transforms = getThrottledStructuralTransforms(blockEntity, blockState);
+            poseStack.translate(transforms[0], transforms[1], transforms[2]);
             poseStack.translate(0, -0.08, 0);
         }
         if (isFlipped) {
@@ -81,9 +101,9 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
             poseStack.mulPose(Axis.ZP.rotationDegrees(180));
             poseStack.translate(-0.5F, -0.5, -.5F);
         }
-        // Static Model Render
+
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedStaticModel, packedLight, packedOverlay);
-        //#region Model Pan
+
         float[] pans = blockEntity.getFixture().getPanRotationPosition();
         poseStack.translate(pans[0], pans[1], pans[2]);
         int prevPan = blockEntity.getPrevPan();
@@ -91,8 +111,7 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
         poseStack.mulPose(Axis.YP.rotationDegrees((prevPan + (pan - prevPan) * partialTicks)));
         poseStack.translate(-pans[0], -pans[1], -pans[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedPanModel, packedLight, packedOverlay);
-        //#endregion
-        //#region Model Tilt
+
         float[] tilts = blockEntity.getFixture().getTiltRotationPosition();
         poseStack.translate(tilts[0], tilts[1], tilts[2]);
         int prevTilt = blockEntity.getPrevTilt();
@@ -105,10 +124,8 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
         poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel, packedLight, packedOverlay);
-        //#endregion
+        poseStack.popPose();
     }
-
-    private final Double beamOpacity = TheatricalConfig.INSTANCE.CLIENT.beamOpacity;
 
     @Override
     public void beforeRenderBeam(
@@ -124,71 +141,65 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
             int packedLight,
             int packedOverlay
     ) {
-        if (blockEntity.getIntensity() > 0) {
-            LazyRenderers.addLazyRender(new LazyRenderers.LazyRenderer() {
+        if (blockEntity.getIntensity() <= 0) return;
 
-                @Override
-                public void render(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, Camera camera, float partialTick) {
-                    poseStack.pushPose();
-                    Vec3 offset = Vec3.atLowerCornerOf(blockEntity.getBlockPos())
-                            .subtract(camera.getPosition());
-                    poseStack.translate(offset.x, offset.y, offset.z);
-                    preparePoseStack(blockEntity, poseStack, facing, partialTick, isFlipped, blockstate, isHanging);
+        if (blockEntity.getGobo() >= 0) {
+            Vec3 localLensOffset = new Vec3(0.5, 0.78125, 0.2);
+            float[] panPivot = blockEntity.getFixture().getPanRotationPosition();
+            float[] tiltPivot = blockEntity.getFixture().getTiltRotationPosition();
+            float[] structuralTransform = getThrottledStructuralTransforms(blockEntity, blockstate);
 
-                    float intensity = blockEntity.getPrevIntensity()
-                            + (blockEntity.getIntensity() - blockEntity.getPrevIntensity()) * partialTick;
-                    int color = blockEntity.getColour();
-                    float alpha = (intensity / 255f) * beamOpacity.floatValue();
-
-                    // BEAM
-                    VertexConsumer beamConsumer = bufferSource.getBuffer(Beam2DRenderTypes.BEAM);
-                    poseStack.pushPose();
-                    poseStack.translate(0.5f, 0.78125f, 0.2f);
-                    renderLightBeam2D(beamConsumer, poseStack, blockEntity, camera, alpha, 0.07f, (float) blockEntity.getDistance(), color, 0.01f);
-                    poseStack.popPose();
-
-                    //Gobo
-                    int goboValue = blockEntity.getGobo();
-
-                    if (goboValue > 0) {
-                        poseStack.pushPose();
-                        poseStack.translate(0.5f, 0.78125f, 0.2f);
-
-                        int beamCount = 2 + (int)((goboValue - 1) / 255f * 14);
-
-                        float minAngle = (float)(Math.PI / 180);
-                        float maxAngle = (float)(Math.PI / 4);
-                        float zoomInterpolated = blockEntity.getPrevZoom()
-                                + (blockEntity.getZoom() - blockEntity.getPrevZoom()) * partialTick;
-                        float zoomT = zoomInterpolated / 255f;
-                        float spreadAngle = minAngle + (maxAngle - minAngle) * zoomT;
-
-                        if (blockEntity.getGoboSpin() > 0) {
-                            poseStack.mulPose(Axis.ZP.rotationDegrees(blockEntity.getGoboRotation()));
-                        }
-
-                        renderGoboBeams(beamConsumer, poseStack, blockEntity, camera,
-                                alpha, 0.07f, (float) blockEntity.getDistance(), color,
-                                0.01f, beamCount, spreadAngle);
-                        poseStack.popPose();
-                    }
-
-                    // LENS GLOW
-                    poseStack.pushPose();
-                    poseStack.translate(0.5f, 0.78125f, 0.2f);
-                    renderLensGlow(beamConsumer, poseStack, color, 0.15f);
-                    poseStack.popPose();
-
-                    // LENS
-                    renderLens(multiBufferSource, poseStack, alpha, color, 0.2f, 0.5f, 0.78125f, 0.14f);
-                    poseStack.popPose();
-                }
-                @Override
-                public Vec3 getPos(float partialTick) {
-                    return blockEntity.getBlockPos().getCenter();
-                }
-            });
+            goboProjector.render(
+                    blockEntity,
+                    multiBufferSource,
+                    facing,
+                    partialTicks,
+                    isFlipped,
+                    blockstate,
+                    isHanging,
+                    localLensOffset,
+                    panPivot,
+                    tiltPivot,
+                    structuralTransform
+            );
         }
+        // ==========================================================================================
+
+        LazyRenderers.addLazyRender(new LazyRenderers.LazyRenderer() {
+            @Override
+            public void render(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, Camera camera, float partialTick) {
+                poseStack.pushPose();
+                Vec3 offset = Vec3.atLowerCornerOf(blockEntity.getBlockPos()).subtract(camera.getPosition());
+                poseStack.translate(offset.x, offset.y, offset.z);
+
+                preparePoseStack(blockEntity, poseStack, facing, partialTick, isFlipped, blockstate, isHanging);
+
+                float intensity = blockEntity.getPrevIntensity() + (blockEntity.getIntensity() - blockEntity.getPrevIntensity()) * partialTick;
+                int color = blockEntity.getColour();
+                float alpha = (intensity / 255f) * beamOpacity.floatValue();
+
+                VertexConsumer builder = bufferSource.getBuffer(Beam2DRenderTypes.getBeam());
+
+                poseStack.pushPose();
+                poseStack.translate(0.5f, 0.78125f, 0.2f);
+                renderLightBeam2D(builder, poseStack, blockEntity, camera, alpha, 0.07f, (float) blockEntity.getDistance(), color, 0.01f);
+                poseStack.popPose();
+
+                poseStack.pushPose();
+                poseStack.translate(0.5f, 0.78125f, 0.2f);
+                renderLensGlow(builder, poseStack, color, 0.15f);
+                poseStack.popPose();
+
+                renderLens(bufferSource, poseStack, alpha, color, 0.2f, 0.5f, 0.78125f, 0.14f);
+
+                poseStack.popPose();
+            }
+
+            @Override
+            public Vec3 getPos(float partialTick) {
+                return blockEntity.getBlockPos().getCenter();
+            }
+        });
     }
 
     @Override
@@ -213,22 +224,14 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
                         poseStack.mulPose(Axis.ZN.rotationDegrees(90));
                     }
                 }
-            } else {
-                //TODO: Handle hanging up
             }
             poseStack.translate(0, -0.5, 0F);
         }
-        //#endregion
         poseStack.mulPose(Axis.YP.rotationDegrees(facing.toYRot()));
         poseStack.translate(-0.5F, 0, -.5F);
         if (isHanging) {
-            Optional<BlockState> optionalSupport = blockEntity.getSupportingStructure();
-            if (optionalSupport.isPresent()) {
-                float[] transforms = blockEntity.getFixture().getTransforms(blockState, optionalSupport.get());
-                poseStack.translate(transforms[0], transforms[1], transforms[2]);
-            } else {
-                poseStack.translate(0, 0.19, 0);
-            }
+            float[] transforms = getThrottledStructuralTransforms(blockEntity, blockState);
+            poseStack.translate(transforms[0], transforms[1], transforms[2]);
             poseStack.translate(0, -0.08, 0);
         }
         if (isFlipped) {
@@ -242,8 +245,7 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
         int pan = blockEntity.getPan();
         poseStack.mulPose(Axis.YP.rotationDegrees((prevPan + (pan - prevPan) * partialTicks)));
         poseStack.translate(-pans[0], -pans[1], -pans[2]);
-        //#endregion
-        //#region Model Tilt
+
         float[] tilts = blockEntity.getFixture().getTiltRotationPosition();
         poseStack.translate(tilts[0], tilts[1], tilts[2]);
         int prevTilt = blockEntity.getPrevTilt();
@@ -255,6 +257,5 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
         }
         poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
-        //#endregion
     }
 }

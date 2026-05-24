@@ -13,6 +13,7 @@ import dev.imabad.theatrical.client.LazyRenderers;
 import dev.imabad.theatrical.client.TheatricalRenderTypes;
 import dev.imabad.theatrical.client.blockentities.FixtureRenderer;
 import net.minecraft.client.Camera;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
@@ -204,6 +205,7 @@ public class Blinder2x2warmRenderer extends FixtureRenderer<Blinder2x2warmBlockE
         vc.vertex(m, x, y, z)
                 .color(r, g, b, a)
                 .uv(u, v)
+                .uv2(LightTexture.FULL_BRIGHT)
                 .endVertex();
     }
 

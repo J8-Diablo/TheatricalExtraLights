@@ -1,21 +1,49 @@
 {
 	"credit": "Made with Blockbench",
 	"textures": {
-		"0": "theatricalextralights:block/moving_vl2c_body",
-		"particle": "theatricalextralights:block/moving_vl2c_body"
+		"0": "theatricalextralights:block/new_texture1",
+		"particle": "theatricalextralights:block/new_texture1"
 	},
 	"elements": [
+		{
+			"name": "static",
+			"from": [6.25, 0, 12],
+			"to": [9.5, 1, 12.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 0, 0.5]},
+			"faces": {
+				"north": {"uv": [8, 8.5, 15.5, 12], "texture": "#0"},
+				"east": {"uv": [0, 4, 4, 11], "texture": "#0"},
+				"south": {"uv": [8, 12.5, 15.5, 16], "texture": "#0"},
+				"west": {"uv": [0, 4, 4, 11], "texture": "#0"},
+				"up": {"uv": [0, 4, 4, 11], "texture": "#0"},
+				"down": {"uv": [0, 4, 4, 11], "texture": "#0"}
+			}
+		},
 		{
 			"name": "static",
 			"from": [4, 0, 4],
 			"to": [12, 1, 12],
 			"faces": {
-				"north": {"uv": [0, 0, 6, 9], "texture": "#0"},
-				"east": {"uv": [0, 0, 6, 9], "texture": "#0"},
-				"south": {"uv": [0, 0, 6, 9], "texture": "#0"},
-				"west": {"uv": [0, 0, 6, 9], "texture": "#0"},
-				"up": {"uv": [0, 0, 6, 9], "texture": "#0"},
-				"down": {"uv": [0, 0, 6, 9], "texture": "#0"}
+				"north": {"uv": [0, 4, 4, 11], "texture": "#0"},
+				"east": {"uv": [0, 4, 4, 11], "texture": "#0"},
+				"south": {"uv": [0, 4, 4, 11], "texture": "#0"},
+				"west": {"uv": [0, 4, 4, 11], "texture": "#0"},
+				"up": {"uv": [0, 4, 4, 11], "texture": "#0"},
+				"down": {"uv": [0, 4, 4, 11], "texture": "#0"}
+			}
+		},
+		{
+			"name": "static",
+			"from": [6.25, 0, 3.5],
+			"to": [9.5, 1, 4],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 0, -8]},
+			"faces": {
+				"north": {"uv": [8, 8.5, 15.5, 12], "texture": "#0"},
+				"east": {"uv": [0, 4, 4, 11], "texture": "#0"},
+				"south": {"uv": [0, 4, 4, 11], "texture": "#0"},
+				"west": {"uv": [0, 4, 4, 11], "texture": "#0"},
+				"up": {"uv": [0, 4, 4, 11], "texture": "#0"},
+				"down": {"uv": [0, 4, 4, 11], "texture": "#0"}
 			}
 		}
 	],
@@ -27,7 +55,17 @@
 			"scale": [0.2, 0.2, 0.2]
 		},
 		"gui": {
-			"rotation": [0, 180, 0]
+			"rotation": [30, 144, 0],
+			"translation": [-0.25, -1, 0],
+			"scale": [0.7, 0.7, 0.7]
 		}
-	}
+	},
+	"groups": [
+		{
+			"name": "static",
+			"origin": [0, 0, -8],
+			"color": 0,
+			"children": [0, 1, 2]
+		}
+	]
 }

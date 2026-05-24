@@ -1,6 +1,9 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
+import com.github.dumann089.theatricalextralights.blockentities.MovingVL2CBlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.SharplusBlockEntity;
+import com.github.dumann089.theatricalextralights.client.Beam2DRenderTypes;
+import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -9,6 +12,7 @@ import dev.imabad.theatrical.blocks.HangableBlock;
 import dev.imabad.theatrical.client.LazyRenderers;
 import dev.imabad.theatrical.client.TheatricalRenderTypes;
 import dev.imabad.theatrical.client.blockentities.FixtureRenderer;
+import dev.imabad.theatrical.config.TheatricalConfig;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -22,7 +26,7 @@ import java.util.Optional;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
-public class SharplusRenderer extends FixtureRenderer<SharplusBlockEntity> {
+public class SharplusRenderer extends ExtraLightsFixtureRenderer<SharplusBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
 
     public SharplusRenderer(BlockEntityRendererProvider.Context context) {
@@ -110,34 +114,92 @@ public class SharplusRenderer extends FixtureRenderer<SharplusBlockEntity> {
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel, packedLight, packedOverlay);
         //#endregion
     }
+
+    private final Double beamOpacity = TheatricalConfig.INSTANCE.CLIENT.beamOpacity;
+
     @Override
-    public void beforeRenderBeam(SharplusBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer, MultiBufferSource multiBufferSource, Direction facing, float partialTicks, boolean isFlipped, BlockState blockstate, boolean isHanging, int packedLight, int packedOverlay) {
-        if(blockEntity.getIntensity() > 0){
+    public void beforeRenderBeam(
+            SharplusBlockEntity blockEntity,
+            PoseStack poseStack,
+            VertexConsumer vertexConsumer,
+            MultiBufferSource multiBufferSource,
+            Direction facing,
+            float partialTicks,
+            boolean isFlipped,
+            BlockState blockstate,
+            boolean isHanging,
+            int packedLight,
+            int packedOverlay
+    ) {
+        if (blockEntity.getIntensity() > 0) {
             LazyRenderers.addLazyRender(new LazyRenderers.LazyRenderer() {
+
                 @Override
                 public void render(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, Camera camera, float partialTick) {
                     poseStack.pushPose();
-                    Vec3 offset = Vec3.atLowerCornerOf(blockEntity.getBlockPos()).subtract(camera.getPosition());
+                    Vec3 offset = Vec3.atLowerCornerOf(blockEntity.getBlockPos())
+                            .subtract(camera.getPosition());
                     poseStack.translate(offset.x, offset.y, offset.z);
                     preparePoseStack(blockEntity, poseStack, facing, partialTick, isFlipped, blockstate, isHanging);
-                    VertexConsumer beamConsumer = multiBufferSource.getBuffer(TheatricalRenderTypes.BEAM);
-//            poseStack.translate(blockEntity.getFixture().getBeamStartPosition()[0], blockEntity.getFixture().getBeamStartPosition()[1], blockEntity.getFixture().getBeamStartPosition()[2]);
-                    float intensity = (blockEntity.getPrevIntensity() + ((blockEntity.getIntensity()) - blockEntity.getPrevIntensity()) * partialTicks);
+
+                    float intensity = blockEntity.getPrevIntensity()
+                            + (blockEntity.getIntensity() - blockEntity.getPrevIntensity()) * partialTick;
                     int color = blockEntity.getColour();
-                    int r = (color >> 16) & 0xFF;
-                    int g = (color >> 8) & 0xFF;
-                    int b = color & 0xFF;
-                    int a = (int) (((float) ((intensity * 1) / 255f)) * 255);
-                    poseStack.translate(0.5F, 0.804F, 0.148F);
-                    Matrix4f m = poseStack.last().pose();
-                    Matrix3f normal = poseStack.last().normal();
-                    addVertex(beamConsumer, m, normal, r, g, b, a, -0.09375f, 0.09375f , 0f);
-                    addVertex(beamConsumer, m, normal, r, g, b, a,  0.09375f, 0.09375f, 0f);
-                    addVertex(beamConsumer, m, normal, r, g, b, a, 0.09375f, -0.09375f,0f);
-                    addVertex(beamConsumer, m, normal, r, g, b, a,-0.09375f, -0.09375f, 0f);
+                    float alpha = (intensity / 255f) * beamOpacity.floatValue();
+
+                    // BEAM
+                    VertexConsumer builder = multiBufferSource.getBuffer(Beam2DRenderTypes.getBeam());
+                    int goboValue = blockEntity.getGobo();
+
+                    if (goboValue == 0) {
+                        if (TheatricalExtraLightsConfig.shouldRender2DBeam()) {
+                            poseStack.pushPose();
+                            poseStack.translate(0.5f, 0.804f, 0.148f);
+                            renderLightBeam2D(builder, poseStack, blockEntity, camera, alpha, 0.07f, (float) blockEntity.getDistance(), color, 0.007f);
+                            poseStack.popPose();
+                        } else {
+                            poseStack.pushPose();
+                            poseStack.translate(0.5f, 0.804f, 0.148f);
+                            renderLightBeam4D(builder, poseStack, blockEntity, partialTick, alpha, 0.07f, (float) blockEntity.getDistance(), color, 0.007f);
+                            poseStack.popPose();
+                        }
+                    }
+
+                    // Gobo
+                    if (goboValue > 0) {
+                        poseStack.pushPose();
+                        poseStack.translate(0.5f, 0.804f, 0.148f);
+
+                        int beamCount = 2 + (int)((goboValue - 1) / 255f * 14);
+
+                        float minAngle = (float)(Math.PI / 180);
+                        float maxAngle = (float)(Math.PI / 4);
+                        float zoomInterpolated = blockEntity.getPrevZoom()
+                                + (blockEntity.getZoom() - blockEntity.getPrevZoom()) * partialTick;
+                        float zoomT = zoomInterpolated / 255f;
+                        float spreadAngle = minAngle + (maxAngle - minAngle) * zoomT;
+
+                        if (blockEntity.getGoboSpin() > 0) {
+                            poseStack.mulPose(Axis.ZP.rotationDegrees(blockEntity.getGoboRotation()));
+                        }
+
+                        renderGoboBeams(builder, poseStack, blockEntity, camera,
+                                alpha, 0.07f, (float) blockEntity.getDistance(), color,
+                                0.01f, beamCount, spreadAngle);
+                        poseStack.popPose();
+                    }
+
+                    // LENS GLOW
+                    poseStack.pushPose();
+                    poseStack.translate(0.5f, 0.804f, 0.148f);
+                    renderLensGlow(builder, poseStack, color, 0.1f);
+                    poseStack.popPose();
+
+                    // LENS
+                    renderLens(multiBufferSource, poseStack, alpha, color, 0.1f, 0.5f, 0.78125f, 0.14f);
+
                     poseStack.popPose();
                 }
-
                 @Override
                 public Vec3 getPos(float partialTick) {
                     return blockEntity.getBlockPos().getCenter();

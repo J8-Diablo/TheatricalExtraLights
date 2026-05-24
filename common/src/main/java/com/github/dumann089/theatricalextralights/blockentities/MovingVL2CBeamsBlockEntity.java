@@ -11,10 +11,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasGobo;
 
 import java.util.Arrays;
 
-public class MovingVL2CBeamsBlockEntity extends BaseDMXConsumerLightBlockEntity {
+public class MovingVL2CBeamsBlockEntity extends BaseDMXConsumerLightBlockEntity
+        implements HasGobo {
 
     private int gobo = 0;
     private int prevGobo = 0;
@@ -133,6 +135,26 @@ public class MovingVL2CBeamsBlockEntity extends BaseDMXConsumerLightBlockEntity 
     @Override
     public boolean isUpsideDown() {
         return getBlockState().getValue(MovingVL2CBlock.HANGING) && getBlockState().getValue(MovingVL2CBlock.HANG_DIRECTION) == Direction.UP;
+    }
+
+    @Override
+    public float getPartialIntensity(float partialTicks) {
+        return getPrevIntensity() + (getIntensity() - getPrevIntensity()) * partialTicks;
+    }
+
+    @Override
+    public int getColour() {
+        return ((getRed() & 0xFF) << 16) | ((getGreen() & 0xFF) << 8) | (getBlue() & 0xFF);
+    }
+
+    @Override
+    public float getPartialPanDeg(float partialTicks) {
+        return getPrevPan() + (getPan() - getPrevPan()) * partialTicks;
+    }
+
+    @Override
+    public float getPartialTiltDeg(float partialTicks) {
+        return getPrevTilt() + (getTilt() - getPrevTilt()) * partialTicks;
     }
 
     public int convertByteToInt(byte val) { return Byte.toUnsignedInt(val); }

@@ -365,6 +365,12 @@ public class Fixtures {
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "blinder2x2warm"), Blinder2x2warmFixture::new);
     public static final RegistrySupplier<Fixture> MINI_BAR =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "mini_bar"), MiniBarFixture::new);
+    public static final RegistrySupplier<Fixture> A1X1PAR64 =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "a1x1par64"), a1x1par64Fixture::new);
+    public static final RegistrySupplier<Fixture> A2X8PAR64 =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "a2x8par64"), a2x8par64Fixture::new);
+    public static final RegistrySupplier<Fixture> A6X3PAR64_VERTICAL =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "a6x3par64_vertical"), a6x3par64_verticalFixture::new);
 
     public static Fixture getFireworkFixture(FireworkPreset preset) {
         return switch (preset) {

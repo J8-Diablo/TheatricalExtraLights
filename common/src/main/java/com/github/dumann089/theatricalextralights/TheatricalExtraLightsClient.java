@@ -106,7 +106,6 @@ public class TheatricalExtraLightsClient {
         BlockEntityRendererRegistry.register(BlockEntities.WATER_JET_FOG.get(), WaterJetFogRenderer::new);
 
         BlockEntityRendererRegistry.register(BlockEntities.WHITE_STROBE.get(), WhiteStrobeRenderer::new);
-        BlockEntityRendererRegistry.register(BlockEntities.FIREWORK_LAUNCHER.get(), FireworkLauncherRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.LASER_MIRROR.get(), LaserMirrorRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.PARSCROLLER.get(), ParScrollerRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.BLINDER2X2.get(), Blinder2x2Renderer::new);
@@ -115,6 +114,11 @@ public class TheatricalExtraLightsClient {
 
         BlockEntityRendererRegistry.register(BlockEntities.MOVING_VL2C_BEAMS.get(), MovingVL2CBeamsRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.MOVING_SCAN_BEAMS.get(), MovingScanBeamsRenderer::new);
+
+        BlockEntityRendererRegistry.register(BlockEntities.A1X1PAR64.get(), a1x1par64Renderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.A2X8PAR64.get(), a2x8par64Renderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.A6X3PAR64_VERTICAL.get(), a6x3par64_verticalRenderer::new);
+
 
         EntityRendererRegistry.register(ModEntities.FIREWORK_ROCKET, FireworkRocketRenderer::new);
 

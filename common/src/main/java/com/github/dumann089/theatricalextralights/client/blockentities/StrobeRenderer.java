@@ -1,20 +1,32 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.StrobeBlockEntity;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.github.dumann089.theatricalextralights.blockentities.WhiteStrobeBlockEntity;
+import com.github.dumann089.theatricalextralights.client.LensRenderTypes;
+import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import dev.imabad.theatrical.TheatricalExpectPlatform;
 import dev.imabad.theatrical.blocks.HangableBlock;
 import dev.imabad.theatrical.client.LazyRenderers;
 import dev.imabad.theatrical.client.TheatricalRenderTypes;
+import dev.imabad.theatrical.client.blockentities.FixtureRenderer;
 import net.minecraft.client.Camera;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderStateShard;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.Optional;
+
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
@@ -175,6 +187,19 @@ public class StrobeRenderer extends ExtraLightsFixtureRenderer<StrobeBlockEntity
                 return blockEntity.getBlockPos().getCenter();
             }
         });
+    }
+    private static void addLensVertex(
+            VertexConsumer vc,
+            Matrix4f m,
+            int r, int g, int b, int a,
+            float x, float y, float z,
+            float u, float v
+    ) {
+        vc.vertex(m, x, y, z)
+                .color(r, g, b, a)
+                .uv(u, v)
+                .uv2(LightTexture.FULL_BRIGHT)
+                .endVertex();
     }
 
     @Override

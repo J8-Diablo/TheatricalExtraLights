@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -37,6 +38,7 @@ public class TheatricalExtraLightsConfig {
     ));
 
     private transient Set<String> laserPassThroughSet = null;
+    private Boolean render2DBeam = false;
 
     /* ================= SINGLETON ================= */
 
@@ -64,6 +66,9 @@ public class TheatricalExtraLightsConfig {
 
                     if (loaded.laserPassThroughBlocks != null)
                         defaults.laserPassThroughBlocks = loaded.laserPassThroughBlocks;
+
+                    if (loaded.render2DBeam != null)
+                        defaults.render2DBeam = loaded.render2DBeam;
                 }
 
                 INSTANCE = defaults;
@@ -100,6 +105,9 @@ public class TheatricalExtraLightsConfig {
         if (laserPassThroughBlocks == null)
             laserPassThroughBlocks = new java.util.ArrayList<>();
         laserPassThroughSet = new HashSet<>(laserPassThroughBlocks);
+
+        if (render2DBeam == null)
+            render2DBeam = true;
     }
     
     /* ================= GETTERS ================= */
@@ -125,6 +133,10 @@ public class TheatricalExtraLightsConfig {
         return INSTANCE.laserPassThroughSet.contains(blockId);
     }
 
+    public static boolean shouldRender2DBeam() {
+        return INSTANCE.render2DBeam;
+    }
+
     /* ================= SETTERS ================= */
 
     public static void setLaserBeamLength(float value) {
@@ -137,5 +149,9 @@ public class TheatricalExtraLightsConfig {
 
     public static void setRenderLens(boolean value) {
         INSTANCE.renderLens = value;
+    }
+
+    public static void setRender2DBeam(boolean value) {
+        INSTANCE.render2DBeam = value;
     }
 }
