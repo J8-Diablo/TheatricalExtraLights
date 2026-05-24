@@ -27,7 +27,8 @@ import java.util.WeakHashMap;
 public class VL6CGoboRenderer extends ExtraLightsFixtureRenderer<VL6CGoboBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
     private final Double beamOpacity = TheatricalConfig.INSTANCE.CLIENT.beamOpacity;
-    private final GoboGPUProjector goboProjector = new GoboGPUProjector();
+    /** Per-BE projector — prevents cache thrashing between multiple fixtures. */
+    private final WeakHashMap<VL6CGoboBlockEntity, GoboGPUProjector> goboProjectors = new WeakHashMap<>();
 
     private final Map<VL6CGoboBlockEntity, float[]> structuralCache = new WeakHashMap<>();
     private final Map<VL6CGoboBlockEntity, Long> structuralCacheTicks = new WeakHashMap<>();
@@ -152,7 +153,7 @@ public class VL6CGoboRenderer extends ExtraLightsFixtureRenderer<VL6CGoboBlockEn
             float[] tiltPivot = blockEntity.getFixture().getTiltRotationPosition();
             float[] structuralTransform = getThrottledStructuralTransforms(blockEntity, blockstate);
 
-            goboProjector.render(
+            goboProjectors.computeIfAbsent(blockEntity, k -> new GoboGPUProjector()).render(
                     blockEntity,
                     multiBufferSource,
                     facing,

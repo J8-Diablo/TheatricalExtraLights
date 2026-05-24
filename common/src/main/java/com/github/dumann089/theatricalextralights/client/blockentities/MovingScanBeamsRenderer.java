@@ -27,7 +27,8 @@ import java.util.WeakHashMap;
 public class MovingScanBeamsRenderer extends ExtraLightsFixtureRenderer<MovingScanBeamsBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
     private final Double beamOpacity = TheatricalConfig.INSTANCE.CLIENT.beamOpacity;
-    private final GoboGPUProjector goboProjector = new GoboGPUProjector();
+    /** Per-BE projector — prevents cache thrashing between multiple fixtures. */
+    private final WeakHashMap<MovingScanBeamsBlockEntity, GoboGPUProjector> goboProjectors = new WeakHashMap<>();
 
     private final Map<MovingScanBeamsBlockEntity, float[]> structuralCache = new WeakHashMap<>();
     private final Map<MovingScanBeamsBlockEntity, Long> structuralCacheTicks = new WeakHashMap<>();
@@ -159,7 +160,7 @@ public class MovingScanBeamsRenderer extends ExtraLightsFixtureRenderer<MovingSc
             float[] tiltPivot = blockEntity.getFixture().getTiltRotationPosition();
             float[] structuralTransform = getThrottledStructuralTransforms(blockEntity, blockstate);
 
-            goboProjector.render(
+            goboProjectors.computeIfAbsent(blockEntity, k -> new GoboGPUProjector()).render(
                     blockEntity,
                     multiBufferSource,
                     facing,

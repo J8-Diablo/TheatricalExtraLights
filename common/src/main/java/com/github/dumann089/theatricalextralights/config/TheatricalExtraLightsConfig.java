@@ -22,7 +22,7 @@ public class TheatricalExtraLightsConfig {
     private Float laserBeamLength = 400.0f;
     private Float rgbBarBeamLength = 9.0f;
     private Boolean renderLens = true;
-    private Float maxGoboDistance = 100.0f;
+    private Float maxGoboDistance = 500.0f;
 
     /**
      * Block IDs (e.g. "minecraft:black_concrete") that lasers pass through

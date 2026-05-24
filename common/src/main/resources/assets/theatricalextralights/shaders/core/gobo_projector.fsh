@@ -35,8 +35,14 @@ void main() {
         1.0 - ((vDist / rZ) * 0.5 + 0.5)
     );
 
-    float edgeFade = 1.0 - smoothstep(rZ * 0.92, rZ, distFromCenter);
-    float lengthFade = 1.0 - smoothstep(effectiveMax * 0.40, effectiveMax, zDist);
+    // Absolute-distance edge fade: at least 0.5 blocks of anti-aliasing,
+    // even at very short ranges where rZ would otherwise be tiny (which
+    // produced visible staircase artifacts at the projection boundary).
+    float edgeFadeRange = max(0.5, rZ * 0.08);
+    float edgeFade = 1.0 - smoothstep(rZ - edgeFadeRange, rZ, distFromCenter);
+    // Keep the gobo fully visible across most of its range and only fade in
+    // the last ~15% so it doesn't look weak well before reaching MaxGoboDist.
+    float lengthFade = 1.0 - smoothstep(effectiveMax * 0.85, effectiveMax, zDist);
 
     vec4 texColor = texture(Sampler0, projectedUV);
 

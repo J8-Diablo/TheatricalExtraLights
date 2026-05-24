@@ -27,7 +27,10 @@ import java.util.WeakHashMap;
 public class Iris700GoboRenderer extends ExtraLightsFixtureRenderer<Iris700GoboBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
     private final Double beamOpacity = TheatricalConfig.INSTANCE.CLIENT.beamOpacity;
-    private final GoboGPUProjector goboProjector = new GoboGPUProjector();
+    /** One projector per BlockEntity so the geometry cache isn't shared across
+     *  multiple Iris700 fixtures (which would thrash the cache and cause
+     *  visual blinking when more than one fixture was active). */
+    private final WeakHashMap<Iris700GoboBlockEntity, GoboGPUProjector> goboProjectors = new WeakHashMap<>();
 
     private final Map<Iris700GoboBlockEntity, float[]> structuralCache = new WeakHashMap<>();
     private final Map<Iris700GoboBlockEntity, Long> structuralCacheTicks = new WeakHashMap<>();
@@ -152,7 +155,7 @@ public class Iris700GoboRenderer extends ExtraLightsFixtureRenderer<Iris700GoboB
             float[] tiltPivot = blockEntity.getFixture().getTiltRotationPosition();
             float[] structuralTransform = getThrottledStructuralTransforms(blockEntity, blockstate);
 
-            goboProjector.render(
+            goboProjectors.computeIfAbsent(blockEntity, k -> new GoboGPUProjector()).render(
                     blockEntity,
                     multiBufferSource,
                     facing,
