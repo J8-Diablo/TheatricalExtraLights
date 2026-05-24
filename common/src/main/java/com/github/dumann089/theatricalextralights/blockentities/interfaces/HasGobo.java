@@ -1,9 +1,15 @@
 // blockentities/interfaces/HasGobo.java
 package com.github.dumann089.theatricalextralights.blockentities.interfaces;
 
+import com.github.dumann089.theatricalextralights.client.gobo.GoboLibrary;
+
 public interface HasGobo {
+
     /** Slot del gobo (0 = abierto/blanco). */
     int getGobo();
+
+    /** Librería de gobos del fixture. */
+    GoboLibrary getGoboLibrary();
 
     /** Rotación acumulada del gobo en grados (animada en lightTick). */
     float getGoboRotation();

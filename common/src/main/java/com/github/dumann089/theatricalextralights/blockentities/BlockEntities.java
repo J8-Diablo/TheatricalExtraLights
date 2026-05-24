@@ -23,6 +23,7 @@ public class BlockEntities {
     public static final RegistrySupplier<BlockEntityType<BlinderBlockEntity>> BLINDER = BLOCK_ENTITIES.register("blinder", () -> BlockEntityType.Builder.of(BlinderBlockEntity::new, Blocks.BLINDER.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<BlinderwarmBlockEntity>> BLINDER_WARM = BLOCK_ENTITIES.register("blinder_warm", () -> BlockEntityType.Builder.of(BlinderwarmBlockEntity::new, Blocks.BLINDER_WARM_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<StrobeBlockEntity>> STROBE = BLOCK_ENTITIES.register("strobe", () -> BlockEntityType.Builder.of(StrobeBlockEntity::new, Blocks.STROBE.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<AtomicStrobeBlockEntity>> ATOMIC_STROBE = BLOCK_ENTITIES.register("atomic_strobe", () -> BlockEntityType.Builder.of(AtomicStrobeBlockEntity::new, Blocks.ATOMIC_STROBE.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<truss3lightsBlockEntity>> TRUSS_3LIGHTS = BLOCK_ENTITIES.register("truss_3lights", () -> BlockEntityType.Builder.of(truss3lightsBlockEntity::new, Blocks.TRUSS_3LIGHTS.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<Beam7RBlockEntity>> BEAM_7R = BLOCK_ENTITIES.register("beam_7r", () -> BlockEntityType.Builder.of(Beam7RBlockEntity::new, Blocks.BEAM_7R_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<Source4BlockEntity>> SOURCE_FOUR = BLOCK_ENTITIES.register("source_four", () -> BlockEntityType.Builder.of(Source4BlockEntity::new, Blocks.SOURCE_FOUR_BLOCK.get()).build(null));
@@ -170,6 +171,10 @@ public class BlockEntities {
 
     public static final RegistrySupplier<BlockEntityType<MovingVL2CBeamsBlockEntity>> MOVING_VL2C_BEAMS = BLOCK_ENTITIES.register("moving_vl2c_beams", () -> BlockEntityType.Builder.of(MovingVL2CBeamsBlockEntity::new, Blocks.MOVING_VL2C_BEAMS_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<MovingScanBeamsBlockEntity>> MOVING_SCAN_BEAMS = BLOCK_ENTITIES.register("moving_scan_beams", () -> BlockEntityType.Builder.of(MovingScanBeamsBlockEntity::new, Blocks.MOVING_SCAN_BEAMS_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<SpotXtremeGoboBlockEntity>> SPOT_XTREME_GOBO = BLOCK_ENTITIES.register("spot_xtreme_gobo", () -> BlockEntityType.Builder.of(SpotXtremeGoboBlockEntity::new, Blocks.SPOT_XTREME_GOBO_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<VL6CGoboBlockEntity>> VL6C_GOBO = BLOCK_ENTITIES.register("vl6c_gobo", () -> BlockEntityType.Builder.of(VL6CGoboBlockEntity::new, Blocks.VL6C_GOBO_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<Iris700GoboBlockEntity>> IRIS_700_GOBO = BLOCK_ENTITIES.register("iris_700_gobo", () -> BlockEntityType.Builder.of(Iris700GoboBlockEntity::new, Blocks.IRIS_700_GOBO_BLOCK.get()).build(null));
+
 
     public static final RegistrySupplier<BlockEntityType<a1x1par64BlockEntity>> A1X1PAR64 = BLOCK_ENTITIES.register("a1x1par64", () -> BlockEntityType.Builder.of(a1x1par64BlockEntity::new, Blocks.A1X1PAR64_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<a2x8par64BlockEntity>> A2X8PAR64 = BLOCK_ENTITIES.register("a2x8par64", () -> BlockEntityType.Builder.of(a2x8par64BlockEntity::new, Blocks.A2X8PAR64_BLOCK.get()).build(null));

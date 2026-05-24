@@ -1,0 +1,10 @@
+#version 330 core
+in vec2 TexCoords;
+out vec4 FragColor;
+
+uniform sampler2D u_GoboAccumTex;
+
+void main() {
+    // Simplemente inyecta el búfer acumulado con mezcla aditiva nativa en la GPU
+    FragColor = texture(u_GoboAccumTex, TexCoords);
+}

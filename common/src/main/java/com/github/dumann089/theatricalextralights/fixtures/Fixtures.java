@@ -101,6 +101,9 @@ public class Fixtures {
 
     public static final RegistrySupplier<Fixture> STROBE =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "strobe"), StrobeFixture::new);
+
+    public static final RegistrySupplier<Fixture> ATOMIC_STROBE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "atomic_strobe"), AtomicStrobeFixture::new);
             
     public static final RegistrySupplier<Fixture> TRUSS_3LIGHTS =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "truss_3lights"), truss3lightsFixture::new);
@@ -368,6 +371,12 @@ public class Fixtures {
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "a2x8par64"), a2x8par64Fixture::new);
     public static final RegistrySupplier<Fixture> A6X3PAR64_VERTICAL =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "a6x3par64_vertical"), a6x3par64_verticalFixture::new);
+    public static final RegistrySupplier<Fixture> SPOT_XTREME_GOBO =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "spot_xtreme_gobo"), SpotXtremeGoboFixture::new);
+    public static final RegistrySupplier<Fixture> VL6C_GOBO =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "vl6c_gobo"), VL6CGoboFixture::new);
+    public static final RegistrySupplier<Fixture> IRIS_700_GOBO =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "iris_700_gobo"), Iris700GoboFixture::new);
 
     public static Fixture getFireworkFixture(FireworkPreset preset) {
         return switch (preset) {
