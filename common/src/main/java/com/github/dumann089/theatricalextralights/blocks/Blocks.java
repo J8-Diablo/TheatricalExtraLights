@@ -95,6 +95,11 @@ public class Blocks {
     public static final RegistrySupplier<Block> MOVING_BAR_BLOCK = BLOCKS.register("moving_bar", MovingbarBlock::new);
     public static final RegistrySupplier<Block> MOVING_MINI_BAR_BLOCK = BLOCKS.register("moving_mini_bar", MovingMiniBarBlock::new);
 
+    public static final RegistrySupplier<Block> SPOT_XTREME_GOBO_BLOCK = BLOCKS.register("spot_xtreme_gobo", SpotXtremeGoboBlock::new);
+    public static final RegistrySupplier<Block> VL6C_GOBO_BLOCK = BLOCKS.register("vl6c_gobo", VL6CGoboBlock::new);
+    public static final RegistrySupplier<Block> IRIS_700_GOBO_BLOCK = BLOCKS.register("iris_700_gobo", Iris700GoboBlock::new);
+
+
     public static final RegistrySupplier<Block> WATER_JET_BLOCK = BLOCKS.register("water_jet", WaterJetBlock::new);
     public static final RegistrySupplier<Block> MOVING_JET_BLOCK = BLOCKS.register("moving_jet", MovingJetBlock::new);
     public static final RegistrySupplier<Block> WATER_JET_THIN_BLOCK = BLOCKS.register("water_jet_thin", WaterJetThinBlock::new);

@@ -9,7 +9,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -23,6 +22,8 @@ public class TheatricalExtraLightsConfig {
     private Float laserBeamLength = 400.0f;
     private Float rgbBarBeamLength = 9.0f;
     private Boolean renderLens = true;
+    private Float maxGoboDistance = 100.0f;
+
     /**
      * Block IDs (e.g. "minecraft:black_concrete") that lasers pass through
      * instead of stopping on. Use this for scenic decor blocks (backdrops,
@@ -64,6 +65,9 @@ public class TheatricalExtraLightsConfig {
                     if (loaded.renderLens != null)
                         defaults.renderLens = loaded.renderLens;
 
+                    if (loaded.maxGoboDistance != null)
+                        defaults.maxGoboDistance = loaded.maxGoboDistance;
+
                     if (loaded.laserPassThroughBlocks != null)
                         defaults.laserPassThroughBlocks = loaded.laserPassThroughBlocks;
 
@@ -102,6 +106,9 @@ public class TheatricalExtraLightsConfig {
         if (renderLens == null)
             renderLens = true;
 
+        if (maxGoboDistance == null || maxGoboDistance < 10f)
+            maxGoboDistance = 10f;
+
         if (laserPassThroughBlocks == null)
             laserPassThroughBlocks = new java.util.ArrayList<>();
         laserPassThroughSet = new HashSet<>(laserPassThroughBlocks);
@@ -109,7 +116,7 @@ public class TheatricalExtraLightsConfig {
         if (render2DBeam == null)
             render2DBeam = true;
     }
-    
+
     /* ================= GETTERS ================= */
 
     public static float getLaserBeamLength() {
@@ -122,6 +129,10 @@ public class TheatricalExtraLightsConfig {
 
     public static boolean shouldRenderLens() {
         return INSTANCE.renderLens;
+    }
+
+    public static float getMaxGoboDistance() {
+        return INSTANCE.maxGoboDistance;
     }
 
     public static boolean isLaserPassThrough(String blockId) {
@@ -149,6 +160,10 @@ public class TheatricalExtraLightsConfig {
 
     public static void setRenderLens(boolean value) {
         INSTANCE.renderLens = value;
+    }
+
+    public static void setMaxGoboDistance(float value) {
+        INSTANCE.maxGoboDistance = Math.max(10f, value);
     }
 
     public static void setRender2DBeam(boolean value) {

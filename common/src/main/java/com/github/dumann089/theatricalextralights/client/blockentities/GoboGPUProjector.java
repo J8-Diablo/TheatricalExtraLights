@@ -2,160 +2,267 @@ package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasGobo;
 import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.github.dumann089.theatricalextralights.client.ModShaders;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.imabad.theatrical.blocks.HangableBlock;
 import dev.imabad.theatrical.client.LazyRenderers;
+import it.unimi.dsi.fastutil.longs.LongIterator;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.client.Camera;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
+import org.joml.Vector4f;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 public class GoboGPUProjector {
 
-    private static final float RAYCAST_SKIP_RADIUS = 2.0f;
-    private static final Direction[] DIRECTIONS = Direction.values();
+    // ── Reused per-instance temporaries (never allocate in hot paths) ──────────
+    private final Vector4f raycastOriginVec = new Vector4f();
+    private final Vector4f raycastDirVec    = new Vector4f();
+    private final PoseStack projectorPoseStack = new PoseStack();
 
-    // ── SINGLE ALLOCATION STRUCTURES (ZERO ALLOCATIONS IN DYNAMIC BUFFERS) ──
-    private final BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
-    private final org.joml.Vector3d lensOrigin = new org.joml.Vector3d();
-    private final org.joml.Vector3d beamDir    = new org.joml.Vector3d();
-    private final org.joml.Vector3d axisU      = new org.joml.Vector3d();
-    private final org.joml.Vector3d axisV      = new org.joml.Vector3d();
+    // ── Reused Vector4f slots for the lazy-render closure ──────────────────────
+    private final Vector4f tmpLightPos = new Vector4f();
+    private final Vector4f tmpLightDir = new Vector4f();
+    private final Vector4f tmpAxisU    = new Vector4f();
+    private final Vector4f tmpAxisV    = new Vector4f();
 
-    private final float[] vertexUV_U = new float[4];
-    private final float[] vertexUV_V = new float[4];
+    private static final Direction[] DIRS = Direction.values();
+
+    // ── Geometry cache ─────────────────────────────────────────────────────────
+    private int   cachedGeoHash   = Integer.MIN_VALUE;
+    private final LongOpenHashSet uniqueBlocks = new LongOpenHashSet(512);
+
+    // Flat VBO: 3 floats per corner × 4 corners = 12 floats per quad
+    private float[] cachedVerts    = new float[2048 * 12];
+    private int     cachedQuadCount = 0;
+
+    // Reusable MutableBlockPos for DDA — eliminates one allocation per isOccludedFast call
+    private final BlockPos.MutableBlockPos ddaCheckPos = new BlockPos.MutableBlockPos();
+
+    // ── Tunables ───────────────────────────────────────────────────────────────
+    /**
+     * Hard cap on the scan radius (blocks). Keeps the triple-loop bounded even
+     * at wide zoom angles.
+     */
+    private static final float MAX_SCAN_RADIUS = 6.0f;
+
+    /**
+     * Scan length at maximum zoom (widest cone, zoomNorm = 1.0).
+     * The gobo stops being projected past this distance when fully open.
+     */
+    private static final float SCAN_LEN_ZOOM_MAX = 8.0f;
+
+    /**
+     * Scan length at minimum zoom (narrowest cone, zoomNorm = 0.0).
+     * At this zoom the gobo can reach up to MaxGoboDistance from config.
+     * This value is used as the floor so it never exceeds MaxGoboDistance.
+     */
+    private static final float SCAN_LEN_ZOOM_MIN_DEFAULT = 80.0f;
+
+    // ══════════════════════════════════════════════════════════════════════════
+    //  Public entry point
+    // ══════════════════════════════════════════════════════════════════════════
 
     public <T extends BlockEntity & HasGobo> void render(
             T be, MultiBufferSource multiBufferSource, Direction facing, float partialTicks,
             boolean isFlipped, BlockState blockState, boolean isHanging, Vec3 localLensOffset,
-            float[] panPivot, float[] tiltPivot, float[] structuralTransform) {
+            float[] panPivot, float[] tiltPivot, float[] structuralTransform,
+            float minAngle, float maxAngle) {
 
         float intensity01 = be.getPartialIntensity(partialTicks) / 255f;
-        if (intensity01 <= 0f) return;
+        if (intensity01 <= 0f || be.getLevel() == null) return;
 
-        int colour = be.getColour() == 0 ? 0xFFFFFF : be.getColour();
-        float panDeg  = be.getPartialPanDeg(partialTicks);
-        float tiltDeg = be.getPartialTiltDeg(partialTicks);
-        float zoom    = be.getPartialZoom(partialTicks);
-        float coneHalfAngle = 2.5f + (zoom / 255f) * 12.5f;
+        int   colour   = be.getColour() == 0 ? 0xFFFFFF : be.getColour();
+        float panDeg   = be.getPartialPanDeg(partialTicks);
+        float tiltDeg  = be.getPartialTiltDeg(partialTicks);
+        float zoomNorm = be.getPartialZoom(partialTicks) / 255f;
+        float coneHalfAngle = minAngle + zoomNorm * (maxAngle - minAngle);
 
-        RaycastResult ray = performRaycast(be, panDeg, tiltDeg, facing, blockState, isHanging, isFlipped, localLensOffset, panPivot, tiltPivot, structuralTransform);
-        if (!ray.hadHit || ray.hitPos == null || ray.hitNormal == null || ray.beamDir == null) return;
+        projectorPoseStack.setIdentity();
+        applyFixtureOrientation(projectorPoseStack, facing, isFlipped, blockState, isHanging,
+                panDeg, tiltDeg, panPivot, tiltPivot, structuralTransform);
+        projectorPoseStack.translate(localLensOffset.x, localLensOffset.y, localLensOffset.z);
 
-        final int finalColour = colour;
-        final float finalIntensity = intensity01;
-        final float finalHalfAngle = coneHalfAngle;
-        final float finalGoboRot = be.getGoboRotation();
-        final int finalGoboSlot = be.getGobo();
-        final RaycastResult finalRay = ray;
-        final net.minecraft.world.level.Level level = be.getLevel();
-        final BlockPos bePos = be.getBlockPos();
+        Matrix4f m = projectorPoseStack.last().pose();
+        raycastOriginVec.set(0f, 0f, 0f, 1f).mul(m);
+        raycastDirVec   .set(0f, 0f, -1f, 0f).mul(m);
 
-        // Initialization of the projector base in analytical global space
-        this.lensOrigin.set(finalRay.origin.x, finalRay.origin.y, finalRay.origin.z);
-        this.beamDir.set(finalRay.beamDir.x, finalRay.beamDir.y, finalRay.beamDir.z).normalize();
+        Vec3 origin  = Vec3.atLowerCornerOf(be.getBlockPos())
+                .add(raycastOriginVec.x, raycastOriginVec.y, raycastOriginVec.z);
+        Vec3 beamDir = new Vec3(raycastDirVec.x, raycastDirVec.y, raycastDirVec.z).normalize();
 
-        this.axisU.set(this.beamDir).cross(Math.abs(this.beamDir.y) > 0.9 ? 1.0 : 0.0, Math.abs(this.beamDir.y) > 0.9 ? 0.0 : 1.0, 0.0).normalize();
-        this.axisV.set(this.beamDir).cross(this.axisU).normalize();
+        // ── Entity hit → shorten beam ──────────────────────────────────────────
+        float finalLen = TheatricalExtraLightsConfig.getLaserBeamLength() * 1.5f;
+        Vec3  centerEnd = origin.add(beamDir.scale(finalLen));
+        AABB  beamVolume = new AABB(origin, centerEnd).inflate(3.0);
 
-        if (Math.abs(finalGoboRot) > 0.001f) {
-            double rad = Math.toRadians(finalGoboRot);
-            double cos = Math.cos(rad); double sin = Math.sin(rad);
-            double ux = this.axisU.x; double uy = this.axisU.y; double uz = this.axisU.z;
-            double vx = this.axisV.x; double vy = this.axisV.y; double vz = this.axisV.z;
-
-            this.axisU.set(ux * cos + vx * sin, uy * cos + vy * sin, uz * cos + vz * sin);
-            this.axisV.set(-ux * sin + vx * cos, -uy * sin + vy * cos, -uz * sin + vz * cos);
+        List<LivingEntity> entities = be.getLevel().getEntitiesOfClass(
+                LivingEntity.class, beamVolume, e -> !e.isSpectator());
+        for (LivingEntity entity : entities) {
+            Optional<Vec3> hit = entity.getBoundingBox().clip(origin, centerEnd);
+            if (hit.isPresent()) {
+                float d = (float) origin.distanceToSqr(hit.get());
+                if (d < finalLen * finalLen) finalLen = (float) Math.sqrt(d);
+            }
         }
 
-        final double lOx = this.lensOrigin.x; final double lOy = this.lensOrigin.y; final double lOz = this.lensOrigin.z;
-        final double bDx = this.beamDir.x;    final double bDy = this.beamDir.y;    final double bDz = this.beamDir.z;
-        final double aUx = this.axisU.x;      final double aUy = this.axisU.y;      final double aUz = this.axisU.z;
-        final double aVx = this.axisV.x;      final double aVy = this.axisV.y;      final double aVz = this.axisV.z;
+        // ── Beam axes (with optional gobo rotation) ───────────────────────────
+        Vec3 axisU, axisV;
+        {
+            Vec3 up = Math.abs(beamDir.y) > 0.9 ? new Vec3(1, 0, 0) : new Vec3(0, 1, 0);
+            axisU = beamDir.cross(up).normalize();
+            axisV = beamDir.cross(axisU).normalize();
+
+            float goboRot = be.getGoboRotation();
+            if (Math.abs(goboRot) > 0.001f) {
+                double rad = Math.toRadians(goboRot);
+                double cos = Math.cos(rad), sin = Math.sin(rad);
+                Vec3 oldU = axisU;
+                axisU = oldU.scale(cos).add(axisV.scale(sin)).normalize();
+                axisV = oldU.scale(-sin).add(axisV.scale(cos)).normalize();
+            }
+        }
+
+        float tanHalfAngle = (float) Math.tan(Math.toRadians(coneHalfAngle));
+
+        // ── Snapshot values for the lazy closure (primitives / immutable refs) ─
+        final int    finalColour    = colour;
+        final float  finalIntensity = intensity01;
+        final int    finalGoboSlot  = be.getGobo();
+        final BlockPos bePos        = be.getBlockPos();
+        final Level  level          = be.getLevel();
+        final Vec3   finalOrigin    = origin;
+        final Vec3   finalBeamDir   = beamDir;
+        final Vec3   finalAxisU     = axisU;
+        final Vec3   finalAxisV     = axisV;
+        final float  finalMaxLen    = finalLen;
+        final float  finalZoomNorm  = zoomNorm;   // 0 = narrow, 1 = wide
 
         LazyRenderers.addLazyRender(new LazyRenderers.LazyRenderer() {
+
             @Override
-            public void render(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, Camera camera, float partialTick) {
+            public void render(MultiBufferSource.BufferSource bufferSource,
+                               PoseStack poseStack, Camera camera, float partialTick) {
+
+                Vec3 camPos = camera.getPosition();
+
+                // ── Transform light vectors into view space ────────────────────
                 poseStack.pushPose();
-                poseStack.translate(-camera.getPosition().x, -camera.getPosition().y, -camera.getPosition().z);
+                poseStack.translate(-camPos.x, -camPos.y, -camPos.z);
                 Matrix4f matrix = poseStack.last().pose();
 
-                ResourceLocation texture = getGoboTexture(finalGoboSlot);
-                VertexConsumer vc = bufferSource.getBuffer(getVanillaGoboRenderType(texture));
+                // Reuse pre-allocated Vector4f slots — zero allocations here
+                tmpLightPos.set((float) finalOrigin.x, (float) finalOrigin.y,
+                        (float) finalOrigin.z, 1.0f);
+                matrix.transform(tmpLightPos);
 
-                double hitRadius = Math.tan(Math.toRadians(finalHalfAngle)) * finalRay.length;
+                tmpLightDir.set((float) finalBeamDir.x, (float) finalBeamDir.y,
+                        (float) finalBeamDir.z, 0.0f);
+                matrix.transform(tmpLightDir);
+                tmpLightDir.normalize();
 
-                // ── OPTIMIZATION 1: ULTRA-SMART DYNAMIC SCAN RADIUS ADJUSTMENT ──
-                int blockRadius;
-                if (zoom < 40f)       blockRadius = Math.min(Mth.ceil(hitRadius) + 1, 3);
-                else if (zoom < 110f) blockRadius = Math.min(Mth.ceil(hitRadius) + 1, 5);
-                else                  blockRadius = Math.min(Mth.ceil(hitRadius) + 1, 7);
+                tmpAxisU.set((float) finalAxisU.x, (float) finalAxisU.y,
+                        (float) finalAxisU.z, 0.0f);
+                matrix.transform(tmpAxisU);
+                tmpAxisU.normalize();
 
-                int r = (finalColour >> 16) & 0xFF; int g = (finalColour >> 8) & 0xFF; int b = finalColour & 0xFF;
-                int a = (int) (Math.min(1f, finalIntensity * 1.5f) * 255f);
+                tmpAxisV.set((float) finalAxisV.x, (float) finalAxisV.y,
+                        (float) finalAxisV.z, 0.0f);
+                matrix.transform(tmpAxisV);
+                tmpAxisV.normalize();
 
-                BlockPos centerBlock = BlockPos.containing(finalRay.hitPos);
-                double tanHalfAngle = Math.tan(Math.toRadians(finalHalfAngle));
-                float maxLen = TheatricalExtraLightsConfig.getLaserBeamLength();
+                // ── Vertex buffer setup ───────────────────────────────────────
+                ResourceLocation texture    = be.getGoboLibrary().getTexture(finalGoboSlot);
+                RenderType       renderType = ModShaders.getGoboRenderType(texture);
+                VertexConsumer   vc         = bufferSource.getBuffer(renderType);
 
-                for (int x = -blockRadius; x <= blockRadius; x++) {
-                    for (int y = -blockRadius; y <= blockRadius; y++) {
-                        for (int z = -blockRadius; z <= blockRadius; z++) {
-                            mutablePos.set(centerBlock.getX() + x, centerBlock.getY() + y, centerBlock.getZ() + z);
+                int   r          = (finalColour >> 16) & 0xFF;
+                int   g          = (finalColour >> 8)  & 0xFF;
+                int   b          = finalColour          & 0xFF;
+                int   finalAlpha = (int)(Math.min(1f, finalIntensity * 1.5f) * 255f);
 
-                            // Center coordinates of the evaluated block
-                            double bX = mutablePos.getX(); double bY = mutablePos.getY(); double bZ = mutablePos.getZ();
-                            double blockCenterX = bX + 0.5; double blockCenterY = bY + 0.5; double blockCenterZ = bZ + 0.5;
+                // ── Zoom-driven scan length ───────────────────────────────────
+                // zoomNorm=0 → narrow beam → projects far (up to MaxGoboDistance)
+                // zoomNorm=1 → wide  beam → cuts off early (SCAN_LEN_ZOOM_MAX)
+                //
+                // Quadratic ease-in so the cut-off feels gradual at low zoom
+                // and aggressive at high zoom, matching how a real gobo frosts out.
+                float maxGoboDistConfig = TheatricalExtraLightsConfig.getMaxGoboDistance();
+                float scanLenAtMin  = Math.min(SCAN_LEN_ZOOM_MIN_DEFAULT, maxGoboDistConfig);
+                float zoomT         = finalZoomNorm * finalZoomNorm; // ease-in^2
+                float scanLen       = scanLenAtMin + zoomT * (SCAN_LEN_ZOOM_MAX - scanLenAtMin);
+                // Also respect the actual beam stop (entity hit, etc.)
+                scanLen = Math.min(scanLen, finalMaxLen);
 
-                            // ── OPTIMIZATION 2: CONE INTERSECTION SPATIAL PRUNING ON CPU (AVOIDS SCANNING A FULL CUBE) ──
-                            double vcx = blockCenterX - lOx; double vcy = blockCenterY - lOy; double vcz = blockCenterZ - lOz;
-                            double tProj = vcx * bDx + vcy * bDy + vcz * bDz;
+                // Scan radius: hard-capped to keep the triple-loop sane
+                float clampedRadius = Math.min(scanLen * tanHalfAngle, MAX_SCAN_RADIUS);
 
-                            if (tProj <= 0.05 || tProj > maxLen + 1.0) continue;
+                // FIX #2: geoHash no longer includes finalMaxLen.
+                // finalMaxLen changes every frame when entities enter the beam volume,
+                // which used to invalidate the cache and trigger rebuildGeometryCache
+                // every frame. Surface geometry does not depend on entity occlusion.
+                int qDirX = Math.round((float) finalBeamDir.x * 50f);
+                int qDirY = Math.round((float) finalBeamDir.y * 50f);
+                int qDirZ = Math.round((float) finalBeamDir.z * 50f);
+                int qTan  = Math.round(tanHalfAngle * 100f);
+                int qScan = Math.round(scanLen);   // scanLen is zoom-driven, bucket by block
 
-                            double perpDistSq = (vcx * vcx + vcy * vcy + vcz * vcz) - (tProj * tProj);
-                            double coneRadAtBlock = tanHalfAngle * tProj;
-                            double exactTolerance = coneRadAtBlock + 0.866; // 0.866 is the exact radius of the block's inscribed sphere
+                int geoHash = java.util.Objects.hash(
+                        bePos, qDirX, qDirY, qDirZ, qTan, qScan);
 
-                            if (perpDistSq > exactTolerance * exactTolerance) continue; // Immediate mathematical discarding without touching the world
-
-                            BlockState state = level.getBlockState(mutablePos);
-                            if (state.isAir()) continue;
-
-                            for (Direction dir : DIRECTIONS) {
-                                int sX = dir.getStepX(); int sY = dir.getStepY(); int sZ = dir.getStepZ();
-
-                                // Analytical Backface Culling via direct scalar dot product
-                                double dotNormal = sX * bDx + sY * bDy + sZ * bDz;
-                                if (dotNormal >= -0.01) continue;
-
-                                processAndRenderContinuousFace(vc, matrix, bX, bY, bZ, dir, sX, sY, sZ, lOx, lOy, lOz, bDx, bDy, bDz, aUx, aUy, aUz, aVx, aVy, aVz, tanHalfAngle, r, g, b, a);
-                            }
-                        }
-                    }
+                // ── Shader uniforms (after scanLen is computed) ───────────────
+                // MaxLen is set to scanLen so the shader's lengthFade matches
+                // the zoom-driven cutoff exactly — no geometry/shader mismatch.
+                ShaderInstance shader = ModShaders.goboProjectorShader;
+                if (shader != null) {
+                    shader.safeGetUniform("LightPos").set(tmpLightPos.x(), tmpLightPos.y(), tmpLightPos.z());
+                    shader.safeGetUniform("LightDir").set(tmpLightDir.x(), tmpLightDir.y(), tmpLightDir.z());
+                    shader.safeGetUniform("AxisU")   .set(tmpAxisU.x(),    tmpAxisU.y(),    tmpAxisU.z());
+                    shader.safeGetUniform("AxisV")   .set(tmpAxisV.x(),    tmpAxisV.y(),    tmpAxisV.z());
+                    shader.safeGetUniform("TanHalfAngle").set(tanHalfAngle);
+                    shader.safeGetUniform("MaxLen")  .set(scanLen);
+                    shader.safeGetUniform("MaxGoboDist")
+                            .set(TheatricalExtraLightsConfig.getMaxGoboDistance());
                 }
+
+                if (geoHash != cachedGeoHash) {
+                    rebuildGeometryCache(level, bePos, finalOrigin, finalBeamDir,
+                            scanLen, clampedRadius, tanHalfAngle, geoHash);
+                }
+
+                // ── Emit cached quads every frame (no block lookups) ──────────
+                for (int i = 0; i < cachedQuadCount; i++) {
+                    int vIdx = i * 12;
+                    vc.vertex(matrix, cachedVerts[vIdx],   cachedVerts[vIdx+1], cachedVerts[vIdx+2])
+                            .color(r, g, b, finalAlpha).uv(0f, 0f).endVertex();
+                    vc.vertex(matrix, cachedVerts[vIdx+3], cachedVerts[vIdx+4], cachedVerts[vIdx+5])
+                            .color(r, g, b, finalAlpha).uv(0f, 0f).endVertex();
+                    vc.vertex(matrix, cachedVerts[vIdx+6], cachedVerts[vIdx+7], cachedVerts[vIdx+8])
+                            .color(r, g, b, finalAlpha).uv(0f, 0f).endVertex();
+                    vc.vertex(matrix, cachedVerts[vIdx+9], cachedVerts[vIdx+10],cachedVerts[vIdx+11])
+                            .color(r, g, b, finalAlpha).uv(0f, 0f).endVertex();
+                }
+
                 poseStack.popPose();
+                bufferSource.endBatch(renderType);
             }
 
             @Override
@@ -163,159 +270,267 @@ public class GoboGPUProjector {
         });
     }
 
-    private void processAndRenderContinuousFace(
-            VertexConsumer vc, Matrix4f matrix, double bx, double by, double bz, Direction face, int sx, int sy, int sz,
-            double lOx, double lOy, double lOz, double bDx, double bDy, double bDz,
-            double aUx, double aUy, double aUz, double aVx, double aVy, double aVz,
-            double tanHalfAngle, int r, int g, int b, int a) {
+    // ══════════════════════════════════════════════════════════════════════════
+    //  Geometry rebuild — called only when geoHash changes
+    // ══════════════════════════════════════════════════════════════════════════
 
-        double minX = bx, minY = by, minZ = bz;
-        double maxX = bx + 1.0, maxY = by + 1.0, maxZ = bz + 1.0;
+    /**
+     * Rebuilds {@link #cachedVerts} and {@link #cachedQuadCount}.
+     * All expensive block-lookup work is here; nothing in this method is called
+     * every frame — only on cache misses.
+     */
+    private void rebuildGeometryCache(Level level, BlockPos bePos, Vec3 finalOrigin,
+                                      Vec3 finalBeamDir, float scanLen, float clampedRadius,
+                                      float tanHalfAngle, int newGeoHash) {
 
-        double x0, y0, z0, x1, y1, z1, x2, y2, z2, x3, y3, z3;
+        cachedGeoHash  = newGeoHash;
+        cachedQuadCount = 0;
+        uniqueBlocks.clear();
 
-        switch (face) {
-            case DOWN -> { x0=minX; y0=minY; z0=minZ; x1=maxX; y1=minY; z1=minZ; x2=maxX; y2=minY; z2=maxZ; x3=minX; y3=minY; z3=maxZ; }
-            case UP   -> { x0=minX; y0=maxY; z0=maxZ; x1=maxX; y1=maxY; z1=maxZ; x2=maxX; y2=maxY; z2=minZ; x3=minX; y3=maxY; z3=minZ; }
-            case NORTH-> { x0=maxX; y0=maxY; z0=minZ; x1=maxX; y1=minY; z1=minZ; x2=minX; y2=minY; z2=minZ; x3=minX; y3=maxY; z3=minZ; }
-            case SOUTH-> { x0=minX; y0=maxY; z0=maxZ; x1=minX; y1=minY; z1=maxZ; x2=maxX; y2=minY; z2=maxZ; x3=maxX; y3=maxY; z3=maxZ; }
-            case WEST -> { x0=minX; y0=maxY; z0=minZ; x1=minX; y1=minY; z1=minZ; x2=minX; y2=minY; z2=maxZ; x3=minX; y3=maxY; z3=maxZ; }
-            default   -> { x0=maxX; y0=maxY; z0=maxZ; x1=maxX; y1=minY; z1=maxZ; x2=maxX; y2=minY; z2=minZ; x3=maxX; y3=maxY; z3=minZ; } // EAST
-        }
+        float ox = (float) finalOrigin.x;
+        float oy = (float) finalOrigin.y;
+        float oz = (float) finalOrigin.z;
+        float dx = (float) finalBeamDir.x;
+        float dy = (float) finalBeamDir.y;
+        float dz = (float) finalBeamDir.z;
 
-        // ── OPTIMIZATION 3: NUMERICAL STABILIZATION FIXING THE APERTURE FLOOR AT 0.15 ──
+        double endX = ox + dx * scanLen;
+        double endY = oy + dy * scanLen;
+        double endZ = oz + dz * scanLen;
 
-        // Vertex 0
-        double t0x = x0 - lOx; double t0y = y0 - lOy; double t0z = z0 - lOz; double d0 = t0x * bDx + t0y * bDy + t0z * bDz;
-        double rad0 = tanHalfAngle * d0; if (rad0 < 0.15) rad0 = 0.15;
-        double o0x = t0x - bDx * d0; double o0y = t0y - bDy * d0; double o0z = t0z - bDz * d0;
-        vertexUV_U[0] = (float) (0.5 + (o0x * aUx + o0y * aUy + o0z * aUz) / (2.0 * rad0));
-        vertexUV_V[0] = (float) (0.5 + (o0x * aVx + o0y * aVy + o0z * aVz) / (2.0 * rad0));
+        int minX = (int) Math.floor(Math.min(ox, endX) - clampedRadius) - 1;
+        int maxX = (int) Math.ceil (Math.max(ox, endX) + clampedRadius) + 1;
+        int minY = (int) Math.floor(Math.min(oy, endY) - clampedRadius) - 1;
+        int maxY = (int) Math.ceil (Math.max(oy, endY) + clampedRadius) + 1;
+        int minZ = (int) Math.floor(Math.min(oz, endZ) - clampedRadius) - 1;
+        int maxZ = (int) Math.ceil (Math.max(oz, endZ) + clampedRadius) + 1;
 
-        // Vertex 1
-        double t1x = x1 - lOx; double t1y = y1 - lOy; double t1z = z1 - lOz; double d1 = t1x * bDx + t1y * bDy + t1z * bDz;
-        double rad1 = tanHalfAngle * d1; if (rad1 < 0.15) rad1 = 0.15;
-        double o1x = t1x - bDx * d1; double o1y = t1y - bDy * d1; double o1z = t1z - bDz * d1;
-        vertexUV_U[1] = (float) (0.5 + (o1x * aUx + o1y * aUy + o1z * aUz) / (2.0 * rad1));
-        vertexUV_V[1] = (float) (0.5 + (o1x * aVx + o1y * aVy + o1z * aVz) / (2.0 * rad1));
+        BlockPos.MutableBlockPos mPos  = new BlockPos.MutableBlockPos();
+        BlockPos.MutableBlockPos adjPos = new BlockPos.MutableBlockPos();
 
-        // Vertex 2
-        double t2x = x2 - lOx; double t2y = y2 - lOy; double t2z = z2 - lOz; double d2 = t2x * bDx + t2y * bDy + t2z * bDz;
-        double rad2 = tanHalfAngle * d2; if (rad2 < 0.15) rad2 = 0.15;
-        double o2x = t2x - bDx * d2; double o2y = t2y - bDy * d2; double o2z = t2z - bDz * d2;
-        vertexUV_U[2] = (float) (0.5 + (o2x * aUx + o2y * aUy + o2z * aUz) / (2.0 * rad2));
-        vertexUV_V[2] = (float) (0.5 + (o2x * aVx + o2y * aVy + o2z * aVz) / (2.0 * rad2));
+        for (int x = minX; x <= maxX; x++) {
+            for (int z = minZ; z <= maxZ; z++) {
+                for (int y = minY; y <= maxY; y++) {
 
-        // Vertex 3
-        double t3x = x3 - lOx; double t3y = y3 - lOy; double t3z = z3 - lOz; double d3 = t3x * bDx + t3y * bDy + t3z * bDz;
-        double rad3 = tanHalfAngle * d3; if (rad3 < 0.15) rad3 = 0.15;
-        double o3x = t3x - bDx * d3; double o3y = t3y - bDy * d3; double o3z = t3z - bDz * d3;
-        vertexUV_U[3] = (float) (0.5 + (o3x * aUx + o3y * aUy + o3z * aUz) / (2.0 * rad3));
-        vertexUV_V[3] = (float) (0.5 + (o3x * aVx + o3y * aVy + o3z * aVz) / (2.0 * rad3));
+                    // Cone inclusion test (block centre)
+                    float vx = x + 0.5f - ox;
+                    float vy = y + 0.5f - oy;
+                    float vz = z + 0.5f - oz;
 
-        // ── CORRECTION: REMOVED FULL CULLING BLOCK RETURN (AVOIDS HARD CLIPPING ON EDGES) ──
+                    float t = vx * dx + vy * dy + vz * dz;
+                    if (t < -0.5f || t > scanLen + 0.5f) continue;
 
-        // ── MANDATORY: MANUAL CLAMPING REQUIRED PER VERTEX TO STOP TEXTURE BLEEDING ACROSS MULTIPLE BLOCKS ──
-        float u0 = Mth.clamp(vertexUV_U[0], 0.0f, 1.0f); float v0 = Mth.clamp(vertexUV_V[0], 0.0f, 1.0f);
-        float u1 = Mth.clamp(vertexUV_U[1], 0.0f, 1.0f); float v1 = Mth.clamp(vertexUV_V[1], 0.0f, 1.0f);
-        float u2 = Mth.clamp(vertexUV_U[2], 0.0f, 1.0f); float v2 = Mth.clamp(vertexUV_V[2], 0.0f, 1.0f);
-        float u3 = Mth.clamp(vertexUV_U[3], 0.0f, 1.0f); float v3 = Mth.clamp(vertexUV_V[3], 0.0f, 1.0f);
+                    float distSq = (vx*vx + vy*vy + vz*vz) - (t*t);
+                    float maxR   = t * tanHalfAngle + 1.4f;
+                    if (distSq > maxR * maxR) continue;
 
-        // Stable micrometric anti Z-Fighting offset
-        double offX = sx * 0.007; double offY = sy * 0.007; double offZ = sz * 0.007;
+                    mPos.set(x, y, z);
+                    if (mPos.equals(bePos)) continue;
 
-        vc.vertex(matrix, (float)(x0 + offX), (float)(y0 + offY), (float)(z0 + offZ)).color(r, g, b, a).uv(u0, v0).endVertex();
-        vc.vertex(matrix, (float)(x1 + offX), (float)(y1 + offY), (float)(z1 + offZ)).color(r, g, b, a).uv(u1, v1).endVertex();
-        vc.vertex(matrix, (float)(x2 + offX), (float)(y2 + offY), (float)(z2 + offZ)).color(r, g, b, a).uv(u2, v2).endVertex();
-        vc.vertex(matrix, (float)(x3 + offX), (float)(y3 + offY), (float)(z3 + offZ)).color(r, g, b, a).uv(u3, v3).endVertex();
-    }
+                    BlockState state = level.getBlockState(mPos);
+                    if (state.isAir() || state.getShape(level, mPos).isEmpty()) continue;
 
-    private static class ClampedGoboTextureStateShard extends RenderStateShard.TextureStateShard {
-        public ClampedGoboTextureStateShard(ResourceLocation resourceLocation, boolean blur, boolean mipmap) {
-            super(resourceLocation, blur, mipmap);
-        }
+                    // Skip mod/passthrough blocks
+                    ResourceLocation key = BuiltInRegistries.BLOCK.getKey(state.getBlock());
+                    if (key != null) {
+                        String ns = key.getNamespace();
+                        if (ns.equals("theatrical") || ns.equals("theatricalextralights")) continue;
+                        if (TheatricalExtraLightsConfig.isLaserPassThrough(key.toString())) continue;
+                    }
 
-        @Override
-        public void setupRenderState() {
-            super.setupRenderState();
-            // Ensure sampler behavior at the hardware level on the GPU
-            GlStateManager._texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-            GlStateManager._texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
-        }
-    }
+                    // Visibility: at least one exposed face must have line-of-sight to origin
+                    boolean accepted = false;
+                    for (Direction dir : DIRS) {
+                        adjPos.setWithOffset(mPos, dir);
+                        if (level.getBlockState(adjPos).isSolidRender(level, adjPos)) continue;
 
-    private static RenderType getVanillaGoboRenderType(ResourceLocation texture) {
-        return RenderType.create("gobo_decal_industrial_clamped",
-                DefaultVertexFormat.POSITION_COLOR_TEX,
-                VertexFormat.Mode.QUADS,
-                256,
-                false,
-                true,
-                RenderType.CompositeState.builder()
-                        .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getPositionColorTexShader))
-                        .setTextureState(new ClampedGoboTextureStateShard(texture, false, false))
-                        .setTransparencyState(RenderStateShard.LIGHTNING_TRANSPARENCY)
-                        .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
-                        .setCullState(RenderStateShard.NO_CULL)
-                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-                        .createCompositeState(false)
-        );
-    }
+                        // Face must point toward the light
+                        double cx = x + 0.5 + dir.getStepX() * 0.5;
+                        double cy = y + 0.5 + dir.getStepY() * 0.5;
+                        double cz = z + 0.5 + dir.getStepZ() * 0.5;
+                        double rx  = cx - ox, ry = cy - oy, rz = cz - oz;
+                        if ((rx * dir.getStepX() + ry * dir.getStepY() + rz * dir.getStepZ()) >= 0.01) continue;
 
-    private static ResourceLocation getGoboTexture(int slot) {
-        if (slot <= 25) return new ResourceLocation("theatricalextralights", "textures/gobos/open.png");
-        int idx = ((slot - 26) / 26) + 1; idx = Math.min(idx, 9);
-        return new ResourceLocation("theatricalextralights", "textures/gobos/gobo_" + idx + ".png");
-    }
+                        // DDA occlusion test
+                        double fx = x + 0.5 + dir.getStepX() * 0.49;
+                        double fy = y + 0.5 + dir.getStepY() * 0.49;
+                        double fz = z + 0.5 + dir.getStepZ() * 0.49;
+                        if (!isOccludedFast(level, fx, fy, fz, ox, oy, oz, bePos, mPos)) {
+                            accepted = true;
+                            break;
+                        }
+                    }
+                    if (!accepted) continue;
 
-    private <T extends BlockEntity & HasGobo> RaycastResult performRaycast(
-            T be, float panDeg, float tiltDeg, Direction facing, BlockState blockState, boolean isHanging, boolean isFlipped,
-            Vec3 localLensOffset, float[] panPivot, float[] tiltPivot, float[] structuralTransform) {
-
-        float maxLen = TheatricalExtraLightsConfig.getLaserBeamLength();
-        if (be.getLevel() == null) return new RaycastResult(maxLen, false, null, null, Vec3.ZERO, be.getBlockPos().getCenter());
-
-        PoseStack temp = new PoseStack();
-        applyFixtureOrientation(temp, facing, isFlipped, blockState, isHanging, panDeg, tiltDeg, panPivot, tiltPivot, structuralTransform);
-        temp.translate(localLensOffset.x, localLensOffset.y, localLensOffset.z);
-
-        Matrix4f m = temp.last().pose();
-        org.joml.Vector4f localOrigin = new org.joml.Vector4f(0f, 0f, 0f, 1f);
-        localOrigin.mul(m);
-
-        Vec3 origin = Vec3.atLowerCornerOf(be.getBlockPos()).add(localOrigin.x, localOrigin.y, localOrigin.z);
-
-        org.joml.Vector4f localDir = new org.joml.Vector4f(0f, 0f, -1f, 0f);
-        localDir.mul(m);
-        Vec3 dir = new Vec3(localDir.x, localDir.y, localDir.z).normalize();
-
-        Vec3 end = origin.add(dir.scale(maxLen));
-        Vec3 rayStart = origin;
-        int safety = 24;
-
-        while (safety-- > 0) {
-            BlockHitResult hit = be.getLevel().clip(new ClipContext(rayStart, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null));
-            if (hit.getType() == HitResult.Type.MISS) return new RaycastResult(maxLen, false, null, null, dir, origin);
-
-            BlockState hitState = be.getLevel().getBlockState(hit.getBlockPos());
-            ResourceLocation key = BuiltInRegistries.BLOCK.getKey(hitState.getBlock());
-
-            boolean isModBlock = key != null && (key.getNamespace().equals("theatrical") || key.getNamespace().equals("theatricalextralights"));
-            boolean isPassThrough = key != null && TheatricalExtraLightsConfig.isLaserPassThrough(key.toString());
-            float dist = (float) hit.getLocation().distanceTo(origin);
-
-            if (!isModBlock && !isPassThrough && dist >= RAYCAST_SKIP_RADIUS) {
-                Vec3 norm = Vec3.atLowerCornerOf(hit.getDirection().getNormal());
-                return new RaycastResult(Math.min(maxLen, dist), true, hit.getLocation(), norm, dir, origin);
+                    // Store as relative key so bePos-relative coords survive
+                    int  relX = mPos.getX() - bePos.getX();
+                    int  relY = mPos.getY() - bePos.getY();
+                    int  relZ = mPos.getZ() - bePos.getZ();
+                    long blockKey = (((long)(relX & 0xFFFF)) << 32)
+                            | (((long)(relY & 0xFFFF)) << 16)
+                            | ((long)(relZ & 0xFFFF));
+                    uniqueBlocks.add(blockKey);
+                }
             }
-            rayStart = hit.getLocation().add(dir.scale(0.03));
-            if (rayStart.distanceToSqr(end) < 1e-4) return new RaycastResult(maxLen, false, null, null, dir, origin);
         }
-        return new RaycastResult(maxLen, false, null, null, dir, origin);
+
+        // Build VBO data from accepted blocks
+        final float zBias = 0.02f;
+
+        LongIterator iter = uniqueBlocks.iterator();
+        while (iter.hasNext()) {
+            long bk  = iter.nextLong();
+            int  pdx = (short)(bk >>> 32);
+            int  pdy = (short)(bk >>> 16);
+            int  pdz = (short)(bk & 0xFFFF);
+
+            BlockPos pos = bePos.offset(pdx, pdy, pdz);
+            BlockState s = level.getBlockState(pos);
+            if (s.isAir()) continue;
+
+            // Per-block radial direction for back-face culling
+            float cvx, cvy, cvz;
+            double dirX = pos.getX() + 0.5 - finalOrigin.x;
+            double dirY = pos.getY() + 0.5 - finalOrigin.y;
+            double dirZ = pos.getZ() + 0.5 - finalOrigin.z;
+            double dirLen = Math.sqrt(dirX*dirX + dirY*dirY + dirZ*dirZ);
+            if (dirLen > 0.001) {
+                cvx = (float)(dirX / dirLen);
+                cvy = (float)(dirY / dirLen);
+                cvz = (float)(dirZ / dirLen);
+            } else {
+                cvx = (float) finalBeamDir.x;
+                cvy = (float) finalBeamDir.y;
+                cvz = (float) finalBeamDir.z;
+            }
+
+            if (s.isCollisionShapeFullBlock(level, pos)) {
+                AABB box = new AABB(pos.getX(), pos.getY(), pos.getZ(),
+                        pos.getX() + 1.0, pos.getY() + 1.0, pos.getZ() + 1.0)
+                        .inflate(zBias);
+                for (int f = 0; f < 6; f++) {
+                    Direction face = DIRS[f];
+                    if ((face.getStepX() * cvx + face.getStepY() * cvy + face.getStepZ() * cvz) > 0.01f) continue;
+                    BlockPos adj = pos.relative(face);
+                    if (level.getBlockState(adj).isSolidRender(level, adj)) continue;
+                    addQuadToVBO(box, f);
+                }
+            } else {
+                for (AABB box : s.getShape(level, pos).toAabbs()) {
+                    AABB wBox = box.move(pos).inflate(zBias);
+                    for (int f = 0; f < 6; f++) {
+                        Direction face = DIRS[f];
+                        if ((face.getStepX() * cvx + face.getStepY() * cvy + face.getStepZ() * cvz) > 0.01f) continue;
+                        BlockPos adj = pos.relative(face);
+                        if (level.getBlockState(adj).isSolidRender(level, adj)) continue;
+                        addQuadToVBO(wBox, f);
+                    }
+                }
+            }
+        }
     }
 
-    private static void applyFixtureOrientation(PoseStack ps, Direction facing, boolean isFlipped, BlockState blockState, boolean isHanging,
-                                                float panDeg, float tiltDeg, float[] pans, float[] tilts, float[] structuralTransform) {
+    // ══════════════════════════════════════════════════════════════════════════
+    //  DDA occlusion test
+    // ══════════════════════════════════════════════════════════════════════════
+
+    private boolean isOccludedFast(Level level,
+                                   double sx, double sy, double sz,
+                                   double ex, double ey, double ez,
+                                   BlockPos bePos, BlockPos targetPos) {
+        double ddx = ex - sx, ddy = ey - sy, ddz = ez - sz;
+        double len = Math.sqrt(ddx*ddx + ddy*ddy + ddz*ddz);
+        if (len < 0.001) return false;
+
+        ddx /= len; ddy /= len; ddz /= len;
+
+        int stepX = ddx > 0 ? 1 : (ddx < 0 ? -1 : 0);
+        int stepY = ddy > 0 ? 1 : (ddy < 0 ? -1 : 0);
+        int stepZ = ddz > 0 ? 1 : (ddz < 0 ? -1 : 0);
+
+        double tDX = stepX != 0 ? Math.abs(1.0 / ddx) : Double.MAX_VALUE;
+        double tDY = stepY != 0 ? Math.abs(1.0 / ddy) : Double.MAX_VALUE;
+        double tDZ = stepZ != 0 ? Math.abs(1.0 / ddz) : Double.MAX_VALUE;
+
+        int vx = (int) Math.floor(sx);
+        int vy = (int) Math.floor(sy);
+        int vz = (int) Math.floor(sz);
+
+        double tMX = stepX > 0 ? (vx + 1.0 - sx) * tDX : (stepX < 0 ? (sx - vx) * tDX : Double.MAX_VALUE);
+        double tMY = stepY > 0 ? (vy + 1.0 - sy) * tDY : (stepY < 0 ? (sy - vy) * tDY : Double.MAX_VALUE);
+        double tMZ = stepZ > 0 ? (vz + 1.0 - sz) * tDZ : (stepZ < 0 ? (sz - vz) * tDZ : Double.MAX_VALUE);
+
+        double t = 0;
+
+        // Reuse the pre-allocated instance field instead of allocating a new
+        // MutableBlockPos on every call.
+        BlockPos.MutableBlockPos checkPos = ddaCheckPos;
+
+        while (t < len - 0.01) {
+            if (tMX < tMY && tMX < tMZ) { t = tMX; vx += stepX; tMX += tDX; }
+            else if (tMY < tMZ)          { t = tMY; vy += stepY; tMY += tDY; }
+            else                          { t = tMZ; vz += stepZ; tMZ += tDZ; }
+
+            checkPos.set(vx, vy, vz);
+            if (checkPos.equals(bePos) || checkPos.equals(targetPos)) continue;
+
+            BlockState state = level.getBlockState(checkPos);
+            if (!state.isAir() && state.isSolidRender(level, checkPos)) {
+                ResourceLocation key = BuiltInRegistries.BLOCK.getKey(state.getBlock());
+                boolean isMod  = key != null && (key.getNamespace().equals("theatrical")
+                        || key.getNamespace().equals("theatricalextralights"));
+                boolean isPass = key != null && TheatricalExtraLightsConfig.isLaserPassThrough(key.toString());
+                if (!isMod && !isPass) return true;
+            }
+        }
+        return false;
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    //  VBO helpers
+    // ══════════════════════════════════════════════════════════════════════════
+
+    private void addQuadToVBO(AABB box, int faceIdx) {
+        if (cachedQuadCount * 12 >= cachedVerts.length) {
+            cachedVerts = Arrays.copyOf(cachedVerts, cachedVerts.length * 2);
+        }
+
+        int   vIdx = cachedQuadCount * 12;
+        float mx = (float) box.minX, my = (float) box.minY, mz = (float) box.minZ;
+        float Mx = (float) box.maxX, My = (float) box.maxY, Mz = (float) box.maxZ;
+
+        switch (DIRS[faceIdx]) {
+            case DOWN:  writeQuad(vIdx, mx,my,Mz, mx,my,mz, Mx,my,mz, Mx,my,Mz); break;
+            case UP:    writeQuad(vIdx, mx,My,mz, mx,My,Mz, Mx,My,Mz, Mx,My,mz); break;
+            case NORTH: writeQuad(vIdx, Mx,my,mz, mx,my,mz, mx,My,mz, Mx,My,mz); break;
+            case SOUTH: writeQuad(vIdx, mx,my,Mz, Mx,my,Mz, Mx,My,Mz, mx,My,Mz); break;
+            case WEST:  writeQuad(vIdx, mx,my,mz, mx,my,Mz, mx,My,Mz, mx,My,mz); break;
+            case EAST:  writeQuad(vIdx, Mx,my,Mz, Mx,my,mz, Mx,My,mz, Mx,My,Mz); break;
+        }
+        cachedQuadCount++;
+    }
+
+    private void writeQuad(int i,
+                           float x1, float y1, float z1,
+                           float x2, float y2, float z2,
+                           float x3, float y3, float z3,
+                           float x4, float y4, float z4) {
+        cachedVerts[i++] = x1; cachedVerts[i++] = y1; cachedVerts[i++] = z1;
+        cachedVerts[i++] = x2; cachedVerts[i++] = y2; cachedVerts[i++] = z2;
+        cachedVerts[i++] = x3; cachedVerts[i++] = y3; cachedVerts[i++] = z3;
+        cachedVerts[i++] = x4; cachedVerts[i++] = y4; cachedVerts[i]   = z4;
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    //  Fixture orientation — unchanged, no allocations removed here because
+    //  PoseStack.mulPose already pools internally in Minecraft.
+    // ══════════════════════════════════════════════════════════════════════════
+
+    private static void applyFixtureOrientation(PoseStack ps, Direction facing,
+                                                boolean isFlipped, BlockState blockState,
+                                                boolean isHanging, float panDeg, float tiltDeg,
+                                                float[] pans, float[] tilts,
+                                                float[] structuralTransform) {
         ps.translate(0.5f, 0f, 0.5f);
         if (isHanging) {
             Direction hangDir = Direction.UP;
@@ -324,7 +539,9 @@ public class GoboGPUProjector {
             if (hangDir.getAxis() != Direction.Axis.Y) {
                 if (hangDir.getAxis() == Direction.Axis.Z) {
                     ps.mulPose(Axis.ZP.rotationDegrees(90));
-                    ps.mulPose(hangDir == Direction.SOUTH ? Axis.XP.rotationDegrees(-90) : Axis.XP.rotationDegrees(90));
+                    ps.mulPose(hangDir == Direction.SOUTH
+                            ? Axis.XP.rotationDegrees(-90)
+                            : Axis.XP.rotationDegrees(90));
                 } else {
                     ps.mulPose(Axis.ZN.rotationDegrees(-90));
                 }
@@ -333,33 +550,21 @@ public class GoboGPUProjector {
         }
         ps.mulPose(Axis.YP.rotationDegrees(facing.toYRot()));
         ps.translate(-0.5f, 0f, -0.5f);
-
         if (isHanging) {
             ps.translate(structuralTransform[0], structuralTransform[1], structuralTransform[2]);
             ps.translate(0, -0.08, 0);
         }
-
         if (isFlipped) {
             ps.translate(0.5f, 0.5f, 0.5f);
             ps.mulPose(Axis.ZP.rotationDegrees(180));
             ps.translate(-0.5f, -0.5f, -0.5f);
         }
-
         ps.translate(pans[0], pans[1], pans[2]);
         ps.mulPose(Axis.YP.rotationDegrees(panDeg));
         ps.translate(-pans[0], -pans[1], -pans[2]);
-
         ps.translate(tilts[0], tilts[1], tilts[2]);
-        if (isFlipped) ps.mulPose(Axis.XP.rotationDegrees(-180));
-        else           ps.mulPose(Axis.XP.rotationDegrees(180));
+        ps.mulPose(isFlipped ? Axis.XP.rotationDegrees(-180) : Axis.XP.rotationDegrees(180));
         ps.mulPose(Axis.XP.rotationDegrees(tiltDeg));
         ps.translate(-tilts[0], -tilts[1], -tilts[2]);
-    }
-
-    static class RaycastResult {
-        final float length; final boolean hadHit; final Vec3 hitPos; final Vec3 hitNormal; final Vec3 beamDir; final Vec3 origin;
-        RaycastResult(float l, boolean h, Vec3 p, Vec3 n, Vec3 d, Vec3 o) {
-            length = l; hadHit = h; hitPos = p; hitNormal = n; beamDir = d; origin = o;
-        }
     }
 }
