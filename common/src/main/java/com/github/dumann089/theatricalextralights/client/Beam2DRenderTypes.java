@@ -12,68 +12,77 @@ import net.minecraft.world.inventory.InventoryMenu;
 
 import static net.minecraft.client.renderer.RenderStateShard.*;
 
-    public class Beam2DRenderTypes {
+public class Beam2DRenderTypes {
 
-        public static final RenderType FADER = RenderType.create(
-                "Fader",
-                DefaultVertexFormat.POSITION_COLOR,
-                VertexFormat.Mode.QUADS,
-                256,
-                false,
-                true,
-                RenderType.CompositeState.builder()
-                        .setShaderState(new ShaderStateShard(GameRenderer::getPositionColorShader))
-                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                        .createCompositeState(false)
-        );
+    public static final RenderType FADER = RenderType.create(
+            "Fader",
+            DefaultVertexFormat.POSITION_COLOR,
+            VertexFormat.Mode.QUADS,
+            256,
+            false,
+            true,
+            RenderType.CompositeState.builder()
+                    .setShaderState(new ShaderStateShard(GameRenderer::getPositionColorShader))
+                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                    .createCompositeState(false)
+    );
 
-        // SHADERS
-        public static final RenderType BEAM_SHADERS = RenderType.create(
-                "beam_shaders",
-                DefaultVertexFormat.POSITION_COLOR,
-                VertexFormat.Mode.QUADS,
-                256,
-                false,
-                false,
-                RenderType.CompositeState.builder()
-                        .setShaderState(new RenderStateShard.ShaderStateShard(
-                                GameRenderer::getPositionColorShader
-                        ))
-                        .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-                        .setCullState(RenderStateShard.NO_CULL)
-                        .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
-                        .createCompositeState(false)
-        );
+    // SHADERS
+    public static final RenderType BEAM_SHADERS = RenderType.create(
+            "beam_shaders",
+            DefaultVertexFormat.POSITION_COLOR,
+            VertexFormat.Mode.QUADS,
+            256,
+            false,
+            false,
+            RenderType.CompositeState.builder()
+                    .setShaderState(new RenderStateShard.ShaderStateShard(
+                            GameRenderer::getPositionColorShader
+                    ))
+                    .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
+                    .setWriteMaskState(RenderStateShard.COLOR_WRITE)
+                    .setCullState(RenderStateShard.NO_CULL)
+                    .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
+                    .createCompositeState(false)
+    );
 
-        // VANILLA
-        public static final RenderType BEAM_VANILLA = RenderType.create(
-                "beam_vanilla",
-                DefaultVertexFormat.POSITION_COLOR,
-                VertexFormat.Mode.QUADS,
-                256,
-                false,
-                true,
-                RenderType.CompositeState.builder()
-                        .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getPositionColorShader))
-                        .setTransparencyState(RenderStateShard.LIGHTNING_TRANSPARENCY)
-                        .setWriteMaskState(COLOR_WRITE)
-                        .setCullState(NO_CULL)
-                        .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
-                        .createCompositeState(false)
-        );
+    // VANILLA
+    public static final RenderType BEAM_VANILLA = RenderType.create(
+            "beam_vanilla",
+            DefaultVertexFormat.POSITION_COLOR,
+            VertexFormat.Mode.QUADS,
+            256,
+            false,
+            true,
+            RenderType.CompositeState.builder()
+                    .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getPositionColorShader))
+                    .setTransparencyState(RenderStateShard.LIGHTNING_TRANSPARENCY)
+                    .setWriteMaskState(COLOR_WRITE)
+                    .setCullState(NO_CULL)
+                    .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
+                    .createCompositeState(false)
+    );
 
-        public static RenderType getBeam() {
-            return isShadersActive() ? BEAM_SHADERS : BEAM_VANILLA;
-        }
+    private static Boolean shadersActiveCache = null;
 
-        public static boolean isShadersActive() {
+    public static RenderType getBeam() {
+        return isShadersActive() ? BEAM_SHADERS : BEAM_VANILLA;
+    }
+
+    public static boolean isShadersActive() {
+        if (shadersActiveCache == null) {
             try {
                 Class<?> irisApi = Class.forName("net.irisshaders.iris.api.v0.IrisApi");
                 Object instance = irisApi.getMethod("getInstance").invoke(null);
-                return (boolean) instance.getClass().getMethod("isShaderPackInUse").invoke(instance);
+                shadersActiveCache = (boolean) instance.getClass()
+                        .getMethod("isShaderPackInUse").invoke(instance);
             } catch (Exception e) {
-                return false;
+                shadersActiveCache = false;
             }
         }
+        return shadersActiveCache;
+    }
+    public static void invalidateShadersCache() {
+        shadersActiveCache = null;
+    }
 }

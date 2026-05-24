@@ -171,6 +171,10 @@ public class BlockEntities {
 
     public static final RegistrySupplier<BlockEntityType<MovingVL2CBeamsBlockEntity>> MOVING_VL2C_BEAMS = BLOCK_ENTITIES.register("moving_vl2c_beams", () -> BlockEntityType.Builder.of(MovingVL2CBeamsBlockEntity::new, Blocks.MOVING_VL2C_BEAMS_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<MovingScanBeamsBlockEntity>> MOVING_SCAN_BEAMS = BLOCK_ENTITIES.register("moving_scan_beams", () -> BlockEntityType.Builder.of(MovingScanBeamsBlockEntity::new, Blocks.MOVING_SCAN_BEAMS_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<SpotXtremeGoboBlockEntity>> SPOT_XTREME_GOBO = BLOCK_ENTITIES.register("spot_xtreme_gobo", () -> BlockEntityType.Builder.of(SpotXtremeGoboBlockEntity::new, Blocks.SPOT_XTREME_GOBO_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<VL6CGoboBlockEntity>> VL6C_GOBO = BLOCK_ENTITIES.register("vl6c_gobo", () -> BlockEntityType.Builder.of(VL6CGoboBlockEntity::new, Blocks.VL6C_GOBO_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<Iris700GoboBlockEntity>> IRIS_700_GOBO = BLOCK_ENTITIES.register("iris_700_gobo", () -> BlockEntityType.Builder.of(Iris700GoboBlockEntity::new, Blocks.IRIS_700_GOBO_BLOCK.get()).build(null));
+
 
     public static final RegistrySupplier<BlockEntityType<a1x1par64BlockEntity>> A1X1PAR64 = BLOCK_ENTITIES.register("a1x1par64", () -> BlockEntityType.Builder.of(a1x1par64BlockEntity::new, Blocks.A1X1PAR64_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<a2x8par64BlockEntity>> A2X8PAR64 = BLOCK_ENTITIES.register("a2x8par64", () -> BlockEntityType.Builder.of(a2x8par64BlockEntity::new, Blocks.A2X8PAR64_BLOCK.get()).build(null));
