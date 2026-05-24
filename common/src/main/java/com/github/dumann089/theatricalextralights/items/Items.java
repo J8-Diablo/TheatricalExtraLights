@@ -91,6 +91,10 @@ public class Items {
             "strobe",
             () -> new BlockItem(Blocks.STROBE.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
+    public static final RegistrySupplier<Item> ATOMIC_STROBE = ITEMS.register(
+            "atomic_strobe",
+            () -> new BlockItem(Blocks.ATOMIC_STROBE.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
     public static final RegistrySupplier<Item> WHITE_STROBE = ITEMS.register(
             "white_strobe",
             () -> new BlockItem(Blocks.WHITE_STROBE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))

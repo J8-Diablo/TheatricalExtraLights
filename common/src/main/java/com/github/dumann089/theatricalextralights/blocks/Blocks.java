@@ -23,6 +23,7 @@ public class Blocks {
     public static final RegistrySupplier<Block> LASER_BLOCK = BLOCKS.register("laser", LaserBlock::new);
     public static final RegistrySupplier<Block> BLINDER = BLOCKS.register("blinder", BlinderBlock::new);
     public static final RegistrySupplier<Block> STROBE = BLOCKS.register("strobe", StrobeBlock::new);
+    public static final RegistrySupplier<Block> ATOMIC_STROBE = BLOCKS.register("atomic_strobe", AtomicStrobeBlock::new);
     public static final RegistrySupplier<Block> TRUSS_3LIGHTS = BLOCKS.register("truss_3lights", truss3lightsBlock::new);
     public static final RegistrySupplier<Block> BEAM_7R_BLOCK = BLOCKS.register("beam_7r", Beam7RBlock::new);
     public static final RegistrySupplier<Block> SOURCE_FOUR_BLOCK = BLOCKS.register("source_four", Source4Block::new);

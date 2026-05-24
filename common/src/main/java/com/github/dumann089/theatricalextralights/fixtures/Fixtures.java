@@ -101,6 +101,9 @@ public class Fixtures {
 
     public static final RegistrySupplier<Fixture> STROBE =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "strobe"), StrobeFixture::new);
+
+    public static final RegistrySupplier<Fixture> ATOMIC_STROBE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "atomic_strobe"), AtomicStrobeFixture::new);
             
     public static final RegistrySupplier<Fixture> TRUSS_3LIGHTS =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "truss_3lights"), truss3lightsFixture::new);
