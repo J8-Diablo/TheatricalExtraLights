@@ -3,9 +3,6 @@ package com.github.dumann089.theatricalextralights.net;
 import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasPersonality;
 import dev.architectury.networking.NetworkManager;
 import net.minecraft.core.BlockPos;
-import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasPersonality;
-import dev.architectury.networking.NetworkManager;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.entity.BlockEntity;
 

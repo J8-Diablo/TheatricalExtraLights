@@ -1,7 +1,6 @@
 package com.github.dumann089.theatricalextralights.fixtures;
 
 import com.github.dumann089.theatricalextralights.TheatricalExtraLights;
-import dev.imabad.theatrical.Theatrical;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.api.HangType;
 import dev.imabad.theatrical.api.dmx.DMXPersonality;
@@ -16,15 +15,30 @@ import java.util.List;
 
 public class LaserFixture extends Fixture {
 
+    // Slot labels in DMX consoles will reuse the closest semantic from SharedSlots since
+    // the RDM API isn't on the common module classpath. Channel order is what matters
+    // for the controller; see LaserBlockEntity.consume() for the canonical mapping.
     private static final List<DMXPersonality> PERSONALITIES = Collections.singletonList(
-            new DMXPersonality(7, "7-Channel Mode")
-                    .addSlot(SharedSlots.INTENSITY)
-                    .addSlot(SharedSlots.RED)
-                    .addSlot(SharedSlots.GREEN)
-                    .addSlot(SharedSlots.BLUE)
-                    .addSlot(SharedSlots.FOCUS)
-                    .addSlot(SharedSlots.PAN)
-                    .addSlot(SharedSlots.TILT)
+            new DMXPersonality(19, "19-Channel Mode")
+                    .addSlot(SharedSlots.INTENSITY)   // 1: Intensity
+                    .addSlot(SharedSlots.RED)         // 2: R1
+                    .addSlot(SharedSlots.GREEN)       // 3: G1
+                    .addSlot(SharedSlots.BLUE)        // 4: B1
+                    .addSlot(SharedSlots.RED)         // 5: R2
+                    .addSlot(SharedSlots.GREEN)       // 6: G2
+                    .addSlot(SharedSlots.BLUE)        // 7: B2
+                    .addSlot(SharedSlots.RED)         // 8: R3
+                    .addSlot(SharedSlots.GREEN)       // 9: G3
+                    .addSlot(SharedSlots.BLUE)        // 10: B3
+                    .addSlot(SharedSlots.FOCUS)       // 11: Pattern
+                    .addSlot(SharedSlots.FOCUS)       // 12: Size
+                    .addSlot(SharedSlots.FOCUS)       // 13: Amplitude
+                    .addSlot(SharedSlots.FOCUS)       // 14: Speed
+                    .addSlot(SharedSlots.FOCUS)       // 15: Rotation
+                    .addSlot(SharedSlots.PAN)         // 16: Pan
+                    .addSlot(SharedSlots.TILT)        // 17: Tilt
+                    .addSlot(SharedSlots.FOCUS)       // 18: Focus
+                    .addSlot(SharedSlots.FOCUS)       // 19: Persistence
     );
 
     private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/laser/laser_tilt");
@@ -33,8 +47,6 @@ public class LaserFixture extends Fixture {
 
     private final float[] tiltRotation = new float[]{0.5F, 0.53F, 0.0F};
     private final float[] panRotation = new float[]{0.5F, 0.53F, 0.0F};
-//    private final float[] beamStartPosition = new float[]{0.5F, 0.53F, 0.25F};
-
 
     @Override
     public ResourceLocation getTiltModel() {
@@ -88,7 +100,7 @@ public class LaserFixture extends Fixture {
 
     @Override
     public float[] getTransforms(BlockState fixtureBlockState, BlockState supportBlockState) {
-        if(fixtureBlockState.getValue(BaseLightBlock.HANG_DIRECTION) == Direction.UP){
+        if (fixtureBlockState.getValue(BaseLightBlock.HANG_DIRECTION) == Direction.UP) {
             return new float[]{0, .5f, 0};
         }
         return new float[]{0, -0.35F, 0};

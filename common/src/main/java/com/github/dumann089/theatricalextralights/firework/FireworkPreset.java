@@ -1,0 +1,100 @@
+package com.github.dumann089.theatricalextralights.firework;
+
+import java.util.Arrays;
+import java.util.function.Supplier;
+
+public enum FireworkPreset {
+    RED_COMET("firework_red_comet", "Red Comet", BurstPatterns.Comet::new, 0xFF4A4A, 0xFFB3B3),
+    BLUE_COMET("firework_blue_comet", "Blue Comet", BurstPatterns.Comet::new, 0x4D8DFF, 0xB8D3FF),
+    GREEN_COMET("firework_green_comet", "Green Comet", BurstPatterns.Comet::new, 0x55FF7A, 0xC6FFD3),
+    GOLD_COMET("firework_gold_comet", "Gold Comet", BurstPatterns.Comet::new, 0xFFC451, 0xFFE9AE),
+    GOLD_BELL_COMET("firework_gold_bell_comet", "Gold Bell Comet", BurstPatterns.BellComet::new, 0xFFD36E, 0xFFF3C2),
+    RED_PEONY("firework_red_peony", "Red Peony", BurstPatterns.Peony::new, 0xFF5B5B, 0xFFD1D1),
+    BLUE_PEONY("firework_blue_peony", "Blue Peony", BurstPatterns.Peony::new, 0x4D8DFF, 0xB8D3FF),
+    GREEN_PEONY("firework_green_peony", "Green Peony", BurstPatterns.Peony::new, 0x55FF7A, 0xC6FFD3),
+    GOLD_PEONY("firework_gold_peony", "Gold Peony", BurstPatterns.Peony::new, 0xFFC451, 0xFFE9AE),
+    WHITE_PEONY("firework_white_peony", "White Peony", BurstPatterns.Peony::new, 0xFFFFFF, 0xFFF5C9),
+    AMBER_PEONY("firework_amber_peony", "Amber Peony", BurstPatterns.Peony::new, 0xFFA040, 0xFFD9A0),
+    VIOLET_PEONY("firework_violet_peony", "Violet Peony", BurstPatterns.Peony::new, 0xC77BFF, 0xE0BBFF),
+    WHITE_STROBE_BURST("firework_white_strobe_burst", "White Strobe Burst", BurstPatterns.Strobe::new, 0xFFFFFF, 0xFFF5C9),
+    GOLD_WILLOW("firework_gold_willow", "Gold Willow", BurstPatterns.Willow::new, 0xFFCD63, 0xFFF1B8),
+    RED_WILLOW("firework_red_willow", "Red Willow", BurstPatterns.Willow::new, 0xFF5B5B, 0xFFD1D1),
+    BLUE_WILLOW("firework_blue_willow", "Blue Willow", BurstPatterns.Willow::new, 0x4D8DFF, 0xB8D3FF),
+    GREEN_WILLOW("firework_green_willow", "Green Willow", BurstPatterns.Willow::new, 0x55FF7A, 0xC6FFD3),
+    WHITE_WILLOW("firework_white_willow", "White Willow", BurstPatterns.Willow::new, 0xFFFFFF, 0xFFF5C9),
+    AMBER_WILLOW("firework_amber_willow", "Amber Willow", BurstPatterns.Willow::new, 0xFFA040, 0xFFD9A0),
+    VIOLET_WILLOW("firework_violet_willow", "Violet Willow", BurstPatterns.Willow::new, 0xC77BFF, 0xE0BBFF),
+    MULTICOLOR_BURST("firework_multicolor_burst", "Multicolor Burst", BurstPatterns.Multicolor::new, 0xFF6BE1, 0xFFE96D, 0x6B8CFF, 0x7BFF84, 0xFF6B6B),
+    PALM_GOLD("firework_palm_gold", "Gold Palm", BurstPatterns.Palm::new, 0xFFC451, 0xFFE9AE),
+    CHRYSANTHEMUM_BLUE("firework_chrysanthemum_blue", "Blue Chrysanthemum", BurstPatterns.Chrysanthemum::new, 0x4D8DFF, 0xB8D3FF, 0xE0EEFF),
+    CHRYSANTHEMUM_RED("firework_chrysanthemum_red", "Red Chrysanthemum", BurstPatterns.Chrysanthemum::new, 0xFF5B5B, 0xFFD1D1, 0xFFE9E9),
+    CHRYSANTHEMUM_GREEN("firework_chrysanthemum_green", "Green Chrysanthemum", BurstPatterns.Chrysanthemum::new, 0x55FF7A, 0xC6FFD3, 0xE9FFEE),
+    CHRYSANTHEMUM_GOLD("firework_chrysanthemum_gold", "Gold Chrysanthemum", BurstPatterns.Chrysanthemum::new, 0xFFC451, 0xFFE9AE, 0xFFF6D9),
+    CHRYSANTHEMUM_WHITE("firework_chrysanthemum_white", "White Chrysanthemum", BurstPatterns.Chrysanthemum::new, 0xFFFFFF, 0xFFF5C9, 0xFFFFFF),
+    CHRYSANTHEMUM_AMBER("firework_chrysanthemum_amber", "Amber Chrysanthemum", BurstPatterns.Chrysanthemum::new, 0xFFA040, 0xFFD9A0, 0xFFEAC9),
+    CHRYSANTHEMUM_VIOLET("firework_chrysanthemum_violet", "Violet Chrysanthemum", BurstPatterns.Chrysanthemum::new, 0xC77BFF, 0xE0BBFF, 0xF1DCFF),
+    HORSETAIL_SILVER("firework_horsetail_silver", "Silver Horsetail", BurstPatterns.Horsetail::new, 0xE6EFFF, 0xCFD8E5, 0xFFFFFF),
+    RING_RED("firework_ring_red", "Red Ring", BurstPatterns.Ring::new, 0xFF5B5B, 0xFFB3B3),
+    SPINNER_GOLD("firework_spinner_gold", "Gold Spinner", BurstPatterns.Spinner::new, 0xFFC451, 0xFFE9AE),
+    CROSSETTE_RED("firework_crossette_red", "Red Crossette", BurstPatterns.Crossette::new, 0xFF5B5B, 0xFFD1D1),
+    CROSSETTE_BLUE("firework_crossette_blue", "Blue Crossette", BurstPatterns.Crossette::new, 0x4D8DFF, 0xB8D3FF),
+    CROSSETTE_GREEN("firework_crossette_green", "Green Crossette", BurstPatterns.Crossette::new, 0x55FF7A, 0xC6FFD3),
+    CROSSETTE_GOLD("firework_crossette_gold", "Gold Crossette", BurstPatterns.Crossette::new, 0xFFC451, 0xFFE9AE),
+    CROSSETTE_WHITE("firework_crossette_white", "White Crossette", BurstPatterns.Crossette::new, 0xFFFFFF, 0xFFF5C9),
+    CROSSETTE_AMBER("firework_crossette_amber", "Amber Crossette", BurstPatterns.Crossette::new, 0xFFA040, 0xFFD9A0),
+    CROSSETTE_VIOLET("firework_crossette_violet", "Violet Crossette", BurstPatterns.Crossette::new, 0xC77BFF, 0xE0BBFF),
+    MINE_BLUE("firework_mine_blue", "Blue Mine", BurstPatterns.Mine::new, 0x4D8DFF, 0xB8D3FF, 0xE0EEFF),
+    MINE_RED("firework_mine_red", "Red Mine", BurstPatterns.Mine::new, 0xFF5B5B, 0xFFD1D1, 0xFFE9E9),
+    MINE_GREEN("firework_mine_green", "Green Mine", BurstPatterns.Mine::new, 0x55FF7A, 0xC6FFD3, 0xE9FFEE),
+    MINE_GOLD("firework_mine_gold", "Gold Mine", BurstPatterns.Mine::new, 0xFFC451, 0xFFE9AE, 0xFFF6D9),
+    MINE_WHITE("firework_mine_white", "White Mine", BurstPatterns.Mine::new, 0xFFFFFF, 0xFFF5C9, 0xFFFFFF),
+    MINE_AMBER("firework_mine_amber", "Amber Mine", BurstPatterns.Mine::new, 0xFFA040, 0xFFD9A0, 0xFFEAC9),
+    MINE_VIOLET("firework_mine_violet", "Violet Mine", BurstPatterns.Mine::new, 0xC77BFF, 0xE0BBFF, 0xF1DCFF),
+    SPIDER_WHITE("firework_spider_white", "White Spider", BurstPatterns.Spider::new, 0xFFFFFF, 0xFFF5C9),
+    DIADEM_BLUE("firework_diadem_blue", "Blue Diadem", BurstPatterns.Diadem::new, 0x4D8DFF, 0xB8D3FF),
+    SALUTE_WHITE("firework_salute_white", "White Salute", BurstPatterns.Salute::new, 0xFFFFFF, 0xFFF5C9),
+    HEART_PINK("firework_heart_pink", "Pink Heart", BurstPatterns.Heart::new, 0xFF66AA, 0xFFCCDD),
+    DOUBLE_BURST_PURPLE("firework_double_burst_purple", "Purple Double Burst", BurstPatterns.DoubleBurst::new, 0xC77BFF, 0xFF66AA, 0xE0BBFF),
+    WHISTLER_SILVER("firework_whistler_silver", "Silver Whistler", BurstPatterns.Whistler::new, 0xCFD8E5, 0xE6EFFF, 0xFFFFFF);
+
+    private final String blockId;
+    private final String displayName;
+    private final BurstPattern pattern;
+    private final int[] colors;
+
+    FireworkPreset(String blockId, String displayName, Supplier<? extends BurstPattern> patternSupplier, int... colors) {
+        this.blockId = blockId;
+        this.displayName = displayName;
+        this.pattern = patternSupplier.get();
+        this.colors = colors;
+    }
+
+    public String getBlockId() {
+        return blockId;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public BurstPattern getPattern() {
+        return pattern;
+    }
+
+    public int getLaunchColor() {
+        return colors[0];
+    }
+
+    public int[] getColors() {
+        return Arrays.copyOf(colors, colors.length);
+    }
+
+    public static FireworkPreset byBlockId(String id) {
+        for (FireworkPreset preset : values()) {
+            if (preset.blockId.equals(id)) {
+                return preset;
+            }
+        }
+        return RED_COMET;
+    }
+}

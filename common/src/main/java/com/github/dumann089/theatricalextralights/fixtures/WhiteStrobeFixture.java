@@ -102,6 +102,6 @@ public class WhiteStrobeFixture extends Fixture {
 
     @Override
     public double getLightRadius() {
-        return 14.5;
+        return 75;
     }
 }

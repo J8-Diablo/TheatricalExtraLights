@@ -1,26 +1,60 @@
 package com.github.dumann089.theatricalextralights.blockentities;
 
+import com.github.dumann089.theatricalextralights.TheatricalExtraLights;
 import com.github.dumann089.theatricalextralights.blocks.LaserBlock;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
+import com.github.dumann089.theatricalextralights.laser.LaserPattern;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Deque;
 
 public class LaserBlockEntity extends BaseDMXConsumerLightBlockEntity {
+    public static final int CHANNEL_COUNT = 19;
+
+    // Secondary/tertiary RGB
+    private int red2, green2, blue2;
+    private int red3, green3, blue3;
+
+    // Pattern + animation parameters
+    private int pattern;
+    private int size;
+    private int amplitude;
+    private int speed;
+    private int rotation;
+    private int persistence;
+
+    /**
+     * Client-side persistence trail. Each entry holds a snapshot of beam endpoints
+     * captured at a render frame; older entries fade and eventually drop.
+     */
+    private final Deque<TrailFrame> trailBuffer = new ArrayDeque<>();
+
+    // DEBUG: limit how many consume()/load()/save() calls we log
+    private int consumeLogCounter = 0;
+    private int loadLogCounter = 0;
+    private int saveLogCounter = 0;
+
     public LaserBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
         super(blockEntityType, blockPos, blockState);
-        setChannelCount(7);
+        setChannelCount(CHANNEL_COUNT);
+        TheatricalExtraLights.LOGGER.info("[LaserBE] constructed @{} channelCount={} (NEW 19ch class loaded)",
+                blockPos, CHANNEL_COUNT);
     }
+
     public LaserBlockEntity(BlockPos pos, BlockState state) {
         this(BlockEntities.LASER.get(), pos, state);
     }
+
     @Override
     public Fixture getFixture() {
         return Fixtures.LASER.get();
@@ -29,22 +63,43 @@ public class LaserBlockEntity extends BaseDMXConsumerLightBlockEntity {
     @Override
     public void consume(byte[] dmxValues) {
         int start = this.getChannelStart() > 0 ? this.getChannelStart() - 1 : 0;
-        byte[] ourValues = Arrays.copyOfRange(dmxValues, start,
-                start+ this.getChannelCount());
-        if(ourValues.length < 7){
+        byte[] v = Arrays.copyOfRange(dmxValues, start, start + this.getChannelCount());
+        if (v.length < CHANNEL_COUNT) {
             return;
         }
-        if(this.storePrev()){
+        if (this.storePrev() && level != null) {
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
         }
-        intensity = convertByteToInt(ourValues[0]);
-        red = convertByteToInt(ourValues[1]);
-        green = convertByteToInt(ourValues[2]);
-        blue = convertByteToInt(ourValues[3]);
-        focus = convertByteToInt(ourValues[4]);
-        pan = (int) ((convertByteToInt(ourValues[5]) * 160) / 255f) - 80;
-        tilt = -(int) ((convertByteToInt(ourValues[6]) - 127) * 45) / 127;
-        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+        intensity = u(v[0]);
+        red       = u(v[1]);
+        green     = u(v[2]);
+        blue      = u(v[3]);
+        red2      = u(v[4]);
+        green2    = u(v[5]);
+        blue2     = u(v[6]);
+        red3      = u(v[7]);
+        green3    = u(v[8]);
+        blue3     = u(v[9]);
+        pattern   = u(v[10]);
+        size      = u(v[11]);
+        amplitude = u(v[12]);
+        speed     = u(v[13]);
+        rotation  = u(v[14]);
+        pan       = (int) ((u(v[15]) * 160) / 255f) - 80;
+        tilt      = -(int) ((u(v[16]) - 127) * 45) / 127;
+        focus     = u(v[17]);
+        persistence = u(v[18]);
+        // DEBUG: log first 5 consume() calls regardless of values, so we can see if it's being invoked
+        if (consumeLogCounter < 5) {
+            consumeLogCounter++;
+            TheatricalExtraLights.LOGGER.info(
+                    "[LaserBE@{}] consume() #{} intensity={} pattern={} size={} amp={} pan={} tilt={} channelCount={} channelStart={} v.length={}",
+                    getBlockPos(), consumeLogCounter, intensity, pattern, size, amplitude, pan, tilt,
+                    getChannelCount(), getChannelStart(), v.length);
+        }
+        if (level != null) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+        }
         setChanged();
     }
 
@@ -68,9 +123,6 @@ public class LaserBlockEntity extends BaseDMXConsumerLightBlockEntity {
         return 0;
     }
 
-    public int convertByteToInt(byte val) {
-        return Byte.toUnsignedInt(val);
-    }
     @Override
     public boolean isUpsideDown() {
         return getBlockState().getValue(LaserBlock.HANGING) && getBlockState().getValue(LaserBlock.HANG_DIRECTION) == Direction.UP;
@@ -84,5 +136,110 @@ public class LaserBlockEntity extends BaseDMXConsumerLightBlockEntity {
     @Override
     public String getTranslationKey() {
         return "block.theatricalextralights.laser";
+    }
+
+    /**
+     * Overrides Theatrical's NBTStorage.write — this is the path used by both disk
+     * saves (via BaseBlockEntity.method_11007 → write) AND client sync packets
+     * (ClientSyncBlockEntity.getUpdateTag → write). Don't override saveAdditional;
+     * Theatrical's chain skips it for sync.
+     */
+    @Override
+    public void write(CompoundTag tag) {
+        super.write(tag);
+        tag.putInt("Red2", red2);
+        tag.putInt("Green2", green2);
+        tag.putInt("Blue2", blue2);
+        tag.putInt("Red3", red3);
+        tag.putInt("Green3", green3);
+        tag.putInt("Blue3", blue3);
+        tag.putInt("Pattern", pattern);
+        tag.putInt("Size", size);
+        tag.putInt("Amplitude", amplitude);
+        tag.putInt("Speed", speed);
+        tag.putInt("Rotation", rotation);
+        tag.putInt("Persistence", persistence);
+        if (saveLogCounter < 5) {
+            saveLogCounter++;
+            TheatricalExtraLights.LOGGER.info("[LaserBE@{}] write() #{} pattern={} size={} amp={} hasKey={}",
+                    getBlockPos(), saveLogCounter, pattern, size, amplitude, tag.contains("Pattern"));
+        }
+    }
+
+    @Override
+    public void read(CompoundTag tag) {
+        super.read(tag);
+        setChannelCount(CHANNEL_COUNT);
+        red2 = tag.getInt("Red2");
+        green2 = tag.getInt("Green2");
+        blue2 = tag.getInt("Blue2");
+        red3 = tag.getInt("Red3");
+        green3 = tag.getInt("Green3");
+        blue3 = tag.getInt("Blue3");
+        pattern = tag.getInt("Pattern");
+        size = tag.getInt("Size");
+        amplitude = tag.getInt("Amplitude");
+        speed = tag.getInt("Speed");
+        rotation = tag.getInt("Rotation");
+        persistence = tag.getInt("Persistence");
+        if (loadLogCounter < 5) {
+            loadLogCounter++;
+            TheatricalExtraLights.LOGGER.info("[LaserBE@{}] read() #{} pattern={} size={} amp={} hasKey={} side={}",
+                    getBlockPos(), loadLogCounter, pattern, size, amplitude,
+                    tag.contains("Pattern"), level == null ? "?" : (level.isClientSide ? "CLIENT" : "SERVER"));
+        }
+    }
+
+    private static int u(byte b) {
+        return Byte.toUnsignedInt(b);
+    }
+
+    // ----- Getters used by the renderer -----
+
+    public int getRed2()   { return red2; }
+    public int getGreen2() { return green2; }
+    public int getBlue2()  { return blue2; }
+    public int getRed3()   { return red3; }
+    public int getGreen3() { return green3; }
+    public int getBlue3()  { return blue3; }
+
+    public int getColour2() { return (red2 << 16) | (green2 << 8) | blue2; }
+    public int getColour3() { return (red3 << 16) | (green3 << 8) | blue3; }
+
+    public int getPatternRaw()   { return pattern; }
+    public int getSizeRaw()      { return size; }
+    public int getAmplitudeRaw() { return amplitude; }
+    public int getSpeedRaw()     { return speed; }
+    public int getRotationRaw()  { return rotation; }
+    public int getPersistenceRaw() { return persistence; }
+
+    public LaserPattern getPattern() {
+        return LaserPattern.fromDmx(pattern);
+    }
+
+    public Deque<TrailFrame> getTrailBuffer() {
+        return trailBuffer;
+    }
+
+    /**
+     * One snapshot of active beam endpoints at a given render frame, with an age
+     * counter that the renderer uses to fade them out for the persistence trail.
+     */
+    public static final class TrailFrame {
+        public final float[] yaws;
+        public final float[] pitches;
+        public final float[] lengths;
+        public final int[] colors;
+        public final boolean[] hits;
+        public int ageFrames;
+
+        public TrailFrame(int n) {
+            this.yaws = new float[n];
+            this.pitches = new float[n];
+            this.lengths = new float[n];
+            this.colors = new int[n];
+            this.hits = new boolean[n];
+            this.ageFrames = 0;
+        }
     }
 }

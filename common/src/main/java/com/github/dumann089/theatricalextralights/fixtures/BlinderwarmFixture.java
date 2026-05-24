@@ -105,6 +105,6 @@ public class BlinderwarmFixture extends Fixture {
 
     @Override
     public double getLightRadius() {
-        return 14.9;
+        return 55;
     }
 }

@@ -1,0 +1,172 @@
+package com.github.dumann089.theatricalextralights.blocks.rig;
+
+import dev.imabad.theatrical.api.FixtureProvider;
+import dev.imabad.theatrical.api.HangType;
+import dev.imabad.theatrical.api.Support;
+import dev.imabad.theatrical.blocks.Blocks;
+import dev.imabad.theatrical.blocks.HangableBlock;
+import dev.imabad.theatrical.blocks.light.BaseLightBlock;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DirectionalBlock;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class TrussBlock extends DirectionalBlock implements Support {
+
+    public static final DirectionProperty FACING = DirectionalBlock.FACING;
+
+    private final VoxelShape Z_BOX = Shapes.create(new AABB(0.1875, 0.0, 0, 0.8125, 1.0, 1));
+    private final VoxelShape Z_BOX_DOWN = Shapes.create(new AABB(0, 0, 0, 1, 1.0, 1));
+    private final VoxelShape Z_BOX_UP = Shapes.create(new AABB(0, 0.0, 0, 1, 1, 1));
+
+    private final VoxelShape X_BOX = Shapes.create(new AABB(0, 0.0, 0.1875, 1, 1.0, 0.8125));
+    private final VoxelShape X_BOX_DOWN = Shapes.create(new AABB(0, 0, 0, 1, 1.0, 1));
+    private final VoxelShape X_BOX_UP = Shapes.create(new AABB(0, 0.0, 0, 1, 1, 1));
+
+    private final VoxelShape Y_BOX = Shapes.create(new AABB(0.1875, 0, 0.1875, 0.8125, 1, 0.8125));
+    private final VoxelShape Y_BOX_SOUTH = Shapes.create(new AABB(0, 0, 0.1875, 1, 1, 1));
+    private final VoxelShape Y_BOX_NORTH = Shapes.create(new AABB(0, 0, 0, 1, 1, 0.8125));
+    private final VoxelShape Y_BOX_EAST = Shapes.create(new AABB(0.1875, 0, 0, 1, 1, 1));
+    private final VoxelShape Y_BOX_WEST = Shapes.create(new AABB(0, 0, 0, 0.8125, 1, 1));
+
+    public TrussBlock() {
+        super(Properties.of()
+                .requiresCorrectToolForDrops()
+                .strength(3, 3)
+                .noOcclusion()
+                .isValidSpawn(Blocks::neverAllowSpawn)
+                .mapColor(MapColor.METAL)
+                .sound(SoundType.METAL));
+        this.registerDefaultState(this.getStateDefinition().any().setValue(FACING, Direction.NORTH));
+    }
+
+    @Override
+    public float[] getHookTransforms(LevelReader levelReader, BlockPos pos, Direction facing) {
+        if(levelReader.getBlockState(pos).getValue(BaseLightBlock.HANG_DIRECTION) == Direction.UP){
+            return new float[]{0, 0.45f, 0};
+        }
+        if(levelReader.getBlockEntity(pos) instanceof FixtureProvider fixtureProvider){
+            if(fixtureProvider.getFixture().getHangType() == HangType.BRACE_BAR){
+                return new float[]{0, 0.45F, 0};
+            } else {
+                return new float[]{0, -0.45F, 0};
+            }
+        }
+
+        return new float[]{0, 0F, 0};
+    }
+
+    @Override
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        if(state.getValue(FACING).getAxis() == Direction.Axis.Y){
+            List<VoxelShape> shapes = new ArrayList<>();
+            for(Direction dir : Direction.values()){
+                if(dir.getAxis() == Direction.Axis.Y){
+                    continue;
+                }
+                BlockState blockState = level.getBlockState(pos.relative(dir));
+                if(blockState.getBlock() instanceof HangableBlock){
+                    if(blockState.getValue(HangableBlock.HANG_DIRECTION) == dir.getOpposite()){
+                        VoxelShape extensionShape = null;
+                        switch(dir){
+                            case SOUTH -> extensionShape = Y_BOX_SOUTH;
+                            case NORTH -> extensionShape = Y_BOX_NORTH;
+                            case EAST -> extensionShape = Y_BOX_EAST;
+                            case WEST -> extensionShape = Y_BOX_WEST;
+                        }
+                        shapes.add(extensionShape);
+                    }
+                }
+            }
+            return Shapes.or(Y_BOX, shapes.toArray(new VoxelShape[0]));
+        } else {
+            if(level.getBlockState(pos.relative(Direction.DOWN)).getBlock() instanceof HangableBlock){
+                VoxelShape ogShape = state.getValue(FACING).getAxis() == Direction.Axis.Z ? Z_BOX : X_BOX;
+                VoxelShape extensionShape = state.getValue(FACING).getAxis() == Direction.Axis.Z ? Z_BOX_DOWN : X_BOX_DOWN;
+                return Shapes.or(ogShape, extensionShape);
+            } else if(level.getBlockState(pos.relative(Direction.UP)).getBlock() instanceof HangableBlock){
+                VoxelShape ogShape = state.getValue(FACING).getAxis() == Direction.Axis.Z ? Z_BOX : X_BOX;
+                VoxelShape extensionShape = state.getValue(FACING).getAxis() == Direction.Axis.Z ? Z_BOX_UP : X_BOX_UP;
+                return Shapes.or(ogShape, extensionShape);
+            }
+        }
+        return state.getValue(FACING).getAxis() == Direction.Axis.Z ? Z_BOX
+                : state.getValue(FACING).getAxis() == Direction.Axis.Y ? Y_BOX : X_BOX;
+    }
+
+    @Nullable
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        return this.defaultBlockState().setValue(FACING, context.getNearestLookingDirection().getOpposite());
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(FACING);
+    }
+
+    @Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if(!player.getItemInHand(hand).isEmpty()){
+            Item item = player.getItemInHand(hand).getItem();
+            if (item instanceof BlockItem blockItem) {
+                if(blockItem.getBlock() instanceof HangableBlock hangableBlock){
+                    BlockPos offset;
+                    if(state.getValue(FACING).getAxis() == Direction.Axis.Y){
+                        offset = pos.relative(player.getDirection().getOpposite());
+                    } else if(hit.getDirection() == Direction.UP){
+                        offset = pos.relative(Direction.UP);
+                    }else {
+                        offset = pos.relative(Direction.DOWN);
+                    }
+                    if(!level.getBlockState(offset).isAir()){
+                        return InteractionResult.FAIL;
+                    }
+                    Direction hangDirection = Direction.UP;
+                    if(state.getValue(FACING).getAxis() == Direction.Axis.Y){
+                        hangDirection = player.getDirection();
+                    } else if(hit.getDirection() == Direction.UP){
+                        hangDirection = Direction.DOWN;
+                    }
+                    Direction facingDirection = hangableBlock.getLightFacing(hangDirection, player);
+                    BlockState hanglableBlockState = hangableBlock.defaultBlockState()
+                            .setValue(HangableBlock.FACING, facingDirection)
+                            .setValue(HangableBlock.HANGING, true)
+                            .setValue(HangableBlock.HANG_DIRECTION, hangDirection);
+                    level.setBlock(offset, hanglableBlockState, Block.UPDATE_CLIENTS);
+                    if (!player.isCreative()) {
+                        player.getItemInHand(hand).shrink(1);
+                    }
+                    hangableBlock.setPlacedBy(level, offset, hanglableBlockState, player, player.getItemInHand(hand));
+                    return InteractionResult.CONSUME;
+                }
+            }
+        }
+        return super.use(state, level, pos, player, hand, hit);
+    }
+}

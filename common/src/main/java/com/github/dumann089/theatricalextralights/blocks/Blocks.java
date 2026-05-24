@@ -1,12 +1,18 @@
 package com.github.dumann089.theatricalextralights.blocks;
 
 import com.github.dumann089.theatricalextralights.TheatricalExtraLightsRegistry;
-import dev.architectury.registry.registries.DeferredRegister;
+import com.github.dumann089.theatricalextralights.blocks.rig.TrussBlock;
+import com.github.dumann089.theatricalextralights.blocks.rig.TrussJointBlock;
+import com.github.dumann089.theatricalextralights.blocks.rig.TrussCornerBlock;
+import com.github.dumann089.theatricalextralights.blocks.rig.TrussCornerTBlock;
+;import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import dev.imabad.theatrical.blocks.interfaces.ArtNetInterfaceBlock;
 import dev.imabad.theatrical.blocks.light.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RotatedPillarBlock;
+
 
 public class Blocks {
     public static final DeferredRegister<Block> BLOCKS = TheatricalExtraLightsRegistry.get(Registries.BLOCK);
@@ -89,6 +95,11 @@ public class Blocks {
     public static final RegistrySupplier<Block> MOVING_BAR_BLOCK = BLOCKS.register("moving_bar", MovingbarBlock::new);
     public static final RegistrySupplier<Block> MOVING_MINI_BAR_BLOCK = BLOCKS.register("moving_mini_bar", MovingMiniBarBlock::new);
 
+    public static final RegistrySupplier<Block> SPOT_XTREME_GOBO_BLOCK = BLOCKS.register("spot_xtreme_gobo", SpotXtremeGoboBlock::new);
+    public static final RegistrySupplier<Block> VL6C_GOBO_BLOCK = BLOCKS.register("vl6c_gobo", VL6CGoboBlock::new);
+    public static final RegistrySupplier<Block> IRIS_700_GOBO_BLOCK = BLOCKS.register("iris_700_gobo", Iris700GoboBlock::new);
+
+
     public static final RegistrySupplier<Block> WATER_JET_BLOCK = BLOCKS.register("water_jet", WaterJetBlock::new);
     public static final RegistrySupplier<Block> MOVING_JET_BLOCK = BLOCKS.register("moving_jet", MovingJetBlock::new);
     public static final RegistrySupplier<Block> WATER_JET_THIN_BLOCK = BLOCKS.register("water_jet_thin", WaterJetThinBlock::new);
@@ -103,6 +114,60 @@ public class Blocks {
     public static final RegistrySupplier<Block> WATER_JET_FOG_BLOCK = BLOCKS.register("water_jet_fog", WaterJetFogBlock::new);
 
     public static final RegistrySupplier<Block> WHITE_STROBE_BLOCK = BLOCKS.register("white_strobe", WhiteStrobeBlock::new);
+    public static final RegistrySupplier<Block> FIREWORK_RED_COMET_BLOCK = BLOCKS.register("firework_red_comet", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.RED_COMET));
+    public static final RegistrySupplier<Block> FIREWORK_BLUE_COMET_BLOCK = BLOCKS.register("firework_blue_comet", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.BLUE_COMET));
+    public static final RegistrySupplier<Block> FIREWORK_GREEN_COMET_BLOCK = BLOCKS.register("firework_green_comet", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.GREEN_COMET));
+    public static final RegistrySupplier<Block> FIREWORK_GOLD_COMET_BLOCK = BLOCKS.register("firework_gold_comet", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.GOLD_COMET));
+    public static final RegistrySupplier<Block> FIREWORK_GOLD_BELL_COMET_BLOCK = BLOCKS.register("firework_gold_bell_comet", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.GOLD_BELL_COMET));
+    public static final RegistrySupplier<Block> FIREWORK_RED_PEONY_BLOCK = BLOCKS.register("firework_red_peony", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.RED_PEONY));
+    public static final RegistrySupplier<Block> FIREWORK_BLUE_PEONY_BLOCK = BLOCKS.register("firework_blue_peony", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.BLUE_PEONY));
+    public static final RegistrySupplier<Block> FIREWORK_GREEN_PEONY_BLOCK = BLOCKS.register("firework_green_peony", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.GREEN_PEONY));
+    public static final RegistrySupplier<Block> FIREWORK_GOLD_PEONY_BLOCK = BLOCKS.register("firework_gold_peony", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.GOLD_PEONY));
+    public static final RegistrySupplier<Block> FIREWORK_WHITE_PEONY_BLOCK = BLOCKS.register("firework_white_peony", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.WHITE_PEONY));
+    public static final RegistrySupplier<Block> FIREWORK_AMBER_PEONY_BLOCK = BLOCKS.register("firework_amber_peony", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.AMBER_PEONY));
+    public static final RegistrySupplier<Block> FIREWORK_VIOLET_PEONY_BLOCK = BLOCKS.register("firework_violet_peony", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.VIOLET_PEONY));
+    public static final RegistrySupplier<Block> FIREWORK_WHITE_STROBE_BURST_BLOCK = BLOCKS.register("firework_white_strobe_burst", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.WHITE_STROBE_BURST));
+    public static final RegistrySupplier<Block> FIREWORK_GOLD_WILLOW_BLOCK = BLOCKS.register("firework_gold_willow", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.GOLD_WILLOW));
+    public static final RegistrySupplier<Block> FIREWORK_RED_WILLOW_BLOCK = BLOCKS.register("firework_red_willow", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.RED_WILLOW));
+    public static final RegistrySupplier<Block> FIREWORK_BLUE_WILLOW_BLOCK = BLOCKS.register("firework_blue_willow", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.BLUE_WILLOW));
+    public static final RegistrySupplier<Block> FIREWORK_GREEN_WILLOW_BLOCK = BLOCKS.register("firework_green_willow", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.GREEN_WILLOW));
+    public static final RegistrySupplier<Block> FIREWORK_WHITE_WILLOW_BLOCK = BLOCKS.register("firework_white_willow", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.WHITE_WILLOW));
+    public static final RegistrySupplier<Block> FIREWORK_AMBER_WILLOW_BLOCK = BLOCKS.register("firework_amber_willow", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.AMBER_WILLOW));
+    public static final RegistrySupplier<Block> FIREWORK_VIOLET_WILLOW_BLOCK = BLOCKS.register("firework_violet_willow", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.VIOLET_WILLOW));
+    public static final RegistrySupplier<Block> FIREWORK_MULTICOLOR_BURST_BLOCK = BLOCKS.register("firework_multicolor_burst", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.MULTICOLOR_BURST));
+    public static final RegistrySupplier<Block> FIREWORK_PALM_GOLD_BLOCK = BLOCKS.register("firework_palm_gold", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.PALM_GOLD));
+    public static final RegistrySupplier<Block> FIREWORK_CHRYSANTHEMUM_BLUE_BLOCK = BLOCKS.register("firework_chrysanthemum_blue", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.CHRYSANTHEMUM_BLUE));
+    public static final RegistrySupplier<Block> FIREWORK_CHRYSANTHEMUM_RED_BLOCK = BLOCKS.register("firework_chrysanthemum_red", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.CHRYSANTHEMUM_RED));
+    public static final RegistrySupplier<Block> FIREWORK_CHRYSANTHEMUM_GREEN_BLOCK = BLOCKS.register("firework_chrysanthemum_green", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.CHRYSANTHEMUM_GREEN));
+    public static final RegistrySupplier<Block> FIREWORK_CHRYSANTHEMUM_GOLD_BLOCK = BLOCKS.register("firework_chrysanthemum_gold", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.CHRYSANTHEMUM_GOLD));
+    public static final RegistrySupplier<Block> FIREWORK_CHRYSANTHEMUM_WHITE_BLOCK = BLOCKS.register("firework_chrysanthemum_white", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.CHRYSANTHEMUM_WHITE));
+    public static final RegistrySupplier<Block> FIREWORK_CHRYSANTHEMUM_AMBER_BLOCK = BLOCKS.register("firework_chrysanthemum_amber", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.CHRYSANTHEMUM_AMBER));
+    public static final RegistrySupplier<Block> FIREWORK_CHRYSANTHEMUM_VIOLET_BLOCK = BLOCKS.register("firework_chrysanthemum_violet", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.CHRYSANTHEMUM_VIOLET));
+    public static final RegistrySupplier<Block> FIREWORK_HORSETAIL_SILVER_BLOCK = BLOCKS.register("firework_horsetail_silver", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.HORSETAIL_SILVER));
+    public static final RegistrySupplier<Block> FIREWORK_RING_RED_BLOCK = BLOCKS.register("firework_ring_red", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.RING_RED));
+    public static final RegistrySupplier<Block> FIREWORK_SPINNER_GOLD_BLOCK = BLOCKS.register("firework_spinner_gold", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.SPINNER_GOLD));
+    public static final RegistrySupplier<Block> FIREWORK_CROSSETTE_RED_BLOCK = BLOCKS.register("firework_crossette_red", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.CROSSETTE_RED));
+    public static final RegistrySupplier<Block> FIREWORK_CROSSETTE_BLUE_BLOCK = BLOCKS.register("firework_crossette_blue", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.CROSSETTE_BLUE));
+    public static final RegistrySupplier<Block> FIREWORK_CROSSETTE_GREEN_BLOCK = BLOCKS.register("firework_crossette_green", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.CROSSETTE_GREEN));
+    public static final RegistrySupplier<Block> FIREWORK_CROSSETTE_GOLD_BLOCK = BLOCKS.register("firework_crossette_gold", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.CROSSETTE_GOLD));
+    public static final RegistrySupplier<Block> FIREWORK_CROSSETTE_WHITE_BLOCK = BLOCKS.register("firework_crossette_white", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.CROSSETTE_WHITE));
+    public static final RegistrySupplier<Block> FIREWORK_CROSSETTE_AMBER_BLOCK = BLOCKS.register("firework_crossette_amber", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.CROSSETTE_AMBER));
+    public static final RegistrySupplier<Block> FIREWORK_CROSSETTE_VIOLET_BLOCK = BLOCKS.register("firework_crossette_violet", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.CROSSETTE_VIOLET));
+    public static final RegistrySupplier<Block> FIREWORK_MINE_BLUE_BLOCK = BLOCKS.register("firework_mine_blue", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.MINE_BLUE));
+    public static final RegistrySupplier<Block> FIREWORK_MINE_RED_BLOCK = BLOCKS.register("firework_mine_red", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.MINE_RED));
+    public static final RegistrySupplier<Block> FIREWORK_MINE_GREEN_BLOCK = BLOCKS.register("firework_mine_green", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.MINE_GREEN));
+    public static final RegistrySupplier<Block> FIREWORK_MINE_GOLD_BLOCK = BLOCKS.register("firework_mine_gold", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.MINE_GOLD));
+    public static final RegistrySupplier<Block> FIREWORK_MINE_WHITE_BLOCK = BLOCKS.register("firework_mine_white", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.MINE_WHITE));
+    public static final RegistrySupplier<Block> FIREWORK_MINE_AMBER_BLOCK = BLOCKS.register("firework_mine_amber", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.MINE_AMBER));
+    public static final RegistrySupplier<Block> FIREWORK_MINE_VIOLET_BLOCK = BLOCKS.register("firework_mine_violet", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.MINE_VIOLET));
+    public static final RegistrySupplier<Block> FIREWORK_SPIDER_WHITE_BLOCK = BLOCKS.register("firework_spider_white", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.SPIDER_WHITE));
+    public static final RegistrySupplier<Block> FIREWORK_DIADEM_BLUE_BLOCK = BLOCKS.register("firework_diadem_blue", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.DIADEM_BLUE));
+    public static final RegistrySupplier<Block> FIREWORK_SALUTE_WHITE_BLOCK = BLOCKS.register("firework_salute_white", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.SALUTE_WHITE));
+    public static final RegistrySupplier<Block> FIREWORK_HEART_PINK_BLOCK = BLOCKS.register("firework_heart_pink", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.HEART_PINK));
+    public static final RegistrySupplier<Block> FIREWORK_DOUBLE_BURST_PURPLE_BLOCK = BLOCKS.register("firework_double_burst_purple", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.DOUBLE_BURST_PURPLE));
+    public static final RegistrySupplier<Block> FIREWORK_WHISTLER_SILVER_BLOCK = BLOCKS.register("firework_whistler_silver", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.WHISTLER_SILVER));
+    public static final RegistrySupplier<Block> GERB_GOLD_BLOCK = BLOCKS.register("gerb_gold", GerbBlock::new);
+    public static final RegistrySupplier<Block> FLAME_PROJECTOR_BLOCK = BLOCKS.register("flame_projector", FlameProjectorBlock::new);
     public static final RegistrySupplier<Block> LASER_MIRROR_BLOCK = BLOCKS.register("laser_mirror", LaserMirrorBlock::new);
     public static final RegistrySupplier<Block> PARSCROLLER_BLOCK = BLOCKS.register("parscroller", ParScrollerBlock::new);
     public static final RegistrySupplier<Block> BLINDER2X2_BLOCK = BLOCKS.register("blinder2x2", Blinder2x2Block::new);
@@ -111,27 +176,14 @@ public class Blocks {
     public static final RegistrySupplier<Block> MOVING_VL2C_BEAMS_BLOCK = BLOCKS.register("moving_vl2c_beams", MovingVL2CBeamsBlock::new);
     public static final RegistrySupplier<Block> MOVING_SCAN_BEAMS_BLOCK = BLOCKS.register("moving_scan_beams", MovingScanBeamsBlock::new);
 
+    public static final RegistrySupplier<Block> A1X1PAR64_BLOCK = BLOCKS.register("a1x1par64", a1x1par64Block::new);
+    public static final RegistrySupplier<Block> A2X8PAR64_BLOCK = BLOCKS.register("a2x8par64", a2x8par64Block::new);
+    public static final RegistrySupplier<Block> A6X3PAR64_VERTICAL_BLOCK = BLOCKS.register("a6x3par64_vertical", a6x3par64_verticalBlock::new);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    public static final RegistrySupplier<Block> TRUSS_BLOCK = BLOCKS.register("truss", TrussBlock::new);
+    public static final RegistrySupplier<Block> TRUSS_JOINT_BLOCK = BLOCKS.register("truss_joint", TrussJointBlock::new);
+    public static final RegistrySupplier<Block> TRUSS_CORNER_BLOCK = BLOCKS.register("truss_corner", TrussCornerBlock::new);
+    public static final RegistrySupplier<Block> TRUSS_CORNER_T_BLOCK = BLOCKS.register("truss_corner_t", TrussCornerTBlock::new);
 
 
 

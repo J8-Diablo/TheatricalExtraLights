@@ -1,0 +1,16 @@
+{
+  "multipart": [
+    { "apply": { "model": "theatricalextralights:block/ledpanels/bigpanel_static" } },
+    { "apply": { "model": "theatricalextralights:block/ledpanels/bigpanel_pan" } },
+    { "apply": { "model": "theatricalextralights:block/ledpanels/bigpanel_body" } },
+
+    { "apply": { "model": "theatricalextralights:block/ledpanels/bigpanel1x3_whole" } },
+    { "apply": { "model": "theatricalextralights:block/ledpanels/bigpanel2x1_whole" } },
+    { "apply": { "model": "theatricalextralights:block/ledpanels/bigpanel2x2_whole" } },
+    { "apply": { "model": "theatricalextralights:block/ledpanels/bigpanel3x3_whole" } },
+    { "apply": { "model": "theatricalextralights:block/ledpanels/bigpanel2x3_half_whole" } },
+    { "apply": { "model": "theatricalextralights:block/ledpanels/bigpanel2x2_half_whole" } },
+    { "apply": { "model": "theatricalextralights:block/ledpanels/bigpanel2x3_offset_whole" } },
+    { "apply": { "model": "theatricalextralights:block/ledpanels/bigpanel2x1_half_whole" } }
+  ]
+}

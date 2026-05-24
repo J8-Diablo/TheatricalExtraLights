@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "type=1x3": { "model": "theatricalextralights:block/ledpanels/bigpanel1x3_whole" },
+    "type=3x3": { "model": "theatricalextralights:block/ledpanels/bigpanel3x3_whole" }
+  }
+}

@@ -16,11 +16,11 @@
   "block.theatricalextralights.strobe": "Strobe",
   "block.theatricalextralights.beam_7r": "Beam 7r (7Ch/10Ch)",
   "block.theatricalextralights.mac_vip": "Mac Vip (7Ch/10Ch)",
-  "block.theatricalextralights.sharplus": "Sharplus",
+  "block.theatricalextralights.sharplus": "Sharplus (7Ch/10Ch)",
   "block.theatricalextralights.moving500": "Moving 500 (7Ch/10Ch)",
-  "block.theatricalextralights.robitspot": "Robit Spot",
-  "block.theatricalextralights.vervespot": "Verve Spot",
-  "block.theatricalextralights.searchlight": "Searchlight",
+  "block.theatricalextralights.robitspot": "Robit Spot (7Ch/10Ch)",
+  "block.theatricalextralights.vervespot": "Verve Spot (7Ch/10Ch)",
+  "block.theatricalextralights.searchlight": "Searchlight (7Ch/10Ch)",
   "block.theatricalextralights.source_four": "Source Four",
   "block.theatricalextralights.par1000_red": "Par 1000 Red",
   "block.theatricalextralights.par1000_blue": "Par 1000 Blue",
@@ -35,7 +35,7 @@
   "block.theatricalextralights.washlight": "Wash FX648",
   "block.theatricalextralights.miniwash": "Mini Wash",
   "block.theatricalextralights.atomictilt": "Atomic Tilt",
-  "block.theatricalextralights.invisiblelight": "Invisible Light",
+  "block.theatricalextralights.invisiblelight": "Invisible Light (25 blocks)",
   "block.theatricalextralights.x8par_red": "x8 Par64 Red",
   "block.theatricalextralights.x8par_green": "x8 Par64 Green",
   "block.theatricalextralights.x8par_blue": "x8 Par64 Blue",
@@ -94,18 +94,109 @@
 
 
   "block.theatricalextralights.white_strobe": "White Strobe (1 Channel)",
+  "block.theatricalextralights.firework_red_comet": "Firework Launcher - Red Comet",
+  "block.theatricalextralights.firework_blue_comet": "Firework Launcher - Blue Comet",
+  "block.theatricalextralights.firework_green_comet": "Firework Launcher - Green Comet",
+  "block.theatricalextralights.firework_gold_comet": "Firework Launcher - Gold Comet",
+  "block.theatricalextralights.firework_gold_bell_comet": "Firework Launcher - Gold Bell Comet",
+  "block.theatricalextralights.firework_red_peony": "Firework Launcher - Red Peony",
+  "block.theatricalextralights.firework_blue_peony": "Firework Launcher - Blue Peony",
+  "block.theatricalextralights.firework_green_peony": "Firework Launcher - Green Peony",
+  "block.theatricalextralights.firework_gold_peony": "Firework Launcher - Gold Peony",
+  "block.theatricalextralights.firework_white_peony": "Firework Launcher - White Peony",
+  "block.theatricalextralights.firework_amber_peony": "Firework Launcher - Amber Peony",
+  "block.theatricalextralights.firework_violet_peony": "Firework Launcher - Violet Peony",
+  "block.theatricalextralights.firework_white_strobe_burst": "Firework Launcher - White Strobe Burst",
+  "block.theatricalextralights.firework_gold_willow": "Firework Launcher - Gold Willow",
+  "block.theatricalextralights.firework_red_willow": "Firework Launcher - Red Willow",
+  "block.theatricalextralights.firework_blue_willow": "Firework Launcher - Blue Willow",
+  "block.theatricalextralights.firework_green_willow": "Firework Launcher - Green Willow",
+  "block.theatricalextralights.firework_white_willow": "Firework Launcher - White Willow",
+  "block.theatricalextralights.firework_amber_willow": "Firework Launcher - Amber Willow",
+  "block.theatricalextralights.firework_violet_willow": "Firework Launcher - Violet Willow",
+  "block.theatricalextralights.firework_multicolor_burst": "Firework Launcher - Multicolor Burst",
+  "block.theatricalextralights.firework_palm_gold": "Firework Launcher - Gold Palm",
+  "block.theatricalextralights.firework_chrysanthemum_blue": "Firework Launcher - Blue Chrysanthemum",
+  "block.theatricalextralights.firework_chrysanthemum_red": "Firework Launcher - Red Chrysanthemum",
+  "block.theatricalextralights.firework_chrysanthemum_green": "Firework Launcher - Green Chrysanthemum",
+  "block.theatricalextralights.firework_chrysanthemum_gold": "Firework Launcher - Gold Chrysanthemum",
+  "block.theatricalextralights.firework_chrysanthemum_white": "Firework Launcher - White Chrysanthemum",
+  "block.theatricalextralights.firework_chrysanthemum_amber": "Firework Launcher - Amber Chrysanthemum",
+  "block.theatricalextralights.firework_chrysanthemum_violet": "Firework Launcher - Violet Chrysanthemum",
+  "block.theatricalextralights.firework_horsetail_silver": "Firework Launcher - Silver Horsetail",
+  "block.theatricalextralights.firework_ring_red": "Firework Launcher - Red Ring",
+  "block.theatricalextralights.firework_spinner_gold": "Firework Launcher - Gold Spinner",
+  "block.theatricalextralights.firework_crossette_red": "Firework Launcher - Red Crossette",
+  "block.theatricalextralights.firework_crossette_blue": "Firework Launcher - Blue Crossette",
+  "block.theatricalextralights.firework_crossette_green": "Firework Launcher - Green Crossette",
+  "block.theatricalextralights.firework_crossette_gold": "Firework Launcher - Gold Crossette",
+  "block.theatricalextralights.firework_crossette_white": "Firework Launcher - White Crossette",
+  "block.theatricalextralights.firework_crossette_amber": "Firework Launcher - Amber Crossette",
+  "block.theatricalextralights.firework_crossette_violet": "Firework Launcher - Violet Crossette",
+  "block.theatricalextralights.firework_mine_blue": "Firework Launcher - Blue Mine",
+  "block.theatricalextralights.firework_mine_red": "Firework Launcher - Red Mine",
+  "block.theatricalextralights.firework_mine_green": "Firework Launcher - Green Mine",
+  "block.theatricalextralights.firework_mine_gold": "Firework Launcher - Gold Mine",
+  "block.theatricalextralights.firework_mine_white": "Firework Launcher - White Mine",
+  "block.theatricalextralights.firework_mine_amber": "Firework Launcher - Amber Mine",
+  "block.theatricalextralights.firework_mine_violet": "Firework Launcher - Violet Mine",
+  "block.theatricalextralights.firework_spider_white": "Firework Launcher - White Spider",
+  "block.theatricalextralights.firework_diadem_blue": "Firework Launcher - Blue Diadem",
+  "block.theatricalextralights.firework_salute_white": "Firework Launcher - White Salute",
+  "block.theatricalextralights.firework_heart_pink": "Firework Launcher - Pink Heart",
+  "block.theatricalextralights.firework_double_burst_purple": "Firework Launcher - Purple Double Burst",
+  "block.theatricalextralights.firework_whistler_silver": "Firework Launcher - Silver Whistler",
+  "block.theatricalextralights.gerb_gold": "Gold Gerb (Ground Fountain)",
+  "block.theatricalextralights.flame_projector": "Flame Projector",
   "block.theatricalextralights.laser_mirror": "Laser Mirror",
   "block.theatricalextralights.parscroller": "Par64 (Scroller)",
   "block.theatricalextralights.blinder2x2": "2x2 Blinder",
   "block.theatricalextralights.blinder2x2warm": "2x2 Blinder (Warm)",
   "block.theatricalextralights.source_four_warm": "Source Four (Warm)",
   "block.theatricalextralights.mini_bar": "Mini RGB Bar",
-  "block.theatricalextralights.moving_vl2c_beams": "Moving VL2 (Prism)",
-  "block.theatricalextralights.moving_scan_beams": "Moving Scan (Prism)",
+  "block.theatricalextralights.moving_vl2c_beams": "Moving VL2 (Gobos)",
+  "block.theatricalextralights.moving_scan_beams": "Moving Scan (Gobos)",
+  "block.theatricalextralights.spot_xtreme_gobo": "Xtreme Spot (Gobos)",
+  "block.theatricalextralights.vl6c_gobo": "VL6C Spot (Gobos)",
+  "block.theatricalextralights.iris_700_gobo": "Iris 700 Spot (Gobos)",
+
+
+  "block.theatricalextralights.led_panels": "LED Panels (Shapes)",
+
+  "block.theatricalextralights.panel_1x3": "1x3 Panel",
+  "block.theatricalextralights.panel_2x1": "2x1 Panel",
+  "block.theatricalextralights.panel_2x2": "2x2 Panel",
+  "block.theatricalextralights.panel_2x3h": "2x3 Half Panel",
+  "block.theatricalextralights.panel_2x2h": "2x2 Half Panel",
+
+  "block.theatricalextralights.a1x1par64": "2x2 Par64 (Block/Color Preset)",
+  "block.theatricalextralights.a2x8par64": "2x8 Par64 (Color Preset)",
+  "block.theatricalextralights.a6x3par64_vertical": "6x3 Par64 Vertical (Color Preset)",
+
+  "block.theatricalextralights.truss": "Mini Truss",
+  "block.theatricalextralights.truss_joint": "Mini Truss Cross",
+  "block.theatricalextralights.truss_corner": "Mini Truss Corner (L)",
+  "block.theatricalextralights.truss_corner_t": "Mini Truss Corner (T)",
 
 
 
 
 
-  "itemGroup.theatricalextralights": "Theatrical: Extra Lights"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  "itemGroup.theatricalextralights": "Theatrical: Extra Lights",
+  "itemGroup.theatricalextralights.pyro": "Theatrical Pyro"
 }

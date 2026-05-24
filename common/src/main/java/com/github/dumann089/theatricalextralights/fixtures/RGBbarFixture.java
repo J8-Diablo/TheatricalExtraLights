@@ -108,6 +108,6 @@ public class RGBbarFixture extends Fixture {
 
     @Override
     public double getLightRadius() {
-        return 7.5;
+        return 8.5;
     }
 }

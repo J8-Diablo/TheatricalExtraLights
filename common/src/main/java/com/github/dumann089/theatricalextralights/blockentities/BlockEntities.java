@@ -102,6 +102,66 @@ public class BlockEntities {
     public static final RegistrySupplier<BlockEntityType<WaterJetFogBlockEntity>> WATER_JET_FOG = BLOCK_ENTITIES.register("water_jet_fog", () -> BlockEntityType.Builder.of(WaterJetFogBlockEntity::new, Blocks.WATER_JET_FOG_BLOCK.get()).build(null));
 
     public static final RegistrySupplier<BlockEntityType<WhiteStrobeBlockEntity>> WHITE_STROBE = BLOCK_ENTITIES.register("white_strobe", () -> BlockEntityType.Builder.of(WhiteStrobeBlockEntity::new, Blocks.WHITE_STROBE_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<FireworkLauncherBlockEntity>> FIREWORK_LAUNCHER = BLOCK_ENTITIES.register("firework_launcher", () ->
+            BlockEntityType.Builder.of(
+                    FireworkLauncherBlockEntity::new,
+                    Blocks.FIREWORK_RED_COMET_BLOCK.get(),
+                    Blocks.FIREWORK_BLUE_COMET_BLOCK.get(),
+                    Blocks.FIREWORK_GREEN_COMET_BLOCK.get(),
+                    Blocks.FIREWORK_GOLD_COMET_BLOCK.get(),
+                    Blocks.FIREWORK_GOLD_BELL_COMET_BLOCK.get(),
+                    Blocks.FIREWORK_RED_PEONY_BLOCK.get(),
+                    Blocks.FIREWORK_BLUE_PEONY_BLOCK.get(),
+                    Blocks.FIREWORK_GREEN_PEONY_BLOCK.get(),
+                    Blocks.FIREWORK_GOLD_PEONY_BLOCK.get(),
+                    Blocks.FIREWORK_WHITE_PEONY_BLOCK.get(),
+                    Blocks.FIREWORK_AMBER_PEONY_BLOCK.get(),
+                    Blocks.FIREWORK_VIOLET_PEONY_BLOCK.get(),
+                    Blocks.FIREWORK_WHITE_STROBE_BURST_BLOCK.get(),
+                    Blocks.FIREWORK_GOLD_WILLOW_BLOCK.get(),
+                    Blocks.FIREWORK_RED_WILLOW_BLOCK.get(),
+                    Blocks.FIREWORK_BLUE_WILLOW_BLOCK.get(),
+                    Blocks.FIREWORK_GREEN_WILLOW_BLOCK.get(),
+                    Blocks.FIREWORK_WHITE_WILLOW_BLOCK.get(),
+                    Blocks.FIREWORK_AMBER_WILLOW_BLOCK.get(),
+                    Blocks.FIREWORK_VIOLET_WILLOW_BLOCK.get(),
+                    Blocks.FIREWORK_MULTICOLOR_BURST_BLOCK.get(),
+                    Blocks.FIREWORK_PALM_GOLD_BLOCK.get(),
+                    Blocks.FIREWORK_CHRYSANTHEMUM_BLUE_BLOCK.get(),
+                    Blocks.FIREWORK_CHRYSANTHEMUM_RED_BLOCK.get(),
+                    Blocks.FIREWORK_CHRYSANTHEMUM_GREEN_BLOCK.get(),
+                    Blocks.FIREWORK_CHRYSANTHEMUM_GOLD_BLOCK.get(),
+                    Blocks.FIREWORK_CHRYSANTHEMUM_WHITE_BLOCK.get(),
+                    Blocks.FIREWORK_CHRYSANTHEMUM_AMBER_BLOCK.get(),
+                    Blocks.FIREWORK_CHRYSANTHEMUM_VIOLET_BLOCK.get(),
+                    Blocks.FIREWORK_HORSETAIL_SILVER_BLOCK.get(),
+                    Blocks.FIREWORK_RING_RED_BLOCK.get(),
+                    Blocks.FIREWORK_SPINNER_GOLD_BLOCK.get(),
+                    Blocks.FIREWORK_CROSSETTE_RED_BLOCK.get(),
+                    Blocks.FIREWORK_CROSSETTE_BLUE_BLOCK.get(),
+                    Blocks.FIREWORK_CROSSETTE_GREEN_BLOCK.get(),
+                    Blocks.FIREWORK_CROSSETTE_GOLD_BLOCK.get(),
+                    Blocks.FIREWORK_CROSSETTE_WHITE_BLOCK.get(),
+                    Blocks.FIREWORK_CROSSETTE_AMBER_BLOCK.get(),
+                    Blocks.FIREWORK_CROSSETTE_VIOLET_BLOCK.get(),
+                    Blocks.FIREWORK_MINE_BLUE_BLOCK.get(),
+                    Blocks.FIREWORK_MINE_RED_BLOCK.get(),
+                    Blocks.FIREWORK_MINE_GREEN_BLOCK.get(),
+                    Blocks.FIREWORK_MINE_GOLD_BLOCK.get(),
+                    Blocks.FIREWORK_MINE_WHITE_BLOCK.get(),
+                    Blocks.FIREWORK_MINE_AMBER_BLOCK.get(),
+                    Blocks.FIREWORK_MINE_VIOLET_BLOCK.get(),
+                    Blocks.FIREWORK_SPIDER_WHITE_BLOCK.get(),
+                    Blocks.FIREWORK_DIADEM_BLUE_BLOCK.get(),
+                    Blocks.FIREWORK_SALUTE_WHITE_BLOCK.get(),
+                    Blocks.FIREWORK_HEART_PINK_BLOCK.get(),
+                    Blocks.FIREWORK_DOUBLE_BURST_PURPLE_BLOCK.get(),
+                    Blocks.FIREWORK_WHISTLER_SILVER_BLOCK.get()
+            ).build(null));
+    public static final RegistrySupplier<BlockEntityType<GerbBlockEntity>> GERB_GOLD = BLOCK_ENTITIES.register("gerb_gold", () ->
+            BlockEntityType.Builder.of(GerbBlockEntity::new, Blocks.GERB_GOLD_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<FlameProjectorBlockEntity>> FLAME_PROJECTOR = BLOCK_ENTITIES.register("flame_projector", () ->
+            BlockEntityType.Builder.of(FlameProjectorBlockEntity::new, Blocks.FLAME_PROJECTOR_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<LaserMirrorBlockEntity>> LASER_MIRROR = BLOCK_ENTITIES.register("laser_mirror", () -> BlockEntityType.Builder.of(LaserMirrorBlockEntity::new, Blocks.LASER_MIRROR_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<ParScrollerBlockEntity>> PARSCROLLER = BLOCK_ENTITIES.register("parscroller", () -> BlockEntityType.Builder.of(ParScrollerBlockEntity::new, Blocks.PARSCROLLER_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<Blinder2x2BlockEntity>> BLINDER2X2 = BLOCK_ENTITIES.register("blinder2x2", () -> BlockEntityType.Builder.of(Blinder2x2BlockEntity::new, Blocks.BLINDER2X2_BLOCK.get()).build(null));
@@ -110,6 +170,14 @@ public class BlockEntities {
 
     public static final RegistrySupplier<BlockEntityType<MovingVL2CBeamsBlockEntity>> MOVING_VL2C_BEAMS = BLOCK_ENTITIES.register("moving_vl2c_beams", () -> BlockEntityType.Builder.of(MovingVL2CBeamsBlockEntity::new, Blocks.MOVING_VL2C_BEAMS_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<MovingScanBeamsBlockEntity>> MOVING_SCAN_BEAMS = BLOCK_ENTITIES.register("moving_scan_beams", () -> BlockEntityType.Builder.of(MovingScanBeamsBlockEntity::new, Blocks.MOVING_SCAN_BEAMS_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<SpotXtremeGoboBlockEntity>> SPOT_XTREME_GOBO = BLOCK_ENTITIES.register("spot_xtreme_gobo", () -> BlockEntityType.Builder.of(SpotXtremeGoboBlockEntity::new, Blocks.SPOT_XTREME_GOBO_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<VL6CGoboBlockEntity>> VL6C_GOBO = BLOCK_ENTITIES.register("vl6c_gobo", () -> BlockEntityType.Builder.of(VL6CGoboBlockEntity::new, Blocks.VL6C_GOBO_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<Iris700GoboBlockEntity>> IRIS_700_GOBO = BLOCK_ENTITIES.register("iris_700_gobo", () -> BlockEntityType.Builder.of(Iris700GoboBlockEntity::new, Blocks.IRIS_700_GOBO_BLOCK.get()).build(null));
+
+
+    public static final RegistrySupplier<BlockEntityType<a1x1par64BlockEntity>> A1X1PAR64 = BLOCK_ENTITIES.register("a1x1par64", () -> BlockEntityType.Builder.of(a1x1par64BlockEntity::new, Blocks.A1X1PAR64_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<a2x8par64BlockEntity>> A2X8PAR64 = BLOCK_ENTITIES.register("a2x8par64", () -> BlockEntityType.Builder.of(a2x8par64BlockEntity::new, Blocks.A2X8PAR64_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<a6x3par64_verticalBlockEntity>> A6X3PAR64_VERTICAL = BLOCK_ENTITIES.register("a6x3par64_vertical", () -> BlockEntityType.Builder.of(a6x3par64_verticalBlockEntity::new, Blocks.A6X3PAR64_VERTICAL_BLOCK.get()).build(null));
 
 
     public static void init(){

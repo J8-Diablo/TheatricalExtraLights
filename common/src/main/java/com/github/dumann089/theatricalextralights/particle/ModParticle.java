@@ -38,6 +38,17 @@ public class ModParticle {
             }
     );
 
+    public static final RegistrySupplier<ParticleType<FireworkSparkParticleOptions>>
+            FIREWORK_SPARK = PARTICLE_TYPES.register(
+            "firework_spark",
+            () -> new ParticleType<FireworkSparkParticleOptions>(false, FireworkSparkParticleOptions.DESERIALIZER) {
+                @Override
+                public Codec<FireworkSparkParticleOptions> codec() {
+                    return FireworkSparkParticleOptions.CODEC;
+                }
+            }
+    );
+
     public static void initialize() {
         PARTICLE_TYPES.register();
 
@@ -51,6 +62,10 @@ public class ModParticle {
             ParticleProviderRegistry.register(
                     WATERJETPARTICLE,
                     WaterJetParticle::provider
+            );
+            ParticleProviderRegistry.register(
+                    FIREWORK_SPARK,
+                    FireworkSparkParticle.Provider::new
             );
 
             ParticleProviderRegistry.register(

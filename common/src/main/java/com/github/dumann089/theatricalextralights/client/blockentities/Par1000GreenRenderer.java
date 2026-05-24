@@ -145,16 +145,24 @@ public class Par1000GreenRenderer extends ExtraLightsFixtureRenderer<Par1000Gree
                     float alpha = (intensity / 255f) * beamOpacity.floatValue();
 
                     // BEAM
-                    VertexConsumer beamConsumer = bufferSource.getBuffer(Beam2DRenderTypes.BEAM);
-                    poseStack.pushPose();
-                    poseStack.translate(0.5f, 0.56f, 0.143f);
-                    renderLightBeam2D(beamConsumer, poseStack, blockEntity, camera, alpha, 0.17f, (float) blockEntity.getDistance(), color, 0.007f);
-                    poseStack.popPose();
+                    VertexConsumer builder = multiBufferSource.getBuffer(Beam2DRenderTypes.getBeam());
+
+                    if (TheatricalExtraLightsConfig.shouldRender2DBeam()) {
+                        poseStack.pushPose();
+                        poseStack.translate(0.5f, 0.56f, 0.143f);
+                        renderLightBeam2D(builder, poseStack, blockEntity, camera, alpha, 0.14f, (float) blockEntity.getDistance(), color, 0.002f);
+                        poseStack.popPose();
+                    } else {
+                        poseStack.pushPose();
+                        poseStack.translate(0.5f, 0.56f, 0.143f);
+                        renderLightBeam4D(builder, poseStack, blockEntity, partialTick, alpha, 0.14f, (float) blockEntity.getDistance(), color, 0.002f);
+                        poseStack.popPose();
+                    }
 
                     // LENS 2D GLOW
                     poseStack.pushPose();
                     poseStack.translate(0.5f, 0.56f, 0.143);
-                    renderLensGlow(beamConsumer, poseStack, color, 0.18f);
+                    renderLensGlow(builder, poseStack, color, 0.18f);
                     poseStack.popPose();
 
                     // LENS

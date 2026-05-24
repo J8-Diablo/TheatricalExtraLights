@@ -1,6 +1,7 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.MovingMiniBarBlockEntity;
+import com.github.dumann089.theatricalextralights.client.Beam2DRenderTypes;
 import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -12,6 +13,7 @@ import dev.imabad.theatrical.client.TheatricalRenderTypes;
 import dev.imabad.theatrical.client.blockentities.FixtureRenderer;
 import dev.imabad.theatrical.config.TheatricalConfig;
 import net.minecraft.client.Camera;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
@@ -75,7 +77,7 @@ public class MovingMiniBarRenderer extends FixtureRenderer<MovingMiniBarBlockEnt
                 poseStack.translate(offset.x, offset.y, offset.z);
                 applyBaseTransforms(blockEntity, poseStack, facing, isFlipped, blockState, isHanging);
 
-                VertexConsumer beamConsumer = bufferSource.getBuffer(TheatricalRenderTypes.BEAM);
+                VertexConsumer builder = multiBufferSource.getBuffer(Beam2DRenderTypes.getBeam());
                 float beamLength = TheatricalExtraLightsConfig.getRgbBarBeamLength();
 
                 for (int i = 0; i < MovingMiniBarBlockEntity.BEAM_COUNT; i++) {
@@ -98,12 +100,12 @@ public class MovingMiniBarRenderer extends FixtureRenderer<MovingMiniBarBlockEnt
 
                     Matrix4f matrix = poseStack.last().pose();
                     Matrix3f normal = poseStack.last().normal();
-                    addVertex(beamConsumer, matrix, normal, r, g, b, a, -BEAM_WIDTH, BEAM_HEIGHT, 0f);
-                    addVertex(beamConsumer, matrix, normal, r, g, b, a, BEAM_WIDTH, BEAM_HEIGHT, 0f);
-                    addVertex(beamConsumer, matrix, normal, r, g, b, a, BEAM_WIDTH, -BEAM_HEIGHT, 0f);
-                    addVertex(beamConsumer, matrix, normal, r, g, b, a, -BEAM_WIDTH, -BEAM_HEIGHT, 0f);
+                    addVertex(builder, matrix, normal, r, g, b, a, -BEAM_WIDTH, BEAM_HEIGHT, 0f);
+                    addVertex(builder, matrix, normal, r, g, b, a, BEAM_WIDTH, BEAM_HEIGHT, 0f);
+                    addVertex(builder, matrix, normal, r, g, b, a, BEAM_WIDTH, -BEAM_HEIGHT, 0f);
+                    addVertex(builder, matrix, normal, r, g, b, a, -BEAM_WIDTH, -BEAM_HEIGHT, 0f);
 
-                    renderLightBeam(beamConsumer, poseStack, alpha, BEAM_WIDTH, BEAM_HEIGHT, beamLength, color);
+                    renderLightBeam(builder, poseStack, alpha, BEAM_WIDTH, BEAM_HEIGHT, beamLength, color);
                     poseStack.popPose();
                 }
 
@@ -197,6 +199,21 @@ public class MovingMiniBarRenderer extends FixtureRenderer<MovingMiniBarBlockEnt
 
     private int interpolate(int previous, int current, float partialTicks) {
         return (int) (previous + (current - previous) * partialTicks);
+    }
+
+    @Override
+    protected void addVertex(VertexConsumer builder, Matrix4f m, Matrix3f nm,
+                             int r, int g, int b, int a,
+                             float x, float y, float z) {
+        if (Beam2DRenderTypes.isShadersActive()) {
+            builder.vertex(m, x, y, z)
+                    .color(r, g, b, a)
+                    .uv(0f, 0f)
+                    .uv2(LightTexture.FULL_BRIGHT)
+                    .endVertex();
+        } else {
+            super.addVertex(builder, m, nm, r, g, b, a, x, y, z);
+        }
     }
 
     protected void renderLightBeam(VertexConsumer builder, PoseStack stack, float alpha, float beamWidth, float beamHeight, float length, int color) {

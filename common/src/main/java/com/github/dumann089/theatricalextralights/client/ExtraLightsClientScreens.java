@@ -1,10 +1,7 @@
 package com.github.dumann089.theatricalextralights.client;
 
 import com.github.dumann089.theatricalextralights.TheatricalExtraLightsScreens;
-import com.github.dumann089.theatricalextralights.client.gui.ExtraLightsConfigScreen;
-import com.github.dumann089.theatricalextralights.client.gui.WaterJetConeScreen;
-import com.github.dumann089.theatricalextralights.client.gui.WaterJetGenericScreen;
-import com.github.dumann089.theatricalextralights.client.gui.WaterJetPanTiltScreen;
+import com.github.dumann089.theatricalextralights.client.gui.*;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -31,8 +28,12 @@ public class ExtraLightsClientScreens {
                     new WaterJetPanTiltScreen(pos, "Water Manual");
             case WATER_CONE ->
                     new WaterJetConeScreen(pos, "Water Cone");
+
             case CHANNEL_MENU ->
                     new ExtraLightsConfigScreen(lightBE, pos, lightBE.getTranslationKey());
+
+            case CHANNEL_PANTILT ->
+                    new GenericPanTiltExtraLightsConfigScreen(lightBE, pos, lightBE.getTranslationKey());
         };
 
         mc.setScreen(gui);

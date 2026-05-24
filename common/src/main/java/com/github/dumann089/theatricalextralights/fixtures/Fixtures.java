@@ -2,6 +2,7 @@ package com.github.dumann089.theatricalextralights.fixtures;
 
 import com.github.dumann089.theatricalextralights.TheatricalExtraLights;
 import com.github.dumann089.theatricalextralights.TheatricalExtraLightsRegistry;
+import com.github.dumann089.theatricalextralights.firework.FireworkPreset;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import dev.imabad.theatrical.Theatrical;
@@ -243,6 +244,114 @@ public class Fixtures {
 
     public static final RegistrySupplier<Fixture> WHITE_STROBE =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "white_strobe"), WhiteStrobeFixture::new);
+    public static final RegistrySupplier<Fixture> FIREWORK_RED_COMET =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_red_comet"), () -> new FireworkLauncherFixture(FireworkPreset.RED_COMET));
+    public static final RegistrySupplier<Fixture> FIREWORK_BLUE_COMET =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_blue_comet"), () -> new FireworkLauncherFixture(FireworkPreset.BLUE_COMET));
+    public static final RegistrySupplier<Fixture> FIREWORK_GREEN_COMET =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_green_comet"), () -> new FireworkLauncherFixture(FireworkPreset.GREEN_COMET));
+    public static final RegistrySupplier<Fixture> FIREWORK_GOLD_COMET =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_gold_comet"), () -> new FireworkLauncherFixture(FireworkPreset.GOLD_COMET));
+    public static final RegistrySupplier<Fixture> FIREWORK_GOLD_BELL_COMET =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_gold_bell_comet"), () -> new FireworkLauncherFixture(FireworkPreset.GOLD_BELL_COMET));
+    public static final RegistrySupplier<Fixture> FIREWORK_RED_PEONY =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_red_peony"), () -> new FireworkLauncherFixture(FireworkPreset.RED_PEONY));
+    public static final RegistrySupplier<Fixture> FIREWORK_BLUE_PEONY =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_blue_peony"), () -> new FireworkLauncherFixture(FireworkPreset.BLUE_PEONY));
+    public static final RegistrySupplier<Fixture> FIREWORK_GREEN_PEONY =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_green_peony"), () -> new FireworkLauncherFixture(FireworkPreset.GREEN_PEONY));
+    public static final RegistrySupplier<Fixture> FIREWORK_GOLD_PEONY =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_gold_peony"), () -> new FireworkLauncherFixture(FireworkPreset.GOLD_PEONY));
+    public static final RegistrySupplier<Fixture> FIREWORK_WHITE_PEONY =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_white_peony"), () -> new FireworkLauncherFixture(FireworkPreset.WHITE_PEONY));
+    public static final RegistrySupplier<Fixture> FIREWORK_AMBER_PEONY =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_amber_peony"), () -> new FireworkLauncherFixture(FireworkPreset.AMBER_PEONY));
+    public static final RegistrySupplier<Fixture> FIREWORK_VIOLET_PEONY =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_violet_peony"), () -> new FireworkLauncherFixture(FireworkPreset.VIOLET_PEONY));
+    public static final RegistrySupplier<Fixture> FIREWORK_WHITE_STROBE_BURST =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_white_strobe_burst"), () -> new FireworkLauncherFixture(FireworkPreset.WHITE_STROBE_BURST));
+    public static final RegistrySupplier<Fixture> FIREWORK_GOLD_WILLOW =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_gold_willow"), () -> new FireworkLauncherFixture(FireworkPreset.GOLD_WILLOW));
+    public static final RegistrySupplier<Fixture> FIREWORK_RED_WILLOW =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_red_willow"), () -> new FireworkLauncherFixture(FireworkPreset.RED_WILLOW));
+    public static final RegistrySupplier<Fixture> FIREWORK_BLUE_WILLOW =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_blue_willow"), () -> new FireworkLauncherFixture(FireworkPreset.BLUE_WILLOW));
+    public static final RegistrySupplier<Fixture> FIREWORK_GREEN_WILLOW =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_green_willow"), () -> new FireworkLauncherFixture(FireworkPreset.GREEN_WILLOW));
+    public static final RegistrySupplier<Fixture> FIREWORK_WHITE_WILLOW =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_white_willow"), () -> new FireworkLauncherFixture(FireworkPreset.WHITE_WILLOW));
+    public static final RegistrySupplier<Fixture> FIREWORK_AMBER_WILLOW =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_amber_willow"), () -> new FireworkLauncherFixture(FireworkPreset.AMBER_WILLOW));
+    public static final RegistrySupplier<Fixture> FIREWORK_VIOLET_WILLOW =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_violet_willow"), () -> new FireworkLauncherFixture(FireworkPreset.VIOLET_WILLOW));
+    public static final RegistrySupplier<Fixture> FIREWORK_MULTICOLOR_BURST =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_multicolor_burst"), () -> new FireworkLauncherFixture(FireworkPreset.MULTICOLOR_BURST));
+    public static final RegistrySupplier<Fixture> FIREWORK_PALM_GOLD =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_palm_gold"), () -> new FireworkLauncherFixture(FireworkPreset.PALM_GOLD));
+    public static final RegistrySupplier<Fixture> FIREWORK_CHRYSANTHEMUM_BLUE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_chrysanthemum_blue"), () -> new FireworkLauncherFixture(FireworkPreset.CHRYSANTHEMUM_BLUE));
+    public static final RegistrySupplier<Fixture> FIREWORK_CHRYSANTHEMUM_RED =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_chrysanthemum_red"), () -> new FireworkLauncherFixture(FireworkPreset.CHRYSANTHEMUM_RED));
+    public static final RegistrySupplier<Fixture> FIREWORK_CHRYSANTHEMUM_GREEN =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_chrysanthemum_green"), () -> new FireworkLauncherFixture(FireworkPreset.CHRYSANTHEMUM_GREEN));
+    public static final RegistrySupplier<Fixture> FIREWORK_CHRYSANTHEMUM_GOLD =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_chrysanthemum_gold"), () -> new FireworkLauncherFixture(FireworkPreset.CHRYSANTHEMUM_GOLD));
+    public static final RegistrySupplier<Fixture> FIREWORK_CHRYSANTHEMUM_WHITE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_chrysanthemum_white"), () -> new FireworkLauncherFixture(FireworkPreset.CHRYSANTHEMUM_WHITE));
+    public static final RegistrySupplier<Fixture> FIREWORK_CHRYSANTHEMUM_AMBER =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_chrysanthemum_amber"), () -> new FireworkLauncherFixture(FireworkPreset.CHRYSANTHEMUM_AMBER));
+    public static final RegistrySupplier<Fixture> FIREWORK_CHRYSANTHEMUM_VIOLET =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_chrysanthemum_violet"), () -> new FireworkLauncherFixture(FireworkPreset.CHRYSANTHEMUM_VIOLET));
+    public static final RegistrySupplier<Fixture> FIREWORK_HORSETAIL_SILVER =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_horsetail_silver"), () -> new FireworkLauncherFixture(FireworkPreset.HORSETAIL_SILVER));
+    public static final RegistrySupplier<Fixture> FIREWORK_RING_RED =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_ring_red"), () -> new FireworkLauncherFixture(FireworkPreset.RING_RED));
+    public static final RegistrySupplier<Fixture> FIREWORK_SPINNER_GOLD =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_spinner_gold"), () -> new FireworkLauncherFixture(FireworkPreset.SPINNER_GOLD));
+    public static final RegistrySupplier<Fixture> FIREWORK_CROSSETTE_RED =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_crossette_red"), () -> new FireworkLauncherFixture(FireworkPreset.CROSSETTE_RED));
+    public static final RegistrySupplier<Fixture> FIREWORK_CROSSETTE_BLUE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_crossette_blue"), () -> new FireworkLauncherFixture(FireworkPreset.CROSSETTE_BLUE));
+    public static final RegistrySupplier<Fixture> FIREWORK_CROSSETTE_GREEN =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_crossette_green"), () -> new FireworkLauncherFixture(FireworkPreset.CROSSETTE_GREEN));
+    public static final RegistrySupplier<Fixture> FIREWORK_CROSSETTE_GOLD =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_crossette_gold"), () -> new FireworkLauncherFixture(FireworkPreset.CROSSETTE_GOLD));
+    public static final RegistrySupplier<Fixture> FIREWORK_CROSSETTE_WHITE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_crossette_white"), () -> new FireworkLauncherFixture(FireworkPreset.CROSSETTE_WHITE));
+    public static final RegistrySupplier<Fixture> FIREWORK_CROSSETTE_AMBER =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_crossette_amber"), () -> new FireworkLauncherFixture(FireworkPreset.CROSSETTE_AMBER));
+    public static final RegistrySupplier<Fixture> FIREWORK_CROSSETTE_VIOLET =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_crossette_violet"), () -> new FireworkLauncherFixture(FireworkPreset.CROSSETTE_VIOLET));
+    public static final RegistrySupplier<Fixture> FIREWORK_MINE_BLUE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_mine_blue"), () -> new FireworkLauncherFixture(FireworkPreset.MINE_BLUE));
+    public static final RegistrySupplier<Fixture> FIREWORK_MINE_RED =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_mine_red"), () -> new FireworkLauncherFixture(FireworkPreset.MINE_RED));
+    public static final RegistrySupplier<Fixture> FIREWORK_MINE_GREEN =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_mine_green"), () -> new FireworkLauncherFixture(FireworkPreset.MINE_GREEN));
+    public static final RegistrySupplier<Fixture> FIREWORK_MINE_GOLD =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_mine_gold"), () -> new FireworkLauncherFixture(FireworkPreset.MINE_GOLD));
+    public static final RegistrySupplier<Fixture> FIREWORK_MINE_WHITE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_mine_white"), () -> new FireworkLauncherFixture(FireworkPreset.MINE_WHITE));
+    public static final RegistrySupplier<Fixture> FIREWORK_MINE_AMBER =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_mine_amber"), () -> new FireworkLauncherFixture(FireworkPreset.MINE_AMBER));
+    public static final RegistrySupplier<Fixture> FIREWORK_MINE_VIOLET =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_mine_violet"), () -> new FireworkLauncherFixture(FireworkPreset.MINE_VIOLET));
+    public static final RegistrySupplier<Fixture> FIREWORK_SPIDER_WHITE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_spider_white"), () -> new FireworkLauncherFixture(FireworkPreset.SPIDER_WHITE));
+    public static final RegistrySupplier<Fixture> FIREWORK_DIADEM_BLUE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_diadem_blue"), () -> new FireworkLauncherFixture(FireworkPreset.DIADEM_BLUE));
+    public static final RegistrySupplier<Fixture> FIREWORK_SALUTE_WHITE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_salute_white"), () -> new FireworkLauncherFixture(FireworkPreset.SALUTE_WHITE));
+    public static final RegistrySupplier<Fixture> FIREWORK_HEART_PINK =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_heart_pink"), () -> new FireworkLauncherFixture(FireworkPreset.HEART_PINK));
+    public static final RegistrySupplier<Fixture> FIREWORK_DOUBLE_BURST_PURPLE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_double_burst_purple"), () -> new FireworkLauncherFixture(FireworkPreset.DOUBLE_BURST_PURPLE));
+    public static final RegistrySupplier<Fixture> FIREWORK_WHISTLER_SILVER =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_whistler_silver"), () -> new FireworkLauncherFixture(FireworkPreset.WHISTLER_SILVER));
+    public static final RegistrySupplier<Fixture> GERB_GOLD =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "gerb_gold"), GerbFixture::new);
+    public static final RegistrySupplier<Fixture> FLAME_PROJECTOR =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "flame_projector"), FlameProjectorFixture::new);
     public static final RegistrySupplier<Fixture> LASER_MIRROR =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "laser_mirror"), LaserMirrorFixture::new);
     public static final RegistrySupplier<Fixture> PARSCROLLER =
@@ -253,6 +362,132 @@ public class Fixtures {
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "blinder2x2warm"), Blinder2x2warmFixture::new);
     public static final RegistrySupplier<Fixture> MINI_BAR =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "mini_bar"), MiniBarFixture::new);
+    public static final RegistrySupplier<Fixture> A1X1PAR64 =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "a1x1par64"), a1x1par64Fixture::new);
+    public static final RegistrySupplier<Fixture> A2X8PAR64 =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "a2x8par64"), a2x8par64Fixture::new);
+    public static final RegistrySupplier<Fixture> A6X3PAR64_VERTICAL =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "a6x3par64_vertical"), a6x3par64_verticalFixture::new);
+    public static final RegistrySupplier<Fixture> SPOT_XTREME_GOBO =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "spot_xtreme_gobo"), SpotXtremeGoboFixture::new);
+    public static final RegistrySupplier<Fixture> VL6C_GOBO =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "vl6c_gobo"), VL6CGoboFixture::new);
+    public static final RegistrySupplier<Fixture> IRIS_700_GOBO =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "iris_700_gobo"), Iris700GoboFixture::new);
+
+    public static Fixture getFireworkFixture(FireworkPreset preset) {
+        return switch (preset) {
+            case RED_COMET -> FIREWORK_RED_COMET.get();
+            case BLUE_COMET -> FIREWORK_BLUE_COMET.get();
+            case GREEN_COMET -> FIREWORK_GREEN_COMET.get();
+            case GOLD_COMET -> FIREWORK_GOLD_COMET.get();
+            case GOLD_BELL_COMET -> FIREWORK_GOLD_BELL_COMET.get();
+            case RED_PEONY -> FIREWORK_RED_PEONY.get();
+            case BLUE_PEONY -> FIREWORK_BLUE_PEONY.get();
+            case GREEN_PEONY -> FIREWORK_GREEN_PEONY.get();
+            case GOLD_PEONY -> FIREWORK_GOLD_PEONY.get();
+            case WHITE_PEONY -> FIREWORK_WHITE_PEONY.get();
+            case AMBER_PEONY -> FIREWORK_AMBER_PEONY.get();
+            case VIOLET_PEONY -> FIREWORK_VIOLET_PEONY.get();
+            case WHITE_STROBE_BURST -> FIREWORK_WHITE_STROBE_BURST.get();
+            case GOLD_WILLOW -> FIREWORK_GOLD_WILLOW.get();
+            case RED_WILLOW -> FIREWORK_RED_WILLOW.get();
+            case BLUE_WILLOW -> FIREWORK_BLUE_WILLOW.get();
+            case GREEN_WILLOW -> FIREWORK_GREEN_WILLOW.get();
+            case WHITE_WILLOW -> FIREWORK_WHITE_WILLOW.get();
+            case AMBER_WILLOW -> FIREWORK_AMBER_WILLOW.get();
+            case VIOLET_WILLOW -> FIREWORK_VIOLET_WILLOW.get();
+            case MULTICOLOR_BURST -> FIREWORK_MULTICOLOR_BURST.get();
+            case PALM_GOLD -> FIREWORK_PALM_GOLD.get();
+            case CHRYSANTHEMUM_BLUE -> FIREWORK_CHRYSANTHEMUM_BLUE.get();
+            case CHRYSANTHEMUM_RED -> FIREWORK_CHRYSANTHEMUM_RED.get();
+            case CHRYSANTHEMUM_GREEN -> FIREWORK_CHRYSANTHEMUM_GREEN.get();
+            case CHRYSANTHEMUM_GOLD -> FIREWORK_CHRYSANTHEMUM_GOLD.get();
+            case CHRYSANTHEMUM_WHITE -> FIREWORK_CHRYSANTHEMUM_WHITE.get();
+            case CHRYSANTHEMUM_AMBER -> FIREWORK_CHRYSANTHEMUM_AMBER.get();
+            case CHRYSANTHEMUM_VIOLET -> FIREWORK_CHRYSANTHEMUM_VIOLET.get();
+            case HORSETAIL_SILVER -> FIREWORK_HORSETAIL_SILVER.get();
+            case RING_RED -> FIREWORK_RING_RED.get();
+            case SPINNER_GOLD -> FIREWORK_SPINNER_GOLD.get();
+            case CROSSETTE_RED -> FIREWORK_CROSSETTE_RED.get();
+            case CROSSETTE_BLUE -> FIREWORK_CROSSETTE_BLUE.get();
+            case CROSSETTE_GREEN -> FIREWORK_CROSSETTE_GREEN.get();
+            case CROSSETTE_GOLD -> FIREWORK_CROSSETTE_GOLD.get();
+            case CROSSETTE_WHITE -> FIREWORK_CROSSETTE_WHITE.get();
+            case CROSSETTE_AMBER -> FIREWORK_CROSSETTE_AMBER.get();
+            case CROSSETTE_VIOLET -> FIREWORK_CROSSETTE_VIOLET.get();
+            case MINE_BLUE -> FIREWORK_MINE_BLUE.get();
+            case MINE_RED -> FIREWORK_MINE_RED.get();
+            case MINE_GREEN -> FIREWORK_MINE_GREEN.get();
+            case MINE_GOLD -> FIREWORK_MINE_GOLD.get();
+            case MINE_WHITE -> FIREWORK_MINE_WHITE.get();
+            case MINE_AMBER -> FIREWORK_MINE_AMBER.get();
+            case MINE_VIOLET -> FIREWORK_MINE_VIOLET.get();
+            case SPIDER_WHITE -> FIREWORK_SPIDER_WHITE.get();
+            case DIADEM_BLUE -> FIREWORK_DIADEM_BLUE.get();
+            case SALUTE_WHITE -> FIREWORK_SALUTE_WHITE.get();
+            case HEART_PINK -> FIREWORK_HEART_PINK.get();
+            case DOUBLE_BURST_PURPLE -> FIREWORK_DOUBLE_BURST_PURPLE.get();
+            case WHISTLER_SILVER -> FIREWORK_WHISTLER_SILVER.get();
+        };
+    }
+
+    public static ResourceLocation getFireworkFixtureId(FireworkPreset preset) {
+        return switch (preset) {
+            case RED_COMET -> FIREWORK_RED_COMET.getId();
+            case BLUE_COMET -> FIREWORK_BLUE_COMET.getId();
+            case GREEN_COMET -> FIREWORK_GREEN_COMET.getId();
+            case GOLD_COMET -> FIREWORK_GOLD_COMET.getId();
+            case GOLD_BELL_COMET -> FIREWORK_GOLD_BELL_COMET.getId();
+            case RED_PEONY -> FIREWORK_RED_PEONY.getId();
+            case BLUE_PEONY -> FIREWORK_BLUE_PEONY.getId();
+            case GREEN_PEONY -> FIREWORK_GREEN_PEONY.getId();
+            case GOLD_PEONY -> FIREWORK_GOLD_PEONY.getId();
+            case WHITE_PEONY -> FIREWORK_WHITE_PEONY.getId();
+            case AMBER_PEONY -> FIREWORK_AMBER_PEONY.getId();
+            case VIOLET_PEONY -> FIREWORK_VIOLET_PEONY.getId();
+            case WHITE_STROBE_BURST -> FIREWORK_WHITE_STROBE_BURST.getId();
+            case GOLD_WILLOW -> FIREWORK_GOLD_WILLOW.getId();
+            case RED_WILLOW -> FIREWORK_RED_WILLOW.getId();
+            case BLUE_WILLOW -> FIREWORK_BLUE_WILLOW.getId();
+            case GREEN_WILLOW -> FIREWORK_GREEN_WILLOW.getId();
+            case WHITE_WILLOW -> FIREWORK_WHITE_WILLOW.getId();
+            case AMBER_WILLOW -> FIREWORK_AMBER_WILLOW.getId();
+            case VIOLET_WILLOW -> FIREWORK_VIOLET_WILLOW.getId();
+            case MULTICOLOR_BURST -> FIREWORK_MULTICOLOR_BURST.getId();
+            case PALM_GOLD -> FIREWORK_PALM_GOLD.getId();
+            case CHRYSANTHEMUM_BLUE -> FIREWORK_CHRYSANTHEMUM_BLUE.getId();
+            case CHRYSANTHEMUM_RED -> FIREWORK_CHRYSANTHEMUM_RED.getId();
+            case CHRYSANTHEMUM_GREEN -> FIREWORK_CHRYSANTHEMUM_GREEN.getId();
+            case CHRYSANTHEMUM_GOLD -> FIREWORK_CHRYSANTHEMUM_GOLD.getId();
+            case CHRYSANTHEMUM_WHITE -> FIREWORK_CHRYSANTHEMUM_WHITE.getId();
+            case CHRYSANTHEMUM_AMBER -> FIREWORK_CHRYSANTHEMUM_AMBER.getId();
+            case CHRYSANTHEMUM_VIOLET -> FIREWORK_CHRYSANTHEMUM_VIOLET.getId();
+            case HORSETAIL_SILVER -> FIREWORK_HORSETAIL_SILVER.getId();
+            case RING_RED -> FIREWORK_RING_RED.getId();
+            case SPINNER_GOLD -> FIREWORK_SPINNER_GOLD.getId();
+            case CROSSETTE_RED -> FIREWORK_CROSSETTE_RED.getId();
+            case CROSSETTE_BLUE -> FIREWORK_CROSSETTE_BLUE.getId();
+            case CROSSETTE_GREEN -> FIREWORK_CROSSETTE_GREEN.getId();
+            case CROSSETTE_GOLD -> FIREWORK_CROSSETTE_GOLD.getId();
+            case CROSSETTE_WHITE -> FIREWORK_CROSSETTE_WHITE.getId();
+            case CROSSETTE_AMBER -> FIREWORK_CROSSETTE_AMBER.getId();
+            case CROSSETTE_VIOLET -> FIREWORK_CROSSETTE_VIOLET.getId();
+            case MINE_BLUE -> FIREWORK_MINE_BLUE.getId();
+            case MINE_RED -> FIREWORK_MINE_RED.getId();
+            case MINE_GREEN -> FIREWORK_MINE_GREEN.getId();
+            case MINE_GOLD -> FIREWORK_MINE_GOLD.getId();
+            case MINE_WHITE -> FIREWORK_MINE_WHITE.getId();
+            case MINE_AMBER -> FIREWORK_MINE_AMBER.getId();
+            case MINE_VIOLET -> FIREWORK_MINE_VIOLET.getId();
+            case SPIDER_WHITE -> FIREWORK_SPIDER_WHITE.getId();
+            case DIADEM_BLUE -> FIREWORK_DIADEM_BLUE.getId();
+            case SALUTE_WHITE -> FIREWORK_SALUTE_WHITE.getId();
+            case HEART_PINK -> FIREWORK_HEART_PINK.getId();
+            case DOUBLE_BURST_PURPLE -> FIREWORK_DOUBLE_BURST_PURPLE.getId();
+            case WHISTLER_SILVER -> FIREWORK_WHISTLER_SILVER.getId();
+        };
+    }
 
     public static void init(){
         FIXTURES.register();

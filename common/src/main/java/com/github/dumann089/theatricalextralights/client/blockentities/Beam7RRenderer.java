@@ -3,6 +3,7 @@ package com.github.dumann089.theatricalextralights.client.blockentities;
 import com.github.dumann089.theatricalextralights.blockentities.Beam7RBlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.MovingVL2CBlockEntity;
 import com.github.dumann089.theatricalextralights.client.Beam2DRenderTypes;
+import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -146,13 +147,24 @@ public class Beam7RRenderer extends ExtraLightsFixtureRenderer<Beam7RBlockEntity
                     float alpha = (intensity / 255f) * beamOpacity.floatValue();
 
                     // BEAM
-                    VertexConsumer beamConsumer = bufferSource.getBuffer(Beam2DRenderTypes.BEAM);
-                    poseStack.pushPose();
-                    poseStack.translate(0.5f, 0.78125f, 0.2f);
-                    renderLightBeam2D(beamConsumer, poseStack, blockEntity, camera, alpha, 0.07f, (float) blockEntity.getDistance(), color, 0.01f);                    poseStack.popPose();
+                    VertexConsumer builder = multiBufferSource.getBuffer(Beam2DRenderTypes.getBeam());
+                    int goboValue = blockEntity.getGobo();
+
+                    if (goboValue == 0) {
+                        if (TheatricalExtraLightsConfig.shouldRender2DBeam()) {
+                            poseStack.pushPose();
+                            poseStack.translate(0.5f, 0.781f, 0.2f);
+                            renderLightBeam2D(builder, poseStack, blockEntity, camera, alpha, 0.07f, (float) blockEntity.getDistance(), color, 0.006f);
+                            poseStack.popPose();
+                        } else {
+                            poseStack.pushPose();
+                            poseStack.translate(0.5f, 0.781f, 0.2f);
+                            renderLightBeam4D(builder, poseStack, blockEntity, partialTick, alpha, 0.07f, (float) blockEntity.getDistance(), color, 0.006f);
+                            poseStack.popPose();
+                        }
+                    }
 
                     // Gobo
-                    int goboValue = blockEntity.getGobo();
                     if (goboValue > 0) {
                         poseStack.pushPose();
                         poseStack.translate(0.5f, 0.781f, 0.2f);
@@ -170,7 +182,7 @@ public class Beam7RRenderer extends ExtraLightsFixtureRenderer<Beam7RBlockEntity
                             poseStack.mulPose(Axis.ZP.rotationDegrees(blockEntity.getGoboRotation()));
                         }
 
-                        renderGoboBeams(beamConsumer, poseStack, blockEntity, camera,
+                        renderGoboBeams(builder, poseStack, blockEntity, camera,
                                 alpha, 0.07f, (float) blockEntity.getDistance(), color,
                                 0.01f, beamCount, spreadAngle);
                         poseStack.popPose();
@@ -179,7 +191,7 @@ public class Beam7RRenderer extends ExtraLightsFixtureRenderer<Beam7RBlockEntity
                     // LENS GLOW
                     poseStack.pushPose();
                     poseStack.translate(0.5f, 0.798f, 0.223f);
-                    renderLensGlow(beamConsumer, poseStack, color, 0.17f);
+                    renderLensGlow(builder, poseStack, color, 0.17f);
                     poseStack.popPose();
 
                     // LENS
