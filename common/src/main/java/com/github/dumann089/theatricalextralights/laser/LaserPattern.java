@@ -97,8 +97,8 @@ public enum LaserPattern {
         final float speedDeadzone = 0.05f;
         float effectiveSpeed = (speed01 < speedDeadzone) ? 0f
                 : (speed01 - speedDeadzone) / (1f - speedDeadzone);
-        // Wave phase advances at up to 2 cycles per second at max speed.
-        float animPhase = (float) (animTimeSec * effectiveSpeed * 2f);
+        // Wave phase advances at up to 10 cycles per second at max speed.
+        float animPhase = (float) (animTimeSec * effectiveSpeed * 10f);
 
         switch (this) {
             case BEAM_SIMPLE:    return beamSimple(size01, c1);
@@ -113,7 +113,7 @@ public enum LaserPattern {
             case SPIRAL:         return spiral(size01, amp01, staticRotDeg, c1, c2, c3);
             case PARALLEL_LINES: return parallelLines(size01, amp01, staticRotDeg, c1, c2, c3);
             case DOUBLE_CIRCLE:  return doubleCircle(size01, amp01, staticRotDeg, c1, c2, c3);
-            case BURST:          return burst(size01, amp01, animTimeSec, c1, c2, c3);
+            case BURST:          return burst(size01, amp01, effectiveSpeed, animTimeSec, c1, c2, c3);
             case SCATTER:        return scatter(size01, amp01, speed01, animTimeSec, c1, c2, c3);
         }
         return List.of();
@@ -421,12 +421,14 @@ public enum LaserPattern {
         return out;
     }
 
-    private static List<LaserBeam> burst(float size01, float amp01, double animTimeSec,
-                                         int c1, int c2, int c3) {
+    private static List<LaserBeam> burst(float size01, float amp01, float effectiveSpeed,
+                                         double animTimeSec, int c1, int c2, int c3) {
         int count = 8 + (int) (amp01 * 24); // amp = density (8..32)
         float maxRadius = lerp(size01, 8f, 40f);
-        // Re-seed every 0.4s so the burst flickers
-        long seed = (long) (animTimeSec * 2.5);
+        // Re-seed rate scales with Speed DMX: 0 at deadzone (stable burst,
+        // never changes), up to ~12.5 reseeds/sec at max for a strobe-like
+        // flicker.
+        long seed = (long) (animTimeSec * effectiveSpeed * 12.5);
         Random rng = new Random(seed);
         List<LaserBeam> out = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
@@ -444,8 +446,9 @@ public enum LaserPattern {
                                            double animTimeSec, int c1, int c2, int c3) {
         int count = 5 + (int) (size01 * 25); // 5..30 beams
         float coneHalfDeg = lerp(amp01, 5f, 90f);
-        // Seed evolves slowly with speed for jitter; speed=0 gives a stable seed
-        long seed = (speed01 < 0.01f) ? 0L : (long) (animTimeSec * (0.5 + speed01 * 4.0));
+        // Seed evolves with speed for jitter; speed=0 gives a stable seed.
+        // Max multiplier ~20.5 → very fast scatter at full DMX speed.
+        long seed = (speed01 < 0.01f) ? 0L : (long) (animTimeSec * (0.5 + speed01 * 20.0));
         Random rng = new Random(seed * 1000003L + 17L);
         List<LaserBeam> out = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
