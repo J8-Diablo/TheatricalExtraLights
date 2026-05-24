@@ -7,9 +7,9 @@ license = "Apache-2.0"
 modId = "theatricalextralights"
 version = "${version}"
 displayName = "Theatrical: Extra Lights"
-authors = "dumann089,Rushmead"
+authors = "dumann089 / Rushmead / J-Diablo"
 description = '''
-Extra lights for Theatrical
+Extra lights for Theatrical, provide Gobo, Firework, Water Jet and More...
 '''
 #logoFile = ""
 
