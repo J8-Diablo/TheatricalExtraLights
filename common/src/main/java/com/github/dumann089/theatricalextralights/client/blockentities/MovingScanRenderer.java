@@ -1,9 +1,6 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
-import com.github.dumann089.theatricalextralights.blockentities.MovingBeamBlockEntity;
-import com.github.dumann089.theatricalextralights.blockentities.MovingScanBeamsBlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.MovingScanBlockEntity;
-import com.github.dumann089.theatricalextralights.client.LensRenderTypes;
 import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -11,7 +8,6 @@ import com.mojang.math.Axis;
 import dev.imabad.theatrical.TheatricalExpectPlatform;
 import dev.imabad.theatrical.blocks.HangableBlock;
 import dev.imabad.theatrical.client.LazyRenderers;
-import dev.imabad.theatrical.client.blockentities.FixtureRenderer;
 import dev.imabad.theatrical.config.TheatricalConfig;
 import net.minecraft.client.Camera;
 import com.github.dumann089.theatricalextralights.client.Beam2DRenderTypes;
@@ -23,9 +19,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
-
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
 
 public class MovingScanRenderer extends ExtraLightsFixtureRenderer<MovingScanBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;

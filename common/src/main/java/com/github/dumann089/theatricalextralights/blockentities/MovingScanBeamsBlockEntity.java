@@ -1,5 +1,6 @@
 package com.github.dumann089.theatricalextralights.blockentities;
 
+import com.github.dumann089.theatricalextralights.blocks.MovingScanBeamsBlock;
 import com.github.dumann089.theatricalextralights.blocks.MovingVL2CBlock;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import dev.imabad.theatrical.api.Fixture;
@@ -11,10 +12,19 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasGobo;
+import com.github.dumann089.theatricalextralights.client.gobo.GoboLibrary;
 
 import java.util.Arrays;
 
-public class MovingScanBeamsBlockEntity extends BaseDMXConsumerLightBlockEntity {
+public class MovingScanBeamsBlockEntity extends BaseDMXConsumerLightBlockEntity
+        implements HasGobo {
+
+
+    @Override
+    public GoboLibrary getGoboLibrary() {
+        return GoboLibrary.SCAN;
+    }
 
     private int gobo = 0;
     private int prevGobo = 0;
@@ -73,7 +83,16 @@ public class MovingScanBeamsBlockEntity extends BaseDMXConsumerLightBlockEntity 
         pan = (int) ((convertByteToInt(ourValues[5]) * 360) / 255f) - 180;
         tilt = (int) ((convertByteToInt(ourValues[6]) * 270) / 255F) - 225;
 
-        int newGobo = convertByteToInt(ourValues[7]);
+        int dmxGobo = convertByteToInt(ourValues[7]);
+
+        int slotCount =
+                getGoboLibrary().getSlotCount();
+
+        int newGobo = Math.min(
+                slotCount - 1,
+                (int)((dmxGobo / 255f) * slotCount)
+        );
+
         int newZoom = convertByteToInt(ourValues[8]);
         int newGoboSpin = convertByteToInt(ourValues[9]);
 
@@ -132,7 +151,27 @@ public class MovingScanBeamsBlockEntity extends BaseDMXConsumerLightBlockEntity 
 
     @Override
     public boolean isUpsideDown() {
-        return getBlockState().getValue(MovingVL2CBlock.HANGING) && getBlockState().getValue(MovingVL2CBlock.HANG_DIRECTION) == Direction.UP;
+        return getBlockState().getValue(MovingScanBeamsBlock.HANGING) && getBlockState().getValue(MovingScanBeamsBlock.HANG_DIRECTION) == Direction.UP;
+    }
+
+    @Override
+    public float getPartialIntensity(float partialTicks) {
+        return getPrevIntensity() + (getIntensity() - getPrevIntensity()) * partialTicks;
+    }
+
+    @Override
+    public int getColour() {
+        return ((getRed() & 0xFF) << 16) | ((getGreen() & 0xFF) << 8) | (getBlue() & 0xFF);
+    }
+
+    @Override
+    public float getPartialPanDeg(float partialTicks) {
+        return getPrevPan() + (getPan() - getPrevPan()) * partialTicks;
+    }
+
+    @Override
+    public float getPartialTiltDeg(float partialTicks) {
+        return getPrevTilt() + (getTilt() - getPrevTilt()) * partialTicks;
     }
 
     public int convertByteToInt(byte val) { return Byte.toUnsignedInt(val); }
