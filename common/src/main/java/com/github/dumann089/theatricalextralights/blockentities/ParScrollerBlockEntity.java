@@ -10,7 +10,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import java.util.Arrays;
-public class ParScrollerBlockEntity extends BaseDMXConsumerLightBlockEntity {
+public class ParScrollerBlockEntity extends ExtraLightsLightBlockEntity {
 
     private static final float[][] GELS = {
             {1f, 0f, 0f},      // RED
@@ -44,10 +44,8 @@ public class ParScrollerBlockEntity extends BaseDMXConsumerLightBlockEntity {
         if(ourValues.length < 2){
             return;
         }
-        if(this.storePrev()){
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        }
-
+                boolean prevAdvanced = beginDmxUpdate();
+        int _pi = intensity, _pr = red, _pg = green, _pb = blue, _pf = focus, _pp = pan, _pt = tilt;
         intensity = convertByteToInt(ourValues[0]);
 
         int scrollerValue = convertByteToInt(ourValues[1]);
@@ -72,8 +70,7 @@ public class ParScrollerBlockEntity extends BaseDMXConsumerLightBlockEntity {
         green = (int) (g * 255);
         blue = (int) (b * 255);
 
-        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        setChanged();
+        finishDmxUpdate(intensity != _pi || red != _pr || green != _pg || blue != _pb || focus != _pf || pan != _pp || tilt != _pt, prevAdvanced);
     }
     @Override
     public int getDeviceTypeId() {

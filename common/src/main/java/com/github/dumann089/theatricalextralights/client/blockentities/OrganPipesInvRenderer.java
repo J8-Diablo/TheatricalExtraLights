@@ -9,7 +9,7 @@ import com.mojang.math.Axis;
 import dev.imabad.theatrical.TheatricalExpectPlatform;
 import dev.imabad.theatrical.blocks.HangableBlock;
 import dev.imabad.theatrical.client.LazyRenderers;
-import dev.imabad.theatrical.client.blockentities.FixtureRenderer;
+import com.github.dumann089.theatricalextralights.client.blockentities.ExtraLightsRenderer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -21,7 +21,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
 
-public class OrganPipesInvRenderer extends FixtureRenderer<OrganPipesInvBlockEntity> {
+public class OrganPipesInvRenderer extends ExtraLightsRenderer<OrganPipesInvBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
 
     private static final double[] PARTICLE_X_OFFSETS = {

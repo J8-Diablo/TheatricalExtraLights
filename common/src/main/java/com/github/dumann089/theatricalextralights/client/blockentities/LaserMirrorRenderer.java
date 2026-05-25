@@ -10,7 +10,7 @@ import dev.imabad.theatrical.TheatricalExpectPlatform;
 import dev.imabad.theatrical.blocks.HangableBlock;
 import dev.imabad.theatrical.client.LazyRenderers;
 import dev.imabad.theatrical.client.TheatricalRenderTypes;
-import dev.imabad.theatrical.client.blockentities.FixtureRenderer;
+import com.github.dumann089.theatricalextralights.client.blockentities.ExtraLightsRenderer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -23,7 +23,7 @@ import org.joml.Matrix4f;
 
 import java.util.Optional;
 
-public class LaserMirrorRenderer extends FixtureRenderer<LaserMirrorBlockEntity> {
+public class LaserMirrorRenderer extends ExtraLightsRenderer<LaserMirrorBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
 
     public LaserMirrorRenderer(BlockEntityRendererProvider.Context context) {

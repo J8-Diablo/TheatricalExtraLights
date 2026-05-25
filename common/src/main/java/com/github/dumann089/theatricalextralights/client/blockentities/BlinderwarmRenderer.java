@@ -11,7 +11,7 @@ import dev.imabad.theatrical.TheatricalExpectPlatform;
 import dev.imabad.theatrical.blocks.HangableBlock;
 import dev.imabad.theatrical.client.LazyRenderers;
 import dev.imabad.theatrical.client.TheatricalRenderTypes;
-import dev.imabad.theatrical.client.blockentities.FixtureRenderer;
+import com.github.dumann089.theatricalextralights.client.blockentities.ExtraLightsRenderer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -25,7 +25,7 @@ import java.util.Optional;
 
 import org.joml.*;
 
-public class BlinderwarmRenderer extends FixtureRenderer<BlinderwarmBlockEntity> {
+public class BlinderwarmRenderer extends ExtraLightsRenderer<BlinderwarmBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
     public BlinderwarmRenderer(BlockEntityRendererProvider.Context context) {
         super(context);

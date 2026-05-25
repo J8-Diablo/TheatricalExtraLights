@@ -18,7 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
 
-public class MovingJetBlockEntity extends BaseDMXConsumerLightBlockEntity
+public class MovingJetBlockEntity extends ExtraLightsLightBlockEntity
         implements HasJetHeight, HasJetThickness {
 
     public double smoothedHeight = 0.0;

@@ -9,7 +9,7 @@ import com.mojang.math.Axis;
 import dev.imabad.theatrical.TheatricalExpectPlatform;
 import dev.imabad.theatrical.blocks.HangableBlock;
 import dev.imabad.theatrical.client.LazyRenderers;
-import dev.imabad.theatrical.client.blockentities.FixtureRenderer;
+import com.github.dumann089.theatricalextralights.client.blockentities.ExtraLightsRenderer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -21,7 +21,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
 
-public class WaterJetCentralRenderer extends FixtureRenderer<WaterJetCentralBlockEntity> {
+public class WaterJetCentralRenderer extends ExtraLightsRenderer<WaterJetCentralBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
     public WaterJetCentralRenderer(BlockEntityRendererProvider.Context context) {
         super(context);

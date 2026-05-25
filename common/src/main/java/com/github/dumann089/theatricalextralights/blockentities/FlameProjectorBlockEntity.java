@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
 
-public class FlameProjectorBlockEntity extends BaseDMXConsumerLightBlockEntity {
+public class FlameProjectorBlockEntity extends ExtraLightsLightBlockEntity {
     private static final int FLAME_HOT_COLOR = 0xFF8434;
     private static final float MIN_LENGTH = 0.4f;
     private static final float MAX_LENGTH = 1.6f;

@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
 
-public class LEDPanel2BlockEntity extends BaseDMXConsumerLightBlockEntity {
+public class LEDPanel2BlockEntity extends ExtraLightsLightBlockEntity {
     public LEDPanel2BlockEntity(BlockPos blockPos, BlockState blockState) {
         super(BlockEntities.LED_PANEL_2.get(), blockPos, blockState);
         setChannelCount(4);
@@ -29,9 +29,8 @@ public class LEDPanel2BlockEntity extends BaseDMXConsumerLightBlockEntity {
         if(ourValues.length < 4){
             return;
         }
-        if(this.storePrev()){
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        }
+                boolean prevAdvanced = beginDmxUpdate();
+        int _pi = intensity, _pr = red, _pg = green, _pb = blue, _pf = focus, _pp = pan, _pt = tilt;
         intensity = convertByteToInt(ourValues[0]);
         red = convertByteToInt(ourValues[1]);
         green = convertByteToInt(ourValues[2]);

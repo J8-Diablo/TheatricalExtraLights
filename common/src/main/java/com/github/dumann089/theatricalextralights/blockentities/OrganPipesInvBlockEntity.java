@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
 
-public class OrganPipesInvBlockEntity extends BaseDMXConsumerLightBlockEntity
+public class OrganPipesInvBlockEntity extends ExtraLightsLightBlockEntity
         implements HasJetHeight, HasJetThickness {
 
     public double smoothedHeight = 0.0;

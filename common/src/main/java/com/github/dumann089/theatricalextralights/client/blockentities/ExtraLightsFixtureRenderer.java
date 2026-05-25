@@ -20,6 +20,12 @@ public abstract class ExtraLightsFixtureRenderer<T extends BaseLightBlockEntity>
         super(context);
     }
 
+    /** Faisceau géré dans {@code beforeRenderBeam} — évite le double rendu Theatrical. */
+    @Override
+    public boolean shouldRenderBeam(T blockEntity) {
+        return false;
+    }
+
     // ── Vertex helpers ──────────────────────────────────────────────────────
 
     // BEAM_VANILLA

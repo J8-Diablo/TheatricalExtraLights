@@ -25,7 +25,7 @@ import java.util.Arrays;
  *   25-33 → 9 individually-addressable white LED bar segments (intensity 0-255)
  *   34    → focus (controls light spread / emission distance, mirrors Strobe)
  */
-public class AtomicStrobeBlockEntity extends BaseDMXConsumerLightBlockEntity {
+public class AtomicStrobeBlockEntity extends ExtraLightsLightBlockEntity {
 
     public static final int CHANNEL_COUNT = 34;
     public static final int RGB_ZONE_COUNT = 8;
@@ -68,9 +68,8 @@ public class AtomicStrobeBlockEntity extends BaseDMXConsumerLightBlockEntity {
         if (v.length < CHANNEL_COUNT) {
             return;
         }
-        if (this.storePrev() && level != null) {
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        }
+                boolean prevAdvanced = beginDmxUpdate();
+        int _pi = intensity, _pr = red, _pg = green, _pb = blue, _pf = focus, _pp = pan, _pt = tilt;
         // 1-24 → 8 RGB zones
         for (int i = 0; i < RGB_ZONE_COUNT * 3; i++) {
             rgbZones[i] = u(v[i]);

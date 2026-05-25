@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
 
-public class VerticalbarBlockEntity extends BaseDMXConsumerLightBlockEntity {
+public class VerticalbarBlockEntity extends ExtraLightsLightBlockEntity {
 
     public VerticalbarBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntities.VERTICAL_BAR.get(), pos, state);
@@ -34,15 +34,13 @@ public class VerticalbarBlockEntity extends BaseDMXConsumerLightBlockEntity {
         if(ourValues.length < 4){
             return;
         }
-        if(this.storePrev()){
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        }
+                boolean prevAdvanced = beginDmxUpdate();
+        int _pi = intensity, _pr = red, _pg = green, _pb = blue, _pf = focus, _pp = pan, _pt = tilt;
         intensity = convertByteToInt(ourValues[0]);
         red = convertByteToInt(ourValues[1]);
         green = convertByteToInt(ourValues[2]);
         blue = convertByteToInt(ourValues[3]);
-        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        setChanged();
+        finishDmxUpdate(intensity != _pi || red != _pr || green != _pg || blue != _pb || focus != _pf || pan != _pp || tilt != _pt, prevAdvanced);
     }
 
     @Override

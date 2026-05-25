@@ -24,7 +24,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Arrays;
 import java.util.List;
 
-public class FireworkLauncherBlockEntity extends BaseDMXConsumerLightBlockEntity {
+public class FireworkLauncherBlockEntity extends ExtraLightsLightBlockEntity {
     private static final List<DMXPersonality> PERSONALITIES = List.of(
             new DMXPersonality(3, "3-Channel Firework")
                     .addSlot(SharedSlots.INTENSITY)

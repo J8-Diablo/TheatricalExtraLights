@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
 
-public class FollowspotBlockEntity extends BaseDMXConsumerLightBlockEntity {
+public class FollowspotBlockEntity extends ExtraLightsLightBlockEntity {
     public FollowspotBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
         super(blockEntityType, blockPos, blockState);
         setChannelCount(7);
@@ -35,18 +35,21 @@ public class FollowspotBlockEntity extends BaseDMXConsumerLightBlockEntity {
         if(ourValues.length < 7){
             return;
         }
-        if(this.storePrev()){
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        }
-        intensity = convertByteToInt(ourValues[0]);
+        boolean prevAdvanced = beginDmxUpdate();
+        int _pi = intensity, _pr = red, _pg = green, _pb = blue, _pf = focus, _pp = pan, _pt = tilt;
+
+                intensity = convertByteToInt(ourValues[0]);
         red = convertByteToInt(ourValues[1]);
         green = convertByteToInt(ourValues[2]);
         blue = convertByteToInt(ourValues[3]);
         focus = convertByteToInt(ourValues[4]);
         pan = (int) ((convertByteToInt(ourValues[5]) * 180) / 255f) - 90;
         tilt = (int) ((convertByteToInt(ourValues[6]) * 90) / 255f) - 45;
-        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        setChanged();
+
+        boolean changed = intensity != _pi || red != _pr || green != _pg || blue != _pb
+                || focus != _pf || pan != _pp || tilt != _pt;
+
+                finishDmxUpdate(changed, prevAdvanced);
     }
 
     @Override

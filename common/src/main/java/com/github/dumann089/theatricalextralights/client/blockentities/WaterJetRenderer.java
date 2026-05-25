@@ -9,7 +9,7 @@ import dev.imabad.theatrical.TheatricalExpectPlatform;
 import dev.imabad.theatrical.blocks.HangableBlock;
 import dev.imabad.theatrical.client.LazyRenderers;
 import dev.imabad.theatrical.client.TheatricalRenderTypes;
-import dev.imabad.theatrical.client.blockentities.FixtureRenderer;
+import com.github.dumann089.theatricalextralights.client.blockentities.ExtraLightsRenderer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -23,7 +23,7 @@ import org.joml.Matrix4f;
 
 import java.util.Optional;
 
-public class WaterJetRenderer extends FixtureRenderer<WaterJetBlockEntity> {
+public class WaterJetRenderer extends ExtraLightsRenderer<WaterJetBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
     public WaterJetRenderer(BlockEntityRendererProvider.Context context) {
         super(context);

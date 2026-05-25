@@ -6,7 +6,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.imabad.theatrical.TheatricalExpectPlatform;
 import dev.imabad.theatrical.blocks.HangableBlock;
-import dev.imabad.theatrical.client.blockentities.FixtureRenderer;
+import com.github.dumann089.theatricalextralights.client.blockentities.ExtraLightsRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -23,7 +23,7 @@ import java.util.Optional;
  * Overlay = 8 RGB zones (4 top + 4 bottom) and 9 white LED bar segments,
  * each lit according to live DMX values.
  */
-public class AtomicStrobeRenderer extends FixtureRenderer<AtomicStrobeBlockEntity> {
+public class AtomicStrobeRenderer extends ExtraLightsRenderer<AtomicStrobeBlockEntity> {
 
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
 

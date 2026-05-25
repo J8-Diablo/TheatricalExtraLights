@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
 
-public class WaterJetThinBlockEntity extends BaseDMXConsumerLightBlockEntity
+public class WaterJetThinBlockEntity extends ExtraLightsLightBlockEntity
         implements HasJetHeight, HasJetThickness {
 
     public double smoothedHeight = 0.0;

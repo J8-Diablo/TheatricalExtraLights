@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
 
-public class a6x3par64_verticalBlockEntity extends BaseDMXConsumerLightBlockEntity implements HasPersonality {
+public class a6x3par64_verticalBlockEntity extends ExtraLightsLightBlockEntity implements HasPersonality {
 
     private int activePersonalityIndex = 0;
 
@@ -95,7 +95,8 @@ public class a6x3par64_verticalBlockEntity extends BaseDMXConsumerLightBlockEnti
 
         if (dmxValues.length < start + channelCount) return;
 
-        boolean changed = this.storePrev();
+        boolean prevAdvanced = beginDmxUpdate();
+        int _pi = intensity, _pr = red, _pg = green, _pb = blue, _pf = focus, _pp = pan, _pt = tilt;
 
         if (channelCount >= 4) {
             intensity = convertByteToInt(dmxValues[start]);
@@ -108,10 +109,7 @@ public class a6x3par64_verticalBlockEntity extends BaseDMXConsumerLightBlockEnti
             intensity = newIntensity;
         }
 
-        if (changed && level != null) {
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-            setChanged();
-        }
+        finishDmxUpdate(intensity != _pi || red != _pr || green != _pg || blue != _pb || focus != _pf || pan != _pp || tilt != _pt, prevAdvanced);
     }
 
     // ─── NBT ──────────────────────────────────────────────────────────────────

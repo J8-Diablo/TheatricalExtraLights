@@ -6,7 +6,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.imabad.theatrical.TheatricalExpectPlatform;
 import dev.imabad.theatrical.blocks.HangableBlock;
-import dev.imabad.theatrical.client.blockentities.FixtureRenderer;
+import com.github.dumann089.theatricalextralights.client.blockentities.ExtraLightsRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Optional;
 
-public class FireworkLauncherRenderer extends FixtureRenderer<FireworkLauncherBlockEntity> {
+public class FireworkLauncherRenderer extends ExtraLightsRenderer<FireworkLauncherBlockEntity> {
     private BakedModel cachedTiltModel;
 
     public FireworkLauncherRenderer(BlockEntityRendererProvider.Context context) {
