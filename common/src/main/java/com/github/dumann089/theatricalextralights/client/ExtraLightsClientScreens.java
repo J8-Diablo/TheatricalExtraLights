@@ -1,7 +1,10 @@
 package com.github.dumann089.theatricalextralights.client;
 
 import com.github.dumann089.theatricalextralights.TheatricalExtraLightsScreens;
-import com.github.dumann089.theatricalextralights.client.gui.*;
+import com.github.dumann089.theatricalextralights.blockentities.FollowspotConsoleBlockEntity;
+import com.github.dumann089.theatricalextralights.client.gui.ExtraLightsConfigScreen;
+import com.github.dumann089.theatricalextralights.client.gui.FollowspotConsoleScreen;
+import com.github.dumann089.theatricalextralights.client.gui.WaterJetConfigScreen;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -14,12 +17,26 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 public class ExtraLightsClientScreens {
 
     public static void open(TheatricalExtraLightsScreens screenType, BlockPos pos) {
-
         Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null) return;
+        if (mc.level == null) {
+            return;
+        }
 
         BlockEntity be = mc.level.getBlockEntity(pos);
-        if (!(be instanceof BaseDMXConsumerLightBlockEntity lightBE)) return;
+        if (be == null) {
+            return;
+        }
+
+        if (screenType == TheatricalExtraLightsScreens.FOLLOWSPOT_CONSOLE) {
+            if (be instanceof FollowspotConsoleBlockEntity console) {
+                mc.setScreen(new FollowspotConsoleScreen(console, pos));
+            }
+            return;
+        }
+
+        if (!(be instanceof BaseDMXConsumerLightBlockEntity lightBE)) {
+            return;
+        }
 
         Screen gui = switch (screenType) {
             case WATER_GENERIC ->
@@ -28,13 +45,15 @@ public class ExtraLightsClientScreens {
                     new WaterJetConfigScreen(lightBE, pos, lightBE.getTranslationKey(), WaterJetConfigScreen.Mode.MANUAL);
             case WATER_CONE ->
                     new WaterJetConfigScreen(lightBE, pos, lightBE.getTranslationKey(), WaterJetConfigScreen.Mode.CONE);
-
             case CHANNEL_MENU ->
                     new ExtraLightsConfigScreen(lightBE, pos, lightBE.getTranslationKey(), false);
             case CHANNEL_PANTILT ->
                     new ExtraLightsConfigScreen(lightBE, pos, lightBE.getTranslationKey(), true);
+            case FOLLOWSPOT_CONSOLE -> null;
         };
 
-        mc.setScreen(gui);
+        if (gui != null) {
+            mc.setScreen(gui);
+        }
     }
 }

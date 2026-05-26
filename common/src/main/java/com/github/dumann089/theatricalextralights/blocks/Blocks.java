@@ -185,6 +185,7 @@ public class Blocks {
     public static final RegistrySupplier<Block> TRUSS_JOINT_BLOCK = BLOCKS.register("truss_joint", TrussJointBlock::new);
     public static final RegistrySupplier<Block> TRUSS_CORNER_BLOCK = BLOCKS.register("truss_corner", TrussCornerBlock::new);
     public static final RegistrySupplier<Block> TRUSS_CORNER_T_BLOCK = BLOCKS.register("truss_corner_t", TrussCornerTBlock::new);
+    public static final RegistrySupplier<Block> FOLLOWSPOT_CONSOLE_BLOCK = BLOCKS.register("followspot_console", FollowspotConsoleBlock::new);
 
 
 

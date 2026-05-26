@@ -3,7 +3,6 @@ package com.github.dumann089.theatricalextralights.blocks;
 import com.github.dumann089.theatricalextralights.TheatricalExtraLightsScreens;
 import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
 import com.github.dumann089.theatricalextralights.blockentities.WaterJetThinBlockEntity;
-import com.github.dumann089.theatricalextralights.client.gui.WaterJetPanTiltScreen;
 import com.github.dumann089.theatricalextralights.net.OpenExtraLightsScreenPacket;
 import dev.imabad.theatrical.TheatricalClient;
 import dev.imabad.theatrical.TheatricalScreen;
