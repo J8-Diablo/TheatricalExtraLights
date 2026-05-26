@@ -5,7 +5,7 @@ import com.github.dumann089.theatricalextralights.blockentities.par56_orangeBloc
 import dev.imabad.theatrical.TheatricalClient;
 import dev.imabad.theatrical.TheatricalScreen;
 import dev.imabad.theatrical.blocks.Blocks;
-import dev.imabad.theatrical.blocks.light.BaseLightBlock;
+import com.github.dumann089.theatricalextralights.blocks.ExtraLightsLightBlock;
 import dev.imabad.theatrical.net.OpenScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -34,7 +34,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class par56_orangeBlock extends BaseLightBlock {
+public class par56_orangeBlock extends ExtraLightsLightBlock {
 
     public par56_orangeBlock() {
         super(Properties.of()

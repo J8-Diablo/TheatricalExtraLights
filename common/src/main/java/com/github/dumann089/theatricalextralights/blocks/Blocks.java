@@ -5,7 +5,7 @@ import com.github.dumann089.theatricalextralights.blocks.rig.TrussBlock;
 import com.github.dumann089.theatricalextralights.blocks.rig.TrussJointBlock;
 import com.github.dumann089.theatricalextralights.blocks.rig.TrussCornerBlock;
 import com.github.dumann089.theatricalextralights.blocks.rig.TrussCornerTBlock;
-;import dev.architectury.registry.registries.DeferredRegister;
+import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import dev.imabad.theatrical.blocks.interfaces.ArtNetInterfaceBlock;
 import dev.imabad.theatrical.blocks.light.*;

@@ -6,7 +6,7 @@ import com.github.dumann089.theatricalextralights.blockentities.WaterJetConeBloc
 import com.github.dumann089.theatricalextralights.net.OpenExtraLightsScreenPacket;
 import dev.imabad.theatrical.TheatricalClient;
 import dev.imabad.theatrical.blocks.Blocks;
-import dev.imabad.theatrical.blocks.light.BaseLightBlock;
+import com.github.dumann089.theatricalextralights.blocks.ExtraLightsLightBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -36,7 +36,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class WaterJetConeBlock extends BaseLightBlock {
+public class WaterJetConeBlock extends ExtraLightsLightBlock {
 
     public WaterJetConeBlock() {
         super(Properties.of()

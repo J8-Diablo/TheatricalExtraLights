@@ -5,7 +5,7 @@ import com.github.dumann089.theatricalextralights.blockentities.InvisiblelightBl
 import dev.imabad.theatrical.TheatricalClient;
 import dev.imabad.theatrical.TheatricalScreen;
 import dev.imabad.theatrical.blocks.Blocks;
-import dev.imabad.theatrical.blocks.light.BaseLightBlock;
+import com.github.dumann089.theatricalextralights.blocks.ExtraLightsLightBlock;
 import dev.imabad.theatrical.net.OpenScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -38,7 +38,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class InvisiblelightBlock extends BaseLightBlock {
+public class InvisiblelightBlock extends ExtraLightsLightBlock {
 
     public InvisiblelightBlock() {
         super(Properties.of()

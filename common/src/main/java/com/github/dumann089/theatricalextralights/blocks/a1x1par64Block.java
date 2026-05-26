@@ -8,7 +8,7 @@ import com.github.dumann089.theatricalextralights.net.OpenExtraLightsScreenPacke
 import dev.imabad.theatrical.TheatricalClient;
 import dev.imabad.theatrical.TheatricalScreen;
 import dev.imabad.theatrical.blocks.Blocks;
-import dev.imabad.theatrical.blocks.light.BaseLightBlock;
+import com.github.dumann089.theatricalextralights.blocks.ExtraLightsLightBlock;
 import dev.imabad.theatrical.net.OpenScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -37,7 +37,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class a1x1par64Block extends BaseLightBlock {
+public class a1x1par64Block extends ExtraLightsLightBlock {
 
     public a1x1par64Block() {
         super(Properties.of()
