@@ -356,7 +356,7 @@ public class FollowspotConsoleScreen extends Screen {
         if (minecraft == null) {
             return false;
         }
-        return InputConstants.isKeyDown(minecraft.getWindow().getWindow(), mapping.getKey().getValue());
+        return InputConstants.isKeyDown(minecraft.getWindow().getWindow(), mapping.getDefaultKey().getValue());
     }
 
     @Override

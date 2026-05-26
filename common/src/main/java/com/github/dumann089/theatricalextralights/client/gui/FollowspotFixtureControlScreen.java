@@ -114,8 +114,8 @@ public class FollowspotFixtureControlScreen extends Screen {
         }
 
         float sensitivity = (float) (minecraft.options.sensitivity().get() * 0.8 + 0.15);
-        pan = Mth.clamp(pan + (float) (dx * sensitivity * 0.35), -90, 90);
-        tilt = Mth.clamp(tilt - (float) (dy * sensitivity * 0.35), -45, 45);
+        pan = (int) Mth.clamp(pan + dx * sensitivity * 0.35, -90, 90);
+        tilt = (int) Mth.clamp(tilt - dy * sensitivity * 0.35, -45, 45);
         sendControlIfReady();
     }
 
@@ -168,7 +168,7 @@ public class FollowspotFixtureControlScreen extends Screen {
         if (minecraft == null) {
             return false;
         }
-        return InputConstants.isKeyDown(minecraft.getWindow().getWindow(), mapping.getKey().getValue());
+        return InputConstants.isKeyDown(minecraft.getWindow().getWindow(), mapping.getDefaultKey().getValue());
     }
 
     @Override
