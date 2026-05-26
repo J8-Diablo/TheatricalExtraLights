@@ -18,3 +18,4 @@ classes/
 .settings
 *.launch
 !gradle/wrapper/gradle-wrapper.jar
+PULL_REQUEST.md

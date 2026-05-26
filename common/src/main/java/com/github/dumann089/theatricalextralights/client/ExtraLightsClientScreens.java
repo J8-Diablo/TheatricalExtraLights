@@ -23,11 +23,11 @@ public class ExtraLightsClientScreens {
 
         Screen gui = switch (screenType) {
             case WATER_GENERIC ->
-                    new WaterJetGenericScreen(lightBE, pos, "Water Generic");
+                    new WaterJetConfigScreen(lightBE, pos, lightBE.getTranslationKey(), WaterJetConfigScreen.Mode.GENERIC);
             case WATER_MANUAL ->
-                    new WaterJetPanTiltScreen(pos, "Water Manual");
+                    new WaterJetConfigScreen(lightBE, pos, lightBE.getTranslationKey(), WaterJetConfigScreen.Mode.MANUAL);
             case WATER_CONE ->
-                    new WaterJetConeScreen(pos, "Water Cone");
+                    new WaterJetConfigScreen(lightBE, pos, lightBE.getTranslationKey(), WaterJetConfigScreen.Mode.CONE);
 
             case CHANNEL_MENU ->
                     new ExtraLightsConfigScreen(lightBE, pos, lightBE.getTranslationKey(), false);

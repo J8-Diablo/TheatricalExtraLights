@@ -3,17 +3,18 @@
   "id": "theatricalextralights",
   "version": "${version}",
   "name": "Theatrical: Extra Lights",
-  "description": "More lights for Theatrical",
+  "description": "Addon for Theatrical — moving heads, LED panels, PARs, water jets, pyro, lasers, and more stage lighting fixtures with DMX / Art-Net support.",
   "authors": [
     "dumann089",
-    "Rushmead"
+    "Rushmead",
+    "J8-Diablo"
   ],
   "contact": {
-    "homepage": "https://github.com/dumann089/TheatricalExtraLights",
-    "sources": "https://github.com/dumann089/TheatricalExtraLights"
+    "homepage": "https://modrinth.com/mod/theatrical-extra-lights",
+    "sources": "https://github.com/dumann089/TheatricalExtraLights",
+    "issues": "https://github.com/dumann089/TheatricalExtraLights/issues"
   },
   "license": "MIT",
-  "icon": "",
   "environment": "*",
   "entrypoints": {
     "main": [
@@ -23,11 +24,11 @@
       "com.github.dumann089.theatricalextralights.fabric.TheatricalExtraLightsClientFabric"
     ]
   },
-  "mixins": [ ],
+  "mixins": [],
   "depends": {
     "fabric": "*",
-    "minecraft": ">=1.20",
+    "minecraft": ">=1.20.1",
     "architectury": ">=9.1.12",
-    "theatrical": ">=1.0.0-alpha.24"
+    "theatrical": ">=1.0.0-alpha.28"
   }
 }

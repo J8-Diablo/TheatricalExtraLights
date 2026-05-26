@@ -31,21 +31,21 @@ import java.util.UUID;
  */
 public class ExtraLightsConfigScreen extends Screen {
 
-    private static final int PANEL_WIDTH = 300;
+    protected static final int PANEL_WIDTH = 300;
     private static final int PANEL_PADDING = 16;
-    private static final int WIDGET_HEIGHT = 20;
-    private static final int LABEL_GAP = 10;
-    private static final int ROW_GAP = 8;
+    protected static final int WIDGET_HEIGHT = 20;
+    protected static final int LABEL_GAP = 10;
+    protected static final int ROW_GAP = 8;
 
     private static final int COLOR_PANEL_BG = 0xFFC6C6C6;
     private static final int COLOR_PANEL_BORDER = 0xFF1F1F1F;
     private static final int COLOR_TEXT = 0x404040;
     private static final int COLOR_SECTION = 0x606060;
-    private static final int COLOR_FOOTPRINT = 0x505050;
+    protected static final int COLOR_FOOTPRINT = 0x505050;
     private static final int COLOR_WARNING = 0xB84000;
 
-    private final BaseDMXConsumerLightBlockEntity blockEntity;
-    private final BlockPos pos;
+    protected final BaseDMXConsumerLightBlockEntity blockEntity;
+    protected final BlockPos pos;
     private final boolean showPositionControls;
 
     private EditBox dmxAddressField;
@@ -61,11 +61,11 @@ public class ExtraLightsConfigScreen extends Screen {
     private List<UUID> networkIds = List.of(UUIDUtil.NULL);
     private int currentNetworkIndex;
 
-    private int panelLeft;
-    private int panelTop;
-    private int panelHeight;
-    private int contentLeft;
-    private int contentWidth;
+    protected int panelLeft;
+    protected int panelTop;
+    protected int panelHeight;
+    protected int contentLeft;
+    protected int contentWidth;
 
     private int dmxAddressLabelY;
     private int dmxUniverseLabelY;
@@ -131,11 +131,16 @@ public class ExtraLightsConfigScreen extends Screen {
         currentNetworkIndex = Math.max(networkIds.indexOf(blockEntity.getNetworkId()), 0);
     }
 
+    protected int extraLayoutRows() {
+        return 0;
+    }
+
     private void layoutPanel() {
         int rows = 3; // dmx + universe + footprint
         if (showPositionControls) {
             rows += 3; // section + tilt + pan
         }
+        rows += extraLayoutRows();
         if (hasPersonalityOptions()) {
             rows += 1;
         }
@@ -147,6 +152,17 @@ public class ExtraLightsConfigScreen extends Screen {
         panelTop = (height - panelHeight) / 2;
         contentLeft = panelLeft + PANEL_PADDING;
         contentWidth = PANEL_WIDTH - PANEL_PADDING * 2;
+    }
+
+    /** Insère des widgets supplémentaires avant le réseau ; retourne le prochain Y. */
+    protected int buildExtraWidgets(int y) {
+        return y;
+    }
+
+    protected void renderExtraLabels(GuiGraphics guiGraphics) {
+    }
+
+    protected void commitExtraChanges() {
     }
 
     private void buildWidgets() {
@@ -202,6 +218,8 @@ public class ExtraLightsConfigScreen extends Screen {
             tiltSlider = null;
             panSlider = null;
         }
+
+        y = buildExtraWidgets(y);
 
         if (hasPersonalityOptions()) {
             personalityLabelY = y;
@@ -356,9 +374,11 @@ public class ExtraLightsConfigScreen extends Screen {
         if (hasPersonalityOptions() && blockEntity instanceof HasPersonality) {
             ModNetworkHandler.CHANNEL.sendToServer(new SetPersonalityPacket(pos, currentPersonalityIndex));
         }
+
+        commitExtraChanges();
     }
 
-    private int parseOrDefault(EditBox field, int fallbackValue) {
+    protected int parseOrDefault(EditBox field, int fallbackValue) {
         try {
             return Integer.parseInt(field.getValue());
         } catch (NumberFormatException ignored) {
@@ -390,6 +410,8 @@ public class ExtraLightsConfigScreen extends Screen {
             drawFieldLabel(guiGraphics, Component.translatable("fixture.pan"), panLabelY);
         }
 
+        renderExtraLabels(guiGraphics);
+
         if (hasPersonalityOptions()) {
             drawFieldLabel(guiGraphics, Component.translatable("fixture.personality"), personalityLabelY);
         }
@@ -399,7 +421,7 @@ public class ExtraLightsConfigScreen extends Screen {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
-    private void drawFieldLabel(GuiGraphics guiGraphics, Component label, int y) {
+    protected void drawFieldLabel(GuiGraphics guiGraphics, Component label, int y) {
         guiGraphics.drawString(font, label, contentLeft, y, COLOR_TEXT, false);
     }
 
