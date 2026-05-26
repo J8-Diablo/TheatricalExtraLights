@@ -1,26 +1,45 @@
 package com.github.dumann089.theatricalextralights.forge;
 
+import com.github.dumann089.theatricalextralights.client.followspot.FollowspotCameraAccess;
 import com.github.dumann089.theatricalextralights.client.followspot.FollowspotFixtureCameraSession;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ViewportEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.EventPriority;
 
-@Mod.EventBusSubscriber(modid = com.github.dumann089.theatricalextralights.TheatricalExtraLights.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
-public class FollowspotCameraForge {
+/**
+ * Forge camera hook — registered lazily when the player enters fixture control.
+ */
+public final class FollowspotCameraForge {
+
+    private static boolean listenerRegistered;
 
     private FollowspotCameraForge() {
     }
 
-    @SubscribeEvent
-    public static void onComputeCameraAngles(ViewportEvent.ComputeCameraAngles event) {
+    public static void ensureRegistered() {
+        if (listenerRegistered) {
+            return;
+        }
+        MinecraftForge.EVENT_BUS.addListener(
+                EventPriority.LOWEST,
+                false,
+                FollowspotCameraForge::onComputeCameraAngles
+        );
+        listenerRegistered = true;
+    }
+
+    private static void onComputeCameraAngles(ViewportEvent.ComputeCameraAngles event) {
         if (!FollowspotFixtureCameraSession.isActive()) {
             return;
         }
-        FollowspotFixtureCameraSession.getActive().applyCamera(event.getCamera());
-        var camera = event.getCamera();
-        event.setYaw(camera.getYRot());
-        event.setPitch(camera.getXRot());
+        FollowspotFixtureCameraSession.CameraState state = FollowspotFixtureCameraSession.getActive().getCameraState();
+        if (state == null) {
+            return;
+        }
+
+        FollowspotCameraAccess.trySetPosition(event.getCamera(), state.position());
+        event.setYaw(state.yaw());
+        event.setPitch(state.pitch());
         event.setRoll(0);
     }
 }

@@ -2,7 +2,6 @@ package com.github.dumann089.theatricalextralights.client.gui;
 
 import com.github.dumann089.theatricalextralights.blockentities.FollowspotConsoleBlockEntity;
 import com.github.dumann089.theatricalextralights.client.followspot.FollowspotFixtureCameraSession;
-import com.github.dumann089.theatricalextralights.client.preview.FollowspotConsolePreview;
 import com.github.dumann089.theatricalextralights.net.FollowspotConsoleControlPacket;
 import com.github.dumann089.theatricalextralights.net.FollowspotConsolePatchPacket;
 import com.github.dumann089.theatricalextralights.net.ModNetworkHandler;
@@ -21,7 +20,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,26 +28,23 @@ import java.util.UUID;
 
 public class FollowspotConsoleScreen extends Screen {
 
-    private static final int PANEL_W = 420;
-    private static final int PANEL_H = 328;
-    private static final int PAD = 16;
-    private static final int ROW_H = 20;
-    private static final int GAP = 8;
-    private static final int LABEL_W = 68;
-    private static final int VALUE_W = 28;
-    private static final int PREVIEW_W = 168;
-    private static final int PREVIEW_H = 94;
+    private static final int PANEL_W = 400;
+    private static final int PANEL_H = 318;
+    private static final int PAD = 14;
+    private static final int ROW_H = 18;
+    private static final int GAP = 6;
+    private static final int LABEL_COL = 72;
+    private static final int HEADER_H = 38;
 
-    private static final int BG = 0xFF1E1E22;
-    private static final int BORDER = 0xFF0A0A0E;
-    private static final int SECTION = 0xFF35353C;
-    private static final int TITLE = 0xFFF2F2F6;
-    private static final int SUB = 0xFF9898A4;
-    private static final int LABEL = 0xFF787884;
-    private static final int TEXT = 0xFFDCDCE2;
-    private static final int ACCENT = 0xFF5B9FEF;
-    private static final int WARN = 0xFFE8845C;
-    private static final int PREVIEW_BG = 0xFF12121A;
+    private static final int BG = 0xFF222228;
+    private static final int BORDER = 0xFF08080C;
+    private static final int HEADER = 0xFF3A3A44;
+    private static final int TITLE = 0xFFF4F4F8;
+    private static final int SUB = 0xFF9A9AA8;
+    private static final int LABEL = 0xFF80808C;
+    private static final int TEXT = 0xFFE4E4EA;
+    private static final int ACCENT = 0xFF6AAEF0;
+    private static final int WARN = 0xFFEA9468;
 
     private final BlockPos consolePos;
     private final FollowspotConsoleBlockEntity console;
@@ -79,9 +74,9 @@ public class FollowspotConsoleScreen extends Screen {
     private int panelY;
     private int contentX;
     private int contentW;
-    private int patchY;
-    private int previewY;
+    private int patchFieldsY;
     private int slidersY;
+    private int buttonsY;
 
     private int controlSendCooldown;
     private BlockPos linkedFixturePos;
@@ -102,32 +97,32 @@ public class FollowspotConsoleScreen extends Screen {
         contentX = panelX + PAD;
         contentW = PANEL_W - PAD * 2;
 
-        patchY = panelY + 52;
-        previewY = patchY + 56;
-        slidersY = previewY + PREVIEW_H + 14;
+        patchFieldsY = panelY + HEADER_H + 34;
+        slidersY = panelY + HEADER_H + 108;
+        buttonsY = panelY + PANEL_H - PAD - ROW_H;
 
-        int netW = 108;
-        int fieldW = 56;
-        int uniX = contentX + netW + 12;
-        int addrX = uniX + fieldW + 16;
+        int netW = 98;
+        int fieldW = 50;
+        int uniX = contentX + netW + 10;
+        int addrX = uniX + fieldW + 12;
 
         networkButton = addRenderableWidget(Button.builder(getNetworkLabel(), b -> {
             currentNetworkIndex = (currentNetworkIndex + 1) % networkIds.size();
             b.setMessage(getNetworkLabel());
-        }).bounds(contentX, patchY + 14, netW, ROW_H).build());
+        }).bounds(contentX, patchFieldsY, netW, ROW_H).build());
 
-        universeField = new EditBox(font, uniX, patchY + 14, fieldW, ROW_H, Component.literal("U"));
+        universeField = new EditBox(font, uniX, patchFieldsY, fieldW, ROW_H, Component.literal("U"));
         universeField.setFilter(v -> v.isEmpty() || v.matches("\\d+"));
         universeField.setValue(Integer.toString(console.getUniverse()));
         addRenderableWidget(universeField);
 
-        addressField = new EditBox(font, addrX, patchY + 14, fieldW, ROW_H, Component.literal("A"));
+        addressField = new EditBox(font, addrX, patchFieldsY, fieldW, ROW_H, Component.literal("A"));
         addressField.setFilter(v -> v.isEmpty() || v.matches("\\d+"));
         addressField.setValue(Integer.toString(console.getDmxAddress()));
         addRenderableWidget(addressField);
 
-        int sliderW = contentW - LABEL_W - VALUE_W - 6;
-        int sx = contentX + LABEL_W;
+        int sliderW = contentW - LABEL_COL - 30;
+        int sx = contentX + LABEL_COL;
         int y = slidersY;
         focusSlider = addSlider(sx, y, sliderW, focus, v -> focus = v);
         y += ROW_H + GAP;
@@ -139,14 +134,13 @@ public class FollowspotConsoleScreen extends Screen {
         y += ROW_H + GAP;
         intensitySlider = addSlider(sx, y, sliderW, intensity, v -> intensity = v);
 
-        int btnY = panelY + PANEL_H - PAD - ROW_H;
         int btnW = (contentW - 12) / 3;
         addRenderableWidget(Button.builder(Component.translatable("screen.followspot_console.link"), b -> sendPatch())
-                .bounds(contentX, btnY, btnW, ROW_H).build());
+                .bounds(contentX, buttonsY, btnW, ROW_H).build());
         addRenderableWidget(Button.builder(Component.translatable("screen.followspot_console.control"), b -> enterFixtureControl())
-                .bounds(contentX + btnW + 6, btnY, btnW, ROW_H).build());
+                .bounds(contentX + btnW + 6, buttonsY, btnW, ROW_H).build());
         addRenderableWidget(Button.builder(Component.translatable("gui.cancel"), b -> onClose())
-                .bounds(contentX + (btnW + 6) * 2, btnY, btnW, ROW_H).build());
+                .bounds(contentX + (btnW + 6) * 2, buttonsY, btnW, ROW_H).build());
 
         refreshLinkedFixture();
     }
@@ -191,7 +185,7 @@ public class FollowspotConsoleScreen extends Screen {
         if (name == null) {
             return Component.literal("?");
         }
-        return Component.literal(name.length() > 12 ? name.substring(0, 11) + "…" : name);
+        return Component.literal(name.length() > 11 ? name.substring(0, 10) + "…" : name);
     }
 
     private void sendPatch() {
@@ -328,49 +322,38 @@ public class FollowspotConsoleScreen extends Screen {
 
         g.fill(panelX - 1, panelY - 1, panelX + PANEL_W + 1, panelY + PANEL_H + 1, BORDER);
         g.fill(panelX, panelY, panelX + PANEL_W, panelY + PANEL_H, BG);
+        g.fill(panelX, panelY, panelX + PANEL_W, panelY + HEADER_H, HEADER);
 
-        g.drawCenteredString(font, title, panelX + PANEL_W / 2, panelY + 10, TITLE);
+        g.drawCenteredString(font, title, panelX + PANEL_W / 2, panelY + 9, TITLE);
         g.drawCenteredString(font, Component.translatable("screen.followspot_console.subtitle"),
                 panelX + PANEL_W / 2, panelY + 22, SUB);
 
-        drawSection(g, contentX, patchY - 6, contentW, 52, Component.translatable("screen.followspot_console.section_patch"));
+        int netW = 98;
+        int fieldW = 50;
+        int uniX = contentX + netW + 10;
+        int addrX = uniX + fieldW + 12;
 
-        int netW = 108;
-        int fieldW = 56;
-        int uniX = contentX + netW + 12;
-        int addrX = uniX + fieldW + 16;
-        g.drawString(font, Component.translatable("screen.artnetconfig.network"), contentX, patchY, LABEL, false);
-        g.drawString(font, Component.translatable("artneti.dmxUniverse"), uniX, patchY, LABEL, false);
-        g.drawString(font, Component.translatable("fixture.dmxStart"), addrX, patchY, LABEL, false);
+        g.drawString(font, Component.translatable("screen.followspot_console.section_patch"),
+                contentX, panelY + HEADER_H + 8, LABEL, false);
+        g.drawString(font, Component.translatable("screen.artnetconfig.network"), contentX, patchFieldsY - 11, SUB, false);
+        g.drawString(font, Component.translatable("artneti.dmxUniverse"), uniX, patchFieldsY - 11, SUB, false);
+        g.drawString(font, Component.translatable("fixture.dmxStart"), addrX, patchFieldsY - 11, SUB, false);
 
         int statusColor = linkedFixturePos != null ? ACCENT : WARN;
-        g.drawString(font, getLinkStatus(), contentX, patchY + 38, statusColor, false);
+        g.drawString(font, getLinkStatus(), contentX, patchFieldsY + ROW_H + 8, statusColor, false);
 
-        drawSection(g, contentX, previewY - 6, contentW, PREVIEW_H + 12,
-                Component.translatable("screen.followspot_console.section_view"));
-
-        g.fill(contentX + 2, previewY + 2, contentX + PREVIEW_W, previewY + PREVIEW_H, PREVIEW_BG);
-        g.renderOutline(contentX, previewY, PREVIEW_W, PREVIEW_H, SECTION);
-
-        int infoX = contentX + PREVIEW_W + 12;
-        if (minecraft != null && minecraft.level != null && linkedFixturePos != null) {
-            BlockEntity be = minecraft.level.getBlockEntity(linkedFixturePos);
-            if (be instanceof BaseLightBlockEntity light) {
-                FollowspotConsolePreview.render(g, contentX, previewY, PREVIEW_W, PREVIEW_H, light);
-            }
+        if (minecraft != null && linkedFixturePos != null) {
+            g.drawString(font, Component.translatable("screen.followspot_console.pan_tilt",
+                    Integer.toString(pan), Integer.toString(tilt)),
+                    contentX, panelY + HEADER_H + 72, TEXT, false);
             g.drawString(font, Component.translatable("screen.followspot_console.movement_hint",
                             keyLabel(minecraft.options.keyUp), keyLabel(minecraft.options.keyLeft),
                             keyLabel(minecraft.options.keyDown), keyLabel(minecraft.options.keyRight)),
-                    infoX, previewY + 8, TEXT, false);
-            g.drawString(font, Component.translatable("screen.followspot_console.pan_tilt",
-                    Integer.toString(pan), Integer.toString(tilt)), infoX, previewY + 24, SUB, false);
-        } else {
-            g.drawCenteredString(font, Component.translatable("screen.followspot_console.no_fixture"),
-                    contentX + PREVIEW_W / 2, previewY + PREVIEW_H / 2 - 4, SUB);
+                    contentX, panelY + HEADER_H + 84, SUB, false);
         }
 
-        drawSection(g, contentX, slidersY - 10, contentW, (ROW_H + GAP) * 5 + 4,
-                Component.translatable("screen.followspot_console.section_control"));
+        g.drawString(font, Component.translatable("screen.followspot_console.section_control"),
+                contentX, slidersY - 11, LABEL, false);
 
         drawSliderRow(g, "screen.followspot_console.focus", slidersY, focusSlider);
         drawSliderRow(g, "screen.followspot_console.red", slidersY + ROW_H + GAP, redSlider);
@@ -381,16 +364,20 @@ public class FollowspotConsoleScreen extends Screen {
         super.render(g, mouseX, mouseY, pt);
     }
 
-    private void drawSection(GuiGraphics g, int x, int y, int w, int h, Component label) {
-        g.fill(x, y, x + w, y + 1, SECTION);
-        g.drawString(font, label, x + 4, y - 9, LABEL, false);
-    }
-
     private void drawSliderRow(GuiGraphics g, String labelKey, int y, ValueSlider slider) {
-        g.drawString(font, Component.translatable(labelKey), contentX, y + 6, TEXT, false);
+        Component label = Component.translatable(labelKey);
+        int maxLabelW = LABEL_COL - 4;
+        String labelText = label.getString();
+        if (font.width(labelText) > maxLabelW) {
+            while (labelText.length() > 3 && font.width(labelText + "…") > maxLabelW) {
+                labelText = labelText.substring(0, labelText.length() - 1);
+            }
+            labelText = labelText + "…";
+        }
+        g.drawString(font, labelText, contentX, y + 5, TEXT, false);
         if (slider != null) {
             String value = Integer.toString(slider.getIntValue());
-            g.drawString(font, value, contentX + contentW - font.width(value), y + 6, SUB, false);
+            g.drawString(font, value, contentX + contentW - font.width(value), y + 5, SUB, false);
         }
     }
 

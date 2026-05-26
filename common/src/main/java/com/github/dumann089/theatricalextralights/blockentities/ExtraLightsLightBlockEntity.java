@@ -38,10 +38,23 @@ public abstract class ExtraLightsLightBlockEntity extends BaseDMXConsumerLightBl
         }
     }
 
+    /** Sync pan/tilt for operator mode — keeps prev* aligned to avoid interpolation flicker. */
+    public void syncOperatorAngles(float pan, float tilt) {
+        int pi = Math.round(pan);
+        int ti = Math.round(tilt);
+        setPan(pi);
+        setTilt(ti);
+        prevPan = pi;
+        prevTilt = ti;
+    }
+
     @Override
     public void lightTick() {
         super.lightTick();
         if (level != null && level.isClientSide) {
+            if (com.github.dumann089.theatricalextralights.client.followspot.FollowspotFixtureCameraSession.isControlling(getBlockPos())) {
+                return;
+            }
             prevPan = pan;
             prevTilt = tilt;
             prevFocus = focus;

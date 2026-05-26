@@ -205,7 +205,8 @@
   "screen.followspot_console.preview_open": "Faisceau libre",
   "screen.followspot_console.control": "Contrôler la fixture",
   "screen.followspot_console.control_title": "Contrôle fixture",
-  "screen.followspot_console.control_hint": "Souris pour viser · ZQSD pour bouger · Échap pour quitter",
+  "screen.followspot_console.control_hint": "ZQSD pour viser · Échap pour quitter",
+  "screen.followspot_console.actionbar_exit": "Échap pour quitter le mode followspot",
   "screen.followspot_console.section_patch": "Patch DMX",
   "screen.followspot_console.section_view": "Vue faisceau",
   "screen.followspot_console.section_control": "Contrôles"

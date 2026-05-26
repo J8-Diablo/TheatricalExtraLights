@@ -63,6 +63,7 @@ Hundreds of placeable fixtures across creative tabs **Theatrical: Extra Lights**
 - **Water jets** — jets, cones, bloom, fog, organ pipes, moving fan, and more
 - **Pyro** — flame projector, gold gerb, 50+ firework launcher effects
 - **Rig** — mini truss, corner, T-corner, cross joint
+- **Followspot console** — operator desk to remotely aim and dim a patched 7ch followspot
 
 All DMX fixtures work with Theatrical’s **Configuration Card**, **Art-Net networks**, and in-game patching.
 
@@ -74,6 +75,15 @@ All DMX fixtures work with Theatrical’s **Configuration Card**, **Art-Net netw
 - **Keyboard shortcuts** — Enter to save, Escape to cancel
 - **Stable beams** — smoother pan/tilt and intensity at full DMX without flicker or double beams
 - **Address overlap warning** — fixture config screen warns when another fixture on the same network uses overlapping channels (non-blocking)
+
+### Followspot console *(recent)*
+
+- **Operator desk** — place a **Followspot Console**, patch a **7-channel** fixture (network / universe / address), and control it from the panel
+- **Live DMX** — Focus, RGB, and Intensity sliders plus **ZQSD** pan/tilt while the menu is open
+- **First-person aiming** — **Control fixture** switches to a client-side camera at the fixture lens (mouse + ZQSD); **Esc** returns to the desk — no player teleport
+- **French & German** — full UI translation for the console screen
+
+![Followspot console UI](https://github.com/user-attachments/assets/24806e2a-fff8-4193-958f-a28e9cdad39e)
 
 ---
 
@@ -119,6 +129,13 @@ Add scenic blocks (backdrops, decor) so laser beams continue to a wall behind th
 3. Grab fixtures from the creative menu and build your rig on truss or floor.
 4. Use the **Configuration Card** (from Theatrical) to patch address / universe onto fixtures.
 5. Control everything from your DMX software through Art-Net, same as base Theatrical.
+
+**Followspot console**
+
+1. Place a **Followspot Console** near your rig and a **7ch followspot** (or other 7-channel fixture).
+2. **Right-click** the console → set network, universe, and DMX address to match the fixture → **Link fixture**.
+3. Adjust Focus / RGB / Intensity with the sliders; use **ZQSD** for pan/tilt from the desk.
+4. **Control fixture** for first-person aiming at the lens; **Esc** to exit.
 
 **Tips**
 

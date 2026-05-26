@@ -235,7 +235,8 @@
   "screen.followspot_console.preview_open": "Clear beam",
   "screen.followspot_console.control": "Control fixture",
   "screen.followspot_console.control_title": "Fixture control",
-  "screen.followspot_console.control_hint": "Mouse to aim · ZQSD to move · Esc to exit",
+  "screen.followspot_console.control_hint": "ZQSD to aim · Esc to exit",
+  "screen.followspot_console.actionbar_exit": "Press Escape to exit followspot control",
   "screen.followspot_console.section_patch": "DMX patch",
   "screen.followspot_console.section_view": "Beam view",
   "screen.followspot_console.section_control": "Controls"
