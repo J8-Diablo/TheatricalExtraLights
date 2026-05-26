@@ -4,6 +4,7 @@ import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasPe
 import com.github.dumann089.theatricalextralights.net.ModNetworkHandler;
 import com.github.dumann089.theatricalextralights.net.SetFixturePositionPacket;
 import com.github.dumann089.theatricalextralights.net.SetPersonalityPacket;
+import com.github.dumann089.theatricalextralights.util.ConfigurationCardHelper;
 import dev.imabad.theatrical.TheatricalClient;
 import dev.imabad.theatrical.api.dmx.DMXPersonality;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
@@ -19,6 +20,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +41,8 @@ public class ExtraLightsConfigScreen extends Screen {
     private static final int COLOR_PANEL_BORDER = 0xFF1F1F1F;
     private static final int COLOR_TEXT = 0x404040;
     private static final int COLOR_SECTION = 0x606060;
+    private static final int COLOR_FOOTPRINT = 0x505050;
+    private static final int COLOR_WARNING = 0xB84000;
 
     private final BaseDMXConsumerLightBlockEntity blockEntity;
     private final BlockPos pos;
@@ -65,6 +69,7 @@ public class ExtraLightsConfigScreen extends Screen {
 
     private int dmxAddressLabelY;
     private int dmxUniverseLabelY;
+    private int footprintLabelY;
     private int positionSectionY;
     private int tiltLabelY;
     private int panLabelY;
@@ -127,7 +132,7 @@ public class ExtraLightsConfigScreen extends Screen {
     }
 
     private void layoutPanel() {
-        int rows = 2; // dmx + universe
+        int rows = 3; // dmx + universe + footprint
         if (showPositionControls) {
             rows += 3; // section + tilt + pan
         }
@@ -137,7 +142,7 @@ public class ExtraLightsConfigScreen extends Screen {
         rows += 1; // network
         rows += 1; // buttons row
 
-        panelHeight = PANEL_PADDING * 2 + 18 + (rows * (LABEL_GAP + WIDGET_HEIGHT + ROW_GAP)) + 4;
+        panelHeight = PANEL_PADDING * 2 + 18 + (rows * (LABEL_GAP + WIDGET_HEIGHT + ROW_GAP)) + 14;
         panelLeft = (width - PANEL_WIDTH) / 2;
         panelTop = (height - panelHeight) / 2;
         contentLeft = panelLeft + PANEL_PADDING;
@@ -166,6 +171,9 @@ public class ExtraLightsConfigScreen extends Screen {
         dmxUniverseField.setValue(Integer.toString(blockEntity.getUniverse()));
         addRenderableWidget(dmxUniverseField);
         y += WIDGET_HEIGHT + ROW_GAP;
+
+        footprintLabelY = y;
+        y += LABEL_GAP + 12 + ROW_GAP;
 
         if (showPositionControls) {
             positionSectionY = y;
@@ -264,6 +272,63 @@ public class ExtraLightsConfigScreen extends Screen {
         return Component.literal(name != null ? name : "Unknown");
     }
 
+    private int getSelectedChannelCount() {
+        if (hasPersonalityOptions()) {
+            return personalities.get(currentPersonalityIndex).getChannelCount();
+        }
+        return blockEntity.getChannelCount();
+    }
+
+    private FootprintStatus getFootprintStatus() {
+        int address = parseOrDefault(dmxAddressField, blockEntity.getChannelStart());
+        int universe = parseOrDefault(dmxUniverseField, blockEntity.getUniverse());
+        int channelCount = getSelectedChannelCount();
+
+        if (channelCount <= 0 || address < 1) {
+            return new FootprintStatus(Component.translatable("screen.extralightsconfig.footprint_invalid"), true);
+        }
+
+        int endChannel = address + channelCount - 1;
+        ConfigurationCardHelper.DmxPatch resolved =
+                ConfigurationCardHelper.resolvePatch(universe, address, channelCount);
+
+        if (resolved.universe() != universe || resolved.address() != address) {
+            return new FootprintStatus(Component.translatable(
+                    "screen.extralightsconfig.footprint_overflow",
+                    Integer.toString(universe),
+                    Integer.toString(address),
+                    Integer.toString(resolved.universe()),
+                    Integer.toString(resolved.address()),
+                    Integer.toString(channelCount)
+            ), true);
+        }
+
+        return new FootprintStatus(Component.translatable(
+                "screen.extralightsconfig.footprint",
+                Integer.toString(universe),
+                Integer.toString(address),
+                Integer.toString(endChannel),
+                Integer.toString(channelCount)
+        ), false);
+    }
+
+    private record FootprintStatus(Component text, boolean warning) {
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
+            commitChanges();
+            onClose();
+            return true;
+        }
+        if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+            onClose();
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
     private void applyTilt(int value) {
         blockEntity.setTilt(value);
         sendPositionUpdate();
@@ -313,6 +378,10 @@ public class ExtraLightsConfigScreen extends Screen {
 
         drawFieldLabel(guiGraphics, Component.translatable("fixture.dmxStart"), dmxAddressLabelY);
         drawFieldLabel(guiGraphics, Component.translatable("artneti.dmxUniverse"), dmxUniverseLabelY);
+
+        FootprintStatus footprint = getFootprintStatus();
+        guiGraphics.drawString(font, footprint.text(), contentLeft, footprintLabelY,
+                footprint.warning() ? COLOR_WARNING : COLOR_FOOTPRINT, false);
 
         if (showPositionControls) {
             guiGraphics.drawCenteredString(font, Component.translatable("fixture.position"),

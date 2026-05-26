@@ -1,5 +1,12 @@
 {
   "fixture.position": "Position",
   "fixture.personality": "Mode",
-  "screen.artnetconfig.network.unknown": "Réseau inconnu"
+  "screen.artnetconfig.network.unknown": "Réseau inconnu",
+  "item.configurationcard.patched": "%s patché sur %s — Univers %s @ %s (canaux %s–%s, %s ch)",
+  "item.configurationcard.universe_wrap": "Univers %s @ %s plein — bascule vers Univers %s @ %s",
+  "item.configurationcard.next": "Prochaine adresse sur la carte : Univers %s @ %s",
+  "item.configurationcard.next_universe_wrap": "Prochaine adresse dépasse 512 — carte passée à l'univers %s",
+  "screen.extralightsconfig.footprint": "Univers %s · canaux %s–%s (%s ch)",
+  "screen.extralightsconfig.footprint_overflow": "Univers %s @ %s déborde (%s ch) → utiliser Univers %s @ %s",
+  "screen.extralightsconfig.footprint_invalid": "Entrez une adresse de départ valide (1–512)"
 }

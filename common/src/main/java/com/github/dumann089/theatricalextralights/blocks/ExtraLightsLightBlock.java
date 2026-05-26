@@ -1,13 +1,13 @@
 package com.github.dumann089.theatricalextralights.blocks;
 
 import com.github.dumann089.theatricalextralights.util.ConfigurationCardHelper;
+import com.github.dumann089.theatricalextralights.util.TheatricalNetworkAccess;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
 import dev.imabad.theatrical.blocks.light.BaseLightBlock;
 import dev.imabad.theatrical.items.Items;
 import dev.imabad.theatrical.util.UUIDUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -31,31 +31,22 @@ public abstract class ExtraLightsLightBlock extends BaseLightBlock {
                                  BlockHitResult hit) {
         BlockEntity be = level.getBlockEntity(pos);
         if (!level.isClientSide() && be instanceof BaseDMXConsumerLightBlockEntity consumerLightBlockEntity) {
+            if (!consumerLightBlockEntity.getNetworkId().equals(UUIDUtil.NULL)
+                    && !TheatricalNetworkAccess.canPlayerConfigure(player, level, consumerLightBlockEntity.getNetworkId())) {
+                return InteractionResult.FAIL;
+            }
             if (player.getItemInHand(hand).getItem() == Items.CONFIGURATION_CARD.get()) {
                 ItemStack itemInHand = player.getItemInHand(hand);
                 CompoundTag tagData = itemInHand.getOrCreateTag();
                 consumerLightBlockEntity.setNetworkId(tagData.getUUID("network"));
-                ConfigurationCardHelper.applyToFixture(tagData, consumerLightBlockEntity);
+                ConfigurationCardHelper.ApplyResult result =
+                        ConfigurationCardHelper.applyToFixture(tagData, consumerLightBlockEntity);
                 itemInHand.save(tagData);
-                sendConfiguredMessage(player, consumerLightBlockEntity, tagData);
+                ConfigurationCardHelper.sendPatchMessages(player, level, consumerLightBlockEntity, result);
                 return InteractionResult.SUCCESS;
             }
             return InteractionResult.PASS;
         }
         return super.use(state, level, pos, player, hand, hit);
-    }
-
-    private static void sendConfiguredMessage(Player player, BaseDMXConsumerLightBlockEntity consumer,
-                                              CompoundTag tagData) {
-        String networkLabel = consumer.getNetworkId().equals(UUIDUtil.NULL)
-                ? "—"
-                : consumer.getNetworkId().toString();
-        player.sendSystemMessage(Component.translatable(
-                "item.configurationcard.success",
-                networkLabel,
-                Integer.toString(consumer.getUniverse()),
-                Integer.toString(consumer.getChannelStart()),
-                Integer.toString(tagData.getInt("dmxAddress"))
-        ));
     }
 }

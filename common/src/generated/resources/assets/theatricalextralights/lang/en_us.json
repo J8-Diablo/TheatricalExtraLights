@@ -202,5 +202,12 @@
   "itemGroup.theatricalextralights.pyro": "Theatrical Pyro",
   "fixture.position": "Position",
   "fixture.personality": "Mode",
-  "screen.artnetconfig.network.unknown": "Unknown network"
+  "screen.artnetconfig.network.unknown": "Unknown network",
+  "item.configurationcard.patched": "%s patched on %s — Universe %s @ %s (channels %s–%s, %s ch)",
+  "item.configurationcard.universe_wrap": "Universe %s @ %s is full — switched to Universe %s @ %s",
+  "item.configurationcard.next": "Next on card: Universe %s @ %s",
+  "item.configurationcard.next_universe_wrap": "Next address exceeds 512 — card moved to Universe %s",
+  "screen.extralightsconfig.footprint": "Universe %s · channels %s–%s (%s ch)",
+  "screen.extralightsconfig.footprint_overflow": "Universe %s @ %s overflow (%s ch) → use Universe %s @ %s",
+  "screen.extralightsconfig.footprint_invalid": "Enter a valid start address (1–512)"
 }
