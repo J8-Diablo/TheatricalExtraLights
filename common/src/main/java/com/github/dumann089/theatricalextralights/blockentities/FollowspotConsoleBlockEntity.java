@@ -1,5 +1,6 @@
 package com.github.dumann089.theatricalextralights.blockentities;
 
+import com.github.dumann089.theatricalextralights.util.FollowspotDmxHelper;
 import com.github.dumann089.theatricalextralights.util.FollowspotTargetHelper;
 import dev.imabad.theatrical.blockentities.ClientSyncBlockEntity;
 import dev.imabad.theatrical.blockentities.light.BaseLightBlockEntity;
@@ -7,7 +8,6 @@ import dev.imabad.theatrical.util.UUIDUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -59,7 +59,9 @@ public class FollowspotConsoleBlockEntity extends ClientSyncBlockEntity {
     }
 
     public void setDmxAddress(int dmxAddress) {
-        this.dmxAddress = Math.max(1, dmxAddress);
+        this.dmxAddress = FollowspotDmxHelper.isValidDmxAddress(dmxAddress)
+                ? dmxAddress
+                : Math.max(1, Math.min(FollowspotDmxHelper.MAX_DMX_ADDRESS, dmxAddress));
         setChanged();
     }
 
@@ -97,17 +99,13 @@ public class FollowspotConsoleBlockEntity extends ClientSyncBlockEntity {
         this.green = clamp(green);
         this.blue = clamp(blue);
         this.focus = clamp(focus);
-        this.pan = MthClampPanTilt(pan, -90, 90);
-        this.tilt = MthClampPanTilt(tilt, -45, 45);
+        this.pan = FollowspotDmxHelper.quantizePan(pan);
+        this.tilt = FollowspotDmxHelper.quantizeTilt(tilt);
         setChanged();
     }
 
     private static int clamp(int value) {
         return Math.max(0, Math.min(255, value));
-    }
-
-    private static int MthClampPanTilt(int value, int min, int max) {
-        return Math.max(min, Math.min(max, value));
     }
 
     public void applyToLinkedFixture(Level level) {
@@ -123,7 +121,7 @@ public class FollowspotConsoleBlockEntity extends ClientSyncBlockEntity {
         BaseLightBlockEntity light = target.get().fixture();
         byte[] dmx = new byte[512];
         int start = dmxAddress - 1;
-        if (start < 0 || start + 6 >= dmx.length) {
+        if (start < 0 || start + FollowspotTargetHelper.REQUIRED_CHANNEL_COUNT > dmx.length) {
             return;
         }
         dmx[start] = (byte) intensity;
@@ -131,13 +129,11 @@ public class FollowspotConsoleBlockEntity extends ClientSyncBlockEntity {
         dmx[start + 2] = (byte) green;
         dmx[start + 3] = (byte) blue;
         dmx[start + 4] = (byte) focus;
-        dmx[start + 5] = (byte) Math.round((pan + 90f) / 180f * 255f);
-        dmx[start + 6] = (byte) Math.round((tilt + 45f) / 90f * 255f);
+        dmx[start + 5] = (byte) FollowspotDmxHelper.panToDmxByte(pan);
+        dmx[start + 6] = (byte) FollowspotDmxHelper.tiltToDmxByte(tilt);
 
         if (light instanceof dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity consumer) {
             consumer.consume(dmx);
-            BlockState state = light.getBlockState();
-            light.getLevel().sendBlockUpdated(light.getBlockPos(), state, state, Block.UPDATE_ALL);
         }
     }
 
@@ -181,7 +177,7 @@ public class FollowspotConsoleBlockEntity extends ClientSyncBlockEntity {
             networkId = tag.getUUID("network");
         }
         universe = tag.getInt("universe");
-        dmxAddress = Math.max(1, tag.getInt("dmxAddress"));
+        dmxAddress = Math.max(1, Math.min(FollowspotDmxHelper.MAX_DMX_ADDRESS, tag.getInt("dmxAddress")));
         intensity = tag.contains("intensity") ? tag.getInt("intensity") : 255;
         red = tag.contains("red") ? tag.getInt("red") : 255;
         green = tag.contains("green") ? tag.getInt("green") : 255;

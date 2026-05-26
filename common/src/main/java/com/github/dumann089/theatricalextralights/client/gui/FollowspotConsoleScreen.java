@@ -2,16 +2,15 @@ package com.github.dumann089.theatricalextralights.client.gui;
 
 import com.github.dumann089.theatricalextralights.blockentities.FollowspotConsoleBlockEntity;
 import com.github.dumann089.theatricalextralights.client.followspot.FollowspotFixtureCameraSession;
+import com.github.dumann089.theatricalextralights.client.followspot.FollowspotInputHelper;
 import com.github.dumann089.theatricalextralights.net.FollowspotConsoleControlPacket;
 import com.github.dumann089.theatricalextralights.net.FollowspotConsolePatchPacket;
 import com.github.dumann089.theatricalextralights.net.ModNetworkHandler;
+import com.github.dumann089.theatricalextralights.util.FollowspotDmxHelper;
 import com.github.dumann089.theatricalextralights.util.FollowspotTargetHelper;
-import com.mojang.blaze3d.platform.InputConstants;
 import dev.imabad.theatrical.TheatricalClient;
 import dev.imabad.theatrical.blockentities.light.BaseLightBlockEntity;
 import dev.imabad.theatrical.util.UUIDUtil;
-import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
@@ -23,6 +22,7 @@ import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -81,6 +81,11 @@ public class FollowspotConsoleScreen extends Screen {
     private int controlSendCooldown;
     private BlockPos linkedFixturePos;
 
+    private UUID syncedNetworkId;
+    private int syncedUniverse;
+    private int syncedDmxAddress;
+    private int patchDraftHash;
+
     public FollowspotConsoleScreen(FollowspotConsoleBlockEntity console, BlockPos consolePos) {
         super(Component.translatable("screen.followspot_console.title"));
         this.console = console;
@@ -109,6 +114,7 @@ public class FollowspotConsoleScreen extends Screen {
         networkButton = addRenderableWidget(Button.builder(getNetworkLabel(), b -> {
             currentNetworkIndex = (currentNetworkIndex + 1) % networkIds.size();
             b.setMessage(getNetworkLabel());
+            updateLinkPreview();
         }).bounds(contentX, patchFieldsY, netW, ROW_H).build());
 
         universeField = new EditBox(font, uniX, patchFieldsY, fieldW, ROW_H, Component.literal("U"));
@@ -142,7 +148,12 @@ public class FollowspotConsoleScreen extends Screen {
         addRenderableWidget(Button.builder(Component.translatable("gui.cancel"), b -> onClose())
                 .bounds(contentX + (btnW + 6) * 2, buttonsY, btnW, ROW_H).build());
 
-        refreshLinkedFixture();
+        syncedNetworkId = console.getNetworkId();
+        syncedUniverse = console.getUniverse();
+        syncedDmxAddress = console.getDmxAddress();
+        patchDraftHash = computePatchDraftHash();
+        updateLinkPreview();
+        syncControlsFromLinkedFixture();
     }
 
     private ValueSlider addSlider(int x, int y, int w, int initial, java.util.function.IntConsumer onChange) {
@@ -192,20 +203,25 @@ public class FollowspotConsoleScreen extends Screen {
         UUID networkId = networkIds.get(currentNetworkIndex);
         int universe = parseOrDefault(universeField, console.getUniverse());
         int address = parseOrDefault(addressField, console.getDmxAddress());
+        if (!FollowspotDmxHelper.isValidDmxAddress(address)) {
+            updateLinkPreview();
+            return;
+        }
         ModNetworkHandler.CHANNEL.sendToServer(new FollowspotConsolePatchPacket(consolePos, networkId, universe, address));
-        console.setNetworkId(networkId);
-        console.setUniverse(universe);
-        console.setDmxAddress(address);
-        refreshLinkedFixture();
+        updateLinkPreview();
     }
 
     private void enterFixtureControl() {
+        updateLinkPreview();
         if (linkedFixturePos == null) {
             return;
         }
+        sendPatch();
         FollowspotFixtureCameraSession.start(
                 console, consolePos, linkedFixturePos,
-                intensity, red, green, blue, focus, pan, tilt
+                intensity, red, green, blue, focus,
+                FollowspotDmxHelper.quantizePan(pan),
+                FollowspotDmxHelper.quantizeTilt(tilt)
         );
     }
 
@@ -216,7 +232,7 @@ public class FollowspotConsoleScreen extends Screen {
         controlSendCooldown = 2;
     }
 
-    private void refreshLinkedFixture() {
+    private void updateLinkPreview() {
         if (minecraft == null || minecraft.level == null) {
             linkedFixturePos = null;
             return;
@@ -229,17 +245,64 @@ public class FollowspotConsoleScreen extends Screen {
                 consolePos
         );
         linkedFixturePos = target.map(FollowspotTargetHelper.TargetMatch::pos).orElse(null);
-        if (target.isPresent()) {
-            BaseLightBlockEntity light = target.get().fixture();
-            pan = light.getPan();
-            tilt = light.getTilt();
-            focus = light.getFocus();
-            intensity = (int) light.getIntensity();
-            red = light.getRed();
-            green = light.getGreen();
-            blue = light.getBlue();
-            updateSliders();
+    }
+
+    private void syncControlsFromLinkedFixture() {
+        if (minecraft == null || minecraft.level == null || linkedFixturePos == null) {
+            return;
         }
+        Optional<FollowspotTargetHelper.TargetMatch> target = FollowspotTargetHelper.findTarget(
+                minecraft.level,
+                console.getNetworkId(),
+                console.getUniverse(),
+                console.getDmxAddress(),
+                consolePos
+        );
+        if (target.isEmpty()) {
+            return;
+        }
+        BaseLightBlockEntity light = target.get().fixture();
+        pan = light.getPan();
+        tilt = light.getTilt();
+        focus = light.getFocus();
+        intensity = (int) light.getIntensity();
+        red = light.getRed();
+        green = light.getGreen();
+        blue = light.getBlue();
+        updateSliders();
+    }
+
+    private int computePatchDraftHash() {
+        return Objects.hash(
+                currentNetworkIndex,
+                universeField != null ? universeField.getValue() : "",
+                addressField != null ? addressField.getValue() : ""
+        );
+    }
+
+    private void syncFromConsoleEntityIfNeeded() {
+        UUID networkId = console.getNetworkId();
+        int universe = console.getUniverse();
+        int address = console.getDmxAddress();
+        if (networkId.equals(syncedNetworkId) && universe == syncedUniverse && address == syncedDmxAddress) {
+            return;
+        }
+        syncedNetworkId = networkId;
+        syncedUniverse = universe;
+        syncedDmxAddress = address;
+        currentNetworkIndex = Math.max(networkIds.indexOf(networkId), 0);
+        if (networkButton != null) {
+            networkButton.setMessage(getNetworkLabel());
+        }
+        if (universeField != null) {
+            universeField.setValue(Integer.toString(universe));
+        }
+        if (addressField != null) {
+            addressField.setValue(Integer.toString(address));
+        }
+        loadFromConsole();
+        updateLinkPreview();
+        syncControlsFromLinkedFixture();
     }
 
     private void updateSliders() {
@@ -264,6 +327,12 @@ public class FollowspotConsoleScreen extends Screen {
     @Override
     public void tick() {
         super.tick();
+        syncFromConsoleEntityIfNeeded();
+        int draftHash = computePatchDraftHash();
+        if (draftHash != patchDraftHash) {
+            patchDraftHash = draftHash;
+            updateLinkPreview();
+        }
         if (controlSendCooldown > 0) {
             controlSendCooldown--;
         }
@@ -282,30 +351,25 @@ public class FollowspotConsoleScreen extends Screen {
             return;
         }
         boolean changed = false;
-        if (isKeyDown(minecraft.options.keyUp)) {
-            tilt = Mth.clamp(tilt + 2, -45, 45);
+        if (FollowspotInputHelper.isKeyDown(minecraft.options.keyUp)) {
+            tilt = FollowspotDmxHelper.quantizeTilt(tilt + (int) FollowspotDmxHelper.PAN_TILT_STEP);
             changed = true;
         }
-        if (isKeyDown(minecraft.options.keyDown)) {
-            tilt = Mth.clamp(tilt - 2, -45, 45);
+        if (FollowspotInputHelper.isKeyDown(minecraft.options.keyDown)) {
+            tilt = FollowspotDmxHelper.quantizeTilt(tilt - (int) FollowspotDmxHelper.PAN_TILT_STEP);
             changed = true;
         }
-        if (isKeyDown(minecraft.options.keyLeft)) {
-            pan = Mth.clamp(pan - 2, -90, 90);
+        if (FollowspotInputHelper.isKeyDown(minecraft.options.keyLeft)) {
+            pan = FollowspotDmxHelper.quantizePan(pan - (int) FollowspotDmxHelper.PAN_TILT_STEP);
             changed = true;
         }
-        if (isKeyDown(minecraft.options.keyRight)) {
-            pan = Mth.clamp(pan + 2, -90, 90);
+        if (FollowspotInputHelper.isKeyDown(minecraft.options.keyRight)) {
+            pan = FollowspotDmxHelper.quantizePan(pan + (int) FollowspotDmxHelper.PAN_TILT_STEP);
             changed = true;
         }
         if (changed && controlSendCooldown <= 0) {
             sendControl();
         }
-    }
-
-    private static boolean isKeyDown(KeyMapping mapping) {
-        Minecraft mc = Minecraft.getInstance();
-        return mc != null && InputConstants.isKeyDown(mc.getWindow().getWindow(), mapping.getDefaultKey().getValue());
     }
 
     @Override
@@ -385,15 +449,19 @@ public class FollowspotConsoleScreen extends Screen {
         if (!FollowspotTargetHelper.isValidNetwork(networkIds.get(currentNetworkIndex))) {
             return Component.translatable("screen.followspot_console.no_network");
         }
+        int address = parseOrDefault(addressField, 0);
+        if (!FollowspotDmxHelper.isValidDmxAddress(address)) {
+            return Component.translatable("screen.followspot_console.invalid_address", FollowspotDmxHelper.MAX_DMX_ADDRESS);
+        }
         if (linkedFixturePos == null) {
             return Component.translatable("screen.followspot_console.not_found",
-                    parseOrDefault(universeField, 0), parseOrDefault(addressField, 0));
+                    parseOrDefault(universeField, 0), address);
         }
         return Component.translatable("screen.followspot_console.linked",
-                parseOrDefault(universeField, 0), parseOrDefault(addressField, 0));
+                parseOrDefault(universeField, 0), address);
     }
 
-    private static String keyLabel(KeyMapping mapping) {
+    private static String keyLabel(net.minecraft.client.KeyMapping mapping) {
         return mapping.getTranslatedKeyMessage().getString();
     }
 

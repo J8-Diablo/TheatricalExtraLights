@@ -31,7 +31,7 @@ public final class FollowspotTargetHelper {
             return Optional.empty();
         }
 
-        int chunkRadius = 8;
+        int chunkRadius = 32;
         BlockPos origin = searchCenter;
         if (origin == null) {
             if (level.players().isEmpty()) {

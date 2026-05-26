@@ -157,6 +157,8 @@ public final class FollowspotBeamHelper {
                         poseStack.mulPose(Axis.ZN.rotationDegrees(90));
                     }
                 }
+            } else if (hangDirection == Direction.UP) {
+                poseStack.mulPose(Axis.XP.rotationDegrees(180));
             }
             poseStack.translate(0, -0.5, 0F);
         }

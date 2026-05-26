@@ -15,8 +15,25 @@ public final class FollowspotCameraAccess {
 
     private static Field positionField;
     private static Method positionSetter;
+    private static Method rotationSetter;
 
     private FollowspotCameraAccess() {
+    }
+
+    public static void tryApplyCameraState(Camera camera, Vec3 position, float yaw, float pitch) {
+        trySetPosition(camera, position);
+        trySetRotation(camera, yaw, pitch);
+    }
+
+    public static boolean trySetRotation(Camera camera, float yaw, float pitch) {
+        try {
+            Method method = resolveRotationSetter();
+            method.invoke(camera, yaw, pitch);
+            return true;
+        } catch (ReflectiveOperationException | IllegalStateException e) {
+            LOGGER.warn("Followspot camera rotation update failed", e);
+            return false;
+        }
     }
 
     public static boolean trySetPosition(Camera camera, Vec3 position) {
@@ -100,5 +117,14 @@ public final class FollowspotCameraAccess {
 
         positionSetter.setAccessible(true);
         return positionSetter;
+    }
+
+    private static Method resolveRotationSetter() throws NoSuchMethodException {
+        if (rotationSetter != null) {
+            return rotationSetter;
+        }
+        rotationSetter = Camera.class.getDeclaredMethod("setRotation", float.class, float.class);
+        rotationSetter.setAccessible(true);
+        return rotationSetter;
     }
 }

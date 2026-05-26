@@ -9,13 +9,23 @@ public final class FollowspotCameraClient {
     }
 
     public static void init() {
-        ClientTickEvent.CLIENT_PRE.register(FollowspotCameraClient::onClientTick);
+        ClientTickEvent.CLIENT_PRE.register(FollowspotCameraClient::onClientPreTick);
+        ClientTickEvent.CLIENT_POST.register(FollowspotCameraClient::onClientPostTick);
     }
 
-    private static void onClientTick(Minecraft minecraft) {
+    private static void onClientPreTick(Minecraft minecraft) {
         if (!FollowspotFixtureCameraSession.isActive()) {
             return;
         }
         FollowspotFixtureCameraSession.getActive().tick(minecraft);
+    }
+
+    private static void onClientPostTick(Minecraft minecraft) {
+        if (!FollowspotFixtureCameraSession.isActive()
+                || FollowspotFixtureCameraSession.usesForgeCameraHook()
+                || minecraft.gameRenderer == null) {
+            return;
+        }
+        FollowspotFixtureCameraSession.getActive().applyCamera(minecraft.gameRenderer.getMainCamera());
     }
 }

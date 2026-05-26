@@ -222,6 +222,7 @@
   "screen.followspot_console.link": "Link fixture",
   "screen.followspot_console.no_network": "Select a network",
   "screen.followspot_console.not_found": "No 7ch fixture at U%s @ %s",
+  "screen.followspot_console.invalid_address": "DMX address must be 1–%s (7 channels)",
   "screen.followspot_console.linked": "Linked — U%s @ %s",
   "screen.followspot_console.no_fixture": "No fixture linked",
   "screen.followspot_console.movement_hint": "Move: %s %s %s %s",

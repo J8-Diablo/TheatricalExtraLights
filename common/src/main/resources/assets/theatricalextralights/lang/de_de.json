@@ -192,6 +192,7 @@
   "screen.followspot_console.link": "Fixture verknüpfen",
   "screen.followspot_console.no_network": "Netzwerk wählen",
   "screen.followspot_console.not_found": "Keine 7ch-Fixture bei U%s @ %s",
+  "screen.followspot_console.invalid_address": "DMX-Adresse muss 1–%s sein (7 Kanäle)",
   "screen.followspot_console.linked": "Verknüpft — U%s @ %s",
   "screen.followspot_console.no_fixture": "Keine Fixture verknüpft",
   "screen.followspot_console.movement_hint": "Bewegen: %s %s %s %s",

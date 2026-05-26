@@ -1,9 +1,12 @@
 package com.github.dumann089.theatricalextralights.net;
 
 import com.github.dumann089.theatricalextralights.blockentities.FollowspotConsoleBlockEntity;
+import com.github.dumann089.theatricalextralights.util.FollowspotConsoleAccess;
+import com.github.dumann089.theatricalextralights.util.FollowspotDmxHelper;
 import dev.architectury.networking.NetworkManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.UUID;
@@ -41,15 +44,24 @@ public class FollowspotConsolePatchPacket {
 
     public void handle(Supplier<NetworkManager.PacketContext> contextSupplier) {
         contextSupplier.get().queue(() -> {
-            BlockEntity blockEntity = contextSupplier.get().getPlayer().level().getBlockEntity(consolePos);
+            if (!(contextSupplier.get().getPlayer() instanceof ServerPlayer player)) {
+                return;
+            }
+            if (!FollowspotConsoleAccess.canPlayerUse(player, consolePos)) {
+                return;
+            }
+            if (!FollowspotDmxHelper.isValidDmxAddress(dmxAddress)) {
+                return;
+            }
+            BlockEntity blockEntity = player.level().getBlockEntity(consolePos);
             if (!(blockEntity instanceof FollowspotConsoleBlockEntity console)) {
                 return;
             }
             console.setNetworkId(networkId);
             console.setUniverse(universe);
             console.setDmxAddress(dmxAddress);
-            console.syncFromLinkedFixture(contextSupplier.get().getPlayer().level());
-            console.applyToLinkedFixture(contextSupplier.get().getPlayer().level());
+            console.syncFromLinkedFixture(player.level());
+            console.applyToLinkedFixture(player.level());
         });
     }
 }

@@ -37,7 +37,7 @@ public final class FollowspotCameraForge {
             return;
         }
 
-        FollowspotCameraAccess.trySetPosition(event.getCamera(), state.position());
+        FollowspotCameraAccess.tryApplyCameraState(event.getCamera(), state.position(), state.yaw(), state.pitch());
         event.setYaw(state.yaw());
         event.setPitch(state.pitch());
         event.setRoll(0);

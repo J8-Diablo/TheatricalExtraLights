@@ -1,5 +1,6 @@
 package com.github.dumann089.theatricalextralights.blockentities;
 
+import com.github.dumann089.theatricalextralights.util.FollowspotDmxHelper;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -40,8 +41,8 @@ public abstract class ExtraLightsLightBlockEntity extends BaseDMXConsumerLightBl
 
     /** Sync pan/tilt for operator mode — keeps prev* aligned to avoid interpolation flicker. */
     public void syncOperatorAngles(float pan, float tilt) {
-        int pi = Math.round(pan);
-        int ti = Math.round(tilt);
+        int pi = FollowspotDmxHelper.quantizePan(pan);
+        int ti = FollowspotDmxHelper.quantizeTilt(tilt);
         setPan(pi);
         setTilt(ti);
         prevPan = pi;
@@ -75,6 +76,10 @@ public abstract class ExtraLightsLightBlockEntity extends BaseDMXConsumerLightBl
 
     @Override
     public void read(CompoundTag tag) {
+        boolean preserveAngles = level != null && level.isClientSide
+                && com.github.dumann089.theatricalextralights.client.followspot.FollowspotFixtureCameraSession.isControlling(getBlockPos());
+        int savedPan = pan;
+        int savedTilt = tilt;
         int savedPrevPan = tag.contains("prevPan") ? tag.getInt("prevPan") : prevPan;
         int savedPrevTilt = tag.contains("prevTilt") ? tag.getInt("prevTilt") : prevTilt;
         int savedPrevFocus = tag.contains("prevFocus") ? tag.getInt("prevFocus") : prevFocus;
@@ -85,8 +90,15 @@ public abstract class ExtraLightsLightBlockEntity extends BaseDMXConsumerLightBl
 
         super.read(tag);
 
-        prevPan = savedPrevPan;
-        prevTilt = savedPrevTilt;
+        if (preserveAngles) {
+            pan = savedPan;
+            tilt = savedTilt;
+            prevPan = savedPan;
+            prevTilt = savedTilt;
+        } else {
+            prevPan = savedPrevPan;
+            prevTilt = savedPrevTilt;
+        }
         prevFocus = savedPrevFocus;
         prevIntensity = savedPrevIntensity;
         prevRed = savedPrevRed;

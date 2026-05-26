@@ -1,8 +1,9 @@
 package com.github.dumann089.theatricalextralights.blockentities;
 
-import com.github.dumann089.theatricalextralights.blocks.MovingVL2CBlock;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import dev.imabad.theatrical.api.Fixture;
+import dev.imabad.theatrical.blocks.light.BaseLightBlock;
+import dev.imabad.theatrical.blocks.HangableBlock;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -77,7 +78,8 @@ public class FollowspotBlockEntity extends ExtraLightsLightBlockEntity {
     }
     @Override
     public boolean isUpsideDown() {
-        return getBlockState().getValue(MovingVL2CBlock.HANGING) && getBlockState().getValue(MovingVL2CBlock.HANG_DIRECTION) == Direction.UP;
+        return getBlockState().getValue(BaseLightBlock.HANGING)
+                && getBlockState().getValue(HangableBlock.HANG_DIRECTION) == Direction.UP;
     }
 
     @Override

@@ -69,8 +69,8 @@ public class FollowspotRenderer extends ExtraLightsFixtureRenderer<FollowspotBlo
                         poseStack.mulPose(Axis.ZN.rotationDegrees(90));
                     }
                 }
-            } else {
-                //TODO: Handle hanging up
+            } else if (hangDirection == Direction.UP) {
+                poseStack.mulPose(Axis.XP.rotationDegrees(180));
             }
             poseStack.translate(0, -0.5, 0F);
         }
@@ -202,8 +202,8 @@ public class FollowspotRenderer extends ExtraLightsFixtureRenderer<FollowspotBlo
                         poseStack.mulPose(Axis.ZN.rotationDegrees(90));
                     }
                 }
-            } else {
-                //TODO: Handle hanging up
+            } else if (hangDirection == Direction.UP) {
+                poseStack.mulPose(Axis.XP.rotationDegrees(180));
             }
             poseStack.translate(0, -0.5, 0F);
         }

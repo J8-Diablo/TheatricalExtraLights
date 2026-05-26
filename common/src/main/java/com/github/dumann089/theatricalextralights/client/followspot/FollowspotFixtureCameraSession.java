@@ -5,25 +5,22 @@ import com.github.dumann089.theatricalextralights.blockentities.FollowspotConsol
 import com.github.dumann089.theatricalextralights.net.FollowspotConsoleControlPacket;
 import com.github.dumann089.theatricalextralights.net.ModNetworkHandler;
 import com.github.dumann089.theatricalextralights.util.FollowspotBeamHelper;
-import com.mojang.blaze3d.platform.InputConstants;
+import com.github.dumann089.theatricalextralights.util.FollowspotDmxHelper;
 import dev.imabad.theatrical.blockentities.light.BaseLightBlockEntity;
 import net.minecraft.client.Camera;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.lwjgl.glfw.GLFW;
 
 /**
  * Client-only operator view beside the fixture. Camera and beam use the same float angles.
  */
 public final class FollowspotFixtureCameraSession {
 
-    private static final float MOVE_SPEED = 1.15f;
-
     private static FollowspotFixtureCameraSession active;
+    private static boolean forgeCameraHookActive;
 
     private final BlockPos consolePos;
     private final BlockPos fixturePos;
@@ -74,6 +71,10 @@ public final class FollowspotFixtureCameraSession {
         return active != null && active.fixturePos.equals(fixturePos);
     }
 
+    public static boolean usesForgeCameraHook() {
+        return forgeCameraHookActive;
+    }
+
     public static void start(
             FollowspotConsoleBlockEntity console,
             BlockPos consolePos,
@@ -104,19 +105,21 @@ public final class FollowspotFixtureCameraSession {
     }
 
     private static void registerPlatformCameraHook() {
+        forgeCameraHookActive = false;
         try {
             Class<?> forgeHook = Class.forName(
                     "com.github.dumann089.theatricalextralights.forge.FollowspotCameraForge"
             );
             forgeHook.getMethod("ensureRegistered").invoke(null);
+            forgeCameraHookActive = true;
         } catch (ReflectiveOperationException ignored) {
-            // Fabric client hook
+            // Fabric uses common client-end camera hook
         }
     }
 
     public static void stop() {
         if (active != null) {
-            active.sendControlNow();
+            active.finalizeSession();
         }
         active = null;
         com.github.dumann089.theatricalextralights.client.blockentities.FollowspotRenderer.resetBeamLengthSmoothing();
@@ -128,7 +131,7 @@ public final class FollowspotFixtureCameraSession {
             return;
         }
 
-        if (isKeyDown(minecraft, GLFW.GLFW_KEY_ESCAPE)) {
+        if (FollowspotInputHelper.isEscapeDown(minecraft)) {
             stop();
             return;
         }
@@ -173,7 +176,7 @@ public final class FollowspotFixtureCameraSession {
         if (state == null) {
             return;
         }
-        FollowspotCameraAccess.trySetPosition(camera, state.position());
+        FollowspotCameraAccess.tryApplyCameraState(camera, state.position(), state.yaw(), state.pitch());
     }
 
     public BlockPos getFixturePos() {
@@ -189,11 +192,18 @@ public final class FollowspotFixtureCameraSession {
     }
 
     public int getPan() {
-        return Math.round(panAngle);
+        return FollowspotDmxHelper.quantizePan(panAngle);
     }
 
     public int getTilt() {
-        return Math.round(tiltAngle);
+        return FollowspotDmxHelper.quantizeTilt(tiltAngle);
+    }
+
+    private void finalizeSession() {
+        panAngle = FollowspotDmxHelper.quantizePanAngle(panAngle);
+        tiltAngle = FollowspotDmxHelper.quantizeTiltAngle(tiltAngle);
+        applyLocalFixtureState();
+        sendControlNow();
     }
 
     private void showExitHint(Minecraft minecraft) {
@@ -217,20 +227,20 @@ public final class FollowspotFixtureCameraSession {
 
     private void handleMovementKeys(Minecraft minecraft) {
         boolean moving = false;
-        if (isKeyDown(minecraft, minecraft.options.keyUp)) {
-            tiltAngle = Mth.clamp(tiltAngle + MOVE_SPEED, -45f, 45f);
+        if (FollowspotInputHelper.isKeyDown(minecraft.options.keyUp)) {
+            tiltAngle = Mth.clamp(tiltAngle + FollowspotDmxHelper.PAN_TILT_STEP, -45f, 45f);
             moving = true;
         }
-        if (isKeyDown(minecraft, minecraft.options.keyDown)) {
-            tiltAngle = Mth.clamp(tiltAngle - MOVE_SPEED, -45f, 45f);
+        if (FollowspotInputHelper.isKeyDown(minecraft.options.keyDown)) {
+            tiltAngle = Mth.clamp(tiltAngle - FollowspotDmxHelper.PAN_TILT_STEP, -45f, 45f);
             moving = true;
         }
-        if (isKeyDown(minecraft, minecraft.options.keyLeft)) {
-            panAngle = Mth.clamp(panAngle - MOVE_SPEED, -90f, 90f);
+        if (FollowspotInputHelper.isKeyDown(minecraft.options.keyLeft)) {
+            panAngle = Mth.clamp(panAngle - FollowspotDmxHelper.PAN_TILT_STEP, -90f, 90f);
             moving = true;
         }
-        if (isKeyDown(minecraft, minecraft.options.keyRight)) {
-            panAngle = Mth.clamp(panAngle + MOVE_SPEED, -90f, 90f);
+        if (FollowspotInputHelper.isKeyDown(minecraft.options.keyRight)) {
+            panAngle = Mth.clamp(panAngle + FollowspotDmxHelper.PAN_TILT_STEP, -90f, 90f);
             moving = true;
         }
 
@@ -251,8 +261,8 @@ public final class FollowspotFixtureCameraSession {
         if (fixture instanceof ExtraLightsLightBlockEntity extra) {
             extra.syncOperatorAngles(panAngle, tiltAngle);
         } else {
-            int pi = Math.round(panAngle);
-            int ti = Math.round(tiltAngle);
+            int pi = getPan();
+            int ti = getTilt();
             fixture.setPan(pi);
             fixture.setTilt(ti);
         }
@@ -270,13 +280,5 @@ public final class FollowspotFixtureCameraSession {
         ModNetworkHandler.CHANNEL.sendToServer(new FollowspotConsoleControlPacket(
                 consolePos, intensity, red, green, blue, focus, getPan(), getTilt()
         ));
-    }
-
-    private static boolean isKeyDown(Minecraft minecraft, KeyMapping mapping) {
-        return InputConstants.isKeyDown(minecraft.getWindow().getWindow(), mapping.getDefaultKey().getValue());
-    }
-
-    private static boolean isKeyDown(Minecraft minecraft, int glfwKey) {
-        return InputConstants.isKeyDown(minecraft.getWindow().getWindow(), glfwKey);
     }
 }

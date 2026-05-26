@@ -1,9 +1,11 @@
 package com.github.dumann089.theatricalextralights.net;
 
 import com.github.dumann089.theatricalextralights.blockentities.FollowspotConsoleBlockEntity;
+import com.github.dumann089.theatricalextralights.util.FollowspotConsoleAccess;
 import dev.architectury.networking.NetworkManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.function.Supplier;
@@ -65,12 +67,18 @@ public class FollowspotConsoleControlPacket {
 
     public void handle(Supplier<NetworkManager.PacketContext> contextSupplier) {
         contextSupplier.get().queue(() -> {
-            BlockEntity blockEntity = contextSupplier.get().getPlayer().level().getBlockEntity(consolePos);
+            if (!(contextSupplier.get().getPlayer() instanceof ServerPlayer player)) {
+                return;
+            }
+            if (!FollowspotConsoleAccess.canPlayerUse(player, consolePos)) {
+                return;
+            }
+            BlockEntity blockEntity = player.level().getBlockEntity(consolePos);
             if (!(blockEntity instanceof FollowspotConsoleBlockEntity console)) {
                 return;
             }
             console.setControlState(intensity, red, green, blue, focus, pan, tilt);
-            console.applyToLinkedFixture(contextSupplier.get().getPlayer().level());
+            console.applyToLinkedFixture(player.level());
         });
     }
 }
