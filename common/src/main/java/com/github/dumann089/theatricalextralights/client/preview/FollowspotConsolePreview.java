@@ -1,11 +1,10 @@
 package com.github.dumann089.theatricalextralights.client.preview;
 
+import com.github.dumann089.theatricalextralights.util.FollowspotBeamHelper;
 import dev.imabad.theatrical.blockentities.light.BaseLightBlockEntity;
-import dev.imabad.theatrical.blocks.HangableBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.state.BlockState;
@@ -15,7 +14,6 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * Viseur followspot — raycast depuis la tête optique + réticule.
- * Un rendu POV vidéo complet (RenderTarget) pourra être ajouté ultérieurement.
  */
 public final class FollowspotConsolePreview {
 
@@ -29,8 +27,8 @@ public final class FollowspotConsolePreview {
 
         graphics.fill(x + 1, y + 1, x + width - 1, y + height - 1, 0xFF101018);
 
-        Vec3 origin = getBeamOrigin(fixture);
-        Vec3 direction = getBeamDirection(fixture);
+        Vec3 origin = FollowspotBeamHelper.getBeamOrigin(fixture);
+        Vec3 direction = FollowspotBeamHelper.getBeamDirection(fixture, fixture.getPan(), fixture.getTilt());
         double reach = fixture.getFixture().getLightRadius() * 4.0;
         Vec3 end = origin.add(direction.scale(reach));
 
@@ -65,29 +63,5 @@ public final class FollowspotConsolePreview {
                     Component.translatable("screen.followspot_console.preview_open"),
                     cx, y + height - 16, 0xFF707080);
         }
-    }
-
-    private static Vec3 getBeamOrigin(BaseLightBlockEntity fixture) {
-        BlockPos pos = fixture.getBlockPos();
-        float[] beam = fixture.getFixture().getBeamStartPosition();
-        double ox = pos.getX() + beam[0];
-        double oy = pos.getY() + beam[1];
-        double oz = pos.getZ() + beam[2];
-        return new Vec3(ox, oy, oz);
-    }
-
-    private static Vec3 getBeamDirection(BaseLightBlockEntity fixture) {
-        float panRad = (float) Math.toRadians(fixture.getPan());
-        float tiltRad = (float) Math.toRadians(-fixture.getTilt());
-        Direction facing = fixture.getBlockState().getValue(HangableBlock.FACING);
-        float baseYaw = facing.toYRot();
-
-        float yaw = (float) Math.toRadians(-baseYaw + panRad);
-        float pitch = tiltRad;
-
-        double dx = -Math.sin(yaw) * Math.cos(pitch);
-        double dy = -Math.sin(pitch);
-        double dz = Math.cos(yaw) * Math.cos(pitch);
-        return new Vec3(dx, dy, dz).normalize();
     }
 }

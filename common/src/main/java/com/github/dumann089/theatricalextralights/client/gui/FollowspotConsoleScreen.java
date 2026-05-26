@@ -4,11 +4,14 @@ import com.github.dumann089.theatricalextralights.blockentities.FollowspotConsol
 import com.github.dumann089.theatricalextralights.client.preview.FollowspotConsolePreview;
 import com.github.dumann089.theatricalextralights.net.FollowspotConsoleControlPacket;
 import com.github.dumann089.theatricalextralights.net.FollowspotConsolePatchPacket;
+import com.github.dumann089.theatricalextralights.net.FollowspotEnterControlPacket;
 import com.github.dumann089.theatricalextralights.net.ModNetworkHandler;
 import com.github.dumann089.theatricalextralights.util.FollowspotTargetHelper;
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.imabad.theatrical.TheatricalClient;
 import dev.imabad.theatrical.blockentities.light.BaseLightBlockEntity;
 import dev.imabad.theatrical.util.UUIDUtil;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
@@ -27,18 +30,22 @@ import java.util.UUID;
 
 public class FollowspotConsoleScreen extends Screen {
 
-    private static final int PANEL_WIDTH = 440;
+    private static final int PANEL_WIDTH = 460;
     private static final int PANEL_PADDING = 14;
     private static final int WIDGET_HEIGHT = 18;
-    private static final int ROW_GAP = 6;
-    private static final int PREVIEW_WIDTH = 196;
-    private static final int PREVIEW_HEIGHT = 112;
+    private static final int ROW_GAP = 5;
+    private static final int PREVIEW_WIDTH = 200;
+    private static final int PREVIEW_HEIGHT = 108;
+    private static final int NETWORK_BTN_WIDTH = 96;
+    private static final int FIELD_WIDTH = 64;
+    private static final int FIELD_GAP = 18;
 
     private static final int COLOR_PANEL_BG = 0xFF2A2A2E;
     private static final int COLOR_PANEL_BORDER = 0xFF101014;
     private static final int COLOR_TITLE = 0xFFE8E8EC;
     private static final int COLOR_SUBTITLE = 0xFFB0B0BA;
     private static final int COLOR_TEXT = 0xFFD8D8DE;
+    private static final int COLOR_LABEL = 0xFF9090A0;
     private static final int COLOR_ACCENT = 0xFF4A90D9;
     private static final int COLOR_WARNING = 0xFFE07040;
     private static final int COLOR_PREVIEW_BG = 0xFF0D0D12;
@@ -63,6 +70,7 @@ public class FollowspotConsoleScreen extends Screen {
     private EditBox universeField;
     private EditBox addressField;
     private Button networkButton;
+
     private ValueSlider focusSlider;
     private ValueSlider redSlider;
     private ValueSlider greenSlider;
@@ -87,6 +95,10 @@ public class FollowspotConsoleScreen extends Screen {
     private int contentWidth;
     private int previewLeft;
     private int previewTop;
+    private int sliderLeft;
+    private int sliderWidth;
+    private int patchRowY;
+    private int sliderStartY;
 
     private int controlSendCooldown;
     private BlockPos linkedFixturePos;
@@ -102,68 +114,73 @@ public class FollowspotConsoleScreen extends Screen {
         loadFromConsole();
         setupNetworks();
 
-        panelHeight = 360;
+        panelHeight = 388;
         panelLeft = (width - PANEL_WIDTH) / 2;
         panelTop = (height - panelHeight) / 2;
         contentLeft = panelLeft + PANEL_PADDING;
         contentWidth = PANEL_WIDTH - PANEL_PADDING * 2;
+
+        int patchLabelY = panelTop + 44;
+        patchRowY = patchLabelY + 12;
         previewLeft = contentLeft;
-        previewTop = panelTop + 118;
+        previewTop = patchRowY + WIDGET_HEIGHT + 28;
+        sliderLeft = contentLeft;
+        sliderWidth = contentWidth;
+        sliderStartY = previewTop + PREVIEW_HEIGHT + 12;
 
-        int rightColumn = contentLeft + PREVIEW_WIDTH + 12;
-        int rightWidth = contentWidth - PREVIEW_WIDTH - 12;
-        int y = panelTop + 72;
-
-        universeField = new EditBox(font, contentLeft, y, 70, WIDGET_HEIGHT, Component.literal("U"));
-        universeField.setFilter(value -> value.isEmpty() || value.matches("\\d+"));
-        universeField.setValue(Integer.toString(console.getUniverse()));
-        addRenderableWidget(universeField);
-
-        addressField = new EditBox(font, contentLeft + 78, y, 70, WIDGET_HEIGHT, Component.literal("A"));
-        addressField.setFilter(value -> value.isEmpty() || value.matches("\\d+"));
-        addressField.setValue(Integer.toString(console.getDmxAddress()));
-        addRenderableWidget(addressField);
+        int universeX = contentLeft + NETWORK_BTN_WIDTH + FIELD_GAP;
+        int addressX = universeX + FIELD_WIDTH + FIELD_GAP;
 
         networkButton = addRenderableWidget(Button.builder(getNetworkLabel(), button -> {
             currentNetworkIndex = (currentNetworkIndex + 1) % networkIds.size();
             button.setMessage(getNetworkLabel());
-        }).bounds(contentLeft + 156, y, contentWidth - 156, WIDGET_HEIGHT).build());
+        }).bounds(contentLeft, patchRowY, NETWORK_BTN_WIDTH, WIDGET_HEIGHT).build());
 
-        y = previewTop + PREVIEW_HEIGHT + 14;
-        focusSlider = addValueSlider(rightColumn, y, rightWidth, "screen.followspot_console.focus", focus, value -> focus = value);
-        y += WIDGET_HEIGHT + ROW_GAP;
-        redSlider = addValueSlider(rightColumn, y, rightWidth, "screen.followspot_console.red", red, value -> red = value);
-        y += WIDGET_HEIGHT + ROW_GAP;
-        greenSlider = addValueSlider(rightColumn, y, rightWidth, "screen.followspot_console.green", green, value -> green = value);
-        y += WIDGET_HEIGHT + ROW_GAP;
-        blueSlider = addValueSlider(rightColumn, y, rightWidth, "screen.followspot_console.blue", blue, value -> blue = value);
-        y += WIDGET_HEIGHT + ROW_GAP;
-        intensitySlider = addValueSlider(rightColumn, y, rightWidth, "screen.followspot_console.intensity", intensity,
-                value -> intensity = value);
+        universeField = new EditBox(font, universeX, patchRowY, FIELD_WIDTH, WIDGET_HEIGHT, Component.literal("U"));
+        universeField.setFilter(value -> value.isEmpty() || value.matches("\\d+"));
+        universeField.setValue(Integer.toString(console.getUniverse()));
+        addRenderableWidget(universeField);
 
-        y = previewTop + PREVIEW_HEIGHT + 14 + (WIDGET_HEIGHT + ROW_GAP) * 5 + 4;
-        int presetWidth = (rightWidth - (COLOR_PRESETS.length - 1) * 3) / COLOR_PRESETS.length;
+        addressField = new EditBox(font, addressX, patchRowY, FIELD_WIDTH, WIDGET_HEIGHT, Component.literal("A"));
+        addressField.setFilter(value -> value.isEmpty() || value.matches("\\d+"));
+        addressField.setValue(Integer.toString(console.getDmxAddress()));
+        addRenderableWidget(addressField);
+
+        int y = sliderStartY;
+        focusSlider = addValueSlider(y, focus, value -> focus = value);
+        y += WIDGET_HEIGHT + ROW_GAP;
+        redSlider = addValueSlider(y, red, value -> red = value);
+        y += WIDGET_HEIGHT + ROW_GAP;
+        greenSlider = addValueSlider(y, green, value -> green = value);
+        y += WIDGET_HEIGHT + ROW_GAP;
+        blueSlider = addValueSlider(y, blue, value -> blue = value);
+        y += WIDGET_HEIGHT + ROW_GAP;
+        intensitySlider = addValueSlider(y, intensity, value -> intensity = value);
+
+        y += WIDGET_HEIGHT + 8;
+        int presetWidth = (contentWidth - (COLOR_PRESETS.length - 1) * 3) / COLOR_PRESETS.length;
         for (int i = 0; i < COLOR_PRESETS.length; i++) {
             ColorPreset preset = COLOR_PRESETS[i];
-            int px = rightColumn + i * (presetWidth + 3);
+            int px = contentLeft + i * (presetWidth + 3);
             addRenderableWidget(Button.builder(Component.literal(preset.label()), button -> applyPreset(preset))
                     .bounds(px, y, presetWidth, 16)
                     .build());
         }
 
-        int buttonWidth = 88;
         int buttonsY = panelTop + panelHeight - PANEL_PADDING - WIDGET_HEIGHT;
+        int buttonWidth = 92;
         addRenderableWidget(Button.builder(Component.translatable("screen.followspot_console.link"), button -> sendPatch())
                 .bounds(contentLeft, buttonsY, buttonWidth, WIDGET_HEIGHT).build());
+        addRenderableWidget(Button.builder(Component.translatable("screen.followspot_console.control"), button -> enterFixtureControl())
+                .bounds(contentLeft + buttonWidth + 6, buttonsY, buttonWidth + 16, WIDGET_HEIGHT).build());
         addRenderableWidget(Button.builder(Component.translatable("gui.cancel"), button -> onClose())
-                .bounds(contentLeft + buttonWidth + 8, buttonsY, buttonWidth, WIDGET_HEIGHT).build());
+                .bounds(contentLeft + (buttonWidth + 6) * 2 + 16, buttonsY, buttonWidth, WIDGET_HEIGHT).build());
 
         refreshLinkedFixture();
     }
 
-    private ValueSlider addValueSlider(int x, int y, int width, String labelKey, int initial,
-                                       java.util.function.IntConsumer onChange) {
-        return addRenderableWidget(new ValueSlider(x, y, width, initial, Component.translatable(labelKey), onChange));
+    private ValueSlider addValueSlider(int y, int initial, java.util.function.IntConsumer onChange) {
+        return addRenderableWidget(new ValueSlider(sliderLeft, y, sliderWidth, initial, onChange));
     }
 
     private void loadFromConsole() {
@@ -199,7 +216,11 @@ public class FollowspotConsoleScreen extends Screen {
             return Component.translatable("screen.artnetconfig.network.unknown");
         }
         String name = TheatricalClient.getArtNetManager().getKnownNetworks().get(networkId);
-        return Component.literal(name != null ? name : "?");
+        String label = name != null ? name : "?";
+        if (label.length() > 10) {
+            label = label.substring(0, 9) + "…";
+        }
+        return Component.literal(label);
     }
 
     private void applyPreset(ColorPreset preset) {
@@ -223,6 +244,17 @@ public class FollowspotConsoleScreen extends Screen {
         console.setUniverse(universe);
         console.setDmxAddress(address);
         refreshLinkedFixture();
+    }
+
+    private void enterFixtureControl() {
+        if (linkedFixturePos == null || minecraft == null) {
+            return;
+        }
+        ModNetworkHandler.CHANNEL.sendToServer(new FollowspotEnterControlPacket(consolePos));
+        minecraft.setScreen(new FollowspotFixtureControlScreen(
+                console, consolePos, linkedFixturePos,
+                intensity, red, green, blue, focus, pan, tilt
+        ));
     }
 
     private void sendControl() {
@@ -283,34 +315,48 @@ public class FollowspotConsoleScreen extends Screen {
         if (controlSendCooldown > 0) {
             controlSendCooldown--;
         }
-        handleMovementKeys();
+        if (!isEditBoxFocused()) {
+            handleMovementKeys();
+        }
+    }
+
+    private boolean isEditBoxFocused() {
+        return universeField != null && universeField.isFocused()
+                || addressField != null && addressField.isFocused();
     }
 
     private void handleMovementKeys() {
         if (linkedFixturePos == null || minecraft == null) {
             return;
         }
-        var options = minecraft.options;
         boolean changed = false;
-        if (options.keyUp.isDown()) {
+        if (isKeyDown(minecraft.options.keyUp)) {
             tilt = Mth.clamp(tilt + 2, -45, 45);
             changed = true;
         }
-        if (options.keyDown.isDown()) {
+        if (isKeyDown(minecraft.options.keyDown)) {
             tilt = Mth.clamp(tilt - 2, -45, 45);
             changed = true;
         }
-        if (options.keyLeft.isDown()) {
+        if (isKeyDown(minecraft.options.keyLeft)) {
             pan = Mth.clamp(pan - 2, -90, 90);
             changed = true;
         }
-        if (options.keyRight.isDown()) {
+        if (isKeyDown(minecraft.options.keyRight)) {
             pan = Mth.clamp(pan + 2, -90, 90);
             changed = true;
         }
         if (changed && controlSendCooldown <= 0) {
             sendControl();
         }
+    }
+
+    private static boolean isKeyDown(KeyMapping mapping) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft == null) {
+            return false;
+        }
+        return InputConstants.isKeyDown(minecraft.getWindow().getWindow(), mapping.getKey().getValue());
     }
 
     @Override
@@ -333,41 +379,55 @@ public class FollowspotConsoleScreen extends Screen {
         guiGraphics.drawCenteredString(font, Component.translatable("screen.followspot_console.subtitle"),
                 panelLeft + PANEL_WIDTH / 2, panelTop + PANEL_PADDING + 12, COLOR_SUBTITLE);
 
-        guiGraphics.drawString(font, Component.translatable("screen.artnetconfig.network"), contentLeft,
-                panelTop + 58, COLOR_TEXT, false);
-        guiGraphics.drawString(font, Component.translatable("artneti.dmxUniverse"), contentLeft, panelTop + 72 - 10,
-                COLOR_SUBTITLE, false);
-        guiGraphics.drawString(font, Component.translatable("fixture.dmxStart"), contentLeft + 78, panelTop + 72 - 10,
-                COLOR_SUBTITLE, false);
+        int patchLabelY = panelTop + 44;
+        int universeX = contentLeft + NETWORK_BTN_WIDTH + FIELD_GAP;
+        int addressX = universeX + FIELD_WIDTH + FIELD_GAP;
+
+        guiGraphics.drawString(font, Component.translatable("screen.artnetconfig.network"),
+                contentLeft, patchLabelY, COLOR_LABEL, false);
+        guiGraphics.drawString(font, Component.translatable("artneti.dmxUniverse"),
+                universeX, patchLabelY, COLOR_LABEL, false);
+        guiGraphics.drawString(font, Component.translatable("fixture.dmxStart"),
+                addressX, patchLabelY, COLOR_LABEL, false);
 
         Component linkStatus = getLinkStatus();
         int linkColor = linkedFixturePos != null ? COLOR_ACCENT : COLOR_WARNING;
-        guiGraphics.drawString(font, linkStatus, contentLeft, panelTop + 96, linkColor, false);
+        guiGraphics.drawString(font, linkStatus, contentLeft, patchRowY + WIDGET_HEIGHT + 6, linkColor, false);
 
         guiGraphics.fill(previewLeft, previewTop, previewLeft + PREVIEW_WIDTH, previewTop + PREVIEW_HEIGHT, COLOR_PREVIEW_BG);
         guiGraphics.renderOutline(previewLeft, previewTop, PREVIEW_WIDTH, PREVIEW_HEIGHT, COLOR_ACCENT);
 
+        int infoX = previewLeft + PREVIEW_WIDTH + 10;
         if (minecraft != null && minecraft.level != null && linkedFixturePos != null) {
             BlockEntity be = minecraft.level.getBlockEntity(linkedFixturePos);
             if (be instanceof BaseLightBlockEntity light) {
                 FollowspotConsolePreview.render(guiGraphics, previewLeft, previewTop, PREVIEW_WIDTH, PREVIEW_HEIGHT, light);
             }
+            guiGraphics.drawString(font, Component.translatable("screen.followspot_console.movement_hint",
+                            getKeyLabel(minecraft.options.keyUp),
+                            getKeyLabel(minecraft.options.keyLeft),
+                            getKeyLabel(minecraft.options.keyDown),
+                            getKeyLabel(minecraft.options.keyRight)),
+                    infoX, previewTop + 4, COLOR_TEXT, false);
+            guiGraphics.drawString(font, Component.translatable("screen.followspot_console.pan_tilt",
+                            Integer.toString(pan), Integer.toString(tilt)),
+                    infoX, previewTop + 18, COLOR_SUBTITLE, false);
         } else {
             guiGraphics.drawCenteredString(font, Component.translatable("screen.followspot_console.no_fixture"),
                     previewLeft + PREVIEW_WIDTH / 2, previewTop + PREVIEW_HEIGHT / 2 - 4, COLOR_SUBTITLE);
         }
 
-        guiGraphics.drawString(font, Component.translatable("screen.followspot_console.movement_hint",
-                        getKeyLabel(minecraft.options.keyUp),
-                        getKeyLabel(minecraft.options.keyLeft),
-                        getKeyLabel(minecraft.options.keyDown),
-                        getKeyLabel(minecraft.options.keyRight)),
-                previewLeft + PREVIEW_WIDTH + 12, previewTop, COLOR_TEXT, false);
-        guiGraphics.drawString(font, Component.translatable("screen.followspot_console.pan_tilt",
-                        Integer.toString(pan), Integer.toString(tilt)),
-                previewLeft + PREVIEW_WIDTH + 12, previewTop + 14, COLOR_SUBTITLE, false);
+        drawSliderLabel(guiGraphics, "screen.followspot_console.focus", sliderStartY - 10);
+        drawSliderLabel(guiGraphics, "screen.followspot_console.red", sliderStartY + WIDGET_HEIGHT + ROW_GAP - 10);
+        drawSliderLabel(guiGraphics, "screen.followspot_console.green", sliderStartY + (WIDGET_HEIGHT + ROW_GAP) * 2 - 10);
+        drawSliderLabel(guiGraphics, "screen.followspot_console.blue", sliderStartY + (WIDGET_HEIGHT + ROW_GAP) * 3 - 10);
+        drawSliderLabel(guiGraphics, "screen.followspot_console.intensity", sliderStartY + (WIDGET_HEIGHT + ROW_GAP) * 4 - 10);
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+    }
+
+    private void drawSliderLabel(GuiGraphics guiGraphics, String key, int y) {
+        guiGraphics.drawString(font, Component.translatable(key), sliderLeft, y, COLOR_LABEL, false);
     }
 
     private Component getLinkStatus() {
@@ -384,7 +444,7 @@ public class FollowspotConsoleScreen extends Screen {
                 Integer.toString(parseOrDefault(addressField, 0)));
     }
 
-    private static String getKeyLabel(net.minecraft.client.KeyMapping mapping) {
+    private static String getKeyLabel(KeyMapping mapping) {
         return mapping.getTranslatedKeyMessage().getString();
     }
 
@@ -394,13 +454,10 @@ public class FollowspotConsoleScreen extends Screen {
     }
 
     private class ValueSlider extends AbstractSliderButton {
-        private final Component label;
         private final java.util.function.IntConsumer onChange;
 
-        private ValueSlider(int x, int y, int width, int initial, Component label,
-                            java.util.function.IntConsumer onChange) {
+        private ValueSlider(int x, int y, int width, int initial, java.util.function.IntConsumer onChange) {
             super(x, y, width, WIDGET_HEIGHT, Component.empty(), initial / 255.0);
-            this.label = label;
             this.onChange = onChange;
             updateMessage();
         }
@@ -412,7 +469,7 @@ public class FollowspotConsoleScreen extends Screen {
 
         @Override
         protected void updateMessage() {
-            setMessage(label.copy().append(": " + getIntValue()));
+            setMessage(Component.literal(Integer.toString(getIntValue())));
         }
 
         @Override

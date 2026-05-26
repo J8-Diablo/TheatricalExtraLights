@@ -232,5 +232,8 @@
   "screen.followspot_console.blue": "Blue",
   "screen.followspot_console.intensity": "Intensity",
   "screen.followspot_console.preview_distance": "%s blocks",
-  "screen.followspot_console.preview_open": "Clear beam"
+  "screen.followspot_console.preview_open": "Clear beam",
+  "screen.followspot_console.control": "Control fixture",
+  "screen.followspot_console.control_title": "Fixture control",
+  "screen.followspot_console.control_hint": "Mouse to aim · ZQSD to move · Esc to exit"
 }

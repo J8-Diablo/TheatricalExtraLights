@@ -202,5 +202,8 @@
   "screen.followspot_console.blue": "Blau",
   "screen.followspot_console.intensity": "Intensität",
   "screen.followspot_console.preview_distance": "%s Blöcke",
-  "screen.followspot_console.preview_open": "Freier Strahl"
+  "screen.followspot_console.preview_open": "Freier Strahl",
+  "screen.followspot_console.control": "Fixture steuern",
+  "screen.followspot_console.control_title": "Fixture-Steuerung",
+  "screen.followspot_console.control_hint": "Maus zum Zielen · ZQSD zum Bewegen · Esc zum Beenden"
 }

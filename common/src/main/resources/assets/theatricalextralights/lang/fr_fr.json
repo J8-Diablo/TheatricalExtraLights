@@ -202,5 +202,8 @@
   "screen.followspot_console.blue": "Bleu",
   "screen.followspot_console.intensity": "Intensité",
   "screen.followspot_console.preview_distance": "%s blocs",
-  "screen.followspot_console.preview_open": "Faisceau libre"
+  "screen.followspot_console.preview_open": "Faisceau libre",
+  "screen.followspot_console.control": "Contrôler la fixture",
+  "screen.followspot_console.control_title": "Contrôle fixture",
+  "screen.followspot_console.control_hint": "Souris pour viser · ZQSD pour bouger · Échap pour quitter"
 }
