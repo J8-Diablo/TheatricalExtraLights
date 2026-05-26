@@ -210,6 +210,8 @@
   "screen.extralightsconfig.footprint": "Universe %s · channels %s–%s (%s ch)",
   "screen.extralightsconfig.footprint_overflow": "Universe %s @ %s overflow (%s ch) → use Universe %s @ %s",
   "screen.extralightsconfig.footprint_invalid": "Enter a valid start address (1–512)",
+  "screen.extralightsconfig.conflict": "Address overlap with %s (channels %s–%s)",
+  "screen.extralightsconfig.conflicts": "%s address overlaps on this network — e.g. %s (ch. %s–%s)",
   "screen.waterjet.section": "Jet settings",
   "screen.waterjet.height": "Height",
   "screen.waterjet.thickness": "Thickness",

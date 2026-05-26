@@ -73,6 +73,42 @@ All DMX fixtures work with Theatrical’s **Configuration Card**, **Art-Net netw
 - **Fixture config screen** — clean UI with labels above fields, Save / Cancel, live **DMX footprint** preview, and personality-aware channel count
 - **Keyboard shortcuts** — Enter to save, Escape to cancel
 - **Stable beams** — smoother pan/tilt and intensity at full DMX without flicker or double beams
+- **Address overlap warning** — fixture config screen warns when another fixture on the same network uses overlapping channels (non-blocking)
+
+---
+
+## Configuration file
+
+Extra Lights creates `config/theatricalextralights.json` in your Minecraft instance folder on first launch. Edit it while the game is **closed**, or change values and restart.
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `laserBeamLength` | float | `400.0` | Maximum laser beam length in blocks (minimum `20`). |
+| `rgbBarBeamLength` | float | `9.0` | RGB bar light reach in blocks (minimum `1`). |
+| `renderLens` | boolean | `true` | Draw lens glow on compatible fixtures. |
+| `maxGoboDistance` | float | `500.0` | Maximum distance for gobo projection (minimum `10`). |
+| `render2DBeam` | boolean | `false` | Use flat 2D beam rendering instead of volumetric beams where supported. |
+| `laserPassThroughBlocks` | string array | see below | Block IDs lasers pass through instead of stopping on. |
+
+**Default `laserPassThroughBlocks`:** `minecraft:glass`, `minecraft:tinted_glass`, `minecraft:iron_bars`, `minecraft:barrier`.
+
+Add scenic blocks (backdrops, decor) so laser beams continue to a wall behind them. Blocks from **Theatrical** and **Extra Lights** are always pass-through — you do not need to list them.
+
+**Example:**
+
+```json
+{
+  "laserBeamLength": 400.0,
+  "rgbBarBeamLength": 9.0,
+  "renderLens": true,
+  "maxGoboDistance": 500.0,
+  "render2DBeam": false,
+  "laserPassThroughBlocks": [
+    "minecraft:glass",
+    "minecraft:black_concrete"
+  ]
+}
+```
 
 ---
 

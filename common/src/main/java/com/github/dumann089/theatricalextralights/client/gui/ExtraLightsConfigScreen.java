@@ -5,6 +5,7 @@ import com.github.dumann089.theatricalextralights.net.ModNetworkHandler;
 import com.github.dumann089.theatricalextralights.net.SetFixturePositionPacket;
 import com.github.dumann089.theatricalextralights.net.SetPersonalityPacket;
 import com.github.dumann089.theatricalextralights.util.ConfigurationCardHelper;
+import com.github.dumann089.theatricalextralights.util.DmxPatchConflictHelper;
 import dev.imabad.theatrical.TheatricalClient;
 import dev.imabad.theatrical.api.dmx.DMXPersonality;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
@@ -70,6 +71,7 @@ public class ExtraLightsConfigScreen extends Screen {
     private int dmxAddressLabelY;
     private int dmxUniverseLabelY;
     private int footprintLabelY;
+    private int conflictLabelY;
     private int positionSectionY;
     private int tiltLabelY;
     private int panLabelY;
@@ -136,7 +138,7 @@ public class ExtraLightsConfigScreen extends Screen {
     }
 
     private void layoutPanel() {
-        int rows = 3; // dmx + universe + footprint
+        int rows = 4; // dmx + universe + footprint + conflict warning
         if (showPositionControls) {
             rows += 3; // section + tilt + pan
         }
@@ -189,7 +191,9 @@ public class ExtraLightsConfigScreen extends Screen {
         y += WIDGET_HEIGHT + ROW_GAP;
 
         footprintLabelY = y;
-        y += LABEL_GAP + 12 + ROW_GAP;
+        y += 12;
+        conflictLabelY = y;
+        y += 12 + ROW_GAP;
 
         if (showPositionControls) {
             positionSectionY = y;
@@ -333,6 +337,55 @@ public class ExtraLightsConfigScreen extends Screen {
     private record FootprintStatus(Component text, boolean warning) {
     }
 
+    private UUID getSelectedNetworkId() {
+        return networkIds.get(currentNetworkIndex);
+    }
+
+    private ConflictStatus getConflictStatus() {
+        int address = parseOrDefault(dmxAddressField, blockEntity.getChannelStart());
+        int universe = parseOrDefault(dmxUniverseField, blockEntity.getUniverse());
+        int channelCount = getSelectedChannelCount();
+
+        if (channelCount <= 0 || address < 1 || minecraft.level == null) {
+            return new ConflictStatus(null, false);
+        }
+
+        List<DmxPatchConflictHelper.DmxConflict> conflicts = DmxPatchConflictHelper.findConflicts(
+                minecraft.level,
+                pos,
+                getSelectedNetworkId(),
+                universe,
+                address,
+                channelCount
+        );
+
+        if (conflicts.isEmpty()) {
+            return new ConflictStatus(null, false);
+        }
+
+        if (conflicts.size() == 1) {
+            DmxPatchConflictHelper.DmxConflict conflict = conflicts.get(0);
+            return new ConflictStatus(Component.translatable(
+                    "screen.extralightsconfig.conflict",
+                    conflict.fixtureName(),
+                    Integer.toString(conflict.startAddress()),
+                    Integer.toString(conflict.endAddress())
+            ), true);
+        }
+
+        DmxPatchConflictHelper.DmxConflict example = conflicts.get(0);
+        return new ConflictStatus(Component.translatable(
+                "screen.extralightsconfig.conflicts",
+                Integer.toString(conflicts.size()),
+                example.fixtureName(),
+                Integer.toString(example.startAddress()),
+                Integer.toString(example.endAddress())
+        ), true);
+    }
+
+    private record ConflictStatus(Component text, boolean warning) {
+    }
+
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
@@ -402,6 +455,12 @@ public class ExtraLightsConfigScreen extends Screen {
         FootprintStatus footprint = getFootprintStatus();
         guiGraphics.drawString(font, footprint.text(), contentLeft, footprintLabelY,
                 footprint.warning() ? COLOR_WARNING : COLOR_FOOTPRINT, false);
+
+        ConflictStatus conflict = getConflictStatus();
+        if (conflict.text() != null) {
+            guiGraphics.drawString(font, conflict.text(), contentLeft, conflictLabelY,
+                    conflict.warning() ? COLOR_WARNING : COLOR_FOOTPRINT, false);
+        }
 
         if (showPositionControls) {
             guiGraphics.drawCenteredString(font, Component.translatable("fixture.position"),
