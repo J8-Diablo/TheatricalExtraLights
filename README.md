@@ -1,35 +1,112 @@
-# Theatrical Extra Lights
+# Theatrical: Extra Lights
 
+**Extra stage lighting for [Theatrical](https://modrinth.com/mod/theatrical)** — moving heads, LED panels, PARs, lasers, water jets, pyro, and more.  
+Built for concert and theatre setups in Minecraft, controlled over DMX / Art-Net like the base mod.
 
-## Contributors
+> **This is an addon.** [Theatrical](https://modrinth.com/mod/theatrical) is **required**. Keep both mods on the latest compatible versions.
 
-* Dumaan089
-* Rushmead
-* J8-Diablo
+[![Discord](https://img.shields.io/discord/481830554447118371.svg?label=Join%20Theatrical%20Discord)](https://discord.gg/7qMs5d6)
 
-## TODO
+---
 
-### Fixture Configuration UI Refactor
+## Screenshots
 
-The current fixture configuration UI still needs a complete refactor.
-At the moment, the system can be unstable and some parts of the interface are buggy or difficult to use.
+| Concert lighting | Stage wash | Full rig build |
+|:---:|:---:|:---:|
+| ![Concert lighting](https://cdn.modrinth.com/data/cached_images/177b5dae2852e0f469fcfc30fe8b845c739f75c2_0.webp) | ![Stage wash](https://cdn.modrinth.com/data/cached_images/21f9d3d9e6272944196ab716646cd321d43cd760_0.webp) | ![Full rig](https://cdn.modrinth.com/data/tkqUgNnN/images/fae4b5f4da174516f931ec3de9960e34e2c4de42.png) |
 
-### Automatic Universe Switching
+---
 
-Improve the configuration card behavior so universes switch automatically when the next DMX address exceeds the 512 channel limit.
+## What is this mod?
 
-Example:
+Theatrical already gives you a solid lighting foundation — DMX networks, trusses, configuration cards, and a growing fixture library. **Extra Lights** adds the fixtures that are not in the official pack: more variety for real show design, without replacing Theatrical.
 
-* If a fixture would overflow the current universe,
-* The configuration should automatically continue on the next universe instead of creating invalid channel mappings.
+Use it when you want:
 
-### Simpler Configuration Workflow
+- More **moving heads** and beam fixtures (7ch / 10ch personalities)
+- **LED panels**, blinders, washes, and RGB bars
+- **PAR arrays** (Par56, Par64, Par 1000) in many colors
+- **Effects** — strobes, atomic strobes, lasers, scrollers, water jets
+- **Pyro** — gerbs, flame projectors, and a large firework launcher set
+- **Rig pieces** — mini truss segments for cleaner builds
 
-The configuration card should become:
+New lights are added over time. Updates follow Theatrical releases — use a recent Theatrical build when possible.
 
-* easier to understand,
-* faster to use,
-* cleaner visually,
-* and more intuitive for large lighting setups.
+Need help or want to follow development? Join the **[Theatrical Discord](https://discord.gg/7qMs5d6)**.
 
-The goal is to make fixture patching closer to a real lighting console workflow while keeping it beginner-friendly.
+---
+
+## Requirements
+
+| | |
+|---|---|
+| **Minecraft** | 1.20.1 |
+| **Loaders** | Fabric · Forge |
+| **Required mod** | [Theatrical](https://modrinth.com/mod/theatrical) |
+| **Tested with** | Theatrical `1.0.0-alpha.28.120+mc1.20.1` or newer |
+
+Install **Theatrical first**, then Extra Lights.
+
+---
+
+## Features
+
+### Fixture library
+
+Hundreds of placeable fixtures across creative tabs **Theatrical: Extra Lights** and **Theatrical Pyro**, including:
+
+- **Moving heads** — Moving 500, Beam 7R, Mac VIP, Sharpy+, Robit Spot, Verve Spot, VL2/VL6, scans, gobo variants…
+- **Wash & spot** — Source Four, followspot, searchlight, wash LED, mini wash, VL 6000
+- **PAR & panels** — LED Par, Par 1000, x8 Par64, 2×2 / 2×8 / 6×3 Par64 arrays, big panels, shaped LED panels
+- **Blinders & strobes** — 4×2 blinder, atomic strobe (34ch), atomic tilt, white strobe
+- **Effects** — laser, laser mirror, LED fountain, RGB / vertical bars, scrollers, invisible light
+- **Water jets** — jets, cones, bloom, fog, organ pipes, moving fan, and more
+- **Pyro** — flame projector, gold gerb, 50+ firework launcher effects
+- **Rig** — mini truss, corner, T-corner, cross joint
+
+All DMX fixtures work with Theatrical’s **Configuration Card**, **Art-Net networks**, and in-game patching.
+
+### Improved patching & configuration *(recent)*
+
+- **Configuration card** — automatically jumps to the **next universe at address 1** when a fixture no longer fits in the remaining 512 channels (e.g. Universe 1 @ 500 + 34ch Atomic → Universe 2 @ 1)
+- **Clear chat feedback** — fixture name, network, channel range, wrap notice, and next card address
+- **Fixture config screen** — clean UI with labels above fields, Save / Cancel, live **DMX footprint** preview, and personality-aware channel count
+- **Keyboard shortcuts** — Enter to save, Escape to cancel
+- **Stable beams** — smoother pan/tilt and intensity at full DMX without flicker or double beams
+
+---
+
+## Quick start
+
+1. Install **Theatrical** + **Extra Lights** for your loader (Fabric or Forge).
+2. Create or join a **Theatrical network** (Art-Net) in-game.
+3. Grab fixtures from the creative menu and build your rig on truss or floor.
+4. Use the **Configuration Card** (from Theatrical) to patch address / universe onto fixtures.
+5. Control everything from your DMX software through Art-Net, same as base Theatrical.
+
+**Tips**
+
+- **Shift + right-click** a fixture to open its DMX settings (address, universe, mode, network).
+- Enable **auto-increment** on the Configuration Card to patch a row of fixtures quickly.
+- Moving heads use **7ch / 10ch** modes — switch personality in the config screen if your desk expects a different profile.
+
+---
+
+## Downloads
+
+- [Modrinth](https://modrinth.com/mod/theatrical-extra-lights)
+- [GitHub](https://github.com/dumann089/TheatricalExtraLights)
+
+---
+
+## Contributing & credits
+
+**Authors:** [dumann089](https://github.com/dumann089) · Rushmead · J8-Diablo  
+
+**License:** [MIT](LICENSE) — Copyright (c) 2025 Stuart Pomeroy
+
+Bug reports and feature requests are welcome on GitHub. For questions and show screenshots, the Theatrical Discord is the best place to ask.
+
+---
+
+*Not affiliated with Theatrical core development — community addon maintained alongside the main mod.*
