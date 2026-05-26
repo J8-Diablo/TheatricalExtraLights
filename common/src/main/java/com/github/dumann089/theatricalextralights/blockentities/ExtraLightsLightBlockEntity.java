@@ -49,11 +49,47 @@ public abstract class ExtraLightsLightBlockEntity extends BaseDMXConsumerLightBl
         prevTilt = ti;
     }
 
+    /** Exact server-side values from the console — avoids DMX round-trip drift on pan/tilt. */
+    public void applyDirectControl(int intensity, int red, int green, int blue, int focus, int pan, int tilt) {
+        if (level == null || level.isClientSide) {
+            return;
+        }
+        int qi = FollowspotDmxHelper.quantizePan(pan);
+        int qt = FollowspotDmxHelper.quantizeTilt(tilt);
+        boolean changed = (int) this.intensity != intensity
+                || this.red != red
+                || this.green != green
+                || this.blue != blue
+                || this.focus != focus
+                || this.pan != qi
+                || this.tilt != qt;
+        if (!changed) {
+            return;
+        }
+        this.intensity = intensity;
+        this.red = red;
+        this.green = green;
+        this.blue = blue;
+        this.focus = focus;
+        this.pan = qi;
+        this.tilt = qt;
+        prevPan = qi;
+        prevTilt = qt;
+        prevFocus = focus;
+        prevIntensity = intensity;
+        prevRed = red;
+        prevGreen = green;
+        prevBlue = blue;
+        setChanged();
+        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+    }
+
     @Override
     public void lightTick() {
         super.lightTick();
         if (level != null && level.isClientSide) {
-            if (com.github.dumann089.theatricalextralights.client.followspot.FollowspotFixtureCameraSession.isControlling(getBlockPos())) {
+            if (com.github.dumann089.theatricalextralights.client.followspot.FollowspotFixtureCameraSession.isControlling(getBlockPos())
+                    || com.github.dumann089.theatricalextralights.client.followspot.FollowspotFixtureCameraSession.shouldPreserveExitAngles(getBlockPos())) {
                 return;
             }
             prevPan = pan;
@@ -77,11 +113,28 @@ public abstract class ExtraLightsLightBlockEntity extends BaseDMXConsumerLightBl
     @Override
     public void read(CompoundTag tag) {
         boolean preserveAngles = level != null && level.isClientSide
-                && com.github.dumann089.theatricalextralights.client.followspot.FollowspotFixtureCameraSession.isControlling(getBlockPos());
+                && (com.github.dumann089.theatricalextralights.client.followspot.FollowspotFixtureCameraSession.isControlling(getBlockPos())
+                || com.github.dumann089.theatricalextralights.client.followspot.FollowspotFixtureCameraSession.shouldPreserveExitAngles(getBlockPos()));
         int savedPan = pan;
         int savedTilt = tilt;
-        int savedPrevPan = tag.contains("prevPan") ? tag.getInt("prevPan") : prevPan;
-        int savedPrevTilt = tag.contains("prevTilt") ? tag.getInt("prevTilt") : prevTilt;
+        int savedPrevPan = pan;
+        int savedPrevTilt = tilt;
+        if (preserveAngles) {
+            if (com.github.dumann089.theatricalextralights.client.followspot.FollowspotFixtureCameraSession.isControlling(getBlockPos())) {
+                savedPan = pan;
+                savedTilt = tilt;
+                savedPrevPan = prevPan;
+                savedPrevTilt = prevTilt;
+            } else {
+                savedPan = com.github.dumann089.theatricalextralights.client.followspot.FollowspotFixtureCameraSession.getExitPan(getBlockPos());
+                savedTilt = com.github.dumann089.theatricalextralights.client.followspot.FollowspotFixtureCameraSession.getExitTilt(getBlockPos());
+                savedPrevPan = savedPan;
+                savedPrevTilt = savedTilt;
+            }
+        } else {
+            savedPrevPan = tag.contains("prevPan") ? tag.getInt("prevPan") : prevPan;
+            savedPrevTilt = tag.contains("prevTilt") ? tag.getInt("prevTilt") : prevTilt;
+        }
         int savedPrevFocus = tag.contains("prevFocus") ? tag.getInt("prevFocus") : prevFocus;
         int savedPrevIntensity = tag.contains("prevIntensity") ? tag.getInt("prevIntensity") : prevIntensity;
         int savedPrevRed = tag.contains("prevRed") ? tag.getInt("prevRed") : prevRed;

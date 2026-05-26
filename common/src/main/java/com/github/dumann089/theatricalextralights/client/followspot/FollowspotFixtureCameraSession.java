@@ -6,6 +6,7 @@ import com.github.dumann089.theatricalextralights.net.FollowspotConsoleControlPa
 import com.github.dumann089.theatricalextralights.net.ModNetworkHandler;
 import com.github.dumann089.theatricalextralights.util.FollowspotBeamHelper;
 import com.github.dumann089.theatricalextralights.util.FollowspotDmxHelper;
+import com.github.dumann089.theatricalextralights.util.FollowspotOrientationHelper;
 import dev.imabad.theatrical.blockentities.light.BaseLightBlockEntity;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -15,12 +16,19 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
- * Client-only operator view beside the fixture. Camera and beam use the same float angles.
+ * Client-only operator view beside the fixture. Camera and beam use DMX-quantized angles.
  */
 public final class FollowspotFixtureCameraSession {
 
+    private static final int EXIT_GRACE_TICKS = 15;
+
     private static FollowspotFixtureCameraSession active;
     private static boolean forgeCameraHookActive;
+
+    private static BlockPos exitFixturePos = BlockPos.ZERO;
+    private static int exitPan;
+    private static int exitTilt;
+    private static int exitGraceTicks;
 
     private final BlockPos consolePos;
     private final BlockPos fixturePos;
@@ -32,6 +40,8 @@ public final class FollowspotFixtureCameraSession {
     private int focus;
     private float panAngle;
     private float tiltAngle;
+
+    private FollowspotOrientationHelper.InputRemap inputRemap = new FollowspotOrientationHelper.InputRemap(1f, 1f, 1f, 1f);
 
     private int controlSendCooldown;
     private int actionBarCooldown;
@@ -75,6 +85,32 @@ public final class FollowspotFixtureCameraSession {
         return forgeCameraHookActive;
     }
 
+    public static boolean shouldPreserveExitAngles(BlockPos fixturePos) {
+        return exitGraceTicks > 0 && exitFixturePos.equals(fixturePos);
+    }
+
+    public static int getExitPan(BlockPos fixturePos) {
+        return shouldPreserveExitAngles(fixturePos) ? exitPan : 0;
+    }
+
+    public static int getExitTilt(BlockPos fixturePos) {
+        return shouldPreserveExitAngles(fixturePos) ? exitTilt : 0;
+    }
+
+    public static void tickExitGrace() {
+        if (exitGraceTicks <= 0) {
+            return;
+        }
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft != null && minecraft.level != null) {
+            BlockEntity be = minecraft.level.getBlockEntity(exitFixturePos);
+            if (be instanceof ExtraLightsLightBlockEntity extra) {
+                extra.syncOperatorAngles(exitPan, exitTilt);
+            }
+        }
+        exitGraceTicks--;
+    }
+
     public static void start(
             FollowspotConsoleBlockEntity console,
             BlockPos consolePos,
@@ -87,16 +123,19 @@ public final class FollowspotFixtureCameraSession {
             int pan,
             int tilt
     ) {
+        exitGraceTicks = 0;
         active = new FollowspotFixtureCameraSession(
                 consolePos, fixturePos,
                 intensity, red, green, blue, focus, pan, tilt
         );
+        active.snapAnglesToDmx();
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft != null) {
             minecraft.setScreen(null);
             if (minecraft.mouseHandler.isMouseGrabbed()) {
                 minecraft.mouseHandler.releaseMouse();
             }
+            active.refreshInputRemap();
             active.showExitHint(minecraft);
             active.applyLocalFixtureState();
             active.sendControlNow();
@@ -120,6 +159,10 @@ public final class FollowspotFixtureCameraSession {
     public static void stop() {
         if (active != null) {
             active.finalizeSession();
+            exitFixturePos = active.fixturePos;
+            exitPan = active.getPan();
+            exitTilt = active.getTilt();
+            exitGraceTicks = EXIT_GRACE_TICKS;
         }
         active = null;
         com.github.dumann089.theatricalextralights.client.blockentities.FollowspotRenderer.resetBeamLengthSmoothing();
@@ -142,6 +185,7 @@ public final class FollowspotFixtureCameraSession {
             showExitHint(minecraft);
         }
 
+        refreshInputRemap();
         handleMovementKeys(minecraft);
         applyLocalFixtureState();
 
@@ -200,10 +244,22 @@ public final class FollowspotFixtureCameraSession {
     }
 
     private void finalizeSession() {
-        panAngle = FollowspotDmxHelper.quantizePanAngle(panAngle);
-        tiltAngle = FollowspotDmxHelper.quantizeTiltAngle(tiltAngle);
+        snapAnglesToDmx();
         applyLocalFixtureState();
         sendControlNow();
+    }
+
+    private void snapAnglesToDmx() {
+        panAngle = FollowspotDmxHelper.quantizePanAngle(panAngle);
+        tiltAngle = FollowspotDmxHelper.quantizeTiltAngle(tiltAngle);
+    }
+
+    private void refreshInputRemap() {
+        BaseLightBlockEntity fixture = getFixture();
+        if (fixture == null) {
+            return;
+        }
+        inputRemap = FollowspotOrientationHelper.computeInputRemap(fixture, panAngle, tiltAngle);
     }
 
     private void showExitHint(Minecraft minecraft) {
@@ -228,23 +284,24 @@ public final class FollowspotFixtureCameraSession {
     private void handleMovementKeys(Minecraft minecraft) {
         boolean moving = false;
         if (FollowspotInputHelper.isKeyDown(minecraft.options.keyUp)) {
-            tiltAngle = Mth.clamp(tiltAngle + FollowspotDmxHelper.PAN_TILT_STEP, -45f, 45f);
+            tiltAngle = Mth.clamp(tiltAngle + inputRemap.tiltUp() * FollowspotDmxHelper.PAN_TILT_STEP, -45f, 45f);
             moving = true;
         }
         if (FollowspotInputHelper.isKeyDown(minecraft.options.keyDown)) {
-            tiltAngle = Mth.clamp(tiltAngle - FollowspotDmxHelper.PAN_TILT_STEP, -45f, 45f);
+            tiltAngle = Mth.clamp(tiltAngle + inputRemap.tiltDown() * FollowspotDmxHelper.PAN_TILT_STEP, -45f, 45f);
             moving = true;
         }
         if (FollowspotInputHelper.isKeyDown(minecraft.options.keyLeft)) {
-            panAngle = Mth.clamp(panAngle - FollowspotDmxHelper.PAN_TILT_STEP, -90f, 90f);
+            panAngle = Mth.clamp(panAngle + inputRemap.panLeft() * FollowspotDmxHelper.PAN_TILT_STEP, -90f, 90f);
             moving = true;
         }
         if (FollowspotInputHelper.isKeyDown(minecraft.options.keyRight)) {
-            panAngle = Mth.clamp(panAngle + FollowspotDmxHelper.PAN_TILT_STEP, -90f, 90f);
+            panAngle = Mth.clamp(panAngle + inputRemap.panRight() * FollowspotDmxHelper.PAN_TILT_STEP, -90f, 90f);
             moving = true;
         }
 
         if (moving) {
+            snapAnglesToDmx();
             wasMoving = true;
             sendControlIfReady();
         } else if (wasMoving) {

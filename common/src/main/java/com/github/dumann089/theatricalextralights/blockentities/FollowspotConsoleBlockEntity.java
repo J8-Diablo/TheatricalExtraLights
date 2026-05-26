@@ -135,6 +135,9 @@ public class FollowspotConsoleBlockEntity extends ClientSyncBlockEntity {
         if (light instanceof dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity consumer) {
             consumer.consume(dmx);
         }
+        if (light instanceof ExtraLightsLightBlockEntity extra) {
+            extra.applyDirectControl(intensity, red, green, blue, focus, pan, tilt);
+        }
     }
 
     public void syncFromLinkedFixture(Level level) {

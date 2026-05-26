@@ -21,7 +21,7 @@ import java.util.Optional;
 public final class FollowspotBeamHelper {
 
     /** Local X — operator stands beside the head (avoids truss behind the fixture). */
-    private static final float OPERATOR_EYE_SIDE = -0.85f;
+    private static final float DEFAULT_OPERATOR_EYE_SIDE = -0.85f;
     /** Local Y — middle of the head, relative to the lens origin. */
     private static final float OPERATOR_EYE_UP = 0.05f;
     /** Local Z — slightly in front of the side position, looking toward the beam. */
@@ -61,11 +61,16 @@ public final class FollowspotBeamHelper {
 
     /** Side of the fixture head — operator POV beside the unit (clear of overhead truss). */
     public static Vec3 getCameraPosition(BaseLightBlockEntity fixture, float pan, float tilt) {
+        float eyeSide = FollowspotOrientationHelper.getOperatorEyeSide(fixture, pan, tilt);
+        return getCameraPosition(fixture, pan, tilt, eyeSide);
+    }
+
+    public static Vec3 getCameraPosition(BaseLightBlockEntity fixture, float pan, float tilt, float eyeSideX) {
         BlockPos blockPos = fixture.getBlockPos();
         PoseStack poseStack = createFixturePose(fixture, pan, tilt);
         float[] beam = fixture.getFixture().getBeamStartPosition();
         poseStack.translate(beam[0], beam[1], beam[2]);
-        Vector3f localEye = new Vector3f(OPERATOR_EYE_SIDE, OPERATOR_EYE_UP, OPERATOR_EYE_FORWARD);
+        Vector3f localEye = new Vector3f(eyeSideX, OPERATOR_EYE_UP, OPERATOR_EYE_FORWARD);
         localEye.mulPosition(poseStack.last().pose());
         return new Vec3(
                 blockPos.getX() + localEye.x,

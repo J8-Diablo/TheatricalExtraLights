@@ -7,6 +7,7 @@ import com.github.dumann089.theatricalextralights.net.FollowspotConsoleControlPa
 import com.github.dumann089.theatricalextralights.net.FollowspotConsolePatchPacket;
 import com.github.dumann089.theatricalextralights.net.ModNetworkHandler;
 import com.github.dumann089.theatricalextralights.util.FollowspotDmxHelper;
+import com.github.dumann089.theatricalextralights.util.FollowspotOrientationHelper;
 import com.github.dumann089.theatricalextralights.util.FollowspotTargetHelper;
 import dev.imabad.theatrical.TheatricalClient;
 import dev.imabad.theatrical.blockentities.light.BaseLightBlockEntity;
@@ -347,24 +348,30 @@ public class FollowspotConsoleScreen extends Screen {
     }
 
     private void handleMovementKeys() {
-        if (linkedFixturePos == null || minecraft == null) {
+        if (linkedFixturePos == null || minecraft == null || minecraft.level == null) {
             return;
         }
+        BaseLightBlockEntity fixture = minecraft.level.getBlockEntity(linkedFixturePos) instanceof BaseLightBlockEntity light
+                ? light : null;
+        FollowspotOrientationHelper.InputRemap remap = fixture != null
+                ? FollowspotOrientationHelper.computeInputRemap(fixture, pan, tilt)
+                : new FollowspotOrientationHelper.InputRemap(1f, 1f, 1f, 1f);
+
         boolean changed = false;
         if (FollowspotInputHelper.isKeyDown(minecraft.options.keyUp)) {
-            tilt = FollowspotDmxHelper.quantizeTilt(tilt + (int) FollowspotDmxHelper.PAN_TILT_STEP);
+            tilt = FollowspotDmxHelper.quantizeTilt(tilt + (int) (remap.tiltUp() * FollowspotDmxHelper.PAN_TILT_STEP));
             changed = true;
         }
         if (FollowspotInputHelper.isKeyDown(minecraft.options.keyDown)) {
-            tilt = FollowspotDmxHelper.quantizeTilt(tilt - (int) FollowspotDmxHelper.PAN_TILT_STEP);
+            tilt = FollowspotDmxHelper.quantizeTilt(tilt + (int) (remap.tiltDown() * FollowspotDmxHelper.PAN_TILT_STEP));
             changed = true;
         }
         if (FollowspotInputHelper.isKeyDown(minecraft.options.keyLeft)) {
-            pan = FollowspotDmxHelper.quantizePan(pan - (int) FollowspotDmxHelper.PAN_TILT_STEP);
+            pan = FollowspotDmxHelper.quantizePan(pan + (int) (remap.panLeft() * FollowspotDmxHelper.PAN_TILT_STEP));
             changed = true;
         }
         if (FollowspotInputHelper.isKeyDown(minecraft.options.keyRight)) {
-            pan = FollowspotDmxHelper.quantizePan(pan + (int) FollowspotDmxHelper.PAN_TILT_STEP);
+            pan = FollowspotDmxHelper.quantizePan(pan + (int) (remap.panRight() * FollowspotDmxHelper.PAN_TILT_STEP));
             changed = true;
         }
         if (changed && controlSendCooldown <= 0) {

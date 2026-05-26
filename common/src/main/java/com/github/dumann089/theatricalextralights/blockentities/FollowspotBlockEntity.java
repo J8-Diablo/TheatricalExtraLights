@@ -1,6 +1,7 @@
 package com.github.dumann089.theatricalextralights.blockentities;
 
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
+import com.github.dumann089.theatricalextralights.util.FollowspotDmxHelper;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.blocks.light.BaseLightBlock;
 import dev.imabad.theatrical.blocks.HangableBlock;
@@ -44,8 +45,8 @@ public class FollowspotBlockEntity extends ExtraLightsLightBlockEntity {
         green = convertByteToInt(ourValues[2]);
         blue = convertByteToInt(ourValues[3]);
         focus = convertByteToInt(ourValues[4]);
-        pan = (int) ((convertByteToInt(ourValues[5]) * 180) / 255f) - 90;
-        tilt = (int) ((convertByteToInt(ourValues[6]) * 90) / 255f) - 45;
+        pan = FollowspotDmxHelper.dmxByteToPan(convertByteToInt(ourValues[5]));
+        tilt = FollowspotDmxHelper.dmxByteToTilt(convertByteToInt(ourValues[6]));
 
         boolean changed = intensity != _pi || red != _pr || green != _pg || blue != _pb
                 || focus != _pf || pan != _pp || tilt != _pt;

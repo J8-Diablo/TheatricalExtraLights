@@ -14,6 +14,7 @@ public final class FollowspotCameraClient {
     }
 
     private static void onClientPreTick(Minecraft minecraft) {
+        FollowspotFixtureCameraSession.tickExitGrace();
         if (!FollowspotFixtureCameraSession.isActive()) {
             return;
         }
