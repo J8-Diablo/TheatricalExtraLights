@@ -199,5 +199,8 @@
 
 
   "itemGroup.theatricalextralights": "Theatrical: Extra Lights",
-  "itemGroup.theatricalextralights.pyro": "Theatrical Pyro"
+  "itemGroup.theatricalextralights.pyro": "Theatrical Pyro",
+  "fixture.position": "Position",
+  "fixture.personality": "Mode",
+  "screen.artnetconfig.network.unknown": "Unknown network"
 }

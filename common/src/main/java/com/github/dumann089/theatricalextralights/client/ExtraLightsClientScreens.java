@@ -30,10 +30,9 @@ public class ExtraLightsClientScreens {
                     new WaterJetConeScreen(pos, "Water Cone");
 
             case CHANNEL_MENU ->
-                    new ExtraLightsConfigScreen(lightBE, pos, lightBE.getTranslationKey());
-
+                    new ExtraLightsConfigScreen(lightBE, pos, lightBE.getTranslationKey(), false);
             case CHANNEL_PANTILT ->
-                    new GenericPanTiltExtraLightsConfigScreen(lightBE, pos, lightBE.getTranslationKey());
+                    new ExtraLightsConfigScreen(lightBE, pos, lightBE.getTranslationKey(), true);
         };
 
         mc.setScreen(gui);
