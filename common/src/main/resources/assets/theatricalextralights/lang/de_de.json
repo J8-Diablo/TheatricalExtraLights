@@ -205,5 +205,8 @@
   "screen.followspot_console.preview_open": "Freier Strahl",
   "screen.followspot_console.control": "Fixture steuern",
   "screen.followspot_console.control_title": "Fixture-Steuerung",
-  "screen.followspot_console.control_hint": "Maus zum Zielen · ZQSD zum Bewegen · Esc zum Beenden"
+  "screen.followspot_console.control_hint": "Maus zum Zielen · ZQSD zum Bewegen · Esc zum Beenden",
+  "screen.followspot_console.section_patch": "DMX-Patch",
+  "screen.followspot_console.section_view": "Strahlansicht",
+  "screen.followspot_console.section_control": "Steuerung"
 }

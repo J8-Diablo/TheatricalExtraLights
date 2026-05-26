@@ -1,10 +1,10 @@
 package com.github.dumann089.theatricalextralights.client.gui;
 
 import com.github.dumann089.theatricalextralights.blockentities.FollowspotConsoleBlockEntity;
+import com.github.dumann089.theatricalextralights.client.followspot.FollowspotFixtureCameraSession;
 import com.github.dumann089.theatricalextralights.client.preview.FollowspotConsolePreview;
 import com.github.dumann089.theatricalextralights.net.FollowspotConsoleControlPacket;
 import com.github.dumann089.theatricalextralights.net.FollowspotConsolePatchPacket;
-import com.github.dumann089.theatricalextralights.net.FollowspotEnterControlPacket;
 import com.github.dumann089.theatricalextralights.net.ModNetworkHandler;
 import com.github.dumann089.theatricalextralights.util.FollowspotTargetHelper;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -30,39 +30,26 @@ import java.util.UUID;
 
 public class FollowspotConsoleScreen extends Screen {
 
-    private static final int PANEL_WIDTH = 460;
-    private static final int PANEL_PADDING = 14;
-    private static final int WIDGET_HEIGHT = 18;
-    private static final int ROW_GAP = 5;
-    private static final int PREVIEW_WIDTH = 200;
-    private static final int PREVIEW_HEIGHT = 108;
-    private static final int NETWORK_BTN_WIDTH = 96;
-    private static final int FIELD_WIDTH = 64;
-    private static final int FIELD_GAP = 18;
+    private static final int PANEL_W = 420;
+    private static final int PANEL_H = 328;
+    private static final int PAD = 16;
+    private static final int ROW_H = 20;
+    private static final int GAP = 8;
+    private static final int LABEL_W = 68;
+    private static final int VALUE_W = 28;
+    private static final int PREVIEW_W = 168;
+    private static final int PREVIEW_H = 94;
 
-    private static final int COLOR_PANEL_BG = 0xFF2A2A2E;
-    private static final int COLOR_PANEL_BORDER = 0xFF101014;
-    private static final int COLOR_TITLE = 0xFFE8E8EC;
-    private static final int COLOR_SUBTITLE = 0xFFB0B0BA;
-    private static final int COLOR_TEXT = 0xFFD8D8DE;
-    private static final int COLOR_LABEL = 0xFF9090A0;
-    private static final int COLOR_ACCENT = 0xFF4A90D9;
-    private static final int COLOR_WARNING = 0xFFE07040;
-    private static final int COLOR_PREVIEW_BG = 0xFF0D0D12;
-
-    private record ColorPreset(String label, int r, int g, int b) {
-    }
-
-    private static final ColorPreset[] COLOR_PRESETS = {
-            new ColorPreset("W", 255, 255, 255),
-            new ColorPreset("Warm", 255, 180, 100),
-            new ColorPreset("R", 255, 0, 0),
-            new ColorPreset("G", 0, 255, 0),
-            new ColorPreset("B", 0, 0, 255),
-            new ColorPreset("C", 0, 255, 255),
-            new ColorPreset("M", 255, 0, 255),
-            new ColorPreset("A", 255, 160, 0),
-    };
+    private static final int BG = 0xFF1E1E22;
+    private static final int BORDER = 0xFF0A0A0E;
+    private static final int SECTION = 0xFF35353C;
+    private static final int TITLE = 0xFFF2F2F6;
+    private static final int SUB = 0xFF9898A4;
+    private static final int LABEL = 0xFF787884;
+    private static final int TEXT = 0xFFDCDCE2;
+    private static final int ACCENT = 0xFF5B9FEF;
+    private static final int WARN = 0xFFE8845C;
+    private static final int PREVIEW_BG = 0xFF12121A;
 
     private final BlockPos consolePos;
     private final FollowspotConsoleBlockEntity console;
@@ -88,17 +75,13 @@ public class FollowspotConsoleScreen extends Screen {
     private int pan;
     private int tilt;
 
-    private int panelLeft;
-    private int panelTop;
-    private int panelHeight;
-    private int contentLeft;
-    private int contentWidth;
-    private int previewLeft;
-    private int previewTop;
-    private int sliderLeft;
-    private int sliderWidth;
-    private int patchRowY;
-    private int sliderStartY;
+    private int panelX;
+    private int panelY;
+    private int contentX;
+    private int contentW;
+    private int patchY;
+    private int previewY;
+    private int slidersY;
 
     private int controlSendCooldown;
     private BlockPos linkedFixturePos;
@@ -114,73 +97,62 @@ public class FollowspotConsoleScreen extends Screen {
         loadFromConsole();
         setupNetworks();
 
-        panelHeight = 388;
-        panelLeft = (width - PANEL_WIDTH) / 2;
-        panelTop = (height - panelHeight) / 2;
-        contentLeft = panelLeft + PANEL_PADDING;
-        contentWidth = PANEL_WIDTH - PANEL_PADDING * 2;
+        panelX = (width - PANEL_W) / 2;
+        panelY = (height - PANEL_H) / 2;
+        contentX = panelX + PAD;
+        contentW = PANEL_W - PAD * 2;
 
-        int patchLabelY = panelTop + 44;
-        patchRowY = patchLabelY + 12;
-        previewLeft = contentLeft;
-        previewTop = patchRowY + WIDGET_HEIGHT + 28;
-        sliderLeft = contentLeft;
-        sliderWidth = contentWidth;
-        sliderStartY = previewTop + PREVIEW_HEIGHT + 12;
+        patchY = panelY + 52;
+        previewY = patchY + 56;
+        slidersY = previewY + PREVIEW_H + 14;
 
-        int universeX = contentLeft + NETWORK_BTN_WIDTH + FIELD_GAP;
-        int addressX = universeX + FIELD_WIDTH + FIELD_GAP;
+        int netW = 108;
+        int fieldW = 56;
+        int uniX = contentX + netW + 12;
+        int addrX = uniX + fieldW + 16;
 
-        networkButton = addRenderableWidget(Button.builder(getNetworkLabel(), button -> {
+        networkButton = addRenderableWidget(Button.builder(getNetworkLabel(), b -> {
             currentNetworkIndex = (currentNetworkIndex + 1) % networkIds.size();
-            button.setMessage(getNetworkLabel());
-        }).bounds(contentLeft, patchRowY, NETWORK_BTN_WIDTH, WIDGET_HEIGHT).build());
+            b.setMessage(getNetworkLabel());
+        }).bounds(contentX, patchY + 14, netW, ROW_H).build());
 
-        universeField = new EditBox(font, universeX, patchRowY, FIELD_WIDTH, WIDGET_HEIGHT, Component.literal("U"));
-        universeField.setFilter(value -> value.isEmpty() || value.matches("\\d+"));
+        universeField = new EditBox(font, uniX, patchY + 14, fieldW, ROW_H, Component.literal("U"));
+        universeField.setFilter(v -> v.isEmpty() || v.matches("\\d+"));
         universeField.setValue(Integer.toString(console.getUniverse()));
         addRenderableWidget(universeField);
 
-        addressField = new EditBox(font, addressX, patchRowY, FIELD_WIDTH, WIDGET_HEIGHT, Component.literal("A"));
-        addressField.setFilter(value -> value.isEmpty() || value.matches("\\d+"));
+        addressField = new EditBox(font, addrX, patchY + 14, fieldW, ROW_H, Component.literal("A"));
+        addressField.setFilter(v -> v.isEmpty() || v.matches("\\d+"));
         addressField.setValue(Integer.toString(console.getDmxAddress()));
         addRenderableWidget(addressField);
 
-        int y = sliderStartY;
-        focusSlider = addValueSlider(y, focus, value -> focus = value);
-        y += WIDGET_HEIGHT + ROW_GAP;
-        redSlider = addValueSlider(y, red, value -> red = value);
-        y += WIDGET_HEIGHT + ROW_GAP;
-        greenSlider = addValueSlider(y, green, value -> green = value);
-        y += WIDGET_HEIGHT + ROW_GAP;
-        blueSlider = addValueSlider(y, blue, value -> blue = value);
-        y += WIDGET_HEIGHT + ROW_GAP;
-        intensitySlider = addValueSlider(y, intensity, value -> intensity = value);
+        int sliderW = contentW - LABEL_W - VALUE_W - 6;
+        int sx = contentX + LABEL_W;
+        int y = slidersY;
+        focusSlider = addSlider(sx, y, sliderW, focus, v -> focus = v);
+        y += ROW_H + GAP;
+        redSlider = addSlider(sx, y, sliderW, red, v -> red = v);
+        y += ROW_H + GAP;
+        greenSlider = addSlider(sx, y, sliderW, green, v -> green = v);
+        y += ROW_H + GAP;
+        blueSlider = addSlider(sx, y, sliderW, blue, v -> blue = v);
+        y += ROW_H + GAP;
+        intensitySlider = addSlider(sx, y, sliderW, intensity, v -> intensity = v);
 
-        y += WIDGET_HEIGHT + 8;
-        int presetWidth = (contentWidth - (COLOR_PRESETS.length - 1) * 3) / COLOR_PRESETS.length;
-        for (int i = 0; i < COLOR_PRESETS.length; i++) {
-            ColorPreset preset = COLOR_PRESETS[i];
-            int px = contentLeft + i * (presetWidth + 3);
-            addRenderableWidget(Button.builder(Component.literal(preset.label()), button -> applyPreset(preset))
-                    .bounds(px, y, presetWidth, 16)
-                    .build());
-        }
-
-        int buttonsY = panelTop + panelHeight - PANEL_PADDING - WIDGET_HEIGHT;
-        int buttonWidth = 92;
-        addRenderableWidget(Button.builder(Component.translatable("screen.followspot_console.link"), button -> sendPatch())
-                .bounds(contentLeft, buttonsY, buttonWidth, WIDGET_HEIGHT).build());
-        addRenderableWidget(Button.builder(Component.translatable("screen.followspot_console.control"), button -> enterFixtureControl())
-                .bounds(contentLeft + buttonWidth + 6, buttonsY, buttonWidth + 16, WIDGET_HEIGHT).build());
-        addRenderableWidget(Button.builder(Component.translatable("gui.cancel"), button -> onClose())
-                .bounds(contentLeft + (buttonWidth + 6) * 2 + 16, buttonsY, buttonWidth, WIDGET_HEIGHT).build());
+        int btnY = panelY + PANEL_H - PAD - ROW_H;
+        int btnW = (contentW - 12) / 3;
+        addRenderableWidget(Button.builder(Component.translatable("screen.followspot_console.link"), b -> sendPatch())
+                .bounds(contentX, btnY, btnW, ROW_H).build());
+        addRenderableWidget(Button.builder(Component.translatable("screen.followspot_console.control"), b -> enterFixtureControl())
+                .bounds(contentX + btnW + 6, btnY, btnW, ROW_H).build());
+        addRenderableWidget(Button.builder(Component.translatable("gui.cancel"), b -> onClose())
+                .bounds(contentX + (btnW + 6) * 2, btnY, btnW, ROW_H).build());
 
         refreshLinkedFixture();
     }
 
-    private ValueSlider addValueSlider(int y, int initial, java.util.function.IntConsumer onChange) {
-        return addRenderableWidget(new ValueSlider(sliderLeft, y, sliderWidth, initial, onChange));
+    private ValueSlider addSlider(int x, int y, int w, int initial, java.util.function.IntConsumer onChange) {
+        return addRenderableWidget(new ValueSlider(x, y, w, initial, onChange));
     }
 
     private void loadFromConsole() {
@@ -197,9 +169,9 @@ public class FollowspotConsoleScreen extends Screen {
         ArrayList<UUID> available = new ArrayList<>();
         available.add(UUIDUtil.NULL);
         if (TheatricalClient.getArtNetManager() != null) {
-            for (UUID networkId : TheatricalClient.getArtNetManager().getKnownNetworks().keySet()) {
-                if (!available.contains(networkId)) {
-                    available.add(networkId);
+            for (UUID id : TheatricalClient.getArtNetManager().getKnownNetworks().keySet()) {
+                if (!available.contains(id)) {
+                    available.add(id);
                 }
             }
         }
@@ -208,31 +180,18 @@ public class FollowspotConsoleScreen extends Screen {
     }
 
     private Component getNetworkLabel() {
-        UUID networkId = networkIds.get(currentNetworkIndex);
-        if (networkId.equals(UUIDUtil.NULL)) {
+        UUID id = networkIds.get(currentNetworkIndex);
+        if (id.equals(UUIDUtil.NULL)) {
             return Component.literal("—");
         }
         if (TheatricalClient.getArtNetManager() == null) {
             return Component.translatable("screen.artnetconfig.network.unknown");
         }
-        String name = TheatricalClient.getArtNetManager().getKnownNetworks().get(networkId);
-        String label = name != null ? name : "?";
-        if (label.length() > 10) {
-            label = label.substring(0, 9) + "…";
+        String name = TheatricalClient.getArtNetManager().getKnownNetworks().get(id);
+        if (name == null) {
+            return Component.literal("?");
         }
-        return Component.literal(label);
-    }
-
-    private void applyPreset(ColorPreset preset) {
-        red = preset.r();
-        green = preset.g();
-        blue = preset.b();
-        if (redSlider != null) {
-            redSlider.setValue(red);
-            greenSlider.setValue(green);
-            blueSlider.setValue(blue);
-        }
-        sendControl();
+        return Component.literal(name.length() > 12 ? name.substring(0, 11) + "…" : name);
     }
 
     private void sendPatch() {
@@ -247,14 +206,13 @@ public class FollowspotConsoleScreen extends Screen {
     }
 
     private void enterFixtureControl() {
-        if (linkedFixturePos == null || minecraft == null) {
+        if (linkedFixturePos == null) {
             return;
         }
-        ModNetworkHandler.CHANNEL.sendToServer(new FollowspotEnterControlPacket(consolePos));
-        minecraft.setScreen(new FollowspotFixtureControlScreen(
+        FollowspotFixtureCameraSession.start(
                 console, consolePos, linkedFixturePos,
                 intensity, red, green, blue, focus, pan, tilt
-        ));
+        );
     }
 
     private void sendControl() {
@@ -286,11 +244,11 @@ public class FollowspotConsoleScreen extends Screen {
             red = light.getRed();
             green = light.getGreen();
             blue = light.getBlue();
-            updateSlidersFromState();
+            updateSliders();
         }
     }
 
-    private void updateSlidersFromState() {
+    private void updateSliders() {
         if (focusSlider == null) {
             return;
         }
@@ -304,7 +262,7 @@ public class FollowspotConsoleScreen extends Screen {
     private int parseOrDefault(EditBox field, int fallback) {
         try {
             return Integer.parseInt(field.getValue());
-        } catch (NumberFormatException ignored) {
+        } catch (NumberFormatException e) {
             return fallback;
         }
     }
@@ -315,14 +273,14 @@ public class FollowspotConsoleScreen extends Screen {
         if (controlSendCooldown > 0) {
             controlSendCooldown--;
         }
-        if (!isEditBoxFocused()) {
+        if (!isFieldFocused()) {
             handleMovementKeys();
         }
     }
 
-    private boolean isEditBoxFocused() {
-        return universeField != null && universeField.isFocused()
-                || addressField != null && addressField.isFocused();
+    private boolean isFieldFocused() {
+        return (universeField != null && universeField.isFocused())
+                || (addressField != null && addressField.isFocused());
     }
 
     private void handleMovementKeys() {
@@ -352,11 +310,8 @@ public class FollowspotConsoleScreen extends Screen {
     }
 
     private static boolean isKeyDown(KeyMapping mapping) {
-        Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft == null) {
-            return false;
-        }
-        return InputConstants.isKeyDown(minecraft.getWindow().getWindow(), mapping.getDefaultKey().getValue());
+        Minecraft mc = Minecraft.getInstance();
+        return mc != null && InputConstants.isKeyDown(mc.getWindow().getWindow(), mapping.getDefaultKey().getValue());
     }
 
     @Override
@@ -368,66 +323,75 @@ public class FollowspotConsoleScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        renderBackground(guiGraphics);
+    public void render(GuiGraphics g, int mouseX, int mouseY, float pt) {
+        renderBackground(g);
 
-        guiGraphics.fill(panelLeft - 1, panelTop - 1, panelLeft + PANEL_WIDTH + 1, panelTop + panelHeight + 1,
-                COLOR_PANEL_BORDER);
-        guiGraphics.fill(panelLeft, panelTop, panelLeft + PANEL_WIDTH, panelTop + panelHeight, COLOR_PANEL_BG);
+        g.fill(panelX - 1, panelY - 1, panelX + PANEL_W + 1, panelY + PANEL_H + 1, BORDER);
+        g.fill(panelX, panelY, panelX + PANEL_W, panelY + PANEL_H, BG);
 
-        guiGraphics.drawCenteredString(font, title, panelLeft + PANEL_WIDTH / 2, panelTop + PANEL_PADDING, COLOR_TITLE);
-        guiGraphics.drawCenteredString(font, Component.translatable("screen.followspot_console.subtitle"),
-                panelLeft + PANEL_WIDTH / 2, panelTop + PANEL_PADDING + 12, COLOR_SUBTITLE);
+        g.drawCenteredString(font, title, panelX + PANEL_W / 2, panelY + 10, TITLE);
+        g.drawCenteredString(font, Component.translatable("screen.followspot_console.subtitle"),
+                panelX + PANEL_W / 2, panelY + 22, SUB);
 
-        int patchLabelY = panelTop + 44;
-        int universeX = contentLeft + NETWORK_BTN_WIDTH + FIELD_GAP;
-        int addressX = universeX + FIELD_WIDTH + FIELD_GAP;
+        drawSection(g, contentX, patchY - 6, contentW, 52, Component.translatable("screen.followspot_console.section_patch"));
 
-        guiGraphics.drawString(font, Component.translatable("screen.artnetconfig.network"),
-                contentLeft, patchLabelY, COLOR_LABEL, false);
-        guiGraphics.drawString(font, Component.translatable("artneti.dmxUniverse"),
-                universeX, patchLabelY, COLOR_LABEL, false);
-        guiGraphics.drawString(font, Component.translatable("fixture.dmxStart"),
-                addressX, patchLabelY, COLOR_LABEL, false);
+        int netW = 108;
+        int fieldW = 56;
+        int uniX = contentX + netW + 12;
+        int addrX = uniX + fieldW + 16;
+        g.drawString(font, Component.translatable("screen.artnetconfig.network"), contentX, patchY, LABEL, false);
+        g.drawString(font, Component.translatable("artneti.dmxUniverse"), uniX, patchY, LABEL, false);
+        g.drawString(font, Component.translatable("fixture.dmxStart"), addrX, patchY, LABEL, false);
 
-        Component linkStatus = getLinkStatus();
-        int linkColor = linkedFixturePos != null ? COLOR_ACCENT : COLOR_WARNING;
-        guiGraphics.drawString(font, linkStatus, contentLeft, patchRowY + WIDGET_HEIGHT + 6, linkColor, false);
+        int statusColor = linkedFixturePos != null ? ACCENT : WARN;
+        g.drawString(font, getLinkStatus(), contentX, patchY + 38, statusColor, false);
 
-        guiGraphics.fill(previewLeft, previewTop, previewLeft + PREVIEW_WIDTH, previewTop + PREVIEW_HEIGHT, COLOR_PREVIEW_BG);
-        guiGraphics.renderOutline(previewLeft, previewTop, PREVIEW_WIDTH, PREVIEW_HEIGHT, COLOR_ACCENT);
+        drawSection(g, contentX, previewY - 6, contentW, PREVIEW_H + 12,
+                Component.translatable("screen.followspot_console.section_view"));
 
-        int infoX = previewLeft + PREVIEW_WIDTH + 10;
+        g.fill(contentX + 2, previewY + 2, contentX + PREVIEW_W, previewY + PREVIEW_H, PREVIEW_BG);
+        g.renderOutline(contentX, previewY, PREVIEW_W, PREVIEW_H, SECTION);
+
+        int infoX = contentX + PREVIEW_W + 12;
         if (minecraft != null && minecraft.level != null && linkedFixturePos != null) {
             BlockEntity be = minecraft.level.getBlockEntity(linkedFixturePos);
             if (be instanceof BaseLightBlockEntity light) {
-                FollowspotConsolePreview.render(guiGraphics, previewLeft, previewTop, PREVIEW_WIDTH, PREVIEW_HEIGHT, light);
+                FollowspotConsolePreview.render(g, contentX, previewY, PREVIEW_W, PREVIEW_H, light);
             }
-            guiGraphics.drawString(font, Component.translatable("screen.followspot_console.movement_hint",
-                            getKeyLabel(minecraft.options.keyUp),
-                            getKeyLabel(minecraft.options.keyLeft),
-                            getKeyLabel(minecraft.options.keyDown),
-                            getKeyLabel(minecraft.options.keyRight)),
-                    infoX, previewTop + 4, COLOR_TEXT, false);
-            guiGraphics.drawString(font, Component.translatable("screen.followspot_console.pan_tilt",
-                            Integer.toString(pan), Integer.toString(tilt)),
-                    infoX, previewTop + 18, COLOR_SUBTITLE, false);
+            g.drawString(font, Component.translatable("screen.followspot_console.movement_hint",
+                            keyLabel(minecraft.options.keyUp), keyLabel(minecraft.options.keyLeft),
+                            keyLabel(minecraft.options.keyDown), keyLabel(minecraft.options.keyRight)),
+                    infoX, previewY + 8, TEXT, false);
+            g.drawString(font, Component.translatable("screen.followspot_console.pan_tilt",
+                    Integer.toString(pan), Integer.toString(tilt)), infoX, previewY + 24, SUB, false);
         } else {
-            guiGraphics.drawCenteredString(font, Component.translatable("screen.followspot_console.no_fixture"),
-                    previewLeft + PREVIEW_WIDTH / 2, previewTop + PREVIEW_HEIGHT / 2 - 4, COLOR_SUBTITLE);
+            g.drawCenteredString(font, Component.translatable("screen.followspot_console.no_fixture"),
+                    contentX + PREVIEW_W / 2, previewY + PREVIEW_H / 2 - 4, SUB);
         }
 
-        drawSliderLabel(guiGraphics, "screen.followspot_console.focus", sliderStartY - 10);
-        drawSliderLabel(guiGraphics, "screen.followspot_console.red", sliderStartY + WIDGET_HEIGHT + ROW_GAP - 10);
-        drawSliderLabel(guiGraphics, "screen.followspot_console.green", sliderStartY + (WIDGET_HEIGHT + ROW_GAP) * 2 - 10);
-        drawSliderLabel(guiGraphics, "screen.followspot_console.blue", sliderStartY + (WIDGET_HEIGHT + ROW_GAP) * 3 - 10);
-        drawSliderLabel(guiGraphics, "screen.followspot_console.intensity", sliderStartY + (WIDGET_HEIGHT + ROW_GAP) * 4 - 10);
+        drawSection(g, contentX, slidersY - 10, contentW, (ROW_H + GAP) * 5 + 4,
+                Component.translatable("screen.followspot_console.section_control"));
 
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        drawSliderRow(g, "screen.followspot_console.focus", slidersY, focusSlider);
+        drawSliderRow(g, "screen.followspot_console.red", slidersY + ROW_H + GAP, redSlider);
+        drawSliderRow(g, "screen.followspot_console.green", slidersY + (ROW_H + GAP) * 2, greenSlider);
+        drawSliderRow(g, "screen.followspot_console.blue", slidersY + (ROW_H + GAP) * 3, blueSlider);
+        drawSliderRow(g, "screen.followspot_console.intensity", slidersY + (ROW_H + GAP) * 4, intensitySlider);
+
+        super.render(g, mouseX, mouseY, pt);
     }
 
-    private void drawSliderLabel(GuiGraphics guiGraphics, String key, int y) {
-        guiGraphics.drawString(font, Component.translatable(key), sliderLeft, y, COLOR_LABEL, false);
+    private void drawSection(GuiGraphics g, int x, int y, int w, int h, Component label) {
+        g.fill(x, y, x + w, y + 1, SECTION);
+        g.drawString(font, label, x + 4, y - 9, LABEL, false);
+    }
+
+    private void drawSliderRow(GuiGraphics g, String labelKey, int y, ValueSlider slider) {
+        g.drawString(font, Component.translatable(labelKey), contentX, y + 6, TEXT, false);
+        if (slider != null) {
+            String value = Integer.toString(slider.getIntValue());
+            g.drawString(font, value, contentX + contentW - font.width(value), y + 6, SUB, false);
+        }
     }
 
     private Component getLinkStatus() {
@@ -436,15 +400,13 @@ public class FollowspotConsoleScreen extends Screen {
         }
         if (linkedFixturePos == null) {
             return Component.translatable("screen.followspot_console.not_found",
-                    Integer.toString(parseOrDefault(universeField, 0)),
-                    Integer.toString(parseOrDefault(addressField, 0)));
+                    parseOrDefault(universeField, 0), parseOrDefault(addressField, 0));
         }
         return Component.translatable("screen.followspot_console.linked",
-                Integer.toString(parseOrDefault(universeField, 0)),
-                Integer.toString(parseOrDefault(addressField, 0)));
+                parseOrDefault(universeField, 0), parseOrDefault(addressField, 0));
     }
 
-    private static String getKeyLabel(KeyMapping mapping) {
+    private static String keyLabel(KeyMapping mapping) {
         return mapping.getTranslatedKeyMessage().getString();
     }
 
@@ -456,30 +418,28 @@ public class FollowspotConsoleScreen extends Screen {
     private class ValueSlider extends AbstractSliderButton {
         private final java.util.function.IntConsumer onChange;
 
-        private ValueSlider(int x, int y, int width, int initial, java.util.function.IntConsumer onChange) {
-            super(x, y, width, WIDGET_HEIGHT, Component.empty(), initial / 255.0);
+        ValueSlider(int x, int y, int w, int initial, java.util.function.IntConsumer onChange) {
+            super(x, y, w, ROW_H, Component.empty(), initial / 255.0);
             this.onChange = onChange;
-            updateMessage();
         }
 
         void setValue(int value) {
             this.value = Mth.clamp(value / 255.0, 0.0, 1.0);
-            updateMessage();
+        }
+
+        int getIntValue() {
+            return Mth.clamp((int) Math.round(value * 255.0), 0, 255);
         }
 
         @Override
         protected void updateMessage() {
-            setMessage(Component.literal(Integer.toString(getIntValue())));
+            setMessage(Component.empty());
         }
 
         @Override
         protected void applyValue() {
             onChange.accept(getIntValue());
             sendControl();
-        }
-
-        private int getIntValue() {
-            return Mth.clamp((int) Math.round(value * 255.0), 0, 255);
         }
     }
 }
