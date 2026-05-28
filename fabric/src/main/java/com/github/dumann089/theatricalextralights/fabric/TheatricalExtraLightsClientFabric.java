@@ -13,6 +13,8 @@ public class TheatricalExtraLightsClientFabric implements ClientModInitializer {
         // Tu inicialización original
         TheatricalExtraLightsClient.init();
 
+        com.github.dumann089.theatricalextralights.fabric.FollowspotCameraFabric.init();
+
         // NUEVO: Registro del Core Shader para la GPU
         CoreShaderRegistrationCallback.EVENT.register(context -> {
             context.register(

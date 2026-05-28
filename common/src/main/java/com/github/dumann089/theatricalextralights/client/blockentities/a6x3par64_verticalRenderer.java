@@ -8,7 +8,7 @@ import dev.imabad.theatrical.TheatricalExpectPlatform;
 import dev.imabad.theatrical.blocks.HangableBlock;
 import dev.imabad.theatrical.client.LazyRenderers;
 import dev.imabad.theatrical.client.TheatricalRenderTypes;
-import dev.imabad.theatrical.client.blockentities.FixtureRenderer;
+import com.github.dumann089.theatricalextralights.client.blockentities.ExtraLightsRenderer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -21,7 +21,7 @@ import org.joml.Matrix4f;
 
 import java.util.Optional;
 
-public class a6x3par64_verticalRenderer extends FixtureRenderer<a6x3par64_verticalBlockEntity> {
+public class a6x3par64_verticalRenderer extends ExtraLightsRenderer<a6x3par64_verticalBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
     public a6x3par64_verticalRenderer(BlockEntityRendererProvider.Context context) {
         super(context);

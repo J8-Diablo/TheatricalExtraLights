@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
 
-public class LEDFountainBlockEntity extends BaseDMXConsumerLightBlockEntity {
+public class LEDFountainBlockEntity extends ExtraLightsLightBlockEntity {
 
     public LEDFountainBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntities.LED_FOUNTAIN.get(), pos, state);
@@ -35,9 +35,8 @@ public class LEDFountainBlockEntity extends BaseDMXConsumerLightBlockEntity {
         if(ourValues.length < 3){
             return;
         }
-        if(this.storePrev()){
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        }
+                boolean prevAdvanced = beginDmxUpdate();
+        int _pi = intensity, _pr = red, _pg = green, _pb = blue, _pf = focus, _pp = pan, _pt = tilt;
         red = convertByteToInt(ourValues[0]);
         green = convertByteToInt(ourValues[1]);
         blue = convertByteToInt(ourValues[2]);
@@ -45,8 +44,7 @@ public class LEDFountainBlockEntity extends BaseDMXConsumerLightBlockEntity {
         intensity = Math.max(red, Math.max(green, blue));
 
 
-        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        setChanged();
+        finishDmxUpdate(intensity != _pi || red != _pr || green != _pg || blue != _pb || focus != _pf || pan != _pp || tilt != _pt, prevAdvanced);
     }
 
     @Override

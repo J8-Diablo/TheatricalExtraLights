@@ -127,6 +127,8 @@ public class TheatricalExtraLightsClient {
 
 
         EntityRendererRegistry.register(ModEntities.FIREWORK_ROCKET, FireworkRocketRenderer::new);
+
+        com.github.dumann089.theatricalextralights.client.followspot.FollowspotCameraClient.init();
     }
 
     public static void handleOpenScreen(OpenExtraLightsScreenPacket packet) {

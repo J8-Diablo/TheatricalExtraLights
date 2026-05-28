@@ -3,12 +3,11 @@ package com.github.dumann089.theatricalextralights.blocks;
 import com.github.dumann089.theatricalextralights.TheatricalExtraLightsScreens;
 import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
 import com.github.dumann089.theatricalextralights.blockentities.WaterJetThinBlockEntity;
-import com.github.dumann089.theatricalextralights.client.gui.WaterJetPanTiltScreen;
 import com.github.dumann089.theatricalextralights.net.OpenExtraLightsScreenPacket;
 import dev.imabad.theatrical.TheatricalClient;
 import dev.imabad.theatrical.TheatricalScreen;
 import dev.imabad.theatrical.blocks.Blocks;
-import dev.imabad.theatrical.blocks.light.BaseLightBlock;
+import com.github.dumann089.theatricalextralights.blocks.ExtraLightsLightBlock;
 import dev.imabad.theatrical.net.OpenScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -40,7 +39,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class WaterJetThinBlock extends BaseLightBlock {
+public class WaterJetThinBlock extends ExtraLightsLightBlock {
 
     public WaterJetThinBlock() {
         super(Properties.of()

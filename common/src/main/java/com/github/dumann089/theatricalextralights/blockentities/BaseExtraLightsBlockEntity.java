@@ -2,7 +2,6 @@ package com.github.dumann089.theatricalextralights.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasPersonality;
 import dev.imabad.theatrical.api.dmx.DMXPersonality;
-import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.Block;
@@ -12,7 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class BaseExtraLightsBlockEntity extends BaseDMXConsumerLightBlockEntity implements HasPersonality {
+public abstract class BaseExtraLightsBlockEntity extends ExtraLightsLightBlockEntity implements HasPersonality {
 
     private int activePersonalityIndex = 0;
 
@@ -80,11 +79,9 @@ public abstract class BaseExtraLightsBlockEntity extends BaseDMXConsumerLightBlo
 
         if (ourValues.length < 7) return;
 
-        if (this.storePrev()) {
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        }
+        boolean prevAdvanced = beginDmxUpdate();
+        int _pi = intensity, _pr = red, _pg = green, _pb = blue, _pf = focus, _pp = pan, _pt = tilt;
 
-        // 7 channels  BASE
         intensity = convertByteToInt(ourValues[0]);
         red       = convertByteToInt(ourValues[1]);
         green     = convertByteToInt(ourValues[2]);
@@ -93,12 +90,14 @@ public abstract class BaseExtraLightsBlockEntity extends BaseDMXConsumerLightBlo
         pan       = (int) ((convertByteToInt(ourValues[5]) * 360) / 255f) - 180;
         tilt      = (int) ((convertByteToInt(ourValues[6]) * 270) / 255F) - 225;
 
+        boolean changed = intensity != _pi || red != _pr || green != _pg || blue != _pb
+                || focus != _pf || pan != _pp || tilt != _pt;
+
         if (ourValues.length > 7) {
-            consumeExtendedChannels(ourValues, channelCount);
+            changed |= consumeExtendedChannels(ourValues, channelCount);
         }
 
-        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        setChanged();
+        finishDmxUpdate(changed, prevAdvanced);
     }
 
     /**
@@ -111,7 +110,8 @@ public abstract class BaseExtraLightsBlockEntity extends BaseDMXConsumerLightBlo
      * @param values
      * @param totalCount
      */
-    protected void consumeExtendedChannels(byte[] values, int totalCount) {
+    protected boolean consumeExtendedChannels(byte[] values, int totalCount) {
+        return false;
     }
 
     public int convertByteToInt(byte val) {

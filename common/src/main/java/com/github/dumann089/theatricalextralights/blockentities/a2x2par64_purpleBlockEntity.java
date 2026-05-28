@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
 
-public class a2x2par64_purpleBlockEntity extends BaseDMXConsumerLightBlockEntity {
+public class a2x2par64_purpleBlockEntity extends ExtraLightsLightBlockEntity {
 
     public a2x2par64_purpleBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntities.A2X2PAR64_PURPLE.get(), pos, state);
@@ -34,14 +34,12 @@ public class a2x2par64_purpleBlockEntity extends BaseDMXConsumerLightBlockEntity
         if(ourValues.length < 1){
             return;
         }
-        if(this.storePrev()){
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        }
+                boolean prevAdvanced = beginDmxUpdate();
+        int _pi = intensity, _pr = red, _pg = green, _pb = blue, _pf = focus, _pp = pan, _pt = tilt;
         intensity = convertByteToInt(ourValues[0]);
         blue = convertByteToInt(ourValues[0]);
         red = (int)(intensity * 0.55);
-        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        setChanged();
+        finishDmxUpdate(intensity != _pi || red != _pr || green != _pg || blue != _pb || focus != _pf || pan != _pp || tilt != _pt, prevAdvanced);
     }
 
     @Override

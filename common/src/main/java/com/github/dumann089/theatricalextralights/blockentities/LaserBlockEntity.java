@@ -18,7 +18,7 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
 
-public class LaserBlockEntity extends BaseDMXConsumerLightBlockEntity {
+public class LaserBlockEntity extends ExtraLightsLightBlockEntity {
     public static final int CHANNEL_COUNT = 19;
 
     // Secondary/tertiary RGB
@@ -67,10 +67,10 @@ public class LaserBlockEntity extends BaseDMXConsumerLightBlockEntity {
         if (v.length < CHANNEL_COUNT) {
             return;
         }
-        if (this.storePrev() && level != null) {
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        }
-        intensity = u(v[0]);
+        boolean prevAdvanced = beginDmxUpdate();
+        int _pi = intensity, _pr = red, _pg = green, _pb = blue, _pf = focus, _pp = pan, _pt = tilt;
+
+                intensity = u(v[0]);
         red       = u(v[1]);
         green     = u(v[2]);
         blue      = u(v[3]);

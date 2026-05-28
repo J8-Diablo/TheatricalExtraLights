@@ -14,6 +14,10 @@ public class ModNetworkHandler {
         CHANNEL.register(SetJetThicknessPacket.class, SetJetThicknessPacket::encode, SetJetThicknessPacket::decode, SetJetThicknessPacket::handle);
         CHANNEL.register(SetJetConeAnglePacket.class, SetJetConeAnglePacket::encode, SetJetConeAnglePacket::decode, SetJetConeAnglePacket::handle);
         CHANNEL.register(SetFixturePositionPacket.class, SetFixturePositionPacket::encode, SetFixturePositionPacket::decode, SetFixturePositionPacket::handle);
-        CHANNEL.register(SetPersonalityPacket.class,   SetPersonalityPacket::encode,   SetPersonalityPacket::decode,   SetPersonalityPacket::handle);
+        CHANNEL.register(SetPersonalityPacket.class, SetPersonalityPacket::encode, SetPersonalityPacket::decode, SetPersonalityPacket::handle);
+        CHANNEL.register(FollowspotConsolePatchPacket.class, FollowspotConsolePatchPacket::encode, FollowspotConsolePatchPacket::decode, FollowspotConsolePatchPacket::handle);
+        CHANNEL.register(FollowspotConsoleControlPacket.class, FollowspotConsoleControlPacket::encode, FollowspotConsoleControlPacket::decode, FollowspotConsoleControlPacket::handle);
+        CHANNEL.register(FollowspotEnterControlPacket.class, FollowspotEnterControlPacket::encode, FollowspotEnterControlPacket::decode, FollowspotEnterControlPacket::handle);
+        CHANNEL.register(FollowspotExitControlPacket.class, FollowspotExitControlPacket::encode, FollowspotExitControlPacket::decode, FollowspotExitControlPacket::handle);
     }
 }

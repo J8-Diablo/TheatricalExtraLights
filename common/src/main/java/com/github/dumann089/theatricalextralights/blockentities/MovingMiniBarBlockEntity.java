@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.Arrays;
 import java.util.List;
 
-public class MovingMiniBarBlockEntity extends BaseDMXConsumerLightBlockEntity implements HasPersonality {
+public class MovingMiniBarBlockEntity extends ExtraLightsLightBlockEntity implements HasPersonality {
 
     public static final int BEAM_COUNT = 7;
     public static final int UNITE_MODE = 0;
@@ -97,10 +97,8 @@ public class MovingMiniBarBlockEntity extends BaseDMXConsumerLightBlockEntity im
         copyBeamState(prevBeamBlue, beamBlue);
         copyBeamState(prevBeamTilt, beamTilt);
 
-        if (this.storePrev() && level != null) {
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        }
-
+                boolean prevAdvanced = beginDmxUpdate();
+        int _pi = intensity, _pr = red, _pg = green, _pb = blue, _pf = focus, _pp = pan, _pt = tilt;
         pan = 0;
         focus = 255;
 

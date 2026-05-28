@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
 
-public class GerbBlockEntity extends BaseDMXConsumerLightBlockEntity {
+public class GerbBlockEntity extends ExtraLightsLightBlockEntity {
     private static final int GOLD_CORE_COLOR = 0xFFE9AE;
     private static final int GOLD_HOT_COLOR = 0xFFC451;
     private static final float MIN_SPRAY_HEIGHT = 0.6f;

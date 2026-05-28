@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.Arrays;
 import java.util.List;
 
-public class Moving500BlockEntity extends BaseDMXConsumerLightBlockEntity implements HasPersonality {
+public class Moving500BlockEntity extends ExtraLightsLightBlockEntity implements HasPersonality {
 
     private int activePersonalityIndex = 0;
 
@@ -84,10 +84,10 @@ public class Moving500BlockEntity extends BaseDMXConsumerLightBlockEntity implem
 
         if (ourValues.length < 7) return;
 
-        if (this.storePrev())
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+        boolean prevAdvanced = beginDmxUpdate();
+        int _pi = intensity, _pr = red, _pg = green, _pb = blue, _pf = focus, _pp = pan, _pt = tilt;
 
-        intensity = convertByteToInt(ourValues[0]);
+                intensity = convertByteToInt(ourValues[0]);
         red       = convertByteToInt(ourValues[1]);
         green     = convertByteToInt(ourValues[2]);
         blue      = convertByteToInt(ourValues[3]);
@@ -95,19 +95,19 @@ public class Moving500BlockEntity extends BaseDMXConsumerLightBlockEntity implem
         pan       = (int) ((convertByteToInt(ourValues[5]) * 360) / 255f) - 180;
         tilt      = (int) ((convertByteToInt(ourValues[6]) * 270) / 255F) - 225;
 
-        if (channelCount >= 10 && ourValues.length >= 10) {
+        boolean changed = intensity != _pi || red != _pr || green != _pg || blue != _pb
+                || focus != _pf || pan != _pp || tilt != _pt;
+
+                        if (channelCount >= 10 && ourValues.length >= 10) {
             int newGobo     = convertByteToInt(ourValues[7]);
             int newZoom     = convertByteToInt(ourValues[8]);
             int newGoboSpin = convertByteToInt(ourValues[9]);
             if (newGobo != gobo || newZoom != zoom || newGoboSpin != goboSpin) {
-                gobo     = newGobo;
-                zoom     = newZoom;
-                goboSpin = newGoboSpin;
+                gobo = newGobo; zoom = newZoom; goboSpin = newGoboSpin; changed = true;
             }
         }
 
-        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        setChanged();
+        finishDmxUpdate(changed, prevAdvanced);
     }
 
     // ─── NBT ──────────────────────────────────────────────────────────────────

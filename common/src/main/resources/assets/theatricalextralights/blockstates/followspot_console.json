@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "theatricalextralights:block/followspot_console/followspot_console_whole",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "theatricalextralights:block/followspot_console/followspot_console_whole"
+    },
+    "facing=west": {
+      "model": "theatricalextralights:block/followspot_console/followspot_console_whole",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "theatricalextralights:block/followspot_console/followspot_console_whole",
+      "y": 90
+    }
+  }
+}

@@ -11,7 +11,7 @@ import dev.imabad.theatrical.TheatricalExpectPlatform;
 import dev.imabad.theatrical.blocks.HangableBlock;
 import dev.imabad.theatrical.client.LazyRenderers;
 import dev.imabad.theatrical.client.TheatricalRenderTypes;
-import dev.imabad.theatrical.client.blockentities.FixtureRenderer;
+import com.github.dumann089.theatricalextralights.client.blockentities.ExtraLightsRenderer;
 import dev.imabad.theatrical.config.TheatricalConfig;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -102,13 +102,13 @@ public class VervespotRenderer extends ExtraLightsFixtureRenderer<VervespotBlock
         //#region Model Tilt
         float[] tilts = blockEntity.getFixture().getTiltRotationPosition();
         poseStack.translate(tilts[0], tilts[1], tilts[2]);
-        int prevTilt = blockEntity.getPrevTilt();
-        int tilt = blockEntity.getTilt();
         if (isFlipped) {
             poseStack.mulPose(Axis.XP.rotationDegrees(-180));
         } else {
             poseStack.mulPose(Axis.XP.rotationDegrees(180));
         }
+        int prevTilt = blockEntity.getPrevTilt();
+        int tilt = blockEntity.getTilt();
         poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel, packedLight, packedOverlay);
@@ -262,13 +262,13 @@ public class VervespotRenderer extends ExtraLightsFixtureRenderer<VervespotBlock
         //#region Model Tilt
         float[] tilts = blockEntity.getFixture().getTiltRotationPosition();
         poseStack.translate(tilts[0], tilts[1], tilts[2]);
-        int prevTilt = blockEntity.getPrevTilt();
-        int tilt = blockEntity.getTilt();
         if (isFlipped) {
             poseStack.mulPose(Axis.XP.rotationDegrees(-180));
         } else {
             poseStack.mulPose(Axis.XP.rotationDegrees(180));
         }
+        int prevTilt = blockEntity.getPrevTilt();
+        int tilt = blockEntity.getTilt();
         poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
         //#endregion

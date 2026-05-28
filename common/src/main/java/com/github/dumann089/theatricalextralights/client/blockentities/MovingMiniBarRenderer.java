@@ -10,7 +10,7 @@ import dev.imabad.theatrical.TheatricalExpectPlatform;
 import dev.imabad.theatrical.blocks.HangableBlock;
 import dev.imabad.theatrical.client.LazyRenderers;
 import dev.imabad.theatrical.client.TheatricalRenderTypes;
-import dev.imabad.theatrical.client.blockentities.FixtureRenderer;
+import com.github.dumann089.theatricalextralights.client.blockentities.ExtraLightsRenderer;
 import dev.imabad.theatrical.config.TheatricalConfig;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.LightTexture;
@@ -25,7 +25,7 @@ import org.joml.Matrix4f;
 
 import java.util.Optional;
 
-public class MovingMiniBarRenderer extends FixtureRenderer<MovingMiniBarBlockEntity> {
+public class MovingMiniBarRenderer extends ExtraLightsRenderer<MovingMiniBarBlockEntity> {
 
     private static final float[] EMITTER_X_OFFSETS = new float[]{
             -0.42857143F, -0.2857143F, -0.14285715F, 0F, 0.14285715F, 0.2857143F, 0.42857143F

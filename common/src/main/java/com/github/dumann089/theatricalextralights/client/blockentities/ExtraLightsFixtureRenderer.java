@@ -20,6 +20,12 @@ public abstract class ExtraLightsFixtureRenderer<T extends BaseLightBlockEntity>
         super(context);
     }
 
+    /** Faisceau géré dans {@code beforeRenderBeam} — évite le double rendu Theatrical. */
+    @Override
+    public boolean shouldRenderBeam(T blockEntity) {
+        return false;
+    }
+
     // ── Vertex helpers ──────────────────────────────────────────────────────
 
     // BEAM_VANILLA
@@ -101,6 +107,119 @@ public abstract class ExtraLightsFixtureRenderer<T extends BaseLightBlockEntity>
         addBeamVertex(builder, m, r, g, b, a, -beamSize, 0,  0);
 
         stack.popPose();
+    }
+
+    /** Operator view — cone only, no bright cap at the lens (avoids white flash in FP mode). */
+    protected void renderLightBeam2DForwardOnly(VertexConsumer builder, PoseStack stack, T tileEntityFixture,
+                                                Camera camera, float alpha, float beamSize, float length,
+                                                int color, float focusMultiplier) {
+        int r = (color >> 16) & 0xFF;
+        int g = (color >> 8) & 0xFF;
+        int b = color & 0xFF;
+
+        float intensity = 0.65f;
+        int a = (int) (alpha * 255 * intensity);
+
+        length += 2.5f;
+        float endSize = beamSize + (tileEntityFixture.getFocus() * focusMultiplier);
+        float nearClip = 0.35f;
+        float nearSize = beamSize * 0.55f;
+
+        stack.pushPose();
+
+        Matrix4f inverseMatrix = new Matrix4f(stack.last().pose()).invert();
+        org.joml.Vector4f toCameraLocal = inverseMatrix.transform(new org.joml.Vector4f(0, 0, 0, 1));
+
+        float angle = 0;
+        if (Math.abs(toCameraLocal.x) > 0.001f || Math.abs(toCameraLocal.y) > 0.001f) {
+            angle = (float) Math.atan2(toCameraLocal.y, toCameraLocal.x);
+        }
+
+        stack.mulPose(new org.joml.Quaternionf().rotateZ(angle - (float) (Math.PI / 2)));
+
+        Matrix4f m = stack.last().pose();
+
+        addBeamVertex(builder, m, r, g, b, a, -nearSize, 0, -nearClip);
+        addBeamVertex(builder, m, r, g, b, a, nearSize, 0, -nearClip);
+        addBeamVertex(builder, m, r, g, b, 0, endSize, 0, -length);
+        addBeamVertex(builder, m, r, g, b, 0, -endSize, 0, -length);
+
+        addBeamVertex(builder, m, r, g, b, 0, -endSize, 0, -length);
+        addBeamVertex(builder, m, r, g, b, 0, endSize, 0, -length);
+        addBeamVertex(builder, m, r, g, b, a, nearSize, 0, -nearClip);
+        addBeamVertex(builder, m, r, g, b, a, -nearSize, 0, -nearClip);
+
+        stack.popPose();
+    }
+
+    /** Operator view — fixed to fixture axis (no camera billboard, prevents flicker when panning). */
+    protected void renderLightBeam2DFixedForward(VertexConsumer builder, PoseStack stack, T tileEntityFixture,
+                                                 float alpha, float beamSize, float length,
+                                                 int color, float focusMultiplier) {
+        int r = (color >> 16) & 0xFF;
+        int g = (color >> 8) & 0xFF;
+        int b = color & 0xFF;
+
+        float intensity = 0.65f;
+        int a = (int) (alpha * 255 * intensity);
+
+        length += 2.5f;
+        float endSize = beamSize + (tileEntityFixture.getFocus() * focusMultiplier);
+        float nearClip = 0.35f;
+        float nearSize = beamSize * 0.55f;
+
+        Matrix4f m = stack.last().pose();
+
+        addBeamVertex(builder, m, r, g, b, a, -nearSize, 0, -nearClip);
+        addBeamVertex(builder, m, r, g, b, a, nearSize, 0, -nearClip);
+        addBeamVertex(builder, m, r, g, b, 0, endSize, 0, -length);
+        addBeamVertex(builder, m, r, g, b, 0, -endSize, 0, -length);
+
+        addBeamVertex(builder, m, r, g, b, 0, -endSize, 0, -length);
+        addBeamVertex(builder, m, r, g, b, 0, endSize, 0, -length);
+        addBeamVertex(builder, m, r, g, b, a, nearSize, 0, -nearClip);
+        addBeamVertex(builder, m, r, g, b, a, -nearSize, 0, -nearClip);
+    }
+
+    protected void renderLightBeam4DForwardOnly(VertexConsumer builder, PoseStack stack, T tileEntityFixture,
+                                              float partialTicks, float alpha, float beamSize,
+                                              float length, int color, float focusMultiplier) {
+        float endMultiplier = 1 + tileEntityFixture.getFocus() * length * focusMultiplier;
+
+        int r = (color >> 16) & 0xFF;
+        int g = (color >> 8) & 0xFF;
+        int b = color & 0xFF;
+
+        float intensity = 0.65f;
+        int a = (int) (alpha * 255 * intensity);
+
+        Matrix4f m = stack.last().pose();
+
+        length += 4.0f;
+        float end = endMultiplier;
+        float nearClip = 0.35f;
+        float near = beamSize * 0.55f;
+        float nearEnd = near * end;
+
+        addBeamVertex(builder, m, r, g, b, 0, nearEnd, nearEnd, -length);
+        addBeamVertex(builder, m, r, g, b, a, near, near, -nearClip);
+        addBeamVertex(builder, m, r, g, b, a, near, -near, -nearClip);
+        addBeamVertex(builder, m, r, g, b, 0, nearEnd, -nearEnd, -length);
+
+        addBeamVertex(builder, m, r, g, b, 0, -nearEnd, -nearEnd, -length);
+        addBeamVertex(builder, m, r, g, b, a, -near, -near, -nearClip);
+        addBeamVertex(builder, m, r, g, b, a, -near, near, -nearClip);
+        addBeamVertex(builder, m, r, g, b, 0, -nearEnd, nearEnd, -length);
+
+        addBeamVertex(builder, m, r, g, b, 0, -nearEnd, nearEnd, -length);
+        addBeamVertex(builder, m, r, g, b, a, -near, near, -nearClip);
+        addBeamVertex(builder, m, r, g, b, a, near, near, -nearClip);
+        addBeamVertex(builder, m, r, g, b, 0, nearEnd, nearEnd, -length);
+
+        addBeamVertex(builder, m, r, g, b, 0, nearEnd, -nearEnd, -length);
+        addBeamVertex(builder, m, r, g, b, a, near, -near, -nearClip);
+        addBeamVertex(builder, m, r, g, b, a, -near, -near, -nearClip);
+        addBeamVertex(builder, m, r, g, b, 0, -nearEnd, -nearEnd, -length);
     }
 
     // ── Beam 4D ─────────────────────────────────────────────────────────────

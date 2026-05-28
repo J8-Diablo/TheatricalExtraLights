@@ -20,7 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.Arrays;
 import java.util.List;
 
-public class StrobeBlockEntity extends BaseDMXConsumerLightBlockEntity implements HasPersonality {
+public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements HasPersonality {
     private static final int LEGACY_4CH_MODE = 0;
     private static final int FOCUS_5CH_MODE = 1;
     private static final float MIN_LIGHT_SPREAD = 1.0f;
@@ -109,9 +109,8 @@ public class StrobeBlockEntity extends BaseDMXConsumerLightBlockEntity implement
         if(ourValues.length < channelCount){
             return;
         }
-        if(this.storePrev()){
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        }
+                boolean prevAdvanced = beginDmxUpdate();
+        int _pi = intensity, _pr = red, _pg = green, _pb = blue, _pf = focus, _pp = pan, _pt = tilt;
         intensity = convertByteToInt(ourValues[0]);
         red = convertByteToInt(ourValues[1]);
         green = convertByteToInt(ourValues[2]);
@@ -121,8 +120,7 @@ public class StrobeBlockEntity extends BaseDMXConsumerLightBlockEntity implement
         } else {
             focus = 255;
         }
-        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        setChanged();
+        finishDmxUpdate(intensity != _pi || red != _pr || green != _pg || blue != _pb || focus != _pf || pan != _pp || tilt != _pt, prevAdvanced);
     }
 
     @Override

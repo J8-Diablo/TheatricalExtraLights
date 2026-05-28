@@ -16,7 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
 
-public class Iris700GoboBlockEntity extends BaseDMXConsumerLightBlockEntity
+public class Iris700GoboBlockEntity extends ExtraLightsLightBlockEntity
         implements HasGobo {
 
 
@@ -74,15 +74,17 @@ public class Iris700GoboBlockEntity extends BaseDMXConsumerLightBlockEntity
 
         if (ourValues.length < 10) return;
 
+                        boolean prevAdvanced = beginDmxUpdate();
+        int _pi = intensity, _pr = red, _pg = green, _pb = blue, _pf = focus, _pp = pan, _pt = tilt;
+
         intensity = convertByteToInt(ourValues[0]);
         red = convertByteToInt(ourValues[1]);
         green = convertByteToInt(ourValues[2]);
         blue = convertByteToInt(ourValues[3]);
         focus = convertByteToInt(ourValues[4]);
-        pan = (int) ((convertByteToInt(ourValues[5]) * 360) / 255f) - 180;
-        tilt = (int) ((convertByteToInt(ourValues[6]) * 270) / 255F) - 225;
-
-        int dmxGobo = convertByteToInt(ourValues[7]);
+        pan       = (int) ((convertByteToInt(ourValues[5]) * 360) / 255f) - 180;
+        tilt      = (int) ((convertByteToInt(ourValues[6]) * 270) / 255F) - 225;
+                int dmxGobo = convertByteToInt(ourValues[7]);
 
         int slotCount =
                 getGoboLibrary().getSlotCount();
@@ -102,11 +104,9 @@ public class Iris700GoboBlockEntity extends BaseDMXConsumerLightBlockEntity
             this.zoom = newZoom;
             this.goboSpin = newGoboSpin;
         }
-
-        if (super.storePrev() || customChanged) {
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-            setChanged();
-        }
+        boolean changed = intensity != _pi || red != _pr || green != _pg || blue != _pb
+                || focus != _pf || pan != _pp || tilt != _pt || customChanged;
+        finishDmxUpdate(changed, prevAdvanced);
     }
 
     @Override

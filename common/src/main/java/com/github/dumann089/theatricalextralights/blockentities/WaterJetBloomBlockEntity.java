@@ -18,7 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
 
-public class WaterJetBloomBlockEntity extends BaseDMXConsumerLightBlockEntity
+public class WaterJetBloomBlockEntity extends ExtraLightsLightBlockEntity
         implements HasJetHeight, HasJetThickness, HasJetConeAngle {
 
     public static final float MIN_THICKNESS = 0.02f;

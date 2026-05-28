@@ -575,6 +575,10 @@ public class Items {
     public static final RegistrySupplier<Item> FOLLOWSPOT = ITEMS.register(
         "followspot",
         () -> new BlockItem(Blocks.FOLLOWSPOT_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> FOLLOWSPOT_CONSOLE = ITEMS.register(
+        "followspot_console",
+        () -> new BlockItem(Blocks.FOLLOWSPOT_CONSOLE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     ); 
     public static final RegistrySupplier<Item> BIGSCROLLER = ITEMS.register(
         "bigscroller",

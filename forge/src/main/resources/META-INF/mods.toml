@@ -1,15 +1,15 @@
 modLoader = "javafml"
 loaderVersion = "[46,)"
 #issueTrackerURL = ""
-license = "Apache-2.0"
+license = "MIT"
 
 [[mods]]
 modId = "theatricalextralights"
 version = "${version}"
 displayName = "Theatrical: Extra Lights"
-authors = "dumann089 / Rushmead / J-Diablo"
+authors = "dumann089, Rushmead, J8-Diablo"
 description = '''
-Extra lights for Theatrical, provide Gobo, Firework, Water Jet and More...
+Addon for Theatrical — moving heads, LED panels, PARs, water jets, pyro, lasers, and more stage lighting fixtures with DMX / Art-Net support.
 '''
 #logoFile = ""
 

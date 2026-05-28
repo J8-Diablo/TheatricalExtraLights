@@ -5,7 +5,7 @@ import com.github.dumann089.theatricalextralights.blocks.rig.TrussBlock;
 import com.github.dumann089.theatricalextralights.blocks.rig.TrussJointBlock;
 import com.github.dumann089.theatricalextralights.blocks.rig.TrussCornerBlock;
 import com.github.dumann089.theatricalextralights.blocks.rig.TrussCornerTBlock;
-;import dev.architectury.registry.registries.DeferredRegister;
+import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import dev.imabad.theatrical.blocks.interfaces.ArtNetInterfaceBlock;
 import dev.imabad.theatrical.blocks.light.*;
@@ -185,6 +185,7 @@ public class Blocks {
     public static final RegistrySupplier<Block> TRUSS_JOINT_BLOCK = BLOCKS.register("truss_joint", TrussJointBlock::new);
     public static final RegistrySupplier<Block> TRUSS_CORNER_BLOCK = BLOCKS.register("truss_corner", TrussCornerBlock::new);
     public static final RegistrySupplier<Block> TRUSS_CORNER_T_BLOCK = BLOCKS.register("truss_corner_t", TrussCornerTBlock::new);
+    public static final RegistrySupplier<Block> FOLLOWSPOT_CONSOLE_BLOCK = BLOCKS.register("followspot_console", FollowspotConsoleBlock::new);
 
 
 

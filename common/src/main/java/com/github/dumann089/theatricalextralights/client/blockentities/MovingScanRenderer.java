@@ -96,13 +96,13 @@ public class MovingScanRenderer extends ExtraLightsFixtureRenderer<MovingScanBlo
         //#region Model Tilt
         float[] tilts = blockEntity.getFixture().getTiltRotationPosition();
         poseStack.translate(tilts[0], tilts[1], tilts[2]);
-        int prevTilt = blockEntity.getPrevTilt();
-        int tilt = blockEntity.getTilt();
         if (isFlipped) {
             poseStack.mulPose(Axis.XP.rotationDegrees(-180));
         } else {
             poseStack.mulPose(Axis.XP.rotationDegrees(180));
         }
+        int prevTilt = blockEntity.getPrevTilt();
+        int tilt = blockEntity.getTilt();
         poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel, packedLight, packedOverlay);
@@ -256,13 +256,13 @@ public class MovingScanRenderer extends ExtraLightsFixtureRenderer<MovingScanBlo
         //#region Model Tilt
         float[] tilts = blockEntity.getFixture().getTiltRotationPosition();
         poseStack.translate(tilts[0], tilts[1], tilts[2]);
-        int prevTilt = blockEntity.getPrevTilt();
-        int tilt = blockEntity.getTilt();
         if (isFlipped) {
             poseStack.mulPose(Axis.XP.rotationDegrees(-180));
         } else {
             poseStack.mulPose(Axis.XP.rotationDegrees(180));
         }
+        int prevTilt = blockEntity.getPrevTilt();
+        int tilt = blockEntity.getTilt();
         poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
         //#endregion

@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
 
-public class x8par_whiteBlockEntity extends BaseDMXConsumerLightBlockEntity {
+public class x8par_whiteBlockEntity extends ExtraLightsLightBlockEntity {
 
     public x8par_whiteBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntities.x8PAR_WHITE.get(), pos, state);
@@ -34,15 +34,13 @@ public class x8par_whiteBlockEntity extends BaseDMXConsumerLightBlockEntity {
         if(ourValues.length < 1){
             return;
         }
-        if(this.storePrev()){
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        }
+                boolean prevAdvanced = beginDmxUpdate();
+        int _pi = intensity, _pr = red, _pg = green, _pb = blue, _pf = focus, _pp = pan, _pt = tilt;
         intensity = convertByteToInt(ourValues[0]);
         red = convertByteToInt(ourValues[0]);
         green = convertByteToInt(ourValues[0]);
         blue = convertByteToInt(ourValues[0]);
-        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        setChanged();
+        finishDmxUpdate(intensity != _pi || red != _pr || green != _pg || blue != _pb || focus != _pf || pan != _pp || tilt != _pt, prevAdvanced);
     }
 
     @Override
