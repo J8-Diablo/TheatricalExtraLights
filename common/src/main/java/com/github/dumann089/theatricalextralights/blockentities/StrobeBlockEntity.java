@@ -78,22 +78,34 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
 
     @Override
     public int getFocus() {
-        if (activePersonalityIndex == LEGACY_4CH_MODE) {
-            return 255;
-        }
         return Math.max(1, focus);
     }
 
     @Override
     public float getLightSpread() {
+        if (activePersonalityIndex == LEGACY_4CH_MODE) {
+            return 50.0f;
+        }
         float normalizedFocus = getNormalizedFocus();
         float maxLightSpread = (float) (getFixture().getLightRadius() * FOCUS_SPREAD_MULTIPLIER);
-        return Mth.lerp(normalizedFocus, MIN_LIGHT_SPREAD, maxLightSpread);
+        return Mth.lerp(
+                normalizedFocus,
+                MIN_LIGHT_SPREAD,
+                maxLightSpread
+        );
     }
 
     @Override
     public float getMaxLightDistance() {
-        return Mth.lerp(getNormalizedFocus(), CLOSE_EMISSION_DISTANCE, FAR_EMISSION_DISTANCE);
+        if (activePersonalityIndex == LEGACY_4CH_MODE) {
+            return 50.0f;
+        }
+
+        return Mth.lerp(
+                getNormalizedFocus(),
+                CLOSE_EMISSION_DISTANCE,
+                FAR_EMISSION_DISTANCE
+        );
     }
 
     private float getNormalizedFocus() {
@@ -118,7 +130,7 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
         if (channelCount >= 5) {
             focus = Math.max(1, convertByteToInt(ourValues[4]));
         } else {
-            focus = 255;
+            focus = 128;
         }
         finishDmxUpdate(intensity != _pi || red != _pr || green != _pg || blue != _pb || focus != _pf || pan != _pp || tilt != _pt, prevAdvanced);
     }

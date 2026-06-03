@@ -68,9 +68,9 @@ public abstract class BurstPattern {
 
     public float getBurstLightSpread(int tickIndex) {
         if (tickIndex < 8) {
-            return 200.0f;
+            return 20.0f;
         }
-        return Math.max(0.0f, 200.0f - (tickIndex - 8) * 18.0f);
+        return Math.max(0.0f, 20.0f - (tickIndex - 8) * 18.0f);
     }
 
     public float getFlightHaloInnerSize() {

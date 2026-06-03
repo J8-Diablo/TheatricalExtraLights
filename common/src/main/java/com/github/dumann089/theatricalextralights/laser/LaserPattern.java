@@ -132,7 +132,7 @@ public enum LaserPattern {
      */
     private static List<LaserBeam> line(float size01, float amp01, float rotDeg,
                                         int c1, int c2, int c3) {
-        int count = 80;
+        int count = 16;
         float spanDeg = lerp(size01, 8f, 70f);
         float archDeg = lerp(amp01, 0f, 14f); // amp = arch height (parabolic)
         List<LaserBeam> out = new ArrayList<>(count);
@@ -210,7 +210,7 @@ public enum LaserPattern {
 
     private static List<LaserBeam> wave(float size01, float amp01, float rotDeg,
                                         float animPhase, int c1, int c2, int c3) {
-        int count = 150;
+        int count = 64;
         float spanDeg = lerp(size01, 12f, 70f);   // total horizontal span
         float ampDeg = lerp(amp01, 2f, 25f);       // wave height
         int waves = 3;

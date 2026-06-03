@@ -74,7 +74,7 @@ public class WashlightFixture extends Fixture {
 
     @Override
     public float getBeamWidth() {
-        return 0.16f;
+        return 0.0f;
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.github.dumann089.theatricalextralights.forge;
 
 import com.github.dumann089.theatricalextralights.TheatricalExtraLights;
 import com.github.dumann089.theatricalextralights.TheatricalExtraLightsClient;
-import com.github.dumann089.theatricalextralights.client.ModShaders; // <-- Importa la clase ModShaders
+import com.github.dumann089.theatricalextralights.client.ModShaders;
 import com.github.dumann089.theatricalextralights.client.entities.FireworkRocketRenderer;
 import com.github.dumann089.theatricalextralights.entities.ModEntities;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -22,17 +22,13 @@ public class TheatricalExtraLightsForge {
 
     public TheatricalExtraLightsForge() {
         EventBuses.registerModEventBus(TheatricalExtraLights.MOD_ID, FMLJavaModLoadingContext.get().getModEventBus());
-
-        // Inicialización común del mod
         TheatricalExtraLights.init();
-
-        // Registramos eventos de Forge
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
 
-        // NUEVO: Registramos el evento para cargar nuestro Shader de GPU
+        // Registramos el evento para cargar nuestros Shaders de GPU
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerShaders);
 
-        // Registro nativo Forge del renderer del firework (Architectury falla a veces en el timing)
+        // Registro nativo Forge del renderer del firework
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerEntityRenderers);
     }
 
@@ -45,9 +41,9 @@ public class TheatricalExtraLightsForge {
         TheatricalExtraLightsClient.init();
     }
 
-    // NUEVO: Método que Forge llama automáticamente para registrar Shaders
     private void registerShaders(final RegisterShadersEvent event) {
         try {
+            // 1. Shader Original del Gobo Projector
             event.registerShader(
                     new ShaderInstance(
                             event.getResourceProvider(),
@@ -56,8 +52,19 @@ public class TheatricalExtraLightsForge {
                     ),
                     shader -> ModShaders.goboProjectorShader = shader
             );
+
+            // 2. NUEVO: Shader del Volumetric Beam
+            // IMPORTANTE: Utiliza POSITION_COLOR_TEX porque enviamos coordenadas UV
+            event.registerShader(
+                    new ShaderInstance(
+                            event.getResourceProvider(),
+                            new ResourceLocation("theatricalextralights", "volumetric_beam"),
+                            DefaultVertexFormat.POSITION_COLOR_TEX
+                    ),
+                    shader -> ModShaders.volumetricBeamShader = shader
+            );
         } catch (IOException e) {
-            throw new RuntimeException("Error cargando el shader gobo_projector para Theatrical Extra Lights", e);
+            throw new RuntimeException("Error cargando los shaders para Theatrical Extra Lights", e);
         }
     }
 }

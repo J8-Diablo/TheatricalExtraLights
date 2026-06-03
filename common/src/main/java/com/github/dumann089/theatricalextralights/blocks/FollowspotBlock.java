@@ -1,7 +1,9 @@
 package com.github.dumann089.theatricalextralights.blocks;
 
+import com.github.dumann089.theatricalextralights.TheatricalExtraLightsScreens;
 import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
 import com.github.dumann089.theatricalextralights.blockentities.FollowspotBlockEntity;
+import com.github.dumann089.theatricalextralights.net.OpenExtraLightsScreenPacket;
 import dev.imabad.theatrical.TheatricalClient;
 import dev.imabad.theatrical.TheatricalScreen;
 import dev.imabad.theatrical.blocks.Blocks;
@@ -99,20 +101,16 @@ public class FollowspotBlock extends ExtraLightsLightBlock {
 
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        if(super.use(state, level, pos, player, hand, hit) == InteractionResult.PASS) {
-            if (level.isClientSide) {
-                if (player.isCrouching()) {
-                    if (TheatricalClient.DEBUG_BLOCKS.contains(pos)) {
-                        TheatricalClient.DEBUG_BLOCKS.remove(pos);
-                    } else {
-                        TheatricalClient.DEBUG_BLOCKS.add(pos);
-                    }
-                    return InteractionResult.SUCCESS;
-                }
-            } else {
-                new OpenScreen(pos, TheatricalScreen.GENERIC_DMX).sendTo((ServerPlayer) player);
+        if (super.use(state, level, pos, player, hand, hit) == InteractionResult.PASS) {
+            if (player.isCrouching()) {
+                return InteractionResult.SUCCESS;
+            }
+            if (!level.isClientSide) {
+                new OpenExtraLightsScreenPacket(pos, TheatricalExtraLightsScreens.CHANNEL_MENU)
+                        .sendTo((ServerPlayer) player);
             }
         }
+
         return InteractionResult.SUCCESS;
     }
 

@@ -379,6 +379,30 @@ public class Items {
         "vl6000",
         () -> new BlockItem(Blocks.VL6000_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
+    public static final RegistrySupplier<Item> MOVING_VL2C_BEAMS = ITEMS.register(
+            "moving_vl2c_beams",
+            () -> new BlockItem(Blocks.MOVING_VL2C_BEAMS_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> MOVING_SCAN_BEAMS = ITEMS.register(
+            "moving_scan_beams",
+            () -> new BlockItem(Blocks.MOVING_SCAN_BEAMS_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> SPOT_XTREME_GOBO = ITEMS.register(
+            "spot_xtreme_gobo",
+            () -> new BlockItem(Blocks.SPOT_XTREME_GOBO_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> VL6C_GOBO = ITEMS.register(
+            "vl6c_gobo",
+            () -> new BlockItem(Blocks.VL6C_GOBO_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> IRIS_700_GOBO = ITEMS.register(
+            "iris_700_gobo",
+            () -> new BlockItem(Blocks.IRIS_700_GOBO_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> PRO_SPOT_GOBO = ITEMS.register(
+            "pro_spot_gobo",
+            () -> new BlockItem(Blocks.PRO_SPOT_GOBO_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
     public static final RegistrySupplier<Item> WASHLED = ITEMS.register(
             "washled",
             () -> new BlockItem(Blocks.WASHLED_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
@@ -639,26 +663,6 @@ public class Items {
     public static final RegistrySupplier<Item> WATER_JET_FOG = ITEMS.register(
             "water_jet_fog",
             () -> new BlockItem(Blocks.WATER_JET_FOG_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
-    );
-    public static final RegistrySupplier<Item> MOVING_VL2C_BEAMS = ITEMS.register(
-            "moving_vl2c_beams",
-            () -> new BlockItem(Blocks.MOVING_VL2C_BEAMS_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
-    );
-    public static final RegistrySupplier<Item> MOVING_SCAN_BEAMS = ITEMS.register(
-            "moving_scan_beams",
-            () -> new BlockItem(Blocks.MOVING_SCAN_BEAMS_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
-    );
-    public static final RegistrySupplier<Item> SPOT_XTREME_GOBO = ITEMS.register(
-            "spot_xtreme_gobo",
-            () -> new BlockItem(Blocks.SPOT_XTREME_GOBO_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
-    );
-    public static final RegistrySupplier<Item> VL6C_GOBO = ITEMS.register(
-            "vl6c_gobo",
-            () -> new BlockItem(Blocks.VL6C_GOBO_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
-    );
-    public static final RegistrySupplier<Item> IRIS_700_GOBO = ITEMS.register(
-            "iris_700_gobo",
-            () -> new BlockItem(Blocks.IRIS_700_GOBO_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
 
     public static void init(){

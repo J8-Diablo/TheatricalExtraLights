@@ -8,7 +8,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -16,76 +15,55 @@ public class TheatricalExtraLightsConfig {
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final File FILE = new File("config/theatricalextralights.json");
+    private static TheatricalExtraLightsConfig INSTANCE = new TheatricalExtraLightsConfig();
 
-    /* ================= DEFAULT VALUES ================= */
+    /* ================= CAMPOS DE CONFIGURACIÓN ================= */
+
+
 
     private Float laserBeamLength = 400.0f;
     private Float rgbBarBeamLength = 9.0f;
     private Boolean renderLens = true;
     private Float maxGoboDistance = 500.0f;
+    private Boolean render2DBeam = true;
+    private List<String> laserPassThroughBlocks = null;
 
-    /**
-     * Block IDs (e.g. "minecraft:black_concrete") that lasers pass through
-     * instead of stopping on. Use this for scenic decor blocks (backdrops,
-     * trusses made of regular blocks, etc.) so beams continue to a real wall
-     * behind them. Mod blocks from "theatrical" and "theatricalextralights"
-     * are always skipped — no need to list them.
-     */
-    private List<String> laserPassThroughBlocks = new java.util.ArrayList<>(Arrays.asList(
-            "minecraft:glass",
-            "minecraft:tinted_glass",
-            "minecraft:iron_bars",
-            "minecraft:barrier"
-    ));
+    private Boolean volumetricBeamEnabled = true;
+    private Float volumetricBeamDistance = 64.0f;
+    private Float volumetricBeamBrightness = 0.15f;
 
-    private transient Set<String> laserPassThroughSet = null;
-    private Boolean render2DBeam = false;
+    private Integer volumetricBeamSlices = 128;
+    private Float volumetricBeamDensity = 0.15f;
+    private Float volumetricBeamMaxAlpha = 0.15f;
+    private Float volumetricBeamFadeLength = 12.0f;
 
-    /* ================= SINGLETON ================= */
+    private transient Set<String> laserPassThroughSet;
 
-    private static TheatricalExtraLightsConfig INSTANCE = new TheatricalExtraLightsConfig();
+    static {
+        load();
+    }
+
+    public static void reload() {
+        load();
+    }
 
     public static void load() {
-        TheatricalExtraLightsConfig defaults = new TheatricalExtraLightsConfig();
+        File parent = FILE.getParentFile();
+        if (parent != null && !parent.exists()) {
+            parent.mkdirs();
+        }
 
         if (FILE.exists()) {
             try (FileReader reader = new FileReader(FILE)) {
-
-                TheatricalExtraLightsConfig loaded =
-                        GSON.fromJson(reader, TheatricalExtraLightsConfig.class);
-
+                TheatricalExtraLightsConfig loaded = GSON.fromJson(reader, TheatricalExtraLightsConfig.class);
                 if (loaded != null) {
-
-                    if (loaded.laserBeamLength != null)
-                        defaults.laserBeamLength = loaded.laserBeamLength;
-
-                    if (loaded.rgbBarBeamLength != null)
-                        defaults.rgbBarBeamLength = loaded.rgbBarBeamLength;
-
-                    if (loaded.renderLens != null)
-                        defaults.renderLens = loaded.renderLens;
-
-                    if (loaded.maxGoboDistance != null)
-                        defaults.maxGoboDistance = loaded.maxGoboDistance;
-
-                    if (loaded.laserPassThroughBlocks != null)
-                        defaults.laserPassThroughBlocks = loaded.laserPassThroughBlocks;
-
-                    if (loaded.render2DBeam != null)
-                        defaults.render2DBeam = loaded.render2DBeam;
+                    INSTANCE = loaded;
                 }
-
-                INSTANCE = defaults;
-                INSTANCE.ensureValidValues();
-                save();
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } else {
-            INSTANCE = defaults;
-            save();
         }
+        save();
     }
 
     public static void save() {
@@ -96,44 +74,31 @@ public class TheatricalExtraLightsConfig {
         }
     }
 
-    private void ensureValidValues() {
-        if (laserBeamLength == null || laserBeamLength < 20f)
-            laserBeamLength = 20f;
-
-        if (rgbBarBeamLength == null || rgbBarBeamLength < 1f)
-            rgbBarBeamLength = 1f;
-
-        if (renderLens == null)
-            renderLens = true;
-
-        if (maxGoboDistance == null || maxGoboDistance < 10f)
-            maxGoboDistance = 10f;
-
-        if (laserPassThroughBlocks == null)
-            laserPassThroughBlocks = new java.util.ArrayList<>();
-        laserPassThroughSet = new HashSet<>(laserPassThroughBlocks);
-
-        if (render2DBeam == null)
-            render2DBeam = true;
-    }
-
     /* ================= GETTERS ================= */
 
-    public static float getLaserBeamLength() {
-        return INSTANCE.laserBeamLength;
-    }
+    public static boolean isVolumetricBeamEnabled() { return INSTANCE.volumetricBeamEnabled; }
+    public static float getVolumetricBeamDistance() { return INSTANCE.volumetricBeamDistance; }
+    public static float getVolumetricBeamBrightness() { return INSTANCE.volumetricBeamBrightness; }
+    public static int getVolumetricBeamSlices() { return INSTANCE.volumetricBeamSlices; }
+    public static float getVolumetricBeamDensity() { return INSTANCE.volumetricBeamDensity; }
+    public static float getVolumetricBeamMaxAlpha() { return INSTANCE.volumetricBeamMaxAlpha; }
+    public static float getVolumetricBeamFadeLength() { return INSTANCE.volumetricBeamFadeLength != null ? INSTANCE.volumetricBeamFadeLength : 2.0f; }
+    public static float getLaserBeamLength() { return INSTANCE.laserBeamLength; }
+    public static float getRgbBarBeamLength() { return INSTANCE.rgbBarBeamLength; }
+    public static boolean shouldRenderLens() { return INSTANCE.renderLens; }
+    public static float getMaxGoboDistance() { return INSTANCE.maxGoboDistance; }
+    public static boolean shouldRender2DBeam() { return INSTANCE.render2DBeam; }
 
-    public static float getRgbBarBeamLength() {
-        return INSTANCE.rgbBarBeamLength;
-    }
+    /* ================= SETTERS ================= */
 
-    public static boolean shouldRenderLens() {
-        return INSTANCE.renderLens;
-    }
-
-    public static float getMaxGoboDistance() {
-        return INSTANCE.maxGoboDistance;
-    }
+    public static void setVolumetricBeamEnabled(boolean value) { INSTANCE.volumetricBeamEnabled = value; save(); }
+    public static void setVolumetricBeamDistance(float value) { INSTANCE.volumetricBeamDistance = value; save(); }
+    public static void setVolumetricBeamBrightness(float value) { INSTANCE.volumetricBeamBrightness = value; save(); }
+    public static void setVolumetricBeamFadeLength(float value) { INSTANCE.volumetricBeamFadeLength = value; save(); }
+    public static void setLaserBeamLength(float value) { INSTANCE.laserBeamLength = Math.max(20f, value); save(); }
+    public static void setRgbBarBeamLength(float value) { INSTANCE.rgbBarBeamLength = Math.max(1f, value); save(); }
+    public static void setRenderLens(boolean value) { INSTANCE.renderLens = value; save(); }
+    public static void setMaxGoboDistance(float value) { INSTANCE.maxGoboDistance = value; save(); }
 
     public static boolean isLaserPassThrough(String blockId) {
         if (INSTANCE.laserPassThroughSet == null) {
@@ -142,31 +107,5 @@ public class TheatricalExtraLightsConfig {
                     : new HashSet<>(INSTANCE.laserPassThroughBlocks);
         }
         return INSTANCE.laserPassThroughSet.contains(blockId);
-    }
-
-    public static boolean shouldRender2DBeam() {
-        return INSTANCE.render2DBeam;
-    }
-
-    /* ================= SETTERS ================= */
-
-    public static void setLaserBeamLength(float value) {
-        INSTANCE.laserBeamLength = Math.max(20f, value);
-    }
-
-    public static void setRgbBarBeamLength(float value) {
-        INSTANCE.rgbBarBeamLength = Math.max(1f, value);
-    }
-
-    public static void setRenderLens(boolean value) {
-        INSTANCE.renderLens = value;
-    }
-
-    public static void setMaxGoboDistance(float value) {
-        INSTANCE.maxGoboDistance = Math.max(10f, value);
-    }
-
-    public static void setRender2DBeam(boolean value) {
-        INSTANCE.render2DBeam = value;
     }
 }

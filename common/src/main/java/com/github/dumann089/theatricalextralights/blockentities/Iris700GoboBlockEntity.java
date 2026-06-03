@@ -86,13 +86,11 @@ public class Iris700GoboBlockEntity extends ExtraLightsLightBlockEntity
         tilt      = (int) ((convertByteToInt(ourValues[6]) * 270) / 255F) - 225;
                 int dmxGobo = convertByteToInt(ourValues[7]);
 
-        int slotCount =
-                getGoboLibrary().getSlotCount();
+        int slotCount = getGoboLibrary().getSlotCount();
 
-        int newGobo = Math.min(
-                slotCount - 1,
-                (int)((dmxGobo / 255f) * slotCount)
-        );
+        int newGobo = Math.round((dmxGobo / 255f) * (slotCount - 1));
+
+        newGobo = Math.min(slotCount - 1, Math.max(0, newGobo));
 
         int newZoom = convertByteToInt(ourValues[8]);
         int newGoboSpin = convertByteToInt(ourValues[9]);

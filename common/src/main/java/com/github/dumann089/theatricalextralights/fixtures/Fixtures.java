@@ -377,6 +377,9 @@ public class Fixtures {
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "vl6c_gobo"), VL6CGoboFixture::new);
     public static final RegistrySupplier<Fixture> IRIS_700_GOBO =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "iris_700_gobo"), Iris700GoboFixture::new);
+    public static final RegistrySupplier<Fixture> PRO_SPOT_GOBO =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "pro_spot_gobo"), ProSpotGoboFixture::new);
+
 
     public static Fixture getFireworkFixture(FireworkPreset preset) {
         return switch (preset) {

@@ -1,8 +1,9 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
-import com.github.dumann089.theatricalextralights.blockentities.*;
+import com.github.dumann089.theatricalextralights.blockentities.Par1000BlueBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.Par1000WhiteBlockEntity;
 import com.github.dumann089.theatricalextralights.client.Beam2DRenderTypes;
-import com.github.dumann089.theatricalextralights.client.LensRenderTypes;
+import com.github.dumann089.theatricalextralights.client.gobo.GoboLibrary;
 import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -10,8 +11,6 @@ import com.mojang.math.Axis;
 import dev.imabad.theatrical.TheatricalExpectPlatform;
 import dev.imabad.theatrical.blocks.HangableBlock;
 import dev.imabad.theatrical.client.LazyRenderers;
-import dev.imabad.theatrical.client.TheatricalRenderTypes;
-import com.github.dumann089.theatricalextralights.client.blockentities.ExtraLightsRenderer;
 import dev.imabad.theatrical.config.TheatricalConfig;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -20,55 +19,55 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-
 import java.util.Optional;
-
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
 
 public class Par1000BlueRenderer extends ExtraLightsFixtureRenderer<Par1000BlueBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
+
+    // Local lens exit point — matches the original beforeRenderBeam translate.
+    private static final Vec3 LENS_OFFSET = new Vec3(0.5f, 0.56f, 0.143f);
+
+    // Par fixtures have a wide, fixed beam — no zoom. Both angles are the same
+    // so zoomNorm has no effect. Adjust to match the real fixture's spread.
+
     public Par1000BlueRenderer(BlockEntityRendererProvider.Context context) {
         super(context);
     }
 
     @Override
     public void renderModel(Par1000BlueBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging, int packedLight, int packedOverlay) {
-        if(cachedStaticModel == null){
+        if (cachedStaticModel == null) {
             cachedStaticModel = TheatricalExpectPlatform.getBakedModel(blockEntity.getFixture().getStaticModel());
         }
-        if (cachedPanModel == null){
+        if (cachedPanModel == null) {
             cachedPanModel = TheatricalExpectPlatform.getBakedModel(blockEntity.getFixture().getPanModel());
         }
-        if (cachedTiltModel == null){
+        if (cachedTiltModel == null) {
             cachedTiltModel = TheatricalExpectPlatform.getBakedModel(blockEntity.getFixture().getTiltModel());
         }
-        //#region Fixture Hanging
+
         poseStack.translate(0.5F, 0, .5F);
-        if(isHanging){
+        if (isHanging) {
             Direction hangDirection = blockState.getValue(HangableBlock.HANG_DIRECTION);
             poseStack.translate(0, 0.5, 0F);
-            if(hangDirection.getAxis() != Direction.Axis.Y){
-                if(hangDirection.getAxis() == Direction.Axis.Z){
-                    if(hangDirection == Direction.SOUTH) {
+            if (hangDirection.getAxis() != Direction.Axis.Y) {
+                if (hangDirection.getAxis() == Direction.Axis.Z) {
+                    if (hangDirection == Direction.SOUTH) {
                         poseStack.mulPose(Axis.XP.rotationDegrees(-90));
                     } else {
                         poseStack.mulPose(Axis.XP.rotationDegrees(90));
                     }
                     poseStack.mulPose(Axis.YP.rotationDegrees(180));
                 } else {
-                    if(hangDirection == Direction.EAST) {
+                    if (hangDirection == Direction.EAST) {
                         poseStack.mulPose(Axis.ZN.rotationDegrees(-90));
                     } else {
                         poseStack.mulPose(Axis.ZN.rotationDegrees(90));
                     }
                 }
-            } else {
-                //TODO: Handle hanging up
             }
             poseStack.translate(0, -0.5, 0F);
         }
-        //#endregion
         poseStack.mulPose(Axis.YP.rotationDegrees(facing.toYRot()));
         poseStack.translate(-0.5F, 0, -.5F);
         if (isHanging) {
@@ -86,9 +85,9 @@ public class Par1000BlueRenderer extends ExtraLightsFixtureRenderer<Par1000BlueB
             poseStack.mulPose(Axis.ZP.rotationDegrees(180));
             poseStack.translate(-0.5F, -0.5, -.5F);
         }
-        // Static Model Render
+
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedStaticModel, packedLight, packedOverlay);
-        //#region Model Pan
+
         float[] pans = blockEntity.getFixture().getPanRotationPosition();
         poseStack.translate(pans[0], pans[1], pans[2]);
         int prevPan = blockEntity.getPrevPan();
@@ -96,8 +95,7 @@ public class Par1000BlueRenderer extends ExtraLightsFixtureRenderer<Par1000BlueB
         poseStack.mulPose(Axis.YP.rotationDegrees((prevPan + (pan - prevPan) * partialTicks)));
         poseStack.translate(-pans[0], -pans[1], -pans[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedPanModel, packedLight, packedOverlay);
-        //#endregion
-        //#region Model Tilt
+
         float[] tilts = blockEntity.getFixture().getTiltRotationPosition();
         poseStack.translate(tilts[0], tilts[1], tilts[2]);
         if (isFlipped) {
@@ -110,9 +108,12 @@ public class Par1000BlueRenderer extends ExtraLightsFixtureRenderer<Par1000BlueB
         poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel, packedLight, packedOverlay);
-        //#endregion
     }
+
     private final Double beamOpacity = TheatricalConfig.INSTANCE.CLIENT.beamOpacity;
+
+    private static final float MIN_ANGLE_DEG = 7.0f;
+    private static final float MAX_ANGLE_DEG = 7.0f;
 
     @Override
     public void beforeRenderBeam(
@@ -128,83 +129,90 @@ public class Par1000BlueRenderer extends ExtraLightsFixtureRenderer<Par1000BlueB
             int packedLight,
             int packedOverlay
     ) {
-        if (blockEntity.getIntensity() > 0) {
-            LazyRenderers.addLazyRender(new LazyRenderers.LazyRenderer() {
+        if (blockEntity.getIntensity() <= 0) return;
 
-                @Override
-                public void render(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, Camera camera, float partialTick) {
-                    poseStack.pushPose();
-                    Vec3 offset = Vec3.atLowerCornerOf(blockEntity.getBlockPos())
-                            .subtract(camera.getPosition());
-                    poseStack.translate(offset.x, offset.y, offset.z);
-                    preparePoseStack(blockEntity, poseStack, facing, partialTick, isFlipped, blockstate, isHanging);
+        int color = blockEntity.getColour();
+        float intensityNorm = blockEntity.getIntensity() / 255.0f;
+        float baseRadius = 0.25f;
 
-                    float intensity = blockEntity.getPrevIntensity()
-                            + (blockEntity.getIntensity() - blockEntity.getPrevIntensity()) * partialTick;
-                    int color = blockEntity.getColour();
-                    float alpha = (intensity / 255f) * beamOpacity.floatValue();
+        PoseStack beamPose = new PoseStack();
+        preparePoseStack(blockEntity, beamPose, facing, partialTicks, isFlipped, blockstate, isHanging);
+        beamPose.translate(LENS_OFFSET.x, LENS_OFFSET.y, LENS_OFFSET.z);
 
-                    // BEAM
-                    VertexConsumer builder = multiBufferSource.getBuffer(Beam2DRenderTypes.getBeam());
+        submitVolumetricBeam(
+                blockEntity,
+                beamPose,
+                partialTicks,
+                MIN_ANGLE_DEG,
+                MAX_ANGLE_DEG,
+                GoboLibrary.MACVIP,
+                0,
+                0.0f,        // focusNorm
+                1.0f,        // widthScale
+                1.0f,        // heightScale
+                0,           // beamIndex
+                color,
+                intensityNorm,
+                0.30f        // baseRadius
+        );
+        // ── Lens glow + lens cap ─────────────────────────────────────────────
+        LazyRenderers.addLazyRender(new LazyRenderers.LazyRenderer() {
+            @Override
+            public void render(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, Camera camera, float partialTick) {
+                poseStack.pushPose();
+                Vec3 offset = Vec3.atLowerCornerOf(blockEntity.getBlockPos()).subtract(camera.getPosition());
+                poseStack.translate(offset.x, offset.y, offset.z);
+                preparePoseStack(blockEntity, poseStack, facing, partialTick, isFlipped, blockstate, isHanging);
 
-                    if (TheatricalExtraLightsConfig.shouldRender2DBeam()) {
-                        poseStack.pushPose();
-                        poseStack.translate(0.5f, 0.56f, 0.143f);
-                        renderLightBeam2D(builder, poseStack, blockEntity, camera, alpha, 0.14f, (float) blockEntity.getDistance(), color, 0.002f);
-                        poseStack.popPose();
-                    } else {
-                        poseStack.pushPose();
-                        poseStack.translate(0.5f, 0.56f, 0.143f);
-                        renderLightBeam4D(builder, poseStack, blockEntity, partialTick, alpha, 0.14f, (float) blockEntity.getDistance(), color, 0.002f);
-                        poseStack.popPose();
-                    }
+                float intensity = blockEntity.getPrevIntensity()
+                        + (blockEntity.getIntensity() - blockEntity.getPrevIntensity()) * partialTick;
+                int   color = blockEntity.getColour();
+                float alpha = (intensity / 255f) * beamOpacity.floatValue();
 
-                    // LENS 2D GLOW
-                    poseStack.pushPose();
-                    poseStack.translate(0.5f, 0.56f, 0.143);
-                    renderLensGlow(builder, poseStack, color, 0.18f);
-                    poseStack.popPose();
+                VertexConsumer builder = multiBufferSource.getBuffer(Beam2DRenderTypes.getBeam());
 
-                    // LENS
-                    renderLens(multiBufferSource, poseStack, alpha, color, 0.88f, 0.5f, 0.56f, 0.143f);
+                poseStack.pushPose();
+                poseStack.translate(LENS_OFFSET.x, LENS_OFFSET.y, LENS_OFFSET.z);
+                renderLensGlow(builder, poseStack, color, 0.18f);
+                poseStack.popPose();
 
-                    poseStack.popPose();
-                }
-                @Override
-                public Vec3 getPos(float partialTick) {
-                    return blockEntity.getBlockPos().getCenter();
-                }
-            });
-        }
+                renderLens(bufferSource, poseStack, alpha, color,
+                        0.88f, (float) LENS_OFFSET.x, (float) LENS_OFFSET.y, (float) LENS_OFFSET.z);
+
+                poseStack.popPose();
+            }
+
+            @Override
+            public Vec3 getPos(float partialTick) {
+                return blockEntity.getBlockPos().getCenter();
+            }
+        });
     }
 
     @Override
     public void preparePoseStack(Par1000BlueBlockEntity blockEntity, PoseStack poseStack, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging) {
         poseStack.translate(0.5F, 0, .5F);
-        if(isHanging){
+        if (isHanging) {
             Direction hangDirection = blockState.getValue(HangableBlock.HANG_DIRECTION);
             poseStack.translate(0, 0.5, 0F);
-            if(hangDirection.getAxis() != Direction.Axis.Y){
-                if(hangDirection.getAxis() == Direction.Axis.Z){
-                    if(hangDirection == Direction.SOUTH) {
+            if (hangDirection.getAxis() != Direction.Axis.Y) {
+                if (hangDirection.getAxis() == Direction.Axis.Z) {
+                    if (hangDirection == Direction.SOUTH) {
                         poseStack.mulPose(Axis.XP.rotationDegrees(-90));
                     } else {
                         poseStack.mulPose(Axis.XP.rotationDegrees(90));
                     }
                     poseStack.mulPose(Axis.YP.rotationDegrees(180));
                 } else {
-                    if(hangDirection == Direction.EAST) {
+                    if (hangDirection == Direction.EAST) {
                         poseStack.mulPose(Axis.ZN.rotationDegrees(-90));
                     } else {
                         poseStack.mulPose(Axis.ZN.rotationDegrees(90));
                     }
                 }
-            } else {
-                //TODO: Handle hanging up
             }
             poseStack.translate(0, -0.5, 0F);
         }
-        //#endregion
         poseStack.mulPose(Axis.YP.rotationDegrees(facing.toYRot()));
         poseStack.translate(-0.5F, 0, -.5F);
         if (isHanging) {
@@ -228,8 +236,7 @@ public class Par1000BlueRenderer extends ExtraLightsFixtureRenderer<Par1000BlueB
         int pan = blockEntity.getPan();
         poseStack.mulPose(Axis.YP.rotationDegrees((prevPan + (pan - prevPan) * partialTicks)));
         poseStack.translate(-pans[0], -pans[1], -pans[2]);
-        //#endregion
-        //#region Model Tilt
+
         float[] tilts = blockEntity.getFixture().getTiltRotationPosition();
         poseStack.translate(tilts[0], tilts[1], tilts[2]);
         if (isFlipped) {
@@ -241,6 +248,5 @@ public class Par1000BlueRenderer extends ExtraLightsFixtureRenderer<Par1000BlueB
         int tilt = blockEntity.getTilt();
         poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
-        //#endregion
     }
 }

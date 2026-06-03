@@ -174,6 +174,7 @@ public class BlockEntities {
     public static final RegistrySupplier<BlockEntityType<SpotXtremeGoboBlockEntity>> SPOT_XTREME_GOBO = BLOCK_ENTITIES.register("spot_xtreme_gobo", () -> BlockEntityType.Builder.of(SpotXtremeGoboBlockEntity::new, Blocks.SPOT_XTREME_GOBO_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<VL6CGoboBlockEntity>> VL6C_GOBO = BLOCK_ENTITIES.register("vl6c_gobo", () -> BlockEntityType.Builder.of(VL6CGoboBlockEntity::new, Blocks.VL6C_GOBO_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<Iris700GoboBlockEntity>> IRIS_700_GOBO = BLOCK_ENTITIES.register("iris_700_gobo", () -> BlockEntityType.Builder.of(Iris700GoboBlockEntity::new, Blocks.IRIS_700_GOBO_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<ProSpotGoboBlockEntity>> PRO_SPOT_GOBO = BLOCK_ENTITIES.register("pro_spot_gobo", () -> BlockEntityType.Builder.of(ProSpotGoboBlockEntity::new, Blocks.PRO_SPOT_GOBO_BLOCK.get()).build(null));
 
 
     public static final RegistrySupplier<BlockEntityType<a1x1par64BlockEntity>> A1X1PAR64 = BLOCK_ENTITIES.register("a1x1par64", () -> BlockEntityType.Builder.of(a1x1par64BlockEntity::new, Blocks.A1X1PAR64_BLOCK.get()).build(null));

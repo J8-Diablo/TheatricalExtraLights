@@ -1,14 +1,15 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.WashlightBlockEntity;
+import com.github.dumann089.theatricalextralights.client.Beam2DRenderTypes;
+import com.github.dumann089.theatricalextralights.client.gobo.GoboLibrary;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.imabad.theatrical.TheatricalExpectPlatform;
 import dev.imabad.theatrical.blocks.HangableBlock;
 import dev.imabad.theatrical.client.LazyRenderers;
-import dev.imabad.theatrical.client.TheatricalRenderTypes;
-import com.github.dumann089.theatricalextralights.client.blockentities.ExtraLightsRenderer;
+import dev.imabad.theatrical.config.TheatricalConfig;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -19,11 +20,16 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
 
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
+public class WashlightRenderer extends ExtraLightsFixtureRenderer<WashlightBlockEntity> {
 
-public class WashlightRenderer extends ExtraLightsRenderer<WashlightBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
+
+    private final Double beamOpacity = TheatricalConfig.INSTANCE.CLIENT.beamOpacity;
+    private static final Vec3 LENS_OFFSET = new Vec3(0.5f, 0.812F, 0.258F);
+
+    // Al no tener zoom, dejamos el ángulo fijo (puedes cambiarlo si quieres un rayo más gordo o fino)
+    private static final float MIN_ANGLE_DEG = 1.0f;
+    private static final float MAX_ANGLE_DEG = 15.0f;
 
     public WashlightRenderer(BlockEntityRendererProvider.Context context) {
         super(context);
@@ -110,40 +116,65 @@ public class WashlightRenderer extends ExtraLightsRenderer<WashlightBlockEntity>
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel, packedLight, packedOverlay);
         //#endregion
     }
+
     @Override
     public void beforeRenderBeam(WashlightBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer, MultiBufferSource multiBufferSource, Direction facing, float partialTicks, boolean isFlipped, BlockState blockstate, boolean isHanging, int packedLight, int packedOverlay) {
-        if(blockEntity.getIntensity() > 0){
-            LazyRenderers.addLazyRender(new LazyRenderers.LazyRenderer() {
-                @Override
-                public void render(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, Camera camera, float partialTick) {
-                    poseStack.pushPose();
-                    Vec3 offset = Vec3.atLowerCornerOf(blockEntity.getBlockPos()).subtract(camera.getPosition());
-                    poseStack.translate(offset.x, offset.y, offset.z);
-                    preparePoseStack(blockEntity, poseStack, facing, partialTick, isFlipped, blockstate, isHanging);
-                    VertexConsumer beamConsumer = multiBufferSource.getBuffer(TheatricalRenderTypes.BEAM);
-//            poseStack.translate(blockEntity.getFixture().getBeamStartPosition()[0], blockEntity.getFixture().getBeamStartPosition()[1], blockEntity.getFixture().getBeamStartPosition()[2]);
-                    float intensity = (blockEntity.getPrevIntensity() + ((blockEntity.getIntensity()) - blockEntity.getPrevIntensity()) * partialTicks);
-                    int color = blockEntity.getColour();
-                    int r = (color >> 16) & 0xFF;
-                    int g = (color >> 8) & 0xFF;
-                    int b = color & 0xFF;
-                    int a = (int) (((float) ((intensity * 1) / 255f)) * 255);
-                    poseStack.translate(0.5F, 0.8125F, 0.258F);
-                    Matrix4f m = poseStack.last().pose();
-                    Matrix3f normal = poseStack.last().normal();
-                    addVertex(beamConsumer, m, normal, r, g, b, a, -0.1875f, 0.1875f , 0f);
-                    addVertex(beamConsumer, m, normal, r, g, b, a,  0.1875f, 0.1875f, 0f);
-                    addVertex(beamConsumer, m, normal, r, g, b, a, 0.1875f, -0.1875f,0f);
-                    addVertex(beamConsumer, m, normal, r, g, b, a,-0.1875f, -0.1875f, 0f);
-                    poseStack.popPose();
-                }
+        if(blockEntity.getIntensity() <= 0) return;
 
-                @Override
-                public Vec3 getPos(float partialTick) {
-                    return blockEntity.getBlockPos().getCenter();
-                }
-            });
-        }
+        float focusInterpolated = blockEntity.getPrevFocus() + (blockEntity.getFocus() - blockEntity.getPrevFocus()) * partialTicks;
+        float focusNorm = focusInterpolated / 255f;
+
+        PoseStack beamPose = new PoseStack();
+        preparePoseStack(blockEntity, beamPose, facing, partialTicks, isFlipped, blockstate, isHanging);
+        beamPose.translate(LENS_OFFSET.x, LENS_OFFSET.y, LENS_OFFSET.z);
+
+        submitVolumetricBeam(
+                blockEntity,
+                beamPose,
+                partialTicks,
+                MIN_ANGLE_DEG,
+                MAX_ANGLE_DEG,
+                GoboLibrary.MACVIP,
+                0,
+                focusNorm,
+                1.0f,
+                1.0f,
+                0,
+                blockEntity.getColour(),
+                blockEntity.getIntensity() / 255.0f,
+                0.25f
+        );
+
+        // ── 4. GLOW DE LA LENTE (Efecto físico en el faro) ──
+        LazyRenderers.addLazyRender(new LazyRenderers.LazyRenderer() {
+            @Override
+            public void render(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, Camera camera, float partialTick) {
+                poseStack.pushPose();
+                Vec3 offset = Vec3.atLowerCornerOf(blockEntity.getBlockPos()).subtract(camera.getPosition());
+                poseStack.translate(offset.x, offset.y, offset.z);
+                preparePoseStack(blockEntity, poseStack, facing, partialTick, isFlipped, blockstate, isHanging);
+
+                float intensity = (blockEntity.getPrevIntensity() + ((blockEntity.getIntensity()) - blockEntity.getPrevIntensity()) * partialTick);
+                int color = blockEntity.getColour();
+                float alpha = (intensity / 255f) * beamOpacity.floatValue();
+
+                VertexConsumer builder = bufferSource.getBuffer(Beam2DRenderTypes.getBeam());
+
+                poseStack.pushPose();
+                poseStack.translate(LENS_OFFSET.x, LENS_OFFSET.y, LENS_OFFSET.z);
+                renderLensGlow(builder, poseStack, color, 0.25f);
+                poseStack.popPose();
+
+                renderLens(bufferSource, poseStack, alpha, color, 0.30f, (float) LENS_OFFSET.x, (float) LENS_OFFSET.y, (float) LENS_OFFSET.z);
+
+                poseStack.popPose();
+            }
+
+            @Override
+            public Vec3 getPos(float partialTick) {
+                return blockEntity.getBlockPos().getCenter();
+            }
+        });
     }
 
     @Override
