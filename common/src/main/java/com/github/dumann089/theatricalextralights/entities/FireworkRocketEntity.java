@@ -23,9 +23,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 public class FireworkRocketEntity extends Entity implements EntitySpawnExtension, DynamicLightProvider {
@@ -41,7 +39,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
     private boolean fading;
     private boolean burstStarted;
     private final List<Spark> sparks = new ArrayList<>();
-    private final Set<BlockPos> registeredLightPositions = new HashSet<>();
+    private boolean shimmerLightRegistered;
 
     public FireworkRocketEntity(EntityType<? extends FireworkRocketEntity> entityType, Level level) {
         super(entityType, level);
@@ -232,22 +230,18 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
         }
         if (getLightLuminance() > 0) {
             FireworkLightCompat.sync(this);
-            registeredLightPositions.add(getOwnerPos());
-            registeredLightPositions.add(blockPosition());
-        } else if (!registeredLightPositions.isEmpty()) {
+            shimmerLightRegistered = true;
+        } else if (shimmerLightRegistered) {
             releaseLight();
         }
     }
 
     private void releaseLight() {
-        if (registeredLightPositions.isEmpty()) {
+        if (!shimmerLightRegistered) {
             return;
         }
-        for (BlockPos pos : registeredLightPositions) {
-            FireworkLightCompat.removeAt(pos);
-        }
         FireworkLightCompat.remove(this);
-        registeredLightPositions.clear();
+        shimmerLightRegistered = false;
     }
 
     @Override
@@ -282,7 +276,8 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
     @Override
     public void remove(RemovalReason reason) {
-        releaseLight();
+        FireworkLightCompat.remove(this);
+        shimmerLightRegistered = false;
         super.remove(reason);
     }
 
