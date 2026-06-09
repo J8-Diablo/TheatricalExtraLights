@@ -305,8 +305,6 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
     public void resetLight() {
     }
 
-    private static final int BURST_LIGHT_TICKS = 8;
-
     @Override
     public int getLightLuminance() {
         if (!level().isClientSide) {
@@ -314,10 +312,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
         }
         BurstPattern pattern = preset.getPattern();
         if (exploded) {
-            if (burstTickIndex < BURST_LIGHT_TICKS) {
-                return 15;
-            }
-            return 0;
+            return pattern.getBurstLuminance(burstTickIndex);
         }
         if (fading) {
             return 0;
@@ -346,19 +341,16 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
     @Override
     public int getLightColour() {
         int color = preset.getLaunchColor();
-        return (0xFF << 24) | color;
+        int luminance = getLightLuminance();
+        int intensity = luminance <= 0 ? 0 : luminance * 10;
+        return (intensity << 24) | color;
     }
 
     @Override
     public float getLightSpread() {
         BurstPattern pattern = preset.getPattern();
         if (exploded) {
-            if (burstTickIndex < BURST_LIGHT_TICKS) {
-                float t = burstTickIndex / (float) BURST_LIGHT_TICKS;
-                float fade = 1.0f - t;
-                return 380.0f * fade;
-            }
-            return 0.0f;
+            return pattern.getBurstLightSpread(burstTickIndex);
         }
         if (fading) {
             return 0.0f;

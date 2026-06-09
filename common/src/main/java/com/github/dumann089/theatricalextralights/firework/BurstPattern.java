@@ -52,25 +52,26 @@ public abstract class BurstPattern {
     }
 
     public int getFlightLuminance() {
-        return 15;
+        return 6;
     }
 
     public float getFlightLightSpread() {
-        return 60.0f;
+        return 22.0f;
     }
 
     public int getBurstLuminance(int tickIndex) {
-        if (tickIndex < 8) {
-            return 15;
+        if (tickIndex >= 3) {
+            return 0;
         }
-        return Math.max(0, 15 - (tickIndex - 8));
+        return Math.max(0, 8 - tickIndex * 3);
     }
 
     public float getBurstLightSpread(int tickIndex) {
-        if (tickIndex < 8) {
-            return 200.0f;
+        if (tickIndex >= 3) {
+            return 0.0f;
         }
-        return Math.max(0.0f, 200.0f - (tickIndex - 8) * 18.0f);
+        float fade = 1.0f - tickIndex / 3.0f;
+        return 50.0f * fade;
     }
 
     public float getFlightHaloInnerSize() {

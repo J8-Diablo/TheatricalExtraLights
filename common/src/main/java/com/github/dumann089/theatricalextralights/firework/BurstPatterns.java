@@ -336,7 +336,7 @@ public final class BurstPatterns {
         @Override public double getGravity() { return 0.018; }
         @Override public double getDrag() { return 0.99; }
         @Override public float getLaunchSpeedMultiplier() { return 1.05f; }
-        @Override public float getFlightLightSpread() { return 320.0f; }
+        @Override public float getFlightLightSpread() { return 38.0f; }
         @Override public float getFlightHaloInnerSize() { return 2.5f; }
         @Override public float getFlightHaloOuterSize() { return 4.2f; }
 
@@ -706,7 +706,7 @@ public final class BurstPatterns {
         @Override public int getBurstDuration() { return 0; }
         @Override public int getCometFadeTicks() { return 4; }
         @Override public int getFlightLifetime() { return FLIGHT_LIFETIME; }
-        @Override public float getFlightLightSpread() { return 280.0f; }
+        @Override public float getFlightLightSpread() { return 34.0f; }
         @Override public float getFlightHaloInnerSize() { return 1.9f; }
         @Override public float getFlightHaloOuterSize() { return 2.85f; }
         @Override public double getFlightWobble() { return 0.025; }
@@ -753,7 +753,7 @@ public final class BurstPatterns {
         @Override public int getBurstDuration() { return 0; }
         @Override public int getCometFadeTicks() { return 7; }
         @Override public int getFlightLifetime() { return FLIGHT_LIFETIME; }
-        @Override public float getFlightLightSpread() { return 260.0f; }
+        @Override public float getFlightLightSpread() { return 32.0f; }
         @Override public float getFlightHaloInnerSize() { return 1.7f; }
         @Override public float getFlightHaloOuterSize() { return 2.55f; }
 
