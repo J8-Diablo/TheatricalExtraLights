@@ -137,19 +137,16 @@ public class WaterJetThinBlock extends ExtraLightsLightBlock {
 
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        if(super.use(state, level, pos, player, hand, hit) == InteractionResult.PASS) {
+        if (super.use(state, level, pos, player, hand, hit) == InteractionResult.PASS) {
+            if (player.isCrouching()) {
+                return InteractionResult.SUCCESS;
+            }
             if (!level.isClientSide) {
-                if (player.isCrouching()) {
-                    if (TheatricalClient.DEBUG_BLOCKS.contains(pos)) {
-                        TheatricalClient.DEBUG_BLOCKS.remove(pos);
-                    } else {
-                        TheatricalClient.DEBUG_BLOCKS.add(pos);
-                    }
-                    return InteractionResult.SUCCESS;
-                }
-                new OpenExtraLightsScreenPacket(pos, TheatricalExtraLightsScreens.WATER_MANUAL).sendTo((ServerPlayer) player);
+                new OpenExtraLightsScreenPacket(pos, TheatricalExtraLightsScreens.WATER_MANUAL)
+                        .sendTo((ServerPlayer) player);
             }
         }
+
         return InteractionResult.SUCCESS;
     }
 

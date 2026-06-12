@@ -2,6 +2,9 @@ package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.client.Beam2DRenderTypes;
 import com.github.dumann089.theatricalextralights.client.LensRenderTypes;
+import com.github.dumann089.theatricalextralights.client.gobo.GoboLibrary;
+import com.github.dumann089.theatricalextralights.client.render.beam.BeamRenderData;
+import com.github.dumann089.theatricalextralights.client.render.beam.VolumetricBeamRenderer;
 import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -11,20 +14,96 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
+import java.util.WeakHashMap;
+
 public abstract class ExtraLightsFixtureRenderer<T extends BaseLightBlockEntity> extends FixtureRenderer<T> {
+    /**
+     * Per-block-entity volumetric renderers. Stored here in the base class so every
+     * subclass gets cache isolation between multiple placed fixtures for free.
+     */
+    private final WeakHashMap<T, java.util.Map<Integer, VolumetricBeamRenderer>> volumetricRenderers = new WeakHashMap<>();
 
     public ExtraLightsFixtureRenderer(BlockEntityRendererProvider.Context context) {
         super(context);
     }
 
-    /** Faisceau géré dans {@code beforeRenderBeam} — évite le double rendu Theatrical. */
+    /** Beam is managed in {@code beforeRenderBeam} — avoids the double-render from Theatrical. */
     @Override
     public boolean shouldRenderBeam(T blockEntity) {
         return false;
     }
+
+    // ── Central volumetric beam helper ──────────────────────────────────────
+
+    /**
+     * Builds a {@link BeamRenderData} from the fixture's current pan/tilt/zoom state and
+     * submits it to this block-entity's {@link VolumetricBeamRenderer}.
+     *
+     * <p>Call this inside your {@code beforeRenderBeam} after the early intensity check.
+     * The PoseStack passed in is the one already translated to world-space for this block
+     * (i.e. the one you received in {@code beforeRenderBeam}), <strong>before</strong>
+     * calling {@code preparePoseStack}.
+     *
+     * @param blockEntity   the fixture being rendered
+     * @param facing        block facing direction
+     * @param partialTicks  interpolation factor
+     * @param isFlipped     whether the fixture is mounted flipped
+     * @param blockState    current block state
+     * @param isHanging     whether the fixture is hanging
+     * @param lensOffset    local-space offset from the block origin to the lens exit point
+     * @param minAngleDeg   minimum cone half-angle in degrees (zoom at 0)
+     * @param maxAngleDeg   maximum cone half-angle in degrees (zoom at 255)
+     * @param goboLibrary   GoboLibrary entry for this fixture (used for the gobo texture)
+     * @param goboSlot      current gobo slot index from the block entity
+     * @param widthScale    U-axis scale — 1.0f for circular spots, >1.0f for bar fixtures
+     * @param heightScale   V-axis scale — 1.0f for circular spots, <1.0f for bar fixtures
+     */
+
+    protected void submitVolumetricBeam(
+            T blockEntity,
+            PoseStack beamPose,      // ← es PoseStack, NO Direction
+            float partialTicks,
+            float minAngleDeg,
+            float maxAngleDeg,
+            GoboLibrary goboLibrary,
+            int goboSlot,
+            float focusNorm,
+            float widthScale,
+            float heightScale,
+            int beamIndex,
+            int customColor,
+            float customIntensity,
+            float baseRadius
+    ) {
+        if (!TheatricalExtraLightsConfig.isVolumetricBeamEnabled() || customIntensity <= 0.0f) return;
+
+        org.joml.Matrix4f headMatrix = beamPose.last().pose();
+        Vec3 origin = new Vec3(headMatrix.m30(), headMatrix.m31(), headMatrix.m32());
+        Vec3 axisU = new Vec3(headMatrix.m00(), headMatrix.m01(), headMatrix.m02()).normalize();
+        Vec3 axisV = new Vec3(headMatrix.m10(), headMatrix.m11(), headMatrix.m12()).normalize();
+        Vec3 beamDir = new Vec3(-headMatrix.m20(), -headMatrix.m21(), -headMatrix.m22()).normalize();
+
+        float tanHalfAngle = (float) Math.tan(Math.toRadians(minAngleDeg + focusNorm * (maxAngleDeg - minAngleDeg)));
+        ResourceLocation goboTexture = (goboLibrary != null) ? goboLibrary.getTexture(goboSlot) : new ResourceLocation("theatricalextralights", "textures/gobos/generic_1/open.png");
+
+        BeamRenderData renderData = new BeamRenderData(
+                blockEntity.getBlockPos(), origin, beamDir, axisU, axisV, focusNorm,
+                (float) blockEntity.getDistance(), tanHalfAngle, customColor,
+                customIntensity, goboTexture, 0.0f, blockEntity.getLevel(), widthScale, heightScale, baseRadius
+        );
+
+        volumetricRenderers.computeIfAbsent(blockEntity, k -> new java.util.HashMap<>())
+                .computeIfAbsent(beamIndex, k -> new VolumetricBeamRenderer())
+                .render(renderData, new PoseStack());
+    }
+
 
     // ── Vertex helpers ──────────────────────────────────────────────────────
 
@@ -37,14 +116,14 @@ public abstract class ExtraLightsFixtureRenderer<T extends BaseLightBlockEntity>
                 .endVertex();
     }
 
-     // BEAM_SHADERS
-     private static void addVertexPCTL(VertexConsumer vc, Matrix4f m,
-                                       int r, int g, int b, int a,
-                                       float x, float y, float z) {
-         vc.vertex(m, x, y, z)
-                 .color(r, g, b, a)
-                 .endVertex();
-     }
+    // BEAM_SHADERS
+    private static void addVertexPCTL(VertexConsumer vc, Matrix4f m,
+                                      int r, int g, int b, int a,
+                                      float x, float y, float z) {
+        vc.vertex(m, x, y, z)
+                .color(r, g, b, a)
+                .endVertex();
+    }
 
     private static void addBeamVertex(VertexConsumer vc, Matrix4f m,
                                       int r, int g, int b, int a,
@@ -94,13 +173,11 @@ public abstract class ExtraLightsFixtureRenderer<T extends BaseLightBlockEntity>
 
         Matrix4f m = stack.last().pose();
 
-        // Cara frontal
         addBeamVertex(builder, m, r, g, b, a, -beamSize, 0,  0);
         addBeamVertex(builder, m, r, g, b, a,  beamSize, 0,  0);
         addBeamVertex(builder, m, r, g, b, 0,  endSize,  0, -length);
         addBeamVertex(builder, m, r, g, b, 0, -endSize,  0, -length);
 
-        // Cara trasera
         addBeamVertex(builder, m, r, g, b, 0, -endSize,  0, -length);
         addBeamVertex(builder, m, r, g, b, 0,  endSize,  0, -length);
         addBeamVertex(builder, m, r, g, b, a,  beamSize, 0,  0);
@@ -109,7 +186,6 @@ public abstract class ExtraLightsFixtureRenderer<T extends BaseLightBlockEntity>
         stack.popPose();
     }
 
-    /** Operator view — cone only, no bright cap at the lens (avoids white flash in FP mode). */
     protected void renderLightBeam2DForwardOnly(VertexConsumer builder, PoseStack stack, T tileEntityFixture,
                                                 Camera camera, float alpha, float beamSize, float length,
                                                 int color, float focusMultiplier) {
@@ -140,19 +216,18 @@ public abstract class ExtraLightsFixtureRenderer<T extends BaseLightBlockEntity>
         Matrix4f m = stack.last().pose();
 
         addBeamVertex(builder, m, r, g, b, a, -nearSize, 0, -nearClip);
-        addBeamVertex(builder, m, r, g, b, a, nearSize, 0, -nearClip);
-        addBeamVertex(builder, m, r, g, b, 0, endSize, 0, -length);
-        addBeamVertex(builder, m, r, g, b, 0, -endSize, 0, -length);
+        addBeamVertex(builder, m, r, g, b, a,  nearSize, 0, -nearClip);
+        addBeamVertex(builder, m, r, g, b, 0,  endSize,  0, -length);
+        addBeamVertex(builder, m, r, g, b, 0, -endSize,  0, -length);
 
-        addBeamVertex(builder, m, r, g, b, 0, -endSize, 0, -length);
-        addBeamVertex(builder, m, r, g, b, 0, endSize, 0, -length);
-        addBeamVertex(builder, m, r, g, b, a, nearSize, 0, -nearClip);
+        addBeamVertex(builder, m, r, g, b, 0, -endSize,  0, -length);
+        addBeamVertex(builder, m, r, g, b, 0,  endSize,  0, -length);
+        addBeamVertex(builder, m, r, g, b, a,  nearSize, 0, -nearClip);
         addBeamVertex(builder, m, r, g, b, a, -nearSize, 0, -nearClip);
 
         stack.popPose();
     }
 
-    /** Operator view — fixed to fixture axis (no camera billboard, prevents flicker when panning). */
     protected void renderLightBeam2DFixedForward(VertexConsumer builder, PoseStack stack, T tileEntityFixture,
                                                  float alpha, float beamSize, float length,
                                                  int color, float focusMultiplier) {
@@ -171,19 +246,19 @@ public abstract class ExtraLightsFixtureRenderer<T extends BaseLightBlockEntity>
         Matrix4f m = stack.last().pose();
 
         addBeamVertex(builder, m, r, g, b, a, -nearSize, 0, -nearClip);
-        addBeamVertex(builder, m, r, g, b, a, nearSize, 0, -nearClip);
-        addBeamVertex(builder, m, r, g, b, 0, endSize, 0, -length);
-        addBeamVertex(builder, m, r, g, b, 0, -endSize, 0, -length);
+        addBeamVertex(builder, m, r, g, b, a,  nearSize, 0, -nearClip);
+        addBeamVertex(builder, m, r, g, b, 0,  endSize,  0, -length);
+        addBeamVertex(builder, m, r, g, b, 0, -endSize,  0, -length);
 
-        addBeamVertex(builder, m, r, g, b, 0, -endSize, 0, -length);
-        addBeamVertex(builder, m, r, g, b, 0, endSize, 0, -length);
-        addBeamVertex(builder, m, r, g, b, a, nearSize, 0, -nearClip);
+        addBeamVertex(builder, m, r, g, b, 0, -endSize,  0, -length);
+        addBeamVertex(builder, m, r, g, b, 0,  endSize,  0, -length);
+        addBeamVertex(builder, m, r, g, b, a,  nearSize, 0, -nearClip);
         addBeamVertex(builder, m, r, g, b, a, -nearSize, 0, -nearClip);
     }
 
     protected void renderLightBeam4DForwardOnly(VertexConsumer builder, PoseStack stack, T tileEntityFixture,
-                                              float partialTicks, float alpha, float beamSize,
-                                              float length, int color, float focusMultiplier) {
+                                                float partialTicks, float alpha, float beamSize,
+                                                float length, int color, float focusMultiplier) {
         float endMultiplier = 1 + tileEntityFixture.getFocus() * length * focusMultiplier;
 
         int r = (color >> 16) & 0xFF;
@@ -201,24 +276,24 @@ public abstract class ExtraLightsFixtureRenderer<T extends BaseLightBlockEntity>
         float near = beamSize * 0.55f;
         float nearEnd = near * end;
 
-        addBeamVertex(builder, m, r, g, b, 0, nearEnd, nearEnd, -length);
-        addBeamVertex(builder, m, r, g, b, a, near, near, -nearClip);
-        addBeamVertex(builder, m, r, g, b, a, near, -near, -nearClip);
-        addBeamVertex(builder, m, r, g, b, 0, nearEnd, -nearEnd, -length);
+        addBeamVertex(builder, m, r, g, b, 0,  nearEnd,  nearEnd, -length);
+        addBeamVertex(builder, m, r, g, b, a,  near,     near,    -nearClip);
+        addBeamVertex(builder, m, r, g, b, a,  near,    -near,    -nearClip);
+        addBeamVertex(builder, m, r, g, b, 0,  nearEnd, -nearEnd, -length);
 
         addBeamVertex(builder, m, r, g, b, 0, -nearEnd, -nearEnd, -length);
-        addBeamVertex(builder, m, r, g, b, a, -near, -near, -nearClip);
-        addBeamVertex(builder, m, r, g, b, a, -near, near, -nearClip);
-        addBeamVertex(builder, m, r, g, b, 0, -nearEnd, nearEnd, -length);
+        addBeamVertex(builder, m, r, g, b, a, -near,    -near,    -nearClip);
+        addBeamVertex(builder, m, r, g, b, a, -near,     near,    -nearClip);
+        addBeamVertex(builder, m, r, g, b, 0, -nearEnd,  nearEnd, -length);
 
-        addBeamVertex(builder, m, r, g, b, 0, -nearEnd, nearEnd, -length);
-        addBeamVertex(builder, m, r, g, b, a, -near, near, -nearClip);
-        addBeamVertex(builder, m, r, g, b, a, near, near, -nearClip);
-        addBeamVertex(builder, m, r, g, b, 0, nearEnd, nearEnd, -length);
+        addBeamVertex(builder, m, r, g, b, 0, -nearEnd,  nearEnd, -length);
+        addBeamVertex(builder, m, r, g, b, a, -near,     near,    -nearClip);
+        addBeamVertex(builder, m, r, g, b, a,  near,     near,    -nearClip);
+        addBeamVertex(builder, m, r, g, b, 0,  nearEnd,  nearEnd, -length);
 
-        addBeamVertex(builder, m, r, g, b, 0, nearEnd, -nearEnd, -length);
-        addBeamVertex(builder, m, r, g, b, a, near, -near, -nearClip);
-        addBeamVertex(builder, m, r, g, b, a, -near, -near, -nearClip);
+        addBeamVertex(builder, m, r, g, b, 0,  nearEnd, -nearEnd, -length);
+        addBeamVertex(builder, m, r, g, b, a,  near,    -near,    -nearClip);
+        addBeamVertex(builder, m, r, g, b, a, -near,    -near,    -nearClip);
         addBeamVertex(builder, m, r, g, b, 0, -nearEnd, -nearEnd, -length);
     }
 
@@ -242,25 +317,21 @@ public abstract class ExtraLightsFixtureRenderer<T extends BaseLightBlockEntity>
         length += 4.0f;
         float end = endMultiplier;
 
-        // Cara +X
         addBeamVertex(builder, m, r, g, b, 0,  beamSize * end,  beamSize * end, -length);
         addBeamVertex(builder, m, r, g, b, a,  beamSize,        beamSize,        0);
         addBeamVertex(builder, m, r, g, b, a,  beamSize,       -beamSize,        0);
         addBeamVertex(builder, m, r, g, b, 0,  beamSize * end, -beamSize * end, -length);
 
-        // Cara -X
         addBeamVertex(builder, m, r, g, b, 0, -beamSize * end, -beamSize * end, -length);
         addBeamVertex(builder, m, r, g, b, a, -beamSize,       -beamSize,        0);
         addBeamVertex(builder, m, r, g, b, a, -beamSize,        beamSize,        0);
         addBeamVertex(builder, m, r, g, b, 0, -beamSize * end,  beamSize * end, -length);
 
-        // Cara +Y
         addBeamVertex(builder, m, r, g, b, 0, -beamSize * end,  beamSize * end, -length);
         addBeamVertex(builder, m, r, g, b, a, -beamSize,        beamSize,        0);
         addBeamVertex(builder, m, r, g, b, a,  beamSize,        beamSize,        0);
         addBeamVertex(builder, m, r, g, b, 0,  beamSize * end,  beamSize * end, -length);
 
-        // Cara -Y
         addBeamVertex(builder, m, r, g, b, 0,  beamSize * end, -beamSize * end, -length);
         addBeamVertex(builder, m, r, g, b, a,  beamSize,       -beamSize,        0);
         addBeamVertex(builder, m, r, g, b, a, -beamSize,       -beamSize,        0);
@@ -303,7 +374,7 @@ public abstract class ExtraLightsFixtureRenderer<T extends BaseLightBlockEntity>
         int r = (color >> 16) & 0xFF;
         int g = (color >> 8) & 0xFF;
         int b = color & 0xFF;
-        int a = (int) (alpha * 255 * 0.90f);
+        int a  = (int) (alpha * 255 * 0.90f);
         int lr = (int)(r * 0.90f);
         int lg = (int)(g * 0.90f);
         int lb = (int)(b * 0.90f);

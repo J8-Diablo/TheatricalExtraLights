@@ -75,7 +75,7 @@ public class washledFixture extends Fixture {
 
     @Override
     public float getBeamWidth() {
-        return 0.13f;
+        return 0.00f;
     }
 
     @Override

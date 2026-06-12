@@ -1,10 +1,13 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
+import com.github.dumann089.theatricalextralights.blockentities.MovingScanBeamsBlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.VL6CGoboBlockEntity;
 import com.github.dumann089.theatricalextralights.client.Beam2DRenderTypes;
-import com.github.dumann089.theatricalextralights.client.gobo.FakeVolumetricBeamPattern;
 import com.github.dumann089.theatricalextralights.client.gobo.GoboLibrary;
+import com.github.dumann089.theatricalextralights.client.render.beam.BeamRenderData;
+import com.github.dumann089.theatricalextralights.client.render.beam.VolumetricBeamRenderer;
 import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
+import com.github.dumann089.theatricalextralights.client.gobo.FakeVolumetricBeamPattern;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -17,8 +20,10 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
 
 import java.util.Map;
 import java.util.Optional;
@@ -29,6 +34,8 @@ public class VL6CGoboRenderer extends ExtraLightsFixtureRenderer<VL6CGoboBlockEn
     private final Double beamOpacity = TheatricalConfig.INSTANCE.CLIENT.beamOpacity;
     /** Per-BE projector — prevents cache thrashing between multiple fixtures. */
     private final WeakHashMap<VL6CGoboBlockEntity, GoboGPUProjector> goboProjectors = new WeakHashMap<>();
+    private final WeakHashMap<VL6CGoboBlockEntity, VolumetricBeamRenderer> volumetricRenderers = new WeakHashMap<>();
+
 
     private final Map<VL6CGoboBlockEntity, float[]> structuralCache = new WeakHashMap<>();
     private final Map<VL6CGoboBlockEntity, Long> structuralCacheTicks = new WeakHashMap<>();
@@ -166,8 +173,52 @@ public class VL6CGoboRenderer extends ExtraLightsFixtureRenderer<VL6CGoboBlockEn
                     tiltPivot,
                     structuralTransform,
                     1.0f,   // minAngle: zoom gobo
-                    14.0f   // maxAngle: zoom gobo
+                    19.0f   // maxAngle: zoom gobo
             );
+            // =========================================================================
+            if (TheatricalExtraLightsConfig.isVolumetricBeamEnabled()) {
+                PoseStack localStack = new PoseStack();
+                preparePoseStack(blockEntity, localStack, facing, partialTicks, isFlipped, blockstate, isHanging);
+                localStack.translate(localLensOffset.x, localLensOffset.y, localLensOffset.z);
+
+                Matrix4f headMatrix = localStack.last().pose();
+
+                Vec3 origin  = new Vec3(headMatrix.m30(), headMatrix.m31(), headMatrix.m32());
+                Vec3 axisU   = new Vec3(headMatrix.m00(), headMatrix.m01(), headMatrix.m02()).normalize();
+                Vec3 axisV   = new Vec3(headMatrix.m10(), headMatrix.m11(), headMatrix.m12()).normalize();
+                Vec3 beamDir = new Vec3(-headMatrix.m20(), -headMatrix.m21(), -headMatrix.m22()).normalize();
+
+                float zoomNorm      = blockEntity.getPartialZoom(partialTicks) / 255.0f;
+                float coneHalfAngle = 1.0f + zoomNorm * (19.0f - 1.0f);
+                float tanHalfAngle  = (float) Math.tan(Math.toRadians(coneHalfAngle));
+
+                // 🛡️ Obtención segura de textura
+                ResourceLocation goboTex = GoboLibrary.VL6C.getTexture(blockEntity.getGobo());
+                if (goboTex == null) goboTex = new ResourceLocation("theatricalextralights", "textures/empty_fallback.png");
+
+                // NUEVO: Instancia corregida con baseRadius
+                BeamRenderData renderData = new BeamRenderData(
+                        blockEntity.getBlockPos(),
+                        origin,
+                        beamDir,
+                        axisU,
+                        axisV,
+                        zoomNorm,
+                        (float) blockEntity.getDistance(),
+                        tanHalfAngle,
+                        blockEntity.getColour(),
+                        blockEntity.getIntensity() / 255.0f,
+                        goboTex,
+                        (float) blockEntity.getGoboRotation(),
+                        blockEntity.getLevel(),
+                        1.0f, // widthScale
+                        1.0f,
+                        0.15f
+                );
+
+                volumetricRenderers.computeIfAbsent(blockEntity, k -> new VolumetricBeamRenderer())
+                        .render(renderData, poseStack);
+            }
         }
 
         LazyRenderers.addLazyRender(new LazyRenderers.LazyRenderer() {
@@ -213,11 +264,11 @@ public class VL6CGoboRenderer extends ExtraLightsFixtureRenderer<VL6CGoboBlockEn
                 // ── Lens glow & lens cap ─────────────────────────────────────────
                 poseStack.pushPose();
                 poseStack.translate(0.5f, 0.643f, 0.137f);
-                renderLensGlow(builder, poseStack, color, 0.04f);
+                renderLensGlow(builder, poseStack, color, 0.045f);
                 poseStack.popPose();
 
                 renderLens(bufferSource, poseStack, alpha, color,
-                        0.04f, 0.5f, 0.643f, 0.137f);
+                        0.45f, 0.5f, 0.640f, 0.163f);
 
                 poseStack.popPose();
             }
@@ -242,8 +293,8 @@ public class VL6CGoboRenderer extends ExtraLightsFixtureRenderer<VL6CGoboBlockEn
         FakeVolumetricBeamPattern pattern = GoboLibrary.SpotXtreme.getPattern(goboSlot);
 
         final float LENS_X = 0.5f;
-        final float LENS_Y = 0.643f;
-        final float LENS_Z = 0.137f;
+        final float LENS_Y = 0.640f;
+        final float LENS_Z = 0.163f;
 
         float beamLength = (float) blockEntity.getDistance();
 
@@ -255,8 +306,8 @@ public class VL6CGoboRenderer extends ExtraLightsFixtureRenderer<VL6CGoboBlockEn
         for (FakeVolumetricBeamPattern.BeamTransform t : pattern.getTransforms()) {
 
             float beamAlpha     = alpha * t.alphaMult();
-            float beamThickness = 0.07f * t.thicknessMult();
-            float startThick    = 0.02f * t.thicknessMult();
+            float beamThickness = 0.00f * t.thicknessMult();
+            float startThick    = 0.000f * t.thicknessMult();
 
             poseStack.pushPose();
             poseStack.mulPose(new org.joml.Quaternionf().rotateZ((float) Math.toRadians(t.panDeg())));

@@ -8,6 +8,7 @@ import com.github.dumann089.theatricalextralights.laser.LaserPattern;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import java.util.Deque;
 import dev.imabad.theatrical.TheatricalExpectPlatform;
 import dev.imabad.theatrical.blocks.HangableBlock;
 import dev.imabad.theatrical.client.LazyRenderers;
@@ -119,7 +120,7 @@ public class LaserRenderer extends ExtraLightsRenderer<LaserBlockEntity> {
                                  MultiBufferSource multiBufferSource, Direction facing, float partialTicks, boolean isFlipped,
                                  BlockState blockstate, boolean isHanging, int packedLight, int packedOverlay) {
         if (blockEntity.getIntensity() <= 0) {
-            // Drain trail when fixture is off so it doesn't look frozen
+            // Vaciar el rastro cuando el fixture está apagado para que no se quede congelado
             blockEntity.getTrailBuffer().clear();
             return;
         }
@@ -141,9 +142,6 @@ public class LaserRenderer extends ExtraLightsRenderer<LaserBlockEntity> {
                 int c1 = blockEntity.getColour();
                 int c2 = blockEntity.getColour2();
                 int c3 = blockEntity.getColour3();
-                // If C2/C3 are unset (pure black), fall back to the previous color so a
-                // monochromatic pattern (only C1 set on the controller) renders fully
-                // visible instead of fading to invisible mid-pattern.
                 if (c2 == 0) c2 = c1;
                 if (c3 == 0) c3 = c2;
 
@@ -157,7 +155,7 @@ public class LaserRenderer extends ExtraLightsRenderer<LaserBlockEntity> {
                         animTimeSec,
                         c1, c2, c3
                 );
-                // DEBUG: print every ~120 frames what the renderer sees client-side
+
                 renderLogTick++;
                 if (renderLogTick % 120 == 0) {
                     TheatricalExtraLights.LOGGER.info(
@@ -176,10 +174,6 @@ public class LaserRenderer extends ExtraLightsRenderer<LaserBlockEntity> {
                     baseOrigin = new Vec3(baseOrigin.x, 1.0 - baseOrigin.y, baseOrigin.z);
                 }
 
-                // ----- Beam length: DMX-driven max length, but each beam clips
-                // at the first solid wall it hits so beams don't pass through
-                // surfaces. Pattern size (angular spread) is independent and
-                // set in LaserPattern via the Size DMX channel.
                 float[] effLengths = new float[beams.size()];
                 boolean[] beamHits = new boolean[beams.size()];
                 for (int i = 0; i < beams.size(); i++) {
@@ -187,13 +181,63 @@ public class LaserRenderer extends ExtraLightsRenderer<LaserBlockEntity> {
                     float maxLen = baseLength * (beam.length / 32f);
                     boolean[] hit = new boolean[1];
                     effLengths[i] = raycastBeamLengthDebug(blockEntity, beam.yawDeg, beam.pitchDeg, maxLen, hit, null);
-                    beamHits[i] = true; // always render — pattern keeps its shape even when no wall
+                    beamHits[i] = true;
                 }
                 boolean anyHit = true;
 
-                blockEntity.getTrailBuffer().clear();
+                // 1. CALCULAR EXTREMOS (ENDPOINTS) ACTUALES
+                Vec3[] currentEndpoints = new Vec3[beams.size()];
+                for (int i = 0; i < beams.size(); i++) {
+                    LaserBeam beam = beams.get(i);
+                    currentEndpoints[i] = computeEndpoint(baseOrigin, beam.yawDeg, beam.pitchDeg, effLengths[i]);
+                }
 
-                // Render every beam at full intensity — no scan effect.
+                // 2. RENDERIZADO DE LOS RAYOS PRINCIPALES (¡Ahora va primero!)
+                if (anyHit) {
+                    for (int idx = 0; idx < beams.size(); idx++) {
+                        if (!beamHits[idx]) continue;
+                        LaserBeam beam = beams.get(idx);
+                        renderOneBeam(beamConsumer, poseStack, baseOrigin,
+                                beam.yawDeg, beam.pitchDeg, effLengths[idx], beamWidth,
+                                beam.color, intensity01);
+                    }
+                }
+
+                // 3. SISTEMA DE ESTELA ESPACIAL (CANAL 19) (¡Ahora va después!)
+                int persistenceRaw = blockEntity.getPersistenceRaw();
+                if (persistenceRaw > 0 && beams.size() > 1) {
+                    // Escala la opacidad basándose en el valor DMX
+                    float persistAlpha = (persistenceRaw / 255f) * intensity01 * 0.8f;
+
+                    // Si el patrón es cerrado (ej. círculo), conecta el último punto con el primero
+                    int loopLimit = pattern.isClosed() ? beams.size() : beams.size() - 1;
+
+                    for (int i = 0; i < loopLimit; i++) {
+                        int nextIdx = (i + 1) % beams.size();
+                        Vec3 pA = currentEndpoints[i];
+                        Vec3 pB = currentEndpoints[nextIdx];
+                        int color = beams.get(i).color;
+
+                        // Dibuja el plano/cortina de luz desde la base del láser hasta la línea A-B
+                        renderCurtain(beamConsumer, poseStack, baseOrigin, pA, pB, color, persistAlpha * 0.35f);
+
+                        // Dibuja el borde conector entre los puntos
+                        renderRibbon(beamConsumer, poseStack, pA, pB, beamWidth * 0.5f, color, persistAlpha);
+                    }
+                }
+
+                // 3. RENDERIZADO DE LOS RAYOS PRINCIPALES
+                if (anyHit) {
+                    for (int idx = 0; idx < beams.size(); idx++) {
+                        if (!beamHits[idx]) continue;
+                        LaserBeam beam = beams.get(idx);
+                        renderOneBeam(beamConsumer, poseStack, baseOrigin,
+                                beam.yawDeg, beam.pitchDeg, effLengths[idx], beamWidth,
+                                beam.color, intensity01);
+                    }
+                }
+
+                // 4. RENDERIZADO DE LOS RAYOS PRINCIPALES
                 if (anyHit) {
                     for (int idx = 0; idx < beams.size(); idx++) {
                         if (!beamHits[idx]) continue;
@@ -431,6 +475,34 @@ public class LaserRenderer extends ExtraLightsRenderer<LaserBlockEntity> {
         addVertex(builder, m, normal, r, g, bC, aV, ax1, ay1, az1);
         addVertex(builder, m, normal, r, g, bC, aV, bx1, by1, bz1);
         addVertex(builder, m, normal, r, g, bC, aV, bx4, by4, bz4);
+    }
+
+    private void renderCurtain(VertexConsumer builder, PoseStack stack, Vec3 origin, Vec3 a, Vec3 b, int color, float alpha) {
+        int r = (color >> 16) & 0xFF;
+        int g = (color >> 8) & 0xFF;
+        int bC = color & 0xFF;
+        int aV = (int) (Math.max(0f, Math.min(1f, alpha)) * 255);
+
+        if (aV <= 0) return;
+
+        Matrix4f m = stack.last().pose();
+        Matrix3f normal = stack.last().normal();
+
+        float ox = (float) origin.x, oy = (float) origin.y, oz = (float) origin.z;
+        float ax = (float) a.x, ay = (float) a.y, az = (float) a.z;
+        float bx = (float) b.x, by = (float) b.y, bz = (float) b.z;
+
+        // Cara Frontal (Origen -> A -> B -> Origen para cerrar el Quad)
+        addVertex(builder, m, normal, r, g, bC, aV, ox, oy, oz);
+        addVertex(builder, m, normal, r, g, bC, aV, ax, ay, az);
+        addVertex(builder, m, normal, r, g, bC, aV, bx, by, bz);
+        addVertex(builder, m, normal, r, g, bC, aV, ox, oy, oz);
+
+        // Cara Trasera (Origen -> B -> A -> Origen) garantiza que sea visible de ambos lados
+        addVertex(builder, m, normal, r, g, bC, aV, ox, oy, oz);
+        addVertex(builder, m, normal, r, g, bC, aV, bx, by, bz);
+        addVertex(builder, m, normal, r, g, bC, aV, ax, ay, az);
+        addVertex(builder, m, normal, r, g, bC, aV, ox, oy, oz);
     }
 
     private void renderLightBeam(VertexConsumer builder, PoseStack stack, float alpha, float beamSize, float length, int color) {

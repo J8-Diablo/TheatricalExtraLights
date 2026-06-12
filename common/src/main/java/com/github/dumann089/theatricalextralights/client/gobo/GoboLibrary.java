@@ -8,14 +8,13 @@ public enum GoboLibrary {
             new GoboEntry("generic_2/open",          FakeVolumetricBeamPattern.SINGLE),
             new GoboEntry("generic_2/bubbles_2",     FakeVolumetricBeamPattern.SCATTER_NATURE),
             new GoboEntry("generic_2/radial_lines",  FakeVolumetricBeamPattern.RING_8),
-            new GoboEntry("generic_3/gobo56",      FakeVolumetricBeamPattern.SCATTER_NATURE),
+            new GoboEntry("generic_3/gobo56",        FakeVolumetricBeamPattern.SCATTER_NATURE),
             new GoboEntry("generic_2/ring_dots",     FakeVolumetricBeamPattern.DOUBLE_RING),
             new GoboEntry("generic_3/gobo52",        FakeVolumetricBeamPattern.SCATTER_NATURE),
             new GoboEntry("generic_2/mixed_squares", FakeVolumetricBeamPattern.CROSS_5),
             new GoboEntry("generic_3/gobo53",        FakeVolumetricBeamPattern.SCATTER_NATURE),
             new GoboEntry("generic_2/lines_vertical",FakeVolumetricBeamPattern.FAN_7),
-            new GoboEntry("generic_3/gobo1",  FakeVolumetricBeamPattern.RING_8)
-
+            new GoboEntry("generic_3/gobo1",         FakeVolumetricBeamPattern.RING_8)
     ),
 
     SCAN(
@@ -33,35 +32,51 @@ public enum GoboLibrary {
 
     VL6C(
             new GoboEntry("generic_3/open",          FakeVolumetricBeamPattern.SINGLE),
-            new GoboEntry("generic_3/gobo9",     FakeVolumetricBeamPattern.SCATTER_NATURE),
-            new GoboEntry("generic_3/gobo19",  FakeVolumetricBeamPattern.RING_8),
-            new GoboEntry("generic_3/gobo14",      FakeVolumetricBeamPattern.SCATTER_NATURE),
-            new GoboEntry("generic_3/gobo46",     FakeVolumetricBeamPattern.DOUBLE_RING),
+            new GoboEntry("generic_3/gobo9",         FakeVolumetricBeamPattern.SCATTER_NATURE),
+            new GoboEntry("generic_3/gobo19",        FakeVolumetricBeamPattern.RING_8),
+            new GoboEntry("generic_3/gobo14",        FakeVolumetricBeamPattern.SCATTER_NATURE),
+            new GoboEntry("generic_3/gobo46",        FakeVolumetricBeamPattern.DOUBLE_RING),
             new GoboEntry("generic_3/gobo56",        FakeVolumetricBeamPattern.SCATTER_NATURE),
-            new GoboEntry("generic_3/gobo11", FakeVolumetricBeamPattern.CROSS_5),
-            new GoboEntry("generic_3/gobo1",        FakeVolumetricBeamPattern.SCATTER_NATURE),
-            new GoboEntry("generic_3/gobo26",FakeVolumetricBeamPattern.FAN_7),
-            new GoboEntry("generic_3/gobo38",  FakeVolumetricBeamPattern.RING_8)
-
+            new GoboEntry("generic_3/gobo11",        FakeVolumetricBeamPattern.CROSS_5),
+            new GoboEntry("generic_3/gobo1",         FakeVolumetricBeamPattern.SCATTER_NATURE),
+            new GoboEntry("generic_3/gobo26",        FakeVolumetricBeamPattern.FAN_7),
+            new GoboEntry("generic_3/gobo38",        FakeVolumetricBeamPattern.RING_8)
     ),
 
     IRIS700(
             new GoboEntry("generic_3/open",          FakeVolumetricBeamPattern.SINGLE),
-            new GoboEntry("generic_3/gobo9",     FakeVolumetricBeamPattern.SCATTER_NATURE),
-            new GoboEntry("generic_3/gobo21",  FakeVolumetricBeamPattern.RING_8),
-            new GoboEntry("generic_3/gobo32",      FakeVolumetricBeamPattern.SCATTER_NATURE),
-            new GoboEntry("generic_3/gobo27",     FakeVolumetricBeamPattern.DOUBLE_RING),
+            new GoboEntry("generic_3/gobo9",         FakeVolumetricBeamPattern.SCATTER_NATURE),
+            new GoboEntry("generic_3/gobo21",        FakeVolumetricBeamPattern.RING_8),
+            new GoboEntry("generic_3/gobo32",        FakeVolumetricBeamPattern.SCATTER_NATURE),
+            new GoboEntry("generic_3/gobo27",        FakeVolumetricBeamPattern.DOUBLE_RING),
             new GoboEntry("generic_3/gobo36",        FakeVolumetricBeamPattern.SCATTER_NATURE),
-            new GoboEntry("generic_3/gobo18", FakeVolumetricBeamPattern.CROSS_5),
-            new GoboEntry("generic_3/gobo3",        FakeVolumetricBeamPattern.SCATTER_NATURE),
-            new GoboEntry("generic_3/gobo51",FakeVolumetricBeamPattern.FAN_7),
-            new GoboEntry("generic_3/gobo50",  FakeVolumetricBeamPattern.RING_8),
+            new GoboEntry("generic_3/gobo18",        FakeVolumetricBeamPattern.CROSS_5),
+            new GoboEntry("generic_3/gobo3",         FakeVolumetricBeamPattern.SCATTER_NATURE),
+            new GoboEntry("generic_3/gobo51",        FakeVolumetricBeamPattern.FAN_7),
+            new GoboEntry("generic_3/gobo50",        FakeVolumetricBeamPattern.RING_8),
             new GoboEntry("generic_3/gobo36",        FakeVolumetricBeamPattern.SCATTER_NATURE),
-            new GoboEntry("generic_3/gobo34", FakeVolumetricBeamPattern.CROSS_5),
+            new GoboEntry("generic_3/gobo34",        FakeVolumetricBeamPattern.CROSS_5),
             new GoboEntry("generic_3/gobo43",        FakeVolumetricBeamPattern.SCATTER_NATURE),
-            new GoboEntry("generic_3/gobo31",FakeVolumetricBeamPattern.DOUBLE_RING),
-            new GoboEntry("generic_3/gobo7",  FakeVolumetricBeamPattern.RING_8)
+            new GoboEntry("generic_3/gobo31",        FakeVolumetricBeamPattern.DOUBLE_RING),
+            new GoboEntry("generic_3/gobo7",         FakeVolumetricBeamPattern.RING_8)
+    ),
 
+    PROSPOT(
+            new GoboEntry("generic_3/open",          FakeVolumetricBeamPattern.SINGLE),
+            new GoboEntry("generic_3/gobo3",         FakeVolumetricBeamPattern.SCATTER_NATURE),
+            new GoboEntry("generic_3/gobo12",        FakeVolumetricBeamPattern.RING_8),
+            new GoboEntry("generic_3/gobo20",        FakeVolumetricBeamPattern.SCATTER_NATURE),
+            new GoboEntry("generic_3/gobo21",        FakeVolumetricBeamPattern.DOUBLE_RING),
+            new GoboEntry("generic_3/gobo15",        FakeVolumetricBeamPattern.SCATTER_NATURE),
+            new GoboEntry("generic_3/gobo23",        FakeVolumetricBeamPattern.CROSS_5),
+            new GoboEntry("generic_3/gobo39",        FakeVolumetricBeamPattern.SCATTER_NATURE),
+            new GoboEntry("generic_3/gobo33",        FakeVolumetricBeamPattern.FAN_7),
+            new GoboEntry("generic_3/gobo38",        FakeVolumetricBeamPattern.RING_8),
+            new GoboEntry("generic_3/gobo45",        FakeVolumetricBeamPattern.SCATTER_NATURE),
+            new GoboEntry("generic_3/gobo42",        FakeVolumetricBeamPattern.CROSS_5),
+            new GoboEntry("generic_3/gobo10",        FakeVolumetricBeamPattern.SCATTER_NATURE),
+            new GoboEntry("generic_3/gobo32",        FakeVolumetricBeamPattern.DOUBLE_RING),
+            new GoboEntry("generic_3/gobo57",        FakeVolumetricBeamPattern.RING_8)
     ),
 
     SpotXtreme(
@@ -75,6 +90,19 @@ public enum GoboLibrary {
             new GoboEntry("generic_1/gobo23", FakeVolumetricBeamPattern.RING_8),
             new GoboEntry("generic_1/gobo24", FakeVolumetricBeamPattern.DOUBLE_RING),
             new GoboEntry("generic_1/gobo18", FakeVolumetricBeamPattern.SPIRAL_6)
+    ),
+
+    // Moving head spot — open beam only (no physical gobo wheel).
+    // Reuses the generic_2/open texture; swap for a dedicated texture if desired.
+    MACVIP(
+            new GoboEntry("generic_2/open", FakeVolumetricBeamPattern.SINGLE)
+    ),
+
+    // Moving bar — open beam only. The bar shape comes from widthScale/heightScale
+    // in BeamRenderData, not from the gobo texture.
+    // Reuses the generic_2/open texture; swap for a dedicated texture if desired.
+    MOVINGBAR(
+            new GoboEntry("generic_2/open", FakeVolumetricBeamPattern.SINGLE)
     );
 
     // -----------------------------------------------------------------------

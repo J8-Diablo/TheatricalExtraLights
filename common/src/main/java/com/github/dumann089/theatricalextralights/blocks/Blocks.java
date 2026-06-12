@@ -176,6 +176,8 @@ public class Blocks {
     public static final RegistrySupplier<Block> MINI_BAR_BLOCK = BLOCKS.register("mini_bar", MiniBarBlock::new);
     public static final RegistrySupplier<Block> MOVING_VL2C_BEAMS_BLOCK = BLOCKS.register("moving_vl2c_beams", MovingVL2CBeamsBlock::new);
     public static final RegistrySupplier<Block> MOVING_SCAN_BEAMS_BLOCK = BLOCKS.register("moving_scan_beams", MovingScanBeamsBlock::new);
+    public static final RegistrySupplier<Block> PRO_SPOT_GOBO_BLOCK = BLOCKS.register("pro_spot_gobo", ProSpotGoboBlock::new);
+
 
     public static final RegistrySupplier<Block> A1X1PAR64_BLOCK = BLOCKS.register("a1x1par64", a1x1par64Block::new);
     public static final RegistrySupplier<Block> A2X8PAR64_BLOCK = BLOCKS.register("a2x8par64", a2x8par64Block::new);
@@ -186,10 +188,6 @@ public class Blocks {
     public static final RegistrySupplier<Block> TRUSS_CORNER_BLOCK = BLOCKS.register("truss_corner", TrussCornerBlock::new);
     public static final RegistrySupplier<Block> TRUSS_CORNER_T_BLOCK = BLOCKS.register("truss_corner_t", TrussCornerTBlock::new);
     public static final RegistrySupplier<Block> FOLLOWSPOT_CONSOLE_BLOCK = BLOCKS.register("followspot_console", FollowspotConsoleBlock::new);
-
-
-
-
 
 
 
