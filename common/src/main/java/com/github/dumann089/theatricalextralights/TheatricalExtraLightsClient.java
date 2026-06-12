@@ -4,8 +4,10 @@ import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
 import com.github.dumann089.theatricalextralights.client.ExtraLightsClientScreens;
 import com.github.dumann089.theatricalextralights.client.blockentities.*;
 import com.github.dumann089.theatricalextralights.client.entities.FireworkRocketRenderer;
+import com.github.dumann089.theatricalextralights.compat.FireworkLightCompat;
 import com.github.dumann089.theatricalextralights.entities.ModEntities;
 import com.github.dumann089.theatricalextralights.net.OpenExtraLightsScreenPacket;
+import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.registry.client.rendering.BlockEntityRendererRegistry;
 import dev.architectury.registry.client.level.entity.EntityRendererRegistry;
 
@@ -130,6 +132,8 @@ public class TheatricalExtraLightsClient {
         EntityRendererRegistry.register(ModEntities.FIREWORK_ROCKET, FireworkRocketRenderer::new);
 
         com.github.dumann089.theatricalextralights.client.followspot.FollowspotCameraClient.init();
+
+        ClientTickEvent.CLIENT_POST.register(client -> FireworkLightCompat.flushPending());
     }
 
     public static void handleOpenScreen(OpenExtraLightsScreenPacket packet) {
