@@ -323,6 +323,10 @@ public class Items {
             "firework_whistler_silver",
             () -> new BlockItem(Blocks.FIREWORK_WHISTLER_SILVER_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
     );
+    public static final RegistrySupplier<Item> FIREWORK_RGB_LAUNCHER = ITEMS.register(
+            "firework_rgb_launcher",
+            () -> new BlockItem(Blocks.FIREWORK_RGB_LAUNCHER_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
     public static final RegistrySupplier<Item> GERB_GOLD = ITEMS.register(
             "gerb_gold",
             () -> new BlockItem(Blocks.GERB_GOLD_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))

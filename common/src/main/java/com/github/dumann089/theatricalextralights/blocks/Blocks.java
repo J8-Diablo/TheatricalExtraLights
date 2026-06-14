@@ -167,6 +167,7 @@ public class Blocks {
     public static final RegistrySupplier<Block> FIREWORK_HEART_PINK_BLOCK = BLOCKS.register("firework_heart_pink", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.HEART_PINK));
     public static final RegistrySupplier<Block> FIREWORK_DOUBLE_BURST_PURPLE_BLOCK = BLOCKS.register("firework_double_burst_purple", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.DOUBLE_BURST_PURPLE));
     public static final RegistrySupplier<Block> FIREWORK_WHISTLER_SILVER_BLOCK = BLOCKS.register("firework_whistler_silver", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.WHISTLER_SILVER));
+    public static final RegistrySupplier<Block> FIREWORK_RGB_LAUNCHER_BLOCK = BLOCKS.register("firework_rgb_launcher", RgbFireworkLauncherBlock::new);
     public static final RegistrySupplier<Block> GERB_GOLD_BLOCK = BLOCKS.register("gerb_gold", GerbBlock::new);
     public static final RegistrySupplier<Block> FLAME_PROJECTOR_BLOCK = BLOCKS.register("flame_projector", FlameProjectorBlock::new);
     public static final RegistrySupplier<Block> LASER_MIRROR_BLOCK = BLOCKS.register("laser_mirror", LaserMirrorBlock::new);

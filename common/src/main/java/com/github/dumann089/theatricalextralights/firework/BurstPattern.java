@@ -121,7 +121,7 @@ public abstract class BurstPattern {
      * a "natural firework" trailing-dust feel.
      */
     protected static void spawnEmbers(FireworkRocketEntity rocket, RandomSource random, int count) {
-        int[] palette = rocket.getPreset().getColors();
+        int[] palette = rocket.getColors();
         double cx = rocket.getX();
         double cy = rocket.getY();
         double cz = rocket.getZ();

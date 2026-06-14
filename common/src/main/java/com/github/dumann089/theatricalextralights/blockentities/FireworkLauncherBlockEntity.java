@@ -18,7 +18,9 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Arrays;
@@ -42,12 +44,16 @@ public class FireworkLauncherBlockEntity extends ExtraLightsLightBlockEntity {
     private static final double TUBE_LENGTH = 10.0 / 16.0;
     private static final double TUBE_BASE_HEIGHT = 4.0 / 16.0;
 
-    private float fireAccumulator = 0.0f;
-    private int prevIntensity = 0;
-    private boolean pendingOneShot = false;
+    protected float fireAccumulator = 0.0f;
+    protected int prevIntensity = 0;
+    protected boolean pendingOneShot = false;
 
     public FireworkLauncherBlockEntity(BlockPos pos, BlockState state) {
-        super(BlockEntities.FIREWORK_LAUNCHER.get(), pos, state);
+        this(BlockEntities.FIREWORK_LAUNCHER.get(), pos, state);
+    }
+
+    protected FireworkLauncherBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
         setChannelCount(3);
         intensity = 0;
         tilt = 0;
@@ -95,14 +101,17 @@ public class FireworkLauncherBlockEntity extends ExtraLightsLightBlockEntity {
     }
 
     private void launch(ServerLevel serverLevel) {
-        FireworkPreset preset = getPreset();
         Vec3 spawn = getLaunchPosition();
         Vec3 velocity = getLaunchVelocity();
-        FireworkRocketEntity rocket = new FireworkRocketEntity(serverLevel, preset, worldPosition);
+        FireworkRocketEntity rocket = createRocket(serverLevel);
         rocket.moveTo(spawn.x, spawn.y, spawn.z, 0.0f, 0.0f);
         rocket.setDeltaMovement(velocity);
         serverLevel.addFreshEntity(rocket);
         serverLevel.playSound(null, spawn.x, spawn.y, spawn.z, SoundEvents.FIREWORK_ROCKET_LAUNCH, SoundSource.BLOCKS, 0.9f, 0.9f + serverLevel.random.nextFloat() * 0.2f);
+    }
+
+    protected FireworkRocketEntity createRocket(ServerLevel serverLevel) {
+        return new FireworkRocketEntity(serverLevel, getPreset(), worldPosition);
     }
 
     private Direction getLaunchFacing() {

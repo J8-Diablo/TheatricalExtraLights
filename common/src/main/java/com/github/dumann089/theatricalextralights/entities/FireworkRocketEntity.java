@@ -2,6 +2,7 @@ package com.github.dumann089.theatricalextralights.entities;
 
 import com.github.dumann089.theatricalextralights.compat.FireworkLightCompat;
 import com.github.dumann089.theatricalextralights.firework.BurstPattern;
+import com.github.dumann089.theatricalextralights.firework.FireworkColorUtil;
 import com.github.dumann089.theatricalextralights.firework.FireworkPreset;
 import com.github.dumann089.theatricalextralights.firework.Spark;
 import dev.architectury.extensions.network.EntitySpawnExtension;
@@ -40,6 +41,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
     private boolean burstStarted;
     private final List<Spark> sparks = new ArrayList<>();
     private boolean shimmerLightRegistered;
+    private int[] customColors;
 
     public FireworkRocketEntity(EntityType<? extends FireworkRocketEntity> entityType, Level level) {
         super(entityType, level);
@@ -54,6 +56,22 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
     public FireworkPreset getPreset() {
         return preset;
+    }
+
+    public void setCustomColors(int red, int green, int blue) {
+        this.customColors = FireworkColorUtil.paletteFromRgb(red, green, blue);
+    }
+
+    public int getLaunchColor() {
+        return customColors != null ? customColors[0] : preset.getLaunchColor();
+    }
+
+    public int[] getColors() {
+        return customColors != null ? customColors : preset.getColors();
+    }
+
+    public boolean hasCustomColors() {
+        return customColors != null;
     }
 
     public boolean isExploded() {
@@ -94,6 +112,15 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
         exploded = tag.getBoolean("Exploded");
         fading = tag.getBoolean("Fading");
         burstStarted = tag.getBoolean("BurstStarted");
+        if (tag.contains("CustomColorCount")) {
+            int count = tag.getInt("CustomColorCount");
+            customColors = new int[count];
+            for (int i = 0; i < count; i++) {
+                customColors[i] = tag.getInt("CustomColor" + i);
+            }
+        } else {
+            customColors = null;
+        }
     }
 
     @Override
@@ -106,6 +133,12 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
         tag.putBoolean("Exploded", exploded);
         tag.putBoolean("Fading", fading);
         tag.putBoolean("BurstStarted", burstStarted);
+        if (customColors != null) {
+            tag.putInt("CustomColorCount", customColors.length);
+            for (int i = 0; i < customColors.length; i++) {
+                tag.putInt("CustomColor" + i, customColors[i]);
+            }
+        }
     }
 
     @Override
@@ -262,6 +295,13 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
         buf.writeBoolean(fading);
         buf.writeInt(burstTickIndex);
         buf.writeInt(fadeTicks);
+        buf.writeBoolean(customColors != null);
+        if (customColors != null) {
+            buf.writeVarInt(customColors.length);
+            for (int color : customColors) {
+                buf.writeInt(color);
+            }
+        }
     }
 
     @Override
@@ -272,6 +312,14 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
         fading = buf.readBoolean();
         burstTickIndex = buf.readInt();
         fadeTicks = buf.readInt();
+        if (buf.readBoolean()) {
+            customColors = new int[buf.readVarInt()];
+            for (int i = 0; i < customColors.length; i++) {
+                customColors[i] = buf.readInt();
+            }
+        } else {
+            customColors = null;
+        }
     }
 
     @Override
@@ -340,7 +388,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
     @Override
     public int getLightColour() {
-        int color = preset.getLaunchColor();
+        int color = getLaunchColor();
         int luminance = getLightLuminance();
         int intensity = luminance <= 0 ? 0 : luminance * 10;
         return (intensity << 24) | color;

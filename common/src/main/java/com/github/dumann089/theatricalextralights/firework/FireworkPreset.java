@@ -97,4 +97,17 @@ public enum FireworkPreset {
         }
         return RED_COMET;
     }
+
+    /** Sélection DMX canal Effet (0–255) → preset parmi tous les types d'explosion. */
+    public static FireworkPreset byDmxIndex(int dmx) {
+        FireworkPreset[] all = values();
+        if (all.length == 0) {
+            return RED_COMET;
+        }
+        int idx = (int) (dmx / 255.0f * all.length);
+        if (idx >= all.length) {
+            idx = all.length - 1;
+        }
+        return all[idx];
+    }
 }
