@@ -9,6 +9,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +42,21 @@ public abstract class BlinderBaseBlockEntity extends ExtraLightsLightBlockEntity
     @Override
     public float getIntensity() {
         return DmxShutterStrobeHelper.computeEffectiveIntensity(intensity, strobe, getGameTimeForStrobe());
+    }
+
+    @Override
+    public int getLightLuminance() {
+        float effective = getIntensity();
+        return (int) ((effective / 255f) * 15f);
+    }
+
+    @Override
+    public Vector3f getLightPos() {
+        BlockPos emission = getEmissionBlock();
+        if (emission != null) {
+            return Vec3.atCenterOf(emission).toVector3f();
+        }
+        return Vec3.atCenterOf(getBlockPos()).toVector3f();
     }
 
     @Override
