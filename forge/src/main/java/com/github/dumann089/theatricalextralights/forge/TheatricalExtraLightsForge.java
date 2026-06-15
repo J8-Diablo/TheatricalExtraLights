@@ -3,6 +3,8 @@ package com.github.dumann089.theatricalextralights.forge;
 import com.github.dumann089.theatricalextralights.TheatricalExtraLights;
 import com.github.dumann089.theatricalextralights.TheatricalExtraLightsClient;
 import com.github.dumann089.theatricalextralights.client.ModShaders;
+import com.github.dumann089.theatricalextralights.client.ConfettiCannonClientSetup;
+import com.github.dumann089.theatricalextralights.client.forge.ModParticleClientImpl;
 import com.github.dumann089.theatricalextralights.client.entities.FireworkRocketRenderer;
 import com.github.dumann089.theatricalextralights.entities.ModEntities;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -10,6 +12,7 @@ import dev.architectury.platform.forge.EventBuses;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.client.event.RegisterShadersEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -30,6 +33,16 @@ public class TheatricalExtraLightsForge {
 
         // Registro nativo Forge del renderer del firework
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerEntityRenderers);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerLayerDefinitions);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerParticleProviders);
+    }
+
+    private void registerParticleProviders(final RegisterParticleProvidersEvent event) {
+        ModParticleClientImpl.registerForgeProviders(event);
+    }
+
+    private void registerLayerDefinitions(final EntityRenderersEvent.RegisterLayerDefinitions event) {
+        ConfettiCannonClientSetup.registerModelLayer(event::registerLayerDefinition);
     }
 
     private void registerEntityRenderers(final EntityRenderersEvent.RegisterRenderers event) {

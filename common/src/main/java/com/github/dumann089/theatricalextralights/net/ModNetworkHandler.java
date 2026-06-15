@@ -19,5 +19,6 @@ public class ModNetworkHandler {
         CHANNEL.register(FollowspotConsoleControlPacket.class, FollowspotConsoleControlPacket::encode, FollowspotConsoleControlPacket::decode, FollowspotConsoleControlPacket::handle);
         CHANNEL.register(FollowspotEnterControlPacket.class, FollowspotEnterControlPacket::encode, FollowspotEnterControlPacket::decode, FollowspotEnterControlPacket::handle);
         CHANNEL.register(FollowspotExitControlPacket.class, FollowspotExitControlPacket::encode, FollowspotExitControlPacket::decode, FollowspotExitControlPacket::handle);
+        CHANNEL.register(ConfettiBurstPacket.class, ConfettiBurstPacket::encode, ConfettiBurstPacket::decode, ConfettiBurstPacket::handle);
     }
 }

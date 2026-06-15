@@ -1,0 +1,43 @@
+package com.github.dumann089.theatricalextralights.client.fabric;
+
+import com.github.dumann089.theatricalextralights.client.particle.ConfettiParticle;
+import com.github.dumann089.theatricalextralights.client.particle.FireworkSparkParticle;
+import com.github.dumann089.theatricalextralights.client.particle.WaterFanParticle;
+import com.github.dumann089.theatricalextralights.client.particle.WaterJetParticle;
+import com.github.dumann089.theatricalextralights.client.particle.WaterJetParticleProvider;
+import com.github.dumann089.theatricalextralights.client.particle.WaterMovingJetParticle;
+import com.github.dumann089.theatricalextralights.particle.ModParticle;
+import dev.architectury.registry.client.particle.ParticleProviderRegistry;
+
+@SuppressWarnings("unused")
+public class ModParticleClientImpl {
+    private ModParticleClientImpl() {
+    }
+
+    public static void registerPlatformProviders() {
+        ParticleProviderRegistry.register(
+                ModParticle.WATERJET_OPTIONS,
+                WaterJetParticleProvider::new
+        );
+        ParticleProviderRegistry.register(
+                ModParticle.WATERJETPARTICLE,
+                WaterJetParticle::provider
+        );
+        ParticleProviderRegistry.register(
+                ModParticle.CONFETTI,
+                ConfettiParticle.Provider::new
+        );
+        ParticleProviderRegistry.register(
+                ModParticle.FIREWORK_SPARK,
+                FireworkSparkParticle.Provider::new
+        );
+        ParticleProviderRegistry.register(
+                ModParticle.WATERFANPARTICLE,
+                WaterFanParticle::provider
+        );
+        ParticleProviderRegistry.register(
+                ModParticle.WATERMOVINGJETPARTICLE,
+                WaterMovingJetParticle::provider
+        );
+    }
+}
