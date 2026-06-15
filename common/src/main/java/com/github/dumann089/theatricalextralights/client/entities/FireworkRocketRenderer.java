@@ -27,7 +27,7 @@ public class FireworkRocketRenderer extends EntityRenderer<FireworkRocketEntity>
     public void render(FireworkRocketEntity entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         VertexConsumer lensConsumer = buffer.getBuffer(LensRenderTypes.LENS);
         BurstPattern pattern = entity.getPreset().getPattern();
-        int color = entity.getPreset().getLaunchColor();
+        int color = entity.getLaunchColor();
         Vec3 entityPos = new Vec3(
                 Mth.lerp(partialTick, entity.xOld, entity.getX()),
                 Mth.lerp(partialTick, entity.yOld, entity.getY()),

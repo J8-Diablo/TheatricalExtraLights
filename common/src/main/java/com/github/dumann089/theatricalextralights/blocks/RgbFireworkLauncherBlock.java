@@ -1,12 +1,12 @@
 package com.github.dumann089.theatricalextralights.blocks;
 
-import com.github.dumann089.theatricalextralights.TheatricalExtraLightsScreens;
-import com.github.dumann089.theatricalextralights.blockentities.Blinder2x2BlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
-import com.github.dumann089.theatricalextralights.net.OpenExtraLightsScreenPacket;
+import com.github.dumann089.theatricalextralights.blockentities.FireworkLauncherBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.RgbFireworkLauncherBlockEntity;
 import dev.imabad.theatrical.TheatricalClient;
+import dev.imabad.theatrical.TheatricalScreen;
 import dev.imabad.theatrical.blocks.Blocks;
-import com.github.dumann089.theatricalextralights.blocks.ExtraLightsLightBlock;
+import dev.imabad.theatrical.net.OpenScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,6 +19,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -34,9 +35,8 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class Blinder2x2Block extends ExtraLightsLightBlock {
-
-    public Blinder2x2Block() {
+public class RgbFireworkLauncherBlock extends ExtraLightsLightBlock {
+    public RgbFireworkLauncherBlock() {
         super(Properties.of()
                 .requiresCorrectToolForDrops()
                 .strength(3, 3)
@@ -46,10 +46,11 @@ public class Blinder2x2Block extends ExtraLightsLightBlock {
                 .sound(SoundType.METAL)
                 .pushReaction(PushReaction.DESTROY));
     }
+
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return new Blinder2x2BlockEntity(blockPos, blockState);
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new RgbFireworkLauncherBlockEntity(pos, state);
     }
 
     @Override
@@ -57,52 +58,43 @@ public class Blinder2x2Block extends ExtraLightsLightBlock {
         super.createBlockStateDefinition(builder);
     }
 
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
+    }
+
     @Nullable
     @Override
-    public BlockState getStateForPlacement(BlockPlaceContext blockPlaceContext) {
-        return super.getStateForPlacement(blockPlaceContext).setValue(HANGING,
-                blockPlaceContext.getClickedFace() == Direction.DOWN ||
-                        isHanging(blockPlaceContext.getLevel(), blockPlaceContext.getClickedPos()));
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        return super.getStateForPlacement(context).setValue(HANGING,
+                context.getClickedFace() == Direction.DOWN || isHanging(context.getLevel(), context.getClickedPos()));
     }
 
     @Override
-    public boolean canSurvive(BlockState blockState, LevelReader levelReader, BlockPos blockPos) {
-        if(blockState.getValue(HANGING)){
-            return isHanging(levelReader, blockPos);
+    public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+        if (state.getValue(HANGING)) {
+            return isHanging(level, pos);
         }
-        return !levelReader.getBlockState(blockPos.below()).isAir();
+        return !level.getBlockState(pos.below()).isAir();
     }
 
     @Override
     public Direction getLightFacing(Direction hangDirection, Player placingPlayer) {
-        if(hangDirection == Direction.UP){
+        if (hangDirection == Direction.UP) {
             return placingPlayer.getDirection();
         }
-        Direction playerFacing = placingPlayer.getDirection();
-        if(playerFacing.getAxis() == Direction.Axis.X){
-            if(playerFacing == Direction.WEST){
-                return Direction.SOUTH;
-            } else {
-                return Direction.NORTH;
-            }
-        } else {
-            if(playerFacing == Direction.SOUTH){
-                return Direction.WEST;
-            } else {
-                return Direction.EAST;
-            }
-        }
+        return placingPlayer.getDirection().getOpposite();
     }
 
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        return blockEntityType == BlockEntities.BLINDER2X2.get() ? Blinder2x2BlockEntity::tick : null;
+        return blockEntityType == BlockEntities.RGB_FIREWORK_LAUNCHER.get() ? FireworkLauncherBlockEntity::tick : null;
     }
 
     @Override
     public VoxelShape getVisualShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        if(context instanceof EntityCollisionContext entityCollisionContext && entityCollisionContext.getEntity() == null){
+        if (context instanceof EntityCollisionContext entityContext && entityContext.getEntity() == null) {
             return Shapes.empty();
         }
         return super.getVisualShape(state, level, pos, context);
@@ -110,8 +102,8 @@ public class Blinder2x2Block extends ExtraLightsLightBlock {
 
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        if(super.use(state, level, pos, player, hand, hit) == InteractionResult.PASS) {
-            if (!level.isClientSide) {
+        if (super.use(state, level, pos, player, hand, hit) == InteractionResult.PASS) {
+            if (level.isClientSide) {
                 if (player.isCrouching()) {
                     if (TheatricalClient.DEBUG_BLOCKS.contains(pos)) {
                         TheatricalClient.DEBUG_BLOCKS.remove(pos);
@@ -120,8 +112,8 @@ public class Blinder2x2Block extends ExtraLightsLightBlock {
                     }
                     return InteractionResult.SUCCESS;
                 }
-                new OpenExtraLightsScreenPacket(pos, TheatricalExtraLightsScreens.CHANNEL_MENU)
-                        .sendTo((ServerPlayer) player);
+            } else {
+                new OpenScreen(pos, TheatricalScreen.GENERIC_DMX).sendTo((ServerPlayer) player);
             }
         }
         return InteractionResult.SUCCESS;
@@ -129,7 +121,7 @@ public class Blinder2x2Block extends ExtraLightsLightBlock {
 
     @Override
     public void destroy(LevelAccessor level, BlockPos pos, BlockState state) {
-        if(level.isClientSide()) {
+        if (level.isClientSide()) {
             TheatricalClient.DEBUG_BLOCKS.remove(pos);
         }
         super.destroy(level, pos, state);

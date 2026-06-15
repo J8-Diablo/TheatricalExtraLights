@@ -159,6 +159,8 @@ public class BlockEntities {
                     Blocks.FIREWORK_DOUBLE_BURST_PURPLE_BLOCK.get(),
                     Blocks.FIREWORK_WHISTLER_SILVER_BLOCK.get()
             ).build(null));
+    public static final RegistrySupplier<BlockEntityType<RgbFireworkLauncherBlockEntity>> RGB_FIREWORK_LAUNCHER = BLOCK_ENTITIES.register("firework_rgb_launcher", () ->
+            BlockEntityType.Builder.of(RgbFireworkLauncherBlockEntity::new, Blocks.FIREWORK_RGB_LAUNCHER_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<GerbBlockEntity>> GERB_GOLD = BLOCK_ENTITIES.register("gerb_gold", () ->
             BlockEntityType.Builder.of(GerbBlockEntity::new, Blocks.GERB_GOLD_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<FlameProjectorBlockEntity>> FLAME_PROJECTOR = BLOCK_ENTITIES.register("flame_projector", () ->

@@ -2,6 +2,7 @@ package com.github.dumann089.theatricalextralights.entities;
 
 import com.github.dumann089.theatricalextralights.compat.FireworkLightCompat;
 import com.github.dumann089.theatricalextralights.firework.BurstPattern;
+import com.github.dumann089.theatricalextralights.firework.FireworkColorUtil;
 import com.github.dumann089.theatricalextralights.firework.FireworkPreset;
 import com.github.dumann089.theatricalextralights.firework.Spark;
 import dev.architectury.extensions.network.EntitySpawnExtension;
@@ -23,9 +24,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 public class FireworkRocketEntity extends Entity implements EntitySpawnExtension, DynamicLightProvider {
@@ -41,7 +40,8 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
     private boolean fading;
     private boolean burstStarted;
     private final List<Spark> sparks = new ArrayList<>();
-    private final Set<BlockPos> registeredLightPositions = new HashSet<>();
+    private boolean shimmerLightRegistered;
+    private int[] customColors;
 
     public FireworkRocketEntity(EntityType<? extends FireworkRocketEntity> entityType, Level level) {
         super(entityType, level);
@@ -56,6 +56,22 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
     public FireworkPreset getPreset() {
         return preset;
+    }
+
+    public void setCustomColors(int red, int green, int blue) {
+        this.customColors = FireworkColorUtil.paletteFromRgb(red, green, blue);
+    }
+
+    public int getLaunchColor() {
+        return customColors != null ? customColors[0] : preset.getLaunchColor();
+    }
+
+    public int[] getColors() {
+        return customColors != null ? customColors : preset.getColors();
+    }
+
+    public boolean hasCustomColors() {
+        return customColors != null;
     }
 
     public boolean isExploded() {
@@ -96,6 +112,15 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
         exploded = tag.getBoolean("Exploded");
         fading = tag.getBoolean("Fading");
         burstStarted = tag.getBoolean("BurstStarted");
+        if (tag.contains("CustomColorCount")) {
+            int count = tag.getInt("CustomColorCount");
+            customColors = new int[count];
+            for (int i = 0; i < count; i++) {
+                customColors[i] = tag.getInt("CustomColor" + i);
+            }
+        } else {
+            customColors = null;
+        }
     }
 
     @Override
@@ -108,6 +133,12 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
         tag.putBoolean("Exploded", exploded);
         tag.putBoolean("Fading", fading);
         tag.putBoolean("BurstStarted", burstStarted);
+        if (customColors != null) {
+            tag.putInt("CustomColorCount", customColors.length);
+            for (int i = 0; i < customColors.length; i++) {
+                tag.putInt("CustomColor" + i, customColors[i]);
+            }
+        }
     }
 
     @Override
@@ -232,22 +263,18 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
         }
         if (getLightLuminance() > 0) {
             FireworkLightCompat.sync(this);
-            registeredLightPositions.add(getOwnerPos());
-            registeredLightPositions.add(blockPosition());
-        } else if (!registeredLightPositions.isEmpty()) {
+            shimmerLightRegistered = true;
+        } else if (shimmerLightRegistered) {
             releaseLight();
         }
     }
 
     private void releaseLight() {
-        if (registeredLightPositions.isEmpty()) {
+        if (!shimmerLightRegistered) {
             return;
         }
-        for (BlockPos pos : registeredLightPositions) {
-            FireworkLightCompat.removeAt(pos);
-        }
         FireworkLightCompat.remove(this);
-        registeredLightPositions.clear();
+        shimmerLightRegistered = false;
     }
 
     @Override
@@ -268,6 +295,13 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
         buf.writeBoolean(fading);
         buf.writeInt(burstTickIndex);
         buf.writeInt(fadeTicks);
+        buf.writeBoolean(customColors != null);
+        if (customColors != null) {
+            buf.writeVarInt(customColors.length);
+            for (int color : customColors) {
+                buf.writeInt(color);
+            }
+        }
     }
 
     @Override
@@ -278,11 +312,20 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
         fading = buf.readBoolean();
         burstTickIndex = buf.readInt();
         fadeTicks = buf.readInt();
+        if (buf.readBoolean()) {
+            customColors = new int[buf.readVarInt()];
+            for (int i = 0; i < customColors.length; i++) {
+                customColors[i] = buf.readInt();
+            }
+        } else {
+            customColors = null;
+        }
     }
 
     @Override
     public void remove(RemovalReason reason) {
-        releaseLight();
+        FireworkLightCompat.remove(this);
+        shimmerLightRegistered = false;
         super.remove(reason);
     }
 
@@ -310,8 +353,6 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
     public void resetLight() {
     }
 
-    private static final int BURST_LIGHT_TICKS = 8;
-
     @Override
     public int getLightLuminance() {
         if (!level().isClientSide) {
@@ -319,10 +360,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
         }
         BurstPattern pattern = preset.getPattern();
         if (exploded) {
-            if (burstTickIndex < BURST_LIGHT_TICKS) {
-                return 15;
-            }
-            return 0;
+            return pattern.getBurstLuminance(burstTickIndex);
         }
         if (fading) {
             return 0;
@@ -350,20 +388,17 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
     @Override
     public int getLightColour() {
-        int color = preset.getLaunchColor();
-        return (0xFF << 24) | color;
+        int color = getLaunchColor();
+        int luminance = getLightLuminance();
+        int intensity = luminance <= 0 ? 0 : luminance * 10;
+        return (intensity << 24) | color;
     }
 
     @Override
     public float getLightSpread() {
         BurstPattern pattern = preset.getPattern();
         if (exploded) {
-            if (burstTickIndex < BURST_LIGHT_TICKS) {
-                float t = burstTickIndex / (float) BURST_LIGHT_TICKS;
-                float fade = 1.0f - t;
-                return 380.0f * fade;
-            }
-            return 0.0f;
+            return pattern.getBurstLightSpread(burstTickIndex);
         }
         if (fading) {
             return 0.0f;

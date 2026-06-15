@@ -43,12 +43,12 @@ public final class BurstPatterns {
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
-            emitFlightTrail(rocket, random, rocket.getPreset().getLaunchColor(), 0.42f, 10, false);
+            emitFlightTrail(rocket, random, rocket.getLaunchColor(), 0.42f, 10, false);
         }
 
         @Override
         public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
-            int color = rocket.getPreset().getLaunchColor();
+            int color = rocket.getLaunchColor();
             int count = 260;
             for (int i = 0; i < count; i++) {
                 double theta = random.nextDouble() * Math.PI * 2.0;
@@ -77,12 +77,12 @@ public final class BurstPatterns {
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
-            emitFlightTrail(rocket, random, rocket.getPreset().getLaunchColor(), 0.40f, 10, false);
+            emitFlightTrail(rocket, random, rocket.getLaunchColor(), 0.40f, 10, false);
         }
 
         @Override
         public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
-            int color = rocket.getPreset().getLaunchColor();
+            int color = rocket.getLaunchColor();
             int count = 280;
             for (int i = 0; i < count; i++) {
                 double theta = random.nextDouble() * Math.PI * 2.0;
@@ -110,12 +110,12 @@ public final class BurstPatterns {
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
-            emitFlightTrail(rocket, random, rocket.getPreset().getLaunchColor(), 0.42f, 10, false);
+            emitFlightTrail(rocket, random, rocket.getLaunchColor(), 0.42f, 10, false);
         }
 
         @Override
         public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
-            int color = rocket.getPreset().getLaunchColor();
+            int color = rocket.getLaunchColor();
             int count = 260;
             for (int i = 0; i < count; i++) {
                 double theta = random.nextDouble() * Math.PI * 2.0;
@@ -144,12 +144,12 @@ public final class BurstPatterns {
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
-            emitFlightTrail(rocket, random, rocket.getPreset().getLaunchColor(), 0.42f, 10, false);
+            emitFlightTrail(rocket, random, rocket.getLaunchColor(), 0.42f, 10, false);
         }
 
         @Override
         public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
-            int[] palette = rocket.getPreset().getColors();
+            int[] palette = rocket.getColors();
             double[] shellSpeeds = {0.85, 1.45, 2.05};
             int[] shellCounts = {100, 115, 130};
             for (int shell = 0; shell < shellSpeeds.length; shell++) {
@@ -184,12 +184,12 @@ public final class BurstPatterns {
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
-            emitFlightTrail(rocket, random, rocket.getPreset().getLaunchColor(), 0.42f, 10, false);
+            emitFlightTrail(rocket, random, rocket.getLaunchColor(), 0.42f, 10, false);
         }
 
         @Override
         public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
-            int[] palette = rocket.getPreset().getColors();
+            int[] palette = rocket.getColors();
             int count = 280;
             for (int i = 0; i < count; i++) {
                 double theta = random.nextDouble() * Math.PI * 2.0;
@@ -222,12 +222,12 @@ public final class BurstPatterns {
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
-            emitFlightTrail(rocket, random, rocket.getPreset().getLaunchColor(), 0.46f, 12, true);
+            emitFlightTrail(rocket, random, rocket.getLaunchColor(), 0.46f, 12, true);
         }
 
         @Override
         public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
-            int color = rocket.getPreset().getLaunchColor();
+            int color = rocket.getLaunchColor();
             int trunkCount = 50;
             for (int i = 0; i < trunkCount; i++) {
                 double sx = (random.nextDouble() - 0.5) * 0.06;
@@ -242,7 +242,7 @@ public final class BurstPatterns {
         @Override
         public void onBurstTick(FireworkRocketEntity rocket, RandomSource random, int tickIndex) {
             if (tickIndex == 14 || tickIndex == 22 || tickIndex == 30 || tickIndex == 38) {
-                int color = rocket.getPreset().getLaunchColor();
+                int color = rocket.getLaunchColor();
                 int frondCount = 50;
                 double apexX = rocket.getX();
                 double apexY = rocket.getY() + APEX_Y_OFFSET;
@@ -272,12 +272,12 @@ public final class BurstPatterns {
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
-            emitFlightTrail(rocket, random, rocket.getPreset().getLaunchColor(), 0.44f, 11, true);
+            emitFlightTrail(rocket, random, rocket.getLaunchColor(), 0.44f, 11, true);
         }
 
         @Override
         public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
-            int color = rocket.getPreset().getLaunchColor();
+            int color = rocket.getLaunchColor();
             int count = 260;
             for (int i = 0; i < count; i++) {
                 double theta = random.nextDouble() * Math.PI * 2.0;
@@ -303,12 +303,12 @@ public final class BurstPatterns {
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
-            emitFlightTrail(rocket, random, rocket.getPreset().getLaunchColor(), 0.42f, 10, false);
+            emitFlightTrail(rocket, random, rocket.getLaunchColor(), 0.42f, 10, false);
         }
 
         @Override
         public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
-            int color = rocket.getPreset().getLaunchColor();
+            int color = rocket.getLaunchColor();
             int count = 220;
             double speed = 1.85;
             for (int i = 0; i < count; i++) {
@@ -336,13 +336,13 @@ public final class BurstPatterns {
         @Override public double getGravity() { return 0.018; }
         @Override public double getDrag() { return 0.99; }
         @Override public float getLaunchSpeedMultiplier() { return 1.05f; }
-        @Override public float getFlightLightSpread() { return 320.0f; }
+        @Override public float getFlightLightSpread() { return 38.0f; }
         @Override public float getFlightHaloInnerSize() { return 2.5f; }
         @Override public float getFlightHaloOuterSize() { return 4.2f; }
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
-            int color = rocket.getPreset().getLaunchColor();
+            int color = rocket.getLaunchColor();
             for (int i = 0; i < 2; i++) {
                 emitFlightTrail(rocket, random, color, 0.55f, 14, true);
             }
@@ -350,7 +350,7 @@ public final class BurstPatterns {
 
         @Override
         public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
-            int color = rocket.getPreset().getLaunchColor();
+            int color = rocket.getLaunchColor();
             int count = 320;
             for (int i = 0; i < count; i++) {
                 double theta = random.nextDouble() * Math.PI * 2.0;
@@ -378,7 +378,7 @@ public final class BurstPatterns {
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
-            int color = rocket.getPreset().getLaunchColor();
+            int color = rocket.getLaunchColor();
             double baseAngle = rocket.tickCount * 0.55;
             double radius = 0.55;
             for (int i = 0; i < 3; i++) {
@@ -392,7 +392,7 @@ public final class BurstPatterns {
 
         @Override
         public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
-            int color = rocket.getPreset().getLaunchColor();
+            int color = rocket.getLaunchColor();
             int count = 220;
             for (int i = 0; i < count; i++) {
                 double theta = random.nextDouble() * Math.PI * 2.0;
@@ -424,12 +424,12 @@ public final class BurstPatterns {
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
-            emitFlightTrail(rocket, random, rocket.getPreset().getLaunchColor(), 0.42f, 10, false);
+            emitFlightTrail(rocket, random, rocket.getLaunchColor(), 0.42f, 10, false);
         }
 
         @Override
         public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
-            int color = rocket.getPreset().getLaunchColor();
+            int color = rocket.getLaunchColor();
             int count = 30;
             for (int i = 0; i < count; i++) {
                 double theta = random.nextDouble() * Math.PI * 2.0;
@@ -450,7 +450,7 @@ public final class BurstPatterns {
             if (tickIndex != 12) {
                 return;
             }
-            int color = rocket.getPreset().getLaunchColor();
+            int color = rocket.getLaunchColor();
             double subSpeed = 0.55;
             double[][] dirs = {
                     { subSpeed, 0, 0}, {-subSpeed, 0, 0},
@@ -490,7 +490,7 @@ public final class BurstPatterns {
 
         @Override
         public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
-            int[] palette = rocket.getPreset().getColors();
+            int[] palette = rocket.getColors();
             int count = 200;
             for (int i = 0; i < count; i++) {
                 double theta = random.nextDouble() * Math.PI * 2.0;
@@ -520,12 +520,12 @@ public final class BurstPatterns {
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
-            emitFlightTrail(rocket, random, rocket.getPreset().getLaunchColor(), 0.42f, 10, false);
+            emitFlightTrail(rocket, random, rocket.getLaunchColor(), 0.42f, 10, false);
         }
 
         @Override
         public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
-            int color = rocket.getPreset().getLaunchColor();
+            int color = rocket.getLaunchColor();
             int count = 240;
             for (int i = 0; i < count; i++) {
                 double theta = random.nextDouble() * Math.PI * 2.0;
@@ -552,12 +552,12 @@ public final class BurstPatterns {
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
-            emitFlightTrail(rocket, random, rocket.getPreset().getLaunchColor(), 0.42f, 10, false);
+            emitFlightTrail(rocket, random, rocket.getLaunchColor(), 0.42f, 10, false);
         }
 
         @Override
         public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
-            int color = rocket.getPreset().getLaunchColor();
+            int color = rocket.getLaunchColor();
             int count = 280;
             for (int i = 0; i < count; i++) {
                 double theta = random.nextDouble() * Math.PI * 2.0;
@@ -586,12 +586,12 @@ public final class BurstPatterns {
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
-            emitFlightTrail(rocket, random, rocket.getPreset().getLaunchColor(), 0.42f, 10, false);
+            emitFlightTrail(rocket, random, rocket.getLaunchColor(), 0.42f, 10, false);
         }
 
         @Override
         public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
-            int color = rocket.getPreset().getLaunchColor();
+            int color = rocket.getLaunchColor();
             int count = 80;
             for (int i = 0; i < count; i++) {
                 double theta = random.nextDouble() * Math.PI * 2.0;
@@ -619,12 +619,12 @@ public final class BurstPatterns {
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
-            emitFlightTrail(rocket, random, rocket.getPreset().getLaunchColor(), 0.42f, 10, false);
+            emitFlightTrail(rocket, random, rocket.getLaunchColor(), 0.42f, 10, false);
         }
 
         @Override
         public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
-            int color = rocket.getPreset().getLaunchColor();
+            int color = rocket.getLaunchColor();
             int count = 220;
             double scale = 0.11;
             for (int i = 0; i < count; i++) {
@@ -653,12 +653,12 @@ public final class BurstPatterns {
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
-            emitFlightTrail(rocket, random, rocket.getPreset().getLaunchColor(), 0.42f, 10, false);
+            emitFlightTrail(rocket, random, rocket.getLaunchColor(), 0.42f, 10, false);
         }
 
         @Override
         public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
-            int[] palette = rocket.getPreset().getColors();
+            int[] palette = rocket.getColors();
             int color1 = palette[0];
             int count = 130;
             for (int i = 0; i < count; i++) {
@@ -677,7 +677,7 @@ public final class BurstPatterns {
         @Override
         public void onBurstTick(FireworkRocketEntity rocket, RandomSource random, int tickIndex) {
             if (tickIndex == 14) {
-                int[] palette = rocket.getPreset().getColors();
+                int[] palette = rocket.getColors();
                 int color2 = palette.length > 1 ? palette[1] : palette[0];
                 int count = 220;
                 for (int i = 0; i < count; i++) {
@@ -706,14 +706,14 @@ public final class BurstPatterns {
         @Override public int getBurstDuration() { return 0; }
         @Override public int getCometFadeTicks() { return 4; }
         @Override public int getFlightLifetime() { return FLIGHT_LIFETIME; }
-        @Override public float getFlightLightSpread() { return 280.0f; }
+        @Override public float getFlightLightSpread() { return 34.0f; }
         @Override public float getFlightHaloInnerSize() { return 1.9f; }
         @Override public float getFlightHaloOuterSize() { return 2.85f; }
         @Override public double getFlightWobble() { return 0.025; }
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
-            int color = rocket.getPreset().getLaunchColor();
+            int color = rocket.getLaunchColor();
             for (int i = 0; i < 3; i++) {
                 emitFlightTrail(rocket, random, color, 0.50f, 12, true);
             }
@@ -753,19 +753,19 @@ public final class BurstPatterns {
         @Override public int getBurstDuration() { return 0; }
         @Override public int getCometFadeTicks() { return 7; }
         @Override public int getFlightLifetime() { return FLIGHT_LIFETIME; }
-        @Override public float getFlightLightSpread() { return 260.0f; }
+        @Override public float getFlightLightSpread() { return 32.0f; }
         @Override public float getFlightHaloInnerSize() { return 1.7f; }
         @Override public float getFlightHaloOuterSize() { return 2.55f; }
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
-            int color = rocket.getPreset().getLaunchColor();
+            int color = rocket.getLaunchColor();
             emitFlightTrail(rocket, random, color, 0.50f, 12, true);
         }
 
         @Override
         public void onFadeTick(FireworkRocketEntity rocket, RandomSource random, int remainingTicks) {
-            int color = rocket.getPreset().getLaunchColor();
+            int color = rocket.getLaunchColor();
             int fadeTicks = getCometFadeTicks();
             float fade = remainingTicks / (float) Math.max(1, fadeTicks);
             if (fade <= 0.0f || random.nextFloat() > fade * 0.85f) {

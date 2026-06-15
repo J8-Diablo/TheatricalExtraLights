@@ -147,7 +147,7 @@ public class BlinderRenderer extends ExtraLightsRenderer<BlinderBlockEntity> {
                     int r = (color >> 16) & 0xFF;
                     int g = (color >> 8) & 0xFF;
                     int b = color & 0xFF;
-                    int a = (int) ((intensity / 255f) * 255f);
+                    int a = (int) intensity;
 
                     poseStack.pushPose();
 

@@ -2,45 +2,24 @@ package com.github.dumann089.theatricalextralights.blockentities;
 
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import dev.imabad.theatrical.api.Fixture;
-import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.Arrays;
-
-public class BlinderBlockEntity extends ExtraLightsLightBlockEntity {
+public class BlinderBlockEntity extends BlinderBaseBlockEntity {
 
     public BlinderBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntities.BLINDER.get(), pos, state);
-        setChannelCount(4);
     }
+
+    public static void tick(Level level, BlockPos pos, BlockState state, BlinderBlockEntity be) {
+        BlinderBaseBlockEntity.tick(level, pos, state, be);
+    }
+
     @Override
     public Fixture getFixture() {
         return Fixtures.BLINDER.get();
-    }
-
-    @Override
-    public int getFocus() {
-        return 255;
-    }
-
-    @Override
-    public void consume(byte[] dmxValues) {
-        int start = this.getChannelStart() > 0 ? this.getChannelStart() - 1 : 0;
-        byte[] ourValues = Arrays.copyOfRange(dmxValues, start,
-                start+ this.getChannelCount());
-        if(ourValues.length < 4){
-            return;
-        }
-                boolean prevAdvanced = beginDmxUpdate();
-        int _pi = intensity, _pr = red, _pg = green, _pb = blue, _pf = focus, _pp = pan, _pt = tilt;
-        intensity = convertByteToInt(ourValues[0]);
-        red = convertByteToInt(ourValues[1]);
-        green = convertByteToInt(ourValues[2]);
-        blue = convertByteToInt(ourValues[3]);
-        finishDmxUpdate(intensity != _pi || red != _pr || green != _pg || blue != _pb || focus != _pf || pan != _pp || tilt != _pt, prevAdvanced);
     }
 
     @Override
@@ -56,15 +35,6 @@ public class BlinderBlockEntity extends ExtraLightsLightBlockEntity {
     @Override
     public ResourceLocation getFixtureId() {
         return Fixtures.BLINDER.getId();
-    }
-
-    @Override
-    public int getActivePersonality() {
-        return 0;
-    }
-
-    public int convertByteToInt(byte val) {
-        return Byte.toUnsignedInt(val);
     }
 
     @Override

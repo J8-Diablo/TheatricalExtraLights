@@ -351,6 +351,8 @@ public class Fixtures {
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_double_burst_purple"), () -> new FireworkLauncherFixture(FireworkPreset.DOUBLE_BURST_PURPLE));
     public static final RegistrySupplier<Fixture> FIREWORK_WHISTLER_SILVER =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_whistler_silver"), () -> new FireworkLauncherFixture(FireworkPreset.WHISTLER_SILVER));
+    public static final RegistrySupplier<Fixture> FIREWORK_RGB_LAUNCHER =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_rgb_launcher"), RgbFireworkLauncherFixture::new);
     public static final RegistrySupplier<Fixture> GERB_GOLD =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "gerb_gold"), GerbFixture::new);
     public static final RegistrySupplier<Fixture> FLAME_PROJECTOR =

@@ -22,4 +22,9 @@ public final class FireworkLightCompat {
     public static void removeAt(BlockPos pos) {
         throw new AssertionError();
     }
+
+    @ExpectPlatform
+    public static void flushPending() {
+        throw new AssertionError();
+    }
 }

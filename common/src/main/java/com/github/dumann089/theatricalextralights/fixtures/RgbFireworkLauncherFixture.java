@@ -10,31 +10,27 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.Collections;
 import java.util.List;
 
-public class Blinder2x2Fixture extends Fixture {
-
-    private static final List<DMXPersonality> PERSONALITIES = Collections.singletonList(
-            new DMXPersonality(5, "5-Channel iRGB + Strobe")
+public class RgbFireworkLauncherFixture extends Fixture {
+    private static final List<DMXPersonality> PERSONALITIES = List.of(
+            new DMXPersonality(7, "7-Channel RGB Firework")
                     .addSlot(SharedSlots.INTENSITY)
+                    .addSlot(SharedSlots.TILT)
+                    .addSlot(SharedSlots.FOCUS)
                     .addSlot(SharedSlots.RED)
                     .addSlot(SharedSlots.GREEN)
                     .addSlot(SharedSlots.BLUE)
-                    .addSlot(SharedSlots.FOCUS)
+                    .addSlot(SharedSlots.PAN)
     );
 
-    private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/blinder2x2/blinder2x2_tilt");
-    private static final ResourceLocation PAN_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/blinder2x2/blinder2x2_pan");
-    private static final ResourceLocation STATIC_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/4x2_blinder/4x2_blinder_static");
-
-    private final float[] tiltRotation = new float[]{0.5F, 0.43f, 0.5F};
-    private final float[] panRotation = new float[]{0.5F, 0.75F, .53F};
-    private final float[] beamStartPosition = new float[]{0.5F, 0.68F, 0.5F};
+    private static final ResourceLocation STATIC_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/firework/firework_rgb_launcher_static");
+    private static final ResourceLocation PAN_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/firework/firework_rgb_launcher_pan");
+    private final float[] tiltPivot = new float[]{0.5f, 0.25f, 0.5f};
 
     @Override
     public ResourceLocation getTiltModel() {
-        return TILT_MODEL;
+        return PAN_MODEL;
     }
 
     @Override
@@ -49,22 +45,22 @@ public class Blinder2x2Fixture extends Fixture {
 
     @Override
     public float[] getTiltRotationPosition() {
-        return tiltRotation;
+        return tiltPivot;
     }
 
     @Override
     public float[] getPanRotationPosition() {
-        return panRotation;
+        return tiltPivot;
     }
 
     @Override
     public float[] getBeamStartPosition() {
-        return beamStartPosition;
+        return new float[]{0.5f, 0.85f, 0.5f};
     }
 
     @Override
     public float getDefaultRotation() {
-        return 0;
+        return 180.0f;
     }
 
     @Override
@@ -74,20 +70,20 @@ public class Blinder2x2Fixture extends Fixture {
 
     @Override
     public float getRayTraceRotation() {
-        return 180f;
+        return 0.0f;
     }
 
     @Override
     public HangType getHangType() {
-        return HangType.HOOK_BAR;
+        return HangType.BRACE_BAR;
     }
 
     @Override
     public float[] getTransforms(BlockState fixtureBlockState, BlockState supportBlockState) {
-        if(fixtureBlockState.getValue(BaseLightBlock.HANG_DIRECTION) == Direction.UP){
-            return new float[]{0, .5f, 0};
+        if (fixtureBlockState.getValue(BaseLightBlock.HANG_DIRECTION) == Direction.UP) {
+            return new float[]{0, 0.5f, 0};
         }
-        return new float[]{0, 0.5F, 0};
+        return new float[]{0, -0.35f, 0};
     }
 
     @Override
@@ -96,18 +92,7 @@ public class Blinder2x2Fixture extends Fixture {
     }
 
     @Override
-    public boolean invertTilt() {
-        return true;
-    }
-
-    @Override
-    public boolean invertPan() {
-        return true;
-    }
-
-
-    @Override
     public double getLightRadius() {
-        return 35;
+        return 0.5d;
     }
 }
