@@ -121,36 +121,6 @@ public class WaterJetBloomBlockEntity extends ExtraLightsLightBlockEntity
 
     /* ================= PARTICLES ================= */
 
-    public void tick() {
-        if (!level.isClientSide || Minecraft.getInstance().isPaused()) return;
-
-        tickCounter++;
-
-        double x = worldPosition.getX() + 0.5;
-        double y = worldPosition.getY();
-        double z = worldPosition.getZ() + 0.5;
-
-        double targetHeight = (intensity / 255.0) * jetHeight;
-        smoothedHeight += (targetHeight - smoothedHeight) * 0.1;
-
-        if (tickCounter % 4 == 0) {
-            float intensityNorm = intensity / 255.0f;
-
-            level.addAlwaysVisibleParticle(
-                    new WaterJetParticleOptions(
-                            intensityNorm,
-                            jetThickness,
-                            jetConeAngle,
-                            JetVariant.JETBloom
-                    ),
-                    true,
-                    x,
-                    y + smoothedHeight,
-                    z,
-                    0, 0, 0
-            );
-        }
-    }
 
     /* ================= FIXTURE ================= */
 
@@ -224,4 +194,19 @@ public class WaterJetBloomBlockEntity extends ExtraLightsLightBlockEntity
     public String getTranslationKey() {
         return "block.theatricalextralights.water_jet_bloom";
     }
+
+    private final com.github.dumann089.theatricalextralights.client.WaterJetClientEffects.TickCounter particleTick =
+            new com.github.dumann089.theatricalextralights.client.WaterJetClientEffects.TickCounter();
+
+    public static void tick(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos,
+                            net.minecraft.world.level.block.state.BlockState state, WaterJetBloomBlockEntity blockEntity) {
+        if (level.isClientSide()) {
+            com.github.dumann089.theatricalextralights.client.WaterJetClientEffects.tickJet(
+                    blockEntity,
+                    com.github.dumann089.theatricalextralights.client.WaterJetClientEffects.BLOOM,
+                    blockEntity.particleTick
+            );
+        }
+    }
+
 }

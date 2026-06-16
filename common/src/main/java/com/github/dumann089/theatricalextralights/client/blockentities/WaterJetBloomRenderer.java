@@ -100,72 +100,7 @@ public class WaterJetBloomRenderer extends ExtraLightsRenderer<WaterJetBloomBloc
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel,  packedLight, packedOverlay);
         //#endregion
     }
-    @Override
-    public void beforeRenderBeam(WaterJetBloomBlockEntity blockEntity, PoseStack poseStack,
-                                 VertexConsumer vertexConsumer, MultiBufferSource multiBufferSource,
-                                 Direction facing, float partialTicks, boolean isFlipped,
-                                 BlockState blockstate, boolean isHanging, int packedLight, int packedOverlay) {
-
-        if(blockEntity.getIntensity() > 0){
-            LazyRenderers.addLazyRender(new LazyRenderers.LazyRenderer() {
-                @Override
-                public void render(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, Camera camera, float partialTick) {
-
-                    if (Minecraft.getInstance().isPaused()) return;
-
-                    Vec3 offset = Vec3.atLowerCornerOf(blockEntity.getBlockPos()).subtract(camera.getPosition());
-                    poseStack.pushPose();
-                    poseStack.translate(offset.x, offset.y, offset.z);
-
-                    preparePoseStack(blockEntity, poseStack, facing, partialTicks, isFlipped, blockstate, isHanging);
-
-                    double x = blockEntity.getBlockPos().getX() + 0.5;
-                    double y = blockEntity.getBlockPos().getY() + 2.03f;
-                    double z = blockEntity.getBlockPos().getZ() + 0.5;
-
-                    float pan = blockEntity.getPrevPan() + (blockEntity.getPan() - blockEntity.getPrevPan()) * partialTicks;
-                    float tilt = blockEntity.getPrevTilt() + (blockEntity.getTilt() - blockEntity.getPrevTilt()) * partialTicks;
-
-                    double yaw = Math.toRadians(pan);
-                    double pitch = Math.toRadians(tilt);
-
-                    double dirX = 0;
-                    double dirY = 1;
-                    double dirZ = 0;
-
-                    double maxHeight = blockEntity.getJetHeight();
-                    double targetHeight = (blockEntity.getIntensity() / 255.0) * maxHeight;
-
-                    blockEntity.smoothedHeight += (targetHeight - blockEntity.smoothedHeight) * 0.1;
-
-                    double speed = blockEntity.smoothedHeight * 0.09;
-
-                    if (blockEntity.getLevel() != null) {
-                        float intensity = blockEntity.getIntensity() / 255.0f;
-                        float thickness = blockEntity.getJetThickness();
-                        float ConeAngle = blockEntity.getJetConeAngle();
-                        WaterJetParticleOptions options = new WaterJetParticleOptions(intensity, thickness, ConeAngle, JetVariant.JETBloom);
-
-                        blockEntity.getLevel().addAlwaysVisibleParticle(
-                                options,
-                                true,
-                                x, y, z,
-                                dirX * speed, dirY * speed, dirZ * speed
-                        );
-                    }
-                    poseStack.popPose();
-                }
-
-                @Override
-                public Vec3 getPos(float partialTick) {
-                    return blockEntity.getBlockPos().getCenter();
-                }
-            });
-        }
-    }
-
-
-    @Override
+        @Override
     public void preparePoseStack(WaterJetBloomBlockEntity blockEntity, PoseStack poseStack, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging) {
         //#region Fixture Hanging
         poseStack.translate(0.5F, 0, .5F);

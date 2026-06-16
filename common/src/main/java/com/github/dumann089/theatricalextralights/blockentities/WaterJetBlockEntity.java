@@ -1,13 +1,9 @@
 package com.github.dumann089.theatricalextralights.blockentities;
 
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
-import com.github.dumann089.theatricalextralights.particle.ModParticle;
 import dev.imabad.theatrical.api.Fixture;
-import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
@@ -15,7 +11,6 @@ import java.util.Arrays;
 public class WaterJetBlockEntity extends ExtraLightsLightBlockEntity {
 
     public double smoothedHeight = 0.0;
-    private int tickCounter = 0;
 
     public WaterJetBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntities.WATER_JET.get(), pos, state);
@@ -65,35 +60,25 @@ public class WaterJetBlockEntity extends ExtraLightsLightBlockEntity {
         return 0;
     }
 
+
+    private final com.github.dumann089.theatricalextralights.client.WaterJetClientEffects.TickCounter particleTick =
+            new com.github.dumann089.theatricalextralights.client.WaterJetClientEffects.TickCounter();
+
+    public static void tick(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos,
+                            net.minecraft.world.level.block.state.BlockState state, WaterJetBlockEntity blockEntity) {
+        if (level.isClientSide()) {
+            com.github.dumann089.theatricalextralights.client.WaterJetClientEffects.tickJet(
+                    blockEntity,
+                    com.github.dumann089.theatricalextralights.client.WaterJetClientEffects.WATER_JET,
+                    blockEntity.particleTick
+            );
+        }
+    }
+
     public int convertByteToInt(byte val) {
         return Byte.toUnsignedInt(val);
     }
 
-    public void tick() {
-        if (!level.isClientSide || Minecraft.getInstance().isPaused()) return;
-
-        double x = worldPosition.getX() + 0.5;
-        double y = worldPosition.getY();
-        double z = worldPosition.getZ() + 0.5;
-
-        double maxHeight = 3.0;
-        double targetHeight = (intensity / 255.0) * maxHeight;
-
-        double normalizedIntensity = intensity / 255.0;
-
-        smoothedHeight += (targetHeight - smoothedHeight) * 0.1;
-
-        if (tickCounter % 8 == 0) {
-            level.addAlwaysVisibleParticle(
-                    ModParticle.WATERJETPARTICLE.get(),
-                    true,
-                    x, y + smoothedHeight, z,
-                    0,
-                    intensity / 255.0,
-                    0
-            );
-        }
-    }
     @Override
     public String getTranslationKey() {
         return "block.theatricalextralights.water_jet";
