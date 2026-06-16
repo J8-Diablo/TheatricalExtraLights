@@ -2,6 +2,7 @@ package com.github.dumann089.theatricalextralights;
 
 import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
 import com.github.dumann089.theatricalextralights.client.ExtraLightsClientScreens;
+import com.github.dumann089.theatricalextralights.client.ModParticleClient;
 import com.github.dumann089.theatricalextralights.client.blockentities.*;
 import com.github.dumann089.theatricalextralights.client.entities.FireworkRocketRenderer;
 import com.github.dumann089.theatricalextralights.compat.FireworkLightCompat;
@@ -16,6 +17,7 @@ public class TheatricalExtraLightsClient {
 
 
     public static void init() {
+        ModParticleClient.registerProviders();
 
         BlockEntityRendererRegistry.register(BlockEntities.MOVING_SCAN.get(), MovingScanRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.MOVING_VL2C.get(), MovingVL2CRenderer::new);
@@ -128,6 +130,9 @@ public class TheatricalExtraLightsClient {
         BlockEntityRendererRegistry.register(BlockEntities.IRIS_700_GOBO.get(), Iris700GoboRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.PRO_SPOT_GOBO.get(), ProSpotGoboRenderer::new);
 
+        BlockEntityRendererRegistry.register(BlockEntities.CONFETTI_CANNON.get(), ConfettiCannonRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.FLAME_PROJECTOR.get(), ctx -> new StaticFixtureRenderer<>(ctx));
+        BlockEntityRendererRegistry.register(BlockEntities.GERB_GOLD.get(), ctx -> new StaticFixtureRenderer<>(ctx));
 
         EntityRendererRegistry.register(ModEntities.FIREWORK_ROCKET, FireworkRocketRenderer::new);
 

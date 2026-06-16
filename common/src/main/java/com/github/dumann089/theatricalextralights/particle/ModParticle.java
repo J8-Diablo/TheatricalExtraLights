@@ -2,13 +2,11 @@
 package com.github.dumann089.theatricalextralights.particle;
 
 import com.github.dumann089.theatricalextralights.TheatricalExtraLights;
-import com.github.dumann089.theatricalextralights.client.particle.*;
+import com.github.dumann089.theatricalextralights.client.particle.FireworkSparkParticleOptions;
+import com.github.dumann089.theatricalextralights.client.particle.WaterJetParticleOptions;
 import com.mojang.serialization.Codec;
-import dev.architectury.platform.Platform;
-import dev.architectury.registry.client.particle.ParticleProviderRegistry;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
-import dev.architectury.utils.Env;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.Registries;
@@ -38,6 +36,9 @@ public class ModParticle {
             }
     );
 
+    public static final RegistrySupplier<SimpleParticleType> CONFETTI = PARTICLE_TYPES.register("confetti", () ->
+            new SimpleParticleType(false) {});
+
     public static final RegistrySupplier<ParticleType<FireworkSparkParticleOptions>>
             FIREWORK_SPARK = PARTICLE_TYPES.register(
             "firework_spark",
@@ -51,32 +52,5 @@ public class ModParticle {
 
     public static void initialize() {
         PARTICLE_TYPES.register();
-
-        if (Platform.getEnvironment() == Env.CLIENT) {
-
-            ParticleProviderRegistry.register(
-                    WATERJET_OPTIONS,
-                    WaterJetParticleProvider::new
-            );
-
-            ParticleProviderRegistry.register(
-                    WATERJETPARTICLE,
-                    WaterJetParticle::provider
-            );
-            ParticleProviderRegistry.register(
-                    FIREWORK_SPARK,
-                    FireworkSparkParticle.Provider::new
-            );
-
-            ParticleProviderRegistry.register(
-                    WATERFANPARTICLE,
-                    WaterFanParticle::provider
-            );
-
-            ParticleProviderRegistry.register(
-                    WATERMOVINGJETPARTICLE,
-                    WaterMovingJetParticle::provider
-            );
-        }
     }
 }

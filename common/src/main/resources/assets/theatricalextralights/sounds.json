@@ -1,0 +1,10 @@
+{
+  "confetti_cannon.pop": {
+    "subtitle": "subtitles.theatricalextralights.confetti_cannon.pop",
+    "sounds": [
+      "theatricalextralights:confetti_cannon_pop_0",
+      "theatricalextralights:confetti_cannon_pop_1",
+      "theatricalextralights:confetti_cannon_pop_2"
+    ]
+  }
+}

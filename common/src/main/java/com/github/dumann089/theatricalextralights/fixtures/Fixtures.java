@@ -357,6 +357,8 @@ public class Fixtures {
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "gerb_gold"), GerbFixture::new);
     public static final RegistrySupplier<Fixture> FLAME_PROJECTOR =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "flame_projector"), FlameProjectorFixture::new);
+    public static final RegistrySupplier<Fixture> CONFETTI_CANNON =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "confetti_cannon"), ConfettiCannonFixture::new);
     public static final RegistrySupplier<Fixture> LASER_MIRROR =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "laser_mirror"), LaserMirrorFixture::new);
     public static final RegistrySupplier<Fixture> PARSCROLLER =

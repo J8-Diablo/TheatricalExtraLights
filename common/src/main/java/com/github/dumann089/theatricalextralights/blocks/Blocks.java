@@ -170,6 +170,7 @@ public class Blocks {
     public static final RegistrySupplier<Block> FIREWORK_RGB_LAUNCHER_BLOCK = BLOCKS.register("firework_rgb_launcher", RgbFireworkLauncherBlock::new);
     public static final RegistrySupplier<Block> GERB_GOLD_BLOCK = BLOCKS.register("gerb_gold", GerbBlock::new);
     public static final RegistrySupplier<Block> FLAME_PROJECTOR_BLOCK = BLOCKS.register("flame_projector", FlameProjectorBlock::new);
+    public static final RegistrySupplier<Block> CONFETTI_CANNON_BLOCK = BLOCKS.register("confetti_cannon", ConfettiCannonBlock::new);
     public static final RegistrySupplier<Block> LASER_MIRROR_BLOCK = BLOCKS.register("laser_mirror", LaserMirrorBlock::new);
     public static final RegistrySupplier<Block> PARSCROLLER_BLOCK = BLOCKS.register("parscroller", ParScrollerBlock::new);
     public static final RegistrySupplier<Block> BLINDER2X2_BLOCK = BLOCKS.register("blinder2x2", Blinder2x2Block::new);
