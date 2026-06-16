@@ -1,6 +1,7 @@
 package com.github.dumann089.theatricalextralights;
 
 import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
+import com.github.dumann089.theatricalextralights.client.ConfettiBurstClient;
 import com.github.dumann089.theatricalextralights.client.ExtraLightsClientScreens;
 import com.github.dumann089.theatricalextralights.client.ModParticleClient;
 import com.github.dumann089.theatricalextralights.client.blockentities.*;
@@ -138,7 +139,10 @@ public class TheatricalExtraLightsClient {
 
         com.github.dumann089.theatricalextralights.client.followspot.FollowspotCameraClient.init();
 
-        ClientTickEvent.CLIENT_POST.register(client -> FireworkLightCompat.flushPending());
+        ClientTickEvent.CLIENT_POST.register(client -> {
+            ConfettiBurstClient.tick();
+            FireworkLightCompat.flushPending();
+        });
     }
 
     public static void handleOpenScreen(OpenExtraLightsScreenPacket packet) {
