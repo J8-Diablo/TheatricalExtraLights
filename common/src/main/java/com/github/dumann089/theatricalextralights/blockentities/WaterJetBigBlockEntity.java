@@ -82,21 +82,6 @@ public class WaterJetBigBlockEntity extends ExtraLightsLightBlockEntity
         setChanged();
     }
 
-
-    private final com.github.dumann089.theatricalextralights.client.WaterJetClientEffects.TickCounter particleTick =
-            new com.github.dumann089.theatricalextralights.client.WaterJetClientEffects.TickCounter();
-
-    public static void tick(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos,
-                            net.minecraft.world.level.block.state.BlockState state, WaterJetBigBlockEntity blockEntity) {
-        if (level.isClientSide()) {
-            com.github.dumann089.theatricalextralights.client.WaterJetClientEffects.tickJet(
-                    blockEntity,
-                    com.github.dumann089.theatricalextralights.client.WaterJetClientEffects.BIG,
-                    blockEntity.particleTick
-            );
-        }
-    }
-
     public int convertByteToInt(byte val) {
         return Byte.toUnsignedInt(val);
     }

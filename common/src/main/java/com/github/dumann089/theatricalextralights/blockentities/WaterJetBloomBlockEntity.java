@@ -194,19 +194,4 @@ public class WaterJetBloomBlockEntity extends ExtraLightsLightBlockEntity
     public String getTranslationKey() {
         return "block.theatricalextralights.water_jet_bloom";
     }
-
-    private final com.github.dumann089.theatricalextralights.client.WaterJetClientEffects.TickCounter particleTick =
-            new com.github.dumann089.theatricalextralights.client.WaterJetClientEffects.TickCounter();
-
-    public static void tick(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos,
-                            net.minecraft.world.level.block.state.BlockState state, WaterJetBloomBlockEntity blockEntity) {
-        if (level.isClientSide()) {
-            com.github.dumann089.theatricalextralights.client.WaterJetClientEffects.tickJet(
-                    blockEntity,
-                    com.github.dumann089.theatricalextralights.client.WaterJetClientEffects.BLOOM,
-                    blockEntity.particleTick
-            );
-        }
-    }
-
 }

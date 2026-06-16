@@ -1,8 +1,17 @@
 package com.github.dumann089.theatricalextralights.client;
 
+import com.github.dumann089.theatricalextralights.blockentities.MovingJetBlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.OrganPipesBlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.OrganPipesInvBlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.SpinnerBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.WaterJetBigBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.WaterJetBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.WaterJetBloomBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.WaterJetCentralBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.WaterJetConeBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.WaterJetFogBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.WaterJetSpreadBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.WaterJetThinBlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasJetConeAngle;
 import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasJetHeight;
 import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasJetThickness;
@@ -19,7 +28,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.joml.Vector3f;
 
 /**
- * Client-side water jet particles — throttled block-entity ticks instead of per-frame BER lazy renders.
+ * Client-side water jet particles — per-frame spawns from BER (with distance culling).
  */
 public final class WaterJetClientEffects {
     private static final double MAX_SPAWN_DISTANCE_SQ = 56.0 * 56.0;
@@ -59,16 +68,69 @@ public final class WaterJetClientEffects {
     private WaterJetClientEffects() {
     }
 
-    public static void tickJet(BaseLightBlockEntity blockEntity, JetPreset preset, TickCounter counter) {
-        if (!(blockEntity.getLevel() instanceof ClientLevel level) || Minecraft.getInstance().isPaused()) {
+    public static boolean isWaterJetFixture(BaseLightBlockEntity blockEntity) {
+        return blockEntity instanceof WaterJetBlockEntity
+                || blockEntity instanceof WaterJetBigBlockEntity
+                || blockEntity instanceof WaterJetThinBlockEntity
+                || blockEntity instanceof WaterJetSpreadBlockEntity
+                || blockEntity instanceof WaterJetFogBlockEntity
+                || blockEntity instanceof WaterJetConeBlockEntity
+                || blockEntity instanceof WaterJetCentralBlockEntity
+                || blockEntity instanceof WaterJetBloomBlockEntity
+                || blockEntity instanceof MovingJetBlockEntity
+                || blockEntity instanceof OrganPipesBlockEntity
+                || blockEntity instanceof OrganPipesInvBlockEntity
+                || blockEntity instanceof SpinnerBlockEntity;
+    }
+
+    /** Called each render frame when the fixture is visible (LazyRenderers). */
+    public static void spawnFromBeam(BaseLightBlockEntity blockEntity, float partialTick) {
+        ClientLevel level = resolveClientLevel(blockEntity);
+        if (level == null || blockEntity.getIntensity() <= 0) {
             return;
         }
-        if (blockEntity.getIntensity() <= 0) {
+
+        float pan = blockEntity.getPrevPan() + (blockEntity.getPan() - blockEntity.getPrevPan()) * partialTick;
+        float tilt = blockEntity.getPrevTilt() + (blockEntity.getTilt() - blockEntity.getPrevTilt()) * partialTick;
+
+        if (blockEntity instanceof WaterJetBlockEntity) {
+            spawnJet(blockEntity, level, WATER_JET, pan, tilt);
+        } else if (blockEntity instanceof WaterJetBigBlockEntity) {
+            spawnJet(blockEntity, level, BIG, pan, tilt);
+        } else if (blockEntity instanceof WaterJetThinBlockEntity) {
+            spawnJet(blockEntity, level, THIN, pan, tilt);
+        } else if (blockEntity instanceof WaterJetSpreadBlockEntity) {
+            spawnJet(blockEntity, level, SPREAD, pan, tilt);
+        } else if (blockEntity instanceof WaterJetFogBlockEntity) {
+            spawnJet(blockEntity, level, FOG, pan, tilt);
+        } else if (blockEntity instanceof WaterJetConeBlockEntity) {
+            spawnJet(blockEntity, level, CONE, pan, tilt);
+        } else if (blockEntity instanceof WaterJetCentralBlockEntity) {
+            spawnJet(blockEntity, level, CENTRAL, pan, tilt);
+        } else if (blockEntity instanceof WaterJetBloomBlockEntity) {
+            spawnJet(blockEntity, level, BLOOM, pan, tilt);
+        } else if (blockEntity instanceof MovingJetBlockEntity) {
+            spawnJet(blockEntity, level, MOVING, pan, tilt);
+        } else if (blockEntity instanceof OrganPipesBlockEntity organ) {
+            spawnOrganPipes(organ, level, JetVariant.JET3, pan, tilt);
+        } else if (blockEntity instanceof OrganPipesInvBlockEntity organInv) {
+            spawnOrganPipes(organInv, level, JetVariant.JET3, pan, tilt);
+        } else if (blockEntity instanceof SpinnerBlockEntity spinner) {
+            spawnSpinner(spinner, level);
+        }
+    }
+
+    public static void updateSpinnerClient(SpinnerBlockEntity blockEntity) {
+        if (resolveClientLevel(blockEntity) == null) {
             return;
         }
-        if (!counter.advanceAndShouldSpawn(preset.interval())) {
-            return;
-        }
+        float intensityNorm = blockEntity.getIntensity() / 255.0F;
+        double targetHeight = intensityNorm * blockEntity.getJetHeight();
+        blockEntity.smoothedHeight += (targetHeight - blockEntity.smoothedHeight) * 0.15;
+        blockEntity.updateSpin();
+    }
+
+    private static void spawnJet(BaseLightBlockEntity blockEntity, ClientLevel level, JetPreset preset, float pan, float tilt) {
         if (!isNearPlayer(level, blockEntity.getBlockPos().getX() + 0.5, blockEntity.getBlockPos().getY() + preset.yOffset(), blockEntity.getBlockPos().getZ() + 0.5)) {
             return;
         }
@@ -91,8 +153,8 @@ public final class WaterJetClientEffects {
             direction = new Vector3f(0.0F, 1.0F, 0.0F);
         } else {
             direction = computeDirection(
-                    blockEntity.getPan(),
-                    blockEntity.getTilt(),
+                    pan,
+                    tilt,
                     blockEntity.getBlockState().getValue(HangableBlock.FACING),
                     preset.pitchOffsetDeg(),
                     preset.movingJetPitch()
@@ -113,21 +175,7 @@ public final class WaterJetClientEffects {
                 direction.x * speed, direction.y * speed, direction.z * speed);
     }
 
-    public static void tickOrganPipes(OrganPipesBlockEntity blockEntity, JetVariant variant, TickCounter counter) {
-        tickOrganPipesInternal(blockEntity, variant, counter, 12);
-    }
-
-    public static void tickOrganPipesInv(OrganPipesInvBlockEntity blockEntity, JetVariant variant, TickCounter counter) {
-        tickOrganPipesInternal(blockEntity, variant, counter, 12);
-    }
-
-    private static void tickOrganPipesInternal(BaseLightBlockEntity blockEntity, JetVariant variant, TickCounter counter, int interval) {
-        if (!(blockEntity.getLevel() instanceof ClientLevel level) || Minecraft.getInstance().isPaused()) {
-            return;
-        }
-        if (blockEntity.getIntensity() <= 0 || !counter.advanceAndShouldSpawn(interval)) {
-            return;
-        }
+    private static void spawnOrganPipes(BaseLightBlockEntity blockEntity, ClientLevel level, JetVariant variant, float pan, float tilt) {
         if (!(blockEntity instanceof HasJetHeight hasJetHeight) || !(blockEntity instanceof HasJetThickness hasJetThickness)) {
             return;
         }
@@ -142,14 +190,14 @@ public final class WaterJetClientEffects {
         double baseSpeed = smoothed * 0.09;
         float intensity = blockEntity.getIntensity() / 255.0F;
         float thickness = hasJetThickness.getJetThickness();
-        Vector3f baseDir = computeDirection(blockEntity.getPan(), blockEntity.getTilt(), facing, 0.0F, false);
+        Vector3f baseDir = computeDirection(pan, tilt, facing, 0.0F, false);
 
         double blockCenterX = blockEntity.getBlockPos().getX() + 0.5;
         double blockCenterZ = blockEntity.getBlockPos().getZ() + 0.5;
         double baseY = blockEntity.getBlockPos().getY() + 2.0;
         double baseZOffset = 0.51;
 
-        double yaw = Math.toRadians(blockEntity.getPan());
+        double yaw = Math.toRadians(pan);
         double cosYaw = Math.cos(yaw);
         double sinYaw = Math.sin(yaw);
 
@@ -177,25 +225,13 @@ public final class WaterJetClientEffects {
         }
     }
 
-    public static void tickSpinner(SpinnerBlockEntity blockEntity, TickCounter counter) {
-        if (!(blockEntity.getLevel() instanceof ClientLevel level) || Minecraft.getInstance().isPaused()) {
-            return;
-        }
-
-        float intensityNorm = blockEntity.getIntensity() / 255.0F;
-        double targetHeight = intensityNorm * blockEntity.getJetHeight();
-        blockEntity.smoothedHeight += (targetHeight - blockEntity.smoothedHeight) * 0.15;
-        blockEntity.updateSpin();
-
-        if (blockEntity.getIntensity() <= 0 || !counter.advanceAndShouldSpawn(4)) {
-            return;
-        }
+    private static void spawnSpinner(SpinnerBlockEntity blockEntity, ClientLevel level) {
         if (!isNearPlayer(level, blockEntity.getBlockPos().getX() + 0.5, blockEntity.getBlockPos().getY() + 2.0, blockEntity.getBlockPos().getZ() + 0.5)) {
             return;
         }
 
         double speed = blockEntity.smoothedHeight * 0.10;
-        float intensity = intensityNorm;
+        float intensity = blockEntity.getIntensity() / 255.0F;
         float thickness = blockEntity.getJetThickness();
         WaterJetParticleOptions options = new WaterJetParticleOptions(intensity, thickness, JetVariant.JET3);
 
@@ -337,8 +373,19 @@ public final class WaterJetClientEffects {
         }
     }
 
+    private static ClientLevel resolveClientLevel(BaseLightBlockEntity blockEntity) {
+        if (Minecraft.getInstance().isPaused()) {
+            return null;
+        }
+        net.minecraft.world.level.Level level = blockEntity.getLevel();
+        if (level == null || !level.isClientSide()) {
+            return null;
+        }
+        return (ClientLevel) level;
+    }
+
     private static void emit(ClientLevel level, ParticleOptions options, double x, double y, double z, double vx, double vy, double vz) {
-        level.addParticle(options, x, y, z, vx, vy, vz);
+        level.addAlwaysVisibleParticle(options, true, x, y, z, vx, vy, vz);
     }
 
     private static boolean isNearPlayer(ClientLevel level, double x, double y, double z) {
@@ -366,12 +413,4 @@ public final class WaterJetClientEffects {
         }
     }
 
-    public static final class TickCounter {
-        private int ticks;
-
-        public boolean advanceAndShouldSpawn(int interval) {
-            ticks++;
-            return ticks % interval == 0;
-        }
-    }
 }

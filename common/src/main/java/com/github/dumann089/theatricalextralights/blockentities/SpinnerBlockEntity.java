@@ -120,13 +120,10 @@ public class SpinnerBlockEntity extends ExtraLightsLightBlockEntity
     }
 
 
-    private final com.github.dumann089.theatricalextralights.client.WaterJetClientEffects.TickCounter particleTick =
-            new com.github.dumann089.theatricalextralights.client.WaterJetClientEffects.TickCounter();
-
     public static void tick(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos,
                             net.minecraft.world.level.block.state.BlockState state, SpinnerBlockEntity blockEntity) {
         if (level.isClientSide()) {
-            com.github.dumann089.theatricalextralights.client.WaterJetClientEffects.tickSpinner(blockEntity, blockEntity.particleTick);
+            com.github.dumann089.theatricalextralights.client.WaterJetClientEffects.updateSpinnerClient(blockEntity);
         }
     }
 
