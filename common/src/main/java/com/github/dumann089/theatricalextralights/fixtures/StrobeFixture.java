@@ -26,6 +26,13 @@ public class StrobeFixture extends Fixture {
                     .addSlot(SharedSlots.RED)
                     .addSlot(SharedSlots.GREEN)
                     .addSlot(SharedSlots.BLUE)
+                    .addSlot(SharedSlots.FOCUS),
+            new DMXPersonality(6, "6-Channel Focus + Strobe")
+                    .addSlot(SharedSlots.INTENSITY)
+                    .addSlot(SharedSlots.RED)
+                    .addSlot(SharedSlots.GREEN)
+                    .addSlot(SharedSlots.BLUE)
+                    .addSlot(SharedSlots.FOCUS)
                     .addSlot(SharedSlots.FOCUS)
     );
 
