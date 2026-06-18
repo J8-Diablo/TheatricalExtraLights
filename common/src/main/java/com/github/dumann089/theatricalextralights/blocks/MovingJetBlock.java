@@ -122,7 +122,7 @@ public class MovingJetBlock extends ExtraLightsLightBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        return blockEntityType == BlockEntities.MOVING_JET.get() ? MovingJetBlockEntity::tick : null;
+        return null;
     }
 
     @Override

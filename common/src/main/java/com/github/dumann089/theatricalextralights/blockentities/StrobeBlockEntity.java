@@ -3,17 +3,18 @@ package com.github.dumann089.theatricalextralights.blockentities;
 import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasPersonality;
 import com.github.dumann089.theatricalextralights.blocks.StrobeBlock;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
+import com.github.dumann089.theatricalextralights.util.DmxShutterStrobeHelper;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.api.dmx.DMXPersonality;
-import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -23,21 +24,22 @@ import java.util.List;
 public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements HasPersonality {
     private static final int LEGACY_4CH_MODE = 0;
     private static final int FOCUS_5CH_MODE = 1;
+    private static final int FOCUS_STROBE_6CH_MODE = 2;
     private static final float MIN_LIGHT_SPREAD = 1.0f;
     private static final float FOCUS_SPREAD_MULTIPLIER = 30.0f;
     private static final float CLOSE_EMISSION_DISTANCE = 3.0f;
     private static final float FAR_EMISSION_DISTANCE = 10.0f;
 
     private int activePersonalityIndex = FOCUS_5CH_MODE;
+    /** Canal strobe DMX (personnalité 6 canaux). */
+    private int strobe = 255;
+    private int prevStrobe = 255;
 
     public StrobeBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntities.STROBE.get(), pos, state);
         setChannelCount(getPersonalityChannelCount());
         focus = 1;
     }
-
-    private int strobeTick = 0;
-    private boolean strobeOn = false;
 
     @Override
     public Fixture getFixture() {
@@ -62,6 +64,10 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
         } else {
             focus = Math.max(1, focus);
         }
+        if (activePersonalityIndex == FOCUS_STROBE_6CH_MODE) {
+            strobe = 255;
+            prevStrobe = 255;
+        }
         setChanged();
         if (level != null) {
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
@@ -76,8 +82,39 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
         return personalities.get(activePersonalityIndex).getChannelCount();
     }
 
+    private boolean usesStrobeChannel() {
+        return activePersonalityIndex == FOCUS_STROBE_6CH_MODE;
+    }
+
+    private long getGameTimeForStrobe() {
+        return level != null ? level.getGameTime() : 0L;
+    }
+
+    @Override
+    public float getIntensity() {
+        if (usesStrobeChannel()) {
+            return DmxShutterStrobeHelper.computeEffectiveIntensity(intensity, strobe, getGameTimeForStrobe());
+        }
+        return intensity;
+    }
+
+    @Override
+    public int getPrevIntensity() {
+        if (usesStrobeChannel()) {
+            return (int) DmxShutterStrobeHelper.computeEffectiveIntensity(
+                    prevIntensity,
+                    prevStrobe,
+                    Math.max(0L, getGameTimeForStrobe() - 1)
+            );
+        }
+        return prevIntensity;
+    }
+
     @Override
     public int getFocus() {
+        if (activePersonalityIndex == LEGACY_4CH_MODE) {
+            return 255;
+        }
         return Math.max(1, focus);
     }
 
@@ -116,13 +153,13 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
     public void consume(byte[] dmxValues) {
         int channelCount = getPersonalityChannelCount();
         int start = this.getChannelStart() > 0 ? this.getChannelStart() - 1 : 0;
-        byte[] ourValues = Arrays.copyOfRange(dmxValues, start,
-                start + channelCount);
-        if(ourValues.length < channelCount){
+        byte[] ourValues = Arrays.copyOfRange(dmxValues, start, start + channelCount);
+        if (ourValues.length < channelCount) {
             return;
         }
-                boolean prevAdvanced = beginDmxUpdate();
-        int _pi = intensity, _pr = red, _pg = green, _pb = blue, _pf = focus, _pp = pan, _pt = tilt;
+        boolean prevAdvanced = beginDmxUpdate();
+        int _pi = intensity, _pr = red, _pg = green, _pb = blue, _pf = focus, _ps = strobe;
+
         intensity = convertByteToInt(ourValues[0]);
         red = convertByteToInt(ourValues[1]);
         green = convertByteToInt(ourValues[2]);
@@ -132,7 +169,30 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
         } else {
             focus = 128;
         }
-        finishDmxUpdate(intensity != _pi || red != _pr || green != _pg || blue != _pb || focus != _pf || pan != _pp || tilt != _pt, prevAdvanced);
+        if (channelCount >= 6) {
+            strobe = convertByteToInt(ourValues[5]);
+        } else if (usesStrobeChannel()) {
+            strobe = 255;
+        }
+
+        boolean changed = intensity != _pi || red != _pr || green != _pg || blue != _pb
+                || focus != _pf || strobe != _ps;
+        finishDmxUpdate(changed, prevAdvanced);
+    }
+
+    @Override
+    public void lightTick() {
+        super.lightTick();
+        if (level != null && level.isClientSide && usesStrobeChannel()) {
+            prevStrobe = strobe;
+            if (DmxShutterStrobeHelper.isStrobing(strobe)) {
+                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+            }
+        }
+    }
+
+    public static void tick(Level level, BlockPos pos, BlockState state, StrobeBlockEntity be) {
+        ExtraLightsLightBlockEntity.tick(level, pos, state, be);
     }
 
     @Override
@@ -163,6 +223,7 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
     public void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.putInt("activePersonality", activePersonalityIndex);
+        tag.putInt("strobe", strobe);
     }
 
     @Override
@@ -173,12 +234,17 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
         } else {
             setActivePersonality(FOCUS_5CH_MODE);
         }
+        if (tag.contains("strobe")) {
+            strobe = tag.getInt("strobe");
+            prevStrobe = strobe;
+        }
     }
 
     @Override
     public CompoundTag getUpdateTag() {
         CompoundTag tag = super.getUpdateTag();
         tag.putInt("activePersonality", activePersonalityIndex);
+        tag.putInt("strobe", strobe);
         return tag;
     }
 

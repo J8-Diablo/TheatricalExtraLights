@@ -98,40 +98,6 @@ public class MovingJetBlockEntity extends ExtraLightsLightBlockEntity
     // PARTICLE TICK
     // -------------------
 
-    public void tick() {
-        if (!level.isClientSide || Minecraft.getInstance().isPaused()) return;
-
-        tickCounter++;
-
-        double x = worldPosition.getX() + 0.5;
-        double y = worldPosition.getY();
-        double z = worldPosition.getZ() + 0.5;
-
-        double targetHeight = (intensity / 255.0) * jetHeight;
-        smoothedHeight += (targetHeight - smoothedHeight) * 0.1;
-
-        if (tickCounter % 8 == 0) {
-            float intensityNorm = intensity / 255.0f;
-
-            float spread = 0.015f;
-            if (this instanceof HasJetSpread js) {
-                spread = js.getJetSpreadX(); // o getJetSpread()
-            }
-
-            level.addAlwaysVisibleParticle(
-                    new WaterJetParticleOptions(
-                            intensityNorm,
-                            jetThickness,
-                            JetVariant.JET3
-                    ),
-                    true,
-                    x,
-                    y + smoothedHeight,
-                    z,
-                    0, 0, 0
-            );
-        }
-    }
 
     // -------------------
     // FIXTURE OVERRIDES

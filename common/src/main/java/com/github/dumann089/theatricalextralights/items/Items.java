@@ -327,6 +327,58 @@ public class Items {
             "firework_rgb_launcher",
             () -> new BlockItem(Blocks.FIREWORK_RGB_LAUNCHER_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
     );
+    public static final RegistrySupplier<Item> PYRO_FAN = ITEMS.register(
+            "pyro_fan",
+            () -> new BlockItem(Blocks.PYRO_FAN_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_GOLD_LONG_COMET = ITEMS.register(
+            "firework_gold_long_comet",
+            () -> new BlockItem(Blocks.FIREWORK_GOLD_LONG_COMET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_RED_LONG_COMET = ITEMS.register(
+            "firework_red_long_comet",
+            () -> new BlockItem(Blocks.FIREWORK_RED_LONG_COMET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_BLUE_LONG_COMET = ITEMS.register(
+            "firework_blue_long_comet",
+            () -> new BlockItem(Blocks.FIREWORK_BLUE_LONG_COMET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_GREEN_LONG_COMET = ITEMS.register(
+            "firework_green_long_comet",
+            () -> new BlockItem(Blocks.FIREWORK_GREEN_LONG_COMET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_SILVER_LONG_COMET = ITEMS.register(
+            "firework_silver_long_comet",
+            () -> new BlockItem(Blocks.FIREWORK_SILVER_LONG_COMET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_DAYTIME_POWDER_LIME = ITEMS.register(
+            "firework_daytime_powder_lime",
+            () -> new BlockItem(Blocks.FIREWORK_DAYTIME_POWDER_LIME_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_DAYTIME_POWDER_MAGENTA = ITEMS.register(
+            "firework_daytime_powder_magenta",
+            () -> new BlockItem(Blocks.FIREWORK_DAYTIME_POWDER_MAGENTA_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_DAYTIME_POWDER_YELLOW = ITEMS.register(
+            "firework_daytime_powder_yellow",
+            () -> new BlockItem(Blocks.FIREWORK_DAYTIME_POWDER_YELLOW_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_DAYTIME_POWDER_ORANGE = ITEMS.register(
+            "firework_daytime_powder_orange",
+            () -> new BlockItem(Blocks.FIREWORK_DAYTIME_POWDER_ORANGE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_DAYTIME_POWDER_RED = ITEMS.register(
+            "firework_daytime_powder_red",
+            () -> new BlockItem(Blocks.FIREWORK_DAYTIME_POWDER_RED_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_DAYTIME_POWDER_BLUE = ITEMS.register(
+            "firework_daytime_powder_blue",
+            () -> new BlockItem(Blocks.FIREWORK_DAYTIME_POWDER_BLUE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_DAYTIME_POWDER_RAINBOW = ITEMS.register(
+            "firework_daytime_powder_rainbow",
+            () -> new BlockItem(Blocks.FIREWORK_DAYTIME_POWDER_RAINBOW_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
     public static final RegistrySupplier<Item> GERB_GOLD = ITEMS.register(
             "gerb_gold",
             () -> new BlockItem(Blocks.GERB_GOLD_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))

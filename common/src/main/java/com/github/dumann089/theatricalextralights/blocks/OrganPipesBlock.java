@@ -121,7 +121,7 @@ public class OrganPipesBlock extends ExtraLightsLightBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        return blockEntityType == BlockEntities.ORGANPIPES.get() ? OrganPipesBlockEntity::tick : null;
+        return null;
     }
 
     @Override

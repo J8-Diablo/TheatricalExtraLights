@@ -119,20 +119,12 @@ public class SpinnerBlockEntity extends ExtraLightsLightBlockEntity
         setChanged();
     }
 
-    public static void tick(SpinnerBlockEntity blockEntity) {
-        if (blockEntity.level == null || !blockEntity.level.isClientSide || Minecraft.getInstance().isPaused()) return;
 
-        blockEntity.tickCounter++;
-
-        float intensityNorm = blockEntity.intensity / 255.0f;
-
-        double targetHeight = intensityNorm * blockEntity.jetHeight;
-        blockEntity.smoothedHeight += (targetHeight - blockEntity.smoothedHeight) * 0.1;
-
-        blockEntity.updateSpin();
-
-        blockEntity.prevPan = (int) blockEntity.prevSpinAngle;
-        blockEntity.pan = (int) blockEntity.spinAccumulator;
+    public static void tick(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos,
+                            net.minecraft.world.level.block.state.BlockState state, SpinnerBlockEntity blockEntity) {
+        if (level.isClientSide()) {
+            com.github.dumann089.theatricalextralights.client.WaterJetClientEffects.updateSpinnerClient(blockEntity);
+        }
     }
 
     public float getSpinAngleFloat() {

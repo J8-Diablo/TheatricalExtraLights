@@ -86,35 +86,6 @@ public class WaterJetCentralBlockEntity extends ExtraLightsLightBlockEntity
         return Byte.toUnsignedInt(val);
     }
 
-    // -------------------
-    // PARTICLE TICK
-    // -------------------
-    public void tick() {
-        if (!level.isClientSide || Minecraft.getInstance().isPaused()) return;
-
-        tickCounter++;
-        double x = worldPosition.getX() + 0.5;
-        double y = worldPosition.getY();
-        double z = worldPosition.getZ() + 0.5;
-
-        double targetHeight = (intensity / 255.0) * jetHeight;
-        smoothedHeight += (targetHeight - smoothedHeight) * 0.1;
-
-        if (tickCounter % 7 == 0) {
-            float intensityNorm = intensity / 255.0f;
-
-            level.addAlwaysVisibleParticle(
-                    new WaterJetParticleOptions(
-                            intensityNorm,
-                            jetThickness,
-                            JetVariant.JET4
-                    ),
-                    true,
-                    x, y + smoothedHeight, z,
-                    0, 0, 0
-            );
-        }
-    }
 
     // -------------------
     // FIXTURE OVERRIDES
