@@ -43,6 +43,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
     private boolean burstStarted;
     private final List<Spark> sparks = new ArrayList<>();
     private boolean shimmerLightRegistered;
+    private boolean daytimeFanFired;
     private int[] customColors;
 
     public FireworkRocketEntity(EntityType<? extends FireworkRocketEntity> entityType, Level level) {
@@ -94,6 +95,19 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
     public int getFlightLife() {
         return life;
+    }
+
+    public BlockPos getLauncherPos() {
+        return launcherPos;
+    }
+
+    /** One-shot guard for rainbow powder fan client effect. */
+    public boolean tryFireDaytimeFan() {
+        if (daytimeFanFired) {
+            return false;
+        }
+        daytimeFanFired = true;
+        return true;
     }
 
     public List<Spark> getSparks() {
@@ -197,7 +211,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
             double fadeDrag = 0.94;
             setDeltaMovement(fadeMotion.x * fadeDrag, fadeMotion.y * fadeDrag - 0.025, fadeMotion.z * fadeDrag);
             move(MoverType.SELF, getDeltaMovement());
-            if (--fadeTicks <= 0 && (clientSide ? sparks.isEmpty() : true)) {
+            if (--fadeTicks <= 0 && (clientSide ? sparks.isEmpty() : !pattern.isDaytimePowder())) {
                 releaseLight();
                 discard();
             }

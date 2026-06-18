@@ -1,7 +1,10 @@
 package com.github.dumann089.theatricalextralights.firework;
 
 import com.github.dumann089.theatricalextralights.entities.FireworkRocketEntity;
+import dev.imabad.theatrical.blocks.light.BaseLightBlock;
+import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -72,8 +75,8 @@ public final class BurstPatterns {
                     vy + (random.nextDouble() - 0.5) * 0.008,
                     vz + (random.nextDouble() - 0.5) * 0.012,
                     color,
-                    0.12f + random.nextFloat() * 0.06f,
-                    32 + random.nextInt(18),
+                    0.16f + random.nextFloat() * 0.08f,
+                    40 + random.nextInt(22),
                     0.0f,
                     0.992f,
                     true,
@@ -87,6 +90,13 @@ public final class BurstPatterns {
         if (motion.horizontalDistanceSqr() > 1.0E-4) {
             return Math.atan2(-motion.x, motion.z);
         }
+        if (rocket.level() != null) {
+            BlockState state = rocket.level().getBlockState(rocket.getLauncherPos());
+            if (state.hasProperty(BaseLightBlock.FACING)) {
+                Direction launchFacing = state.getValue(BaseLightBlock.FACING).getClockWise();
+                return Math.toRadians(launchFacing.toYRot());
+            }
+        }
         return 0.0;
     }
 
@@ -96,19 +106,19 @@ public final class BurstPatterns {
         double cx = rocket.getX();
         double cy = rocket.getY();
         double cz = rocket.getZ();
-        int streams = 36;
-        float spread = 152.0f;
+        int streams = 40;
+        float spread = 158.0f;
         for (int stream = 0; stream < streams; stream++) {
             float yawOffset = (-spread * 0.5f) + (spread * stream / Math.max(1, streams - 1));
             double yaw = baseYaw + Math.toRadians(yawOffset);
-            double pitch = Math.toRadians(22.0 + random.nextDouble() * 12.0);
-            double speed = 0.30 + random.nextDouble() * 0.18;
+            double pitch = Math.toRadians(30.0 + random.nextDouble() * 14.0);
+            double speed = 0.58 + random.nextDouble() * 0.28;
             double horizontal = Math.cos(pitch) * speed;
             double vx = -Math.sin(yaw) * horizontal;
             double vy = Math.sin(pitch) * speed;
             double vz = Math.cos(yaw) * horizontal;
             int color = paletteAt(palette, stream);
-            emitPowderStreamStreak(rocket, random, cx, cy, cz, vx, vy, vz, color, 2);
+            emitPowderStreamStreak(rocket, random, cx, cy, cz, vx, vy, vz, color, 3);
         }
     }
 
@@ -921,19 +931,19 @@ public final class BurstPatterns {
     }
 
     /**
-     * Daytime powder — short low comet trail that stops at apex and hangs in the air.
+     * Daytime powder — comet trail to ~20 blocks, stops at apex and hangs in the air.
      */
     public static class DaytimePowder extends BurstPattern {
         @Override public boolean isBurst() { return false; }
         @Override public boolean isDaytimePowder() { return true; }
         @Override public int getBurstDuration() { return 0; }
-        @Override public int getCometFadeTicks() { return 22; }
-        @Override public int getFlightLifetime() { return 38; }
+        @Override public int getCometFadeTicks() { return 36; }
+        @Override public int getFlightLifetime() { return 62; }
         @Override public boolean continuesAfterApex() { return false; }
         @Override public double getFlightWobble() { return 0.004; }
-        @Override public double getGravity() { return 0.030; }
+        @Override public double getGravity() { return 0.028; }
         @Override public double getDrag() { return 0.991; }
-        @Override public float getLaunchSpeedMultiplier() { return 0.30f; }
+        @Override public float getLaunchSpeedMultiplier() { return 0.72f; }
         @Override public int getFlightLuminance() { return 0; }
         @Override public float getFlightLightSpread() { return 0.0f; }
         @Override public float getFlightHaloInnerSize() { return 0.0f; }
@@ -957,9 +967,9 @@ public final class BurstPatterns {
         @Override public boolean isBurst() { return false; }
         @Override public boolean isDaytimePowder() { return true; }
         @Override public int getBurstDuration() { return 0; }
-        @Override public int getCometFadeTicks() { return 90; }
-        @Override public int getFlightLifetime() { return 2; }
-        @Override public float getLaunchSpeedMultiplier() { return 0.04f; }
+        @Override public int getCometFadeTicks() { return 140; }
+        @Override public int getFlightLifetime() { return 6; }
+        @Override public float getLaunchSpeedMultiplier() { return 0.12f; }
         @Override public double getFlightWobble() { return 0.0; }
         @Override public int getFlightLuminance() { return 0; }
         @Override public float getFlightLightSpread() { return 0.0f; }
@@ -968,7 +978,14 @@ public final class BurstPatterns {
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
-            if (rocket.getFlightLife() == 0) {
+            if (rocket.tryFireDaytimeFan()) {
+                emitOrientedPowderFan(rocket, random);
+            }
+        }
+
+        @Override
+        public void onFadeTick(FireworkRocketEntity rocket, RandomSource random, int remainingTicks) {
+            if (rocket.tryFireDaytimeFan()) {
                 emitOrientedPowderFan(rocket, random);
             }
         }
