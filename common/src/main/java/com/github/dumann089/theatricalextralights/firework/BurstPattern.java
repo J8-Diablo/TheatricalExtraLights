@@ -111,17 +111,23 @@ public abstract class BurstPattern {
     }
 
     /**
-     * Server-side entity lifetime — client keeps sparks locally until they fade.
-     * Must stay below client visual duration but release tracker slots promptly.
+     * Server-side entity lifetime. Kept short for comets so concurrent slots recycle
+     * during pyro fan shows (full arc is simulated client-side).
      */
     public int getServerHoldTicks() {
         if (isDaytimePowder()) {
-            return 400;
+            if (isBurst()) {
+                return getBurstDuration() + 55;
+            }
+            return getFlightLifetime() + getCometFadeTicks() + 40;
         }
         if (isBurst()) {
-            return getBurstDuration() + 160;
+            return getBurstDuration() + 110;
         }
-        return getFlightLifetime() + getCometFadeTicks() + 160;
+        if (continuesAfterApex()) {
+            return getFlightLifetime() + getCometFadeTicks() + 24;
+        }
+        return 64;
     }
 
     /** Daytime powder — visible in daylight, minimal dynamic light. */

@@ -42,6 +42,8 @@ public class FireworkLauncherBlockEntity extends ExtraLightsLightBlockEntity {
     private static final float LAUNCH_SPEED = 2.0f;
     private static final float MIN_LAUNCH_POWER = 0.7f;
     private static final float MAX_LAUNCH_POWER = 2.6f;
+    private static final int MAX_LAUNCHES_PER_TICK = 4;
+    private static final float MAX_ACCUMULATOR = 4.0f;
     private static final double TUBE_LENGTH = 10.0 / 16.0;
     private static final double TUBE_BASE_HEIGHT = 4.0 / 16.0;
 
@@ -84,8 +86,12 @@ public class FireworkLauncherBlockEntity extends ExtraLightsLightBlockEntity {
             return;
         }
 
+        int launchesThisTick = 0;
+
         if (pendingOneShot) {
-            launch(serverLevel);
+            if (launch(serverLevel)) {
+                launchesThisTick++;
+            }
             pendingOneShot = false;
         }
 
@@ -95,15 +101,19 @@ public class FireworkLauncherBlockEntity extends ExtraLightsLightBlockEntity {
         }
 
         fireAccumulator += getShotsPerSecond() / 20.0f;
-        while (fireAccumulator >= 1.0f) {
+        fireAccumulator = Math.min(fireAccumulator, MAX_ACCUMULATOR);
+        while (fireAccumulator >= 1.0f && launchesThisTick < MAX_LAUNCHES_PER_TICK) {
+            if (!launch(serverLevel)) {
+                break;
+            }
             fireAccumulator -= 1.0f;
-            launch(serverLevel);
+            launchesThisTick++;
         }
     }
 
-    private void launch(ServerLevel serverLevel) {
+    private boolean launch(ServerLevel serverLevel) {
         if (!FireworkRocketTracker.tryRegisterLaunch(serverLevel)) {
-            return;
+            return false;
         }
         Vec3 spawn = getLaunchPosition();
         Vec3 velocity = getLaunchVelocity();
@@ -112,9 +122,10 @@ public class FireworkLauncherBlockEntity extends ExtraLightsLightBlockEntity {
         rocket.setDeltaMovement(velocity);
         if (!serverLevel.addFreshEntity(rocket)) {
             FireworkRocketTracker.cancelLaunch(serverLevel);
-            return;
+            return false;
         }
         serverLevel.playSound(null, spawn.x, spawn.y, spawn.z, SoundEvents.FIREWORK_ROCKET_LAUNCH, SoundSource.BLOCKS, 0.9f, 0.9f + serverLevel.random.nextFloat() * 0.2f);
+        return true;
     }
 
     protected FireworkRocketEntity createRocket(ServerLevel serverLevel) {
