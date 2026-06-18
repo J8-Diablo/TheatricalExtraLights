@@ -33,35 +33,36 @@ public final class BurstPatterns {
     }
 
     private static void emitPowderTrail(FireworkRocketEntity rocket, RandomSource random, int color) {
-        double wobbleAngle = rocket.tickCount * 0.38 + random.nextDouble() * 0.5;
-        double wobbleRadius = 0.10 + random.nextDouble() * 0.14;
+        if ((rocket.tickCount & 1) != 0) {
+            return;
+        }
+        double wobbleAngle = rocket.tickCount * 0.22 + random.nextDouble() * 0.3;
+        double wobbleRadius = 0.04 + random.nextDouble() * 0.05;
         double ox = Math.cos(wobbleAngle) * wobbleRadius;
         double oz = Math.sin(wobbleAngle) * wobbleRadius;
         Vec3 motion = rocket.getDeltaMovement();
-        double backX = motion.x * -0.015;
-        double backY = motion.y * -0.008 + 0.004;
-        double backZ = motion.z * -0.015;
-        int clumps = 2 + random.nextInt(2);
-        for (int i = 0; i < clumps; i++) {
-            double jitter = 0.08;
-            double jx = ox + (random.nextDouble() - 0.5) * jitter;
-            double jy = (random.nextDouble() - 0.5) * jitter * 0.35;
-            double jz = oz + (random.nextDouble() - 0.5) * jitter;
-            rocket.addSpark(new Spark(
-                    rocket.getX() + jx, rocket.getY() + jy, rocket.getZ() + jz,
-                    backX + (random.nextDouble() - 0.5) * 0.012,
-                    backY + random.nextDouble() * 0.006,
-                    backZ + (random.nextDouble() - 0.5) * 0.012,
-                    color,
-                    0.72f + random.nextFloat() * 0.38f,
-                    52 + random.nextInt(28),
-                    0.0015f,
-                    0.9992f,
-                    true,
-                    false,
-                    true
-            ));
+        rocket.addSpark(new Spark(
+                rocket.getX() + ox, rocket.getY(), rocket.getZ() + oz,
+                motion.x * -0.008 + (random.nextDouble() - 0.5) * 0.006,
+                0.002 + random.nextDouble() * 0.004,
+                motion.z * -0.008 + (random.nextDouble() - 0.5) * 0.006,
+                color,
+                0.38f + random.nextFloat() * 0.18f,
+                36 + random.nextInt(16),
+                0.002f,
+                0.9988f,
+                true,
+                false,
+                true
+        ));
+    }
+
+    private static double launchYaw(FireworkRocketEntity rocket) {
+        Vec3 motion = rocket.getDeltaMovement();
+        if (motion.horizontalDistanceSqr() > 1.0E-4) {
+            return Math.atan2(-motion.x, motion.z);
         }
+        return 0.0;
     }
 
     private static void emitPowderStream(
@@ -73,24 +74,47 @@ public final class BurstPatterns {
             int count
     ) {
         for (int i = 0; i < count; i++) {
-            double spread = 0.06;
+            double spread = 0.04;
             rocket.addSpark(new Spark(
                     x + (random.nextDouble() - 0.5) * spread,
-                    y + (random.nextDouble() - 0.5) * spread * 0.4,
+                    y + (random.nextDouble() - 0.5) * spread * 0.35,
                     z + (random.nextDouble() - 0.5) * spread,
-                    vx + (random.nextDouble() - 0.5) * 0.04,
-                    vy + (random.nextDouble() - 0.5) * 0.03,
-                    vz + (random.nextDouble() - 0.5) * 0.04,
+                    vx + (random.nextDouble() - 0.5) * 0.025,
+                    vy + (random.nextDouble() - 0.5) * 0.02,
+                    vz + (random.nextDouble() - 0.5) * 0.025,
                     color,
-                    0.65f + random.nextFloat() * 0.42f,
-                    70 + random.nextInt(40),
-                    0.0012f,
-                    0.9994f,
+                    0.42f + random.nextFloat() * 0.22f,
+                    48 + random.nextInt(24),
+                    0.0018f,
+                    0.9992f,
                     true,
                     false,
                     true
             ));
         }
+    }
+
+    private static void emitOrientedPowderFan(FireworkRocketEntity rocket, RandomSource random) {
+        int[] palette = rocket.getColors();
+        double baseYaw = launchYaw(rocket);
+        double cx = rocket.getX();
+        double cy = rocket.getY();
+        double cz = rocket.getZ();
+        int streams = 40;
+        float spread = 158.0f;
+        for (int stream = 0; stream < streams; stream++) {
+            float yawOffset = (-spread * 0.5f) + (spread * stream / Math.max(1, streams - 1));
+            double yaw = baseYaw + Math.toRadians(yawOffset);
+            double pitch = Math.toRadians(32.0 + random.nextDouble() * 14.0);
+            double speed = 0.48 + random.nextDouble() * 0.22;
+            double horizontal = Math.cos(pitch) * speed;
+            double vx = -Math.sin(yaw) * horizontal;
+            double vy = Math.sin(pitch) * speed;
+            double vz = Math.cos(yaw) * horizontal;
+            int color = paletteAt(palette, stream);
+            emitPowderStream(rocket, random, cx, cy, cz, vx, vy, vz, color, 3);
+        }
+        emitPowderStream(rocket, random, cx, cy, cz, 0.0, 0.10, 0.0, 0xE8EEF5, 6);
     }
 
     /**
@@ -909,47 +933,39 @@ public final class BurstPatterns {
         @Override public boolean isBurst() { return false; }
         @Override public boolean isDaytimePowder() { return true; }
         @Override public int getBurstDuration() { return 0; }
-        @Override public int getCometFadeTicks() { return 40; }
-        @Override public int getFlightLifetime() { return 210; }
+        @Override public int getCometFadeTicks() { return 28; }
+        @Override public int getFlightLifetime() { return 115; }
         @Override public boolean continuesAfterApex() { return true; }
-        @Override public double getFlightWobble() { return 0.028; }
-        @Override public double getGravity() { return 0.016; }
-        @Override public double getDrag() { return 0.993; }
-        @Override public float getLaunchSpeedMultiplier() { return 1.08f; }
+        @Override public double getFlightWobble() { return 0.010; }
+        @Override public double getGravity() { return 0.022; }
+        @Override public double getDrag() { return 0.992; }
+        @Override public float getLaunchSpeedMultiplier() { return 0.62f; }
         @Override public int getFlightLuminance() { return 0; }
         @Override public float getFlightLightSpread() { return 0.0f; }
-        @Override public float getFlightHaloInnerSize() { return 0.35f; }
-        @Override public float getFlightHaloOuterSize() { return 0.55f; }
+        @Override public float getFlightHaloInnerSize() { return 0.0f; }
+        @Override public float getFlightHaloOuterSize() { return 0.0f; }
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
-            int[] palette = rocket.getColors();
-            int primary = rocket.getLaunchColor();
-            int secondary = palette.length > 1 ? palette[1] : primary;
-            emitPowderTrail(rocket, random, primary);
-            if (random.nextFloat() < 0.55f) {
-                emitPowderTrail(rocket, random, secondary);
-            }
+            emitPowderTrail(rocket, random, rocket.getLaunchColor());
         }
 
         @Override
         public void onFadeTick(FireworkRocketEntity rocket, RandomSource random, int remainingTicks) {
-            int color = rocket.getLaunchColor();
-            float fade = remainingTicks / (float) Math.max(1, getCometFadeTicks());
-            if (fade <= 0.0f || random.nextFloat() > fade * 0.75f) {
+            if (remainingTicks % 3 != 0 || random.nextFloat() > 0.45f) {
                 return;
             }
-            double scatter = 0.12 * fade;
+            int color = rocket.getLaunchColor();
             rocket.addSpark(new Spark(
                     rocket.getX(), rocket.getY(), rocket.getZ(),
-                    (random.nextDouble() - 0.5) * scatter,
-                    -0.02 - random.nextDouble() * 0.06 * fade,
-                    (random.nextDouble() - 0.5) * scatter,
+                    (random.nextDouble() - 0.5) * 0.05,
+                    -0.015 - random.nextDouble() * 0.03,
+                    (random.nextDouble() - 0.5) * 0.05,
                     color,
-                    0.55f + random.nextFloat() * 0.25f,
-                    38 + random.nextInt(22),
-                    0.002f,
-                    0.9985f,
+                    0.32f + random.nextFloat() * 0.12f,
+                    24 + random.nextInt(12),
+                    0.004f,
+                    0.997f,
                     true,
                     false,
                     true
@@ -958,17 +974,17 @@ public final class BurstPatterns {
     }
 
     /**
-     * Rainbow daytime powder fan — many simultaneous colored powder streams in a wide arc,
-     * with a white launch puff at the base.
+     * Rainbow daytime powder fan — ground-level fan aligned with launch direction.
+     * Uses comet fade instead of burst so effects always run client-side.
      */
     public static class DaytimePowderFan extends BurstPattern {
-        private static final float FAN_SPREAD_DEGREES = 168.0f;
-
-        @Override public boolean isBurst() { return true; }
+        @Override public boolean isBurst() { return false; }
         @Override public boolean isDaytimePowder() { return true; }
-        @Override public int getBurstDuration() { return 220; }
-        @Override public int getFlightLifetime() { return 10; }
-        @Override public float getLaunchSpeedMultiplier() { return 0.35f; }
+        @Override public int getBurstDuration() { return 0; }
+        @Override public int getCometFadeTicks() { return 160; }
+        @Override public int getFlightLifetime() { return 2; }
+        @Override public float getLaunchSpeedMultiplier() { return 0.06f; }
+        @Override public double getFlightWobble() { return 0.0; }
         @Override public int getFlightLuminance() { return 0; }
         @Override public float getFlightLightSpread() { return 0.0f; }
         @Override public float getFlightHaloInnerSize() { return 0.0f; }
@@ -976,55 +992,8 @@ public final class BurstPatterns {
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
-            int white = 0xE8EEF5;
-            for (int i = 0; i < 2; i++) {
-                emitPowderStream(rocket, random, rocket.getX(), rocket.getY(), rocket.getZ(),
-                        (random.nextDouble() - 0.5) * 0.04, 0.12 + random.nextDouble() * 0.08, (random.nextDouble() - 0.5) * 0.04,
-                        white, 1);
-            }
-        }
-
-        @Override
-        public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
-            int[] palette = rocket.getColors();
-            int streams = 64;
-            double cx = rocket.getX();
-            double cy = rocket.getY();
-            double cz = rocket.getZ();
-            for (int stream = 0; stream < streams; stream++) {
-                float yawDeg = (-FAN_SPREAD_DEGREES * 0.5f) + (FAN_SPREAD_DEGREES * stream / Math.max(1, streams - 1));
-                double yaw = Math.toRadians(yawDeg);
-                double pitch = Math.toRadians(48.0 + random.nextDouble() * 18.0);
-                double speed = 1.05 + random.nextDouble() * 0.55;
-                double vx = Math.sin(yaw) * Math.cos(pitch) * speed;
-                double vy = Math.sin(pitch) * speed;
-                double vz = Math.cos(yaw) * Math.cos(pitch) * speed;
-                int color = paletteAt(palette, stream);
-                emitPowderStream(rocket, random, cx, cy, cz, vx, vy, vz, color, 6 + random.nextInt(4));
-            }
-            emitPowderStream(rocket, random, cx, cy, cz, 0.0, 0.18, 0.0, 0xE8EEF5, 12);
-        }
-
-        @Override
-        public void onBurstTick(FireworkRocketEntity rocket, RandomSource random, int tickIndex) {
-            if (tickIndex > 45 || tickIndex % 3 != 0) {
-                return;
-            }
-            int[] palette = rocket.getColors();
-            int streams = 32;
-            double cx = rocket.getX();
-            double cy = rocket.getY();
-            double cz = rocket.getZ();
-            for (int stream = 0; stream < streams; stream++) {
-                float yawDeg = (-FAN_SPREAD_DEGREES * 0.5f) + (FAN_SPREAD_DEGREES * stream / Math.max(1, streams - 1));
-                double yaw = Math.toRadians(yawDeg);
-                double pitch = Math.toRadians(42.0 + random.nextDouble() * 20.0);
-                double speed = 0.85 + random.nextDouble() * 0.35;
-                double vx = Math.sin(yaw) * Math.cos(pitch) * speed;
-                double vy = Math.sin(pitch) * speed;
-                double vz = Math.cos(yaw) * Math.cos(pitch) * speed;
-                int color = paletteAt(palette, stream + tickIndex);
-                emitPowderStream(rocket, random, cx, cy, cz, vx, vy, vz, color, 2);
+            if (rocket.getFlightLife() == 0) {
+                emitOrientedPowderFan(rocket, random);
             }
         }
     }

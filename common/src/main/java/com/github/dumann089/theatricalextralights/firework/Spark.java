@@ -93,7 +93,7 @@ public final class Spark {
         }
         if (powder) {
             float remaining = 1.0f - t;
-            return 0.50f + 0.50f * remaining * remaining;
+            return 0.35f + 0.65f * remaining;
         }
         if (trail) {
             float remaining = 1.0f - t;
@@ -103,9 +103,6 @@ public final class Spark {
     }
 
     public float getScale(float partialTick) {
-        if (powder) {
-            return scale * (1.0f + 0.08f * (1.0f - (age + partialTick) / lifetime));
-        }
         return scale;
     }
 }

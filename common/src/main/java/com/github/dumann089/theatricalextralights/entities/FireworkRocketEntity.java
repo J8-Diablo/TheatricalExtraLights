@@ -92,6 +92,10 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
         return fadeTicks;
     }
 
+    public int getFlightLife() {
+        return life;
+    }
+
     public List<Spark> getSparks() {
         return sparks;
     }
