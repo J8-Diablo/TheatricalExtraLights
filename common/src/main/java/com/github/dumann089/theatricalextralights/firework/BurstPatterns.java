@@ -110,7 +110,6 @@ public final class BurstPatterns {
             int color = paletteAt(palette, stream);
             emitPowderStreamStreak(rocket, random, cx, cy, cz, vx, vy, vz, color, 2);
         }
-        emitPowderStreamStreak(rocket, random, cx, cy, cz, 0.0, 0.06, 0.0, 0xE8EEF5, 3);
     }
 
     /**

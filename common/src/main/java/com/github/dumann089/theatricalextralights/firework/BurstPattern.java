@@ -115,9 +115,9 @@ public abstract class BurstPattern {
         return false;
     }
 
-    /** Colored dust/smoke particles during flight (budget-limited). */
+    /** Colored dust particles during flight (budget-limited). Daytime powder uses spark streaks only. */
     public boolean usesColoredPowderParticles() {
-        return isDaytimePowder();
+        return false;
     }
 
     /**

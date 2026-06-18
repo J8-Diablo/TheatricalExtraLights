@@ -30,6 +30,9 @@ public final class FireworkSmokeEffects {
         if (!rocket.getPreset().getPattern().spawnsFlightSmoke()) {
             return;
         }
+        if (rocket.getPreset().getPattern().isDaytimePowder()) {
+            return;
+        }
         if (flightLife % TheatricalExtraLightsConfig.getFireworkSmokeSpawnInterval() != 0) {
             return;
         }
