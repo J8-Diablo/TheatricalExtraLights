@@ -162,7 +162,14 @@ public class BlockEntities {
                     Blocks.FIREWORK_RED_LONG_COMET_BLOCK.get(),
                     Blocks.FIREWORK_BLUE_LONG_COMET_BLOCK.get(),
                     Blocks.FIREWORK_GREEN_LONG_COMET_BLOCK.get(),
-                    Blocks.FIREWORK_SILVER_LONG_COMET_BLOCK.get()
+                    Blocks.FIREWORK_SILVER_LONG_COMET_BLOCK.get(),
+                    Blocks.FIREWORK_DAYTIME_POWDER_LIME_BLOCK.get(),
+                    Blocks.FIREWORK_DAYTIME_POWDER_MAGENTA_BLOCK.get(),
+                    Blocks.FIREWORK_DAYTIME_POWDER_YELLOW_BLOCK.get(),
+                    Blocks.FIREWORK_DAYTIME_POWDER_ORANGE_BLOCK.get(),
+                    Blocks.FIREWORK_DAYTIME_POWDER_RED_BLOCK.get(),
+                    Blocks.FIREWORK_DAYTIME_POWDER_BLUE_BLOCK.get(),
+                    Blocks.FIREWORK_DAYTIME_POWDER_RAINBOW_BLOCK.get()
             ).build(null));
     public static final RegistrySupplier<BlockEntityType<PyroFanBlockEntity>> PYRO_FAN = BLOCK_ENTITIES.register("pyro_fan", () ->
             BlockEntityType.Builder.of(PyroFanBlockEntity::new, Blocks.PYRO_FAN_BLOCK.get()).build(null));

@@ -60,7 +60,14 @@ public enum FireworkPreset {
     RED_LONG_COMET("firework_red_long_comet", "Red Long Comet", BurstPatterns.LongTrailComet::new, 0xFF4A4A, 0xFFB3B3, 0xFF3030),
     BLUE_LONG_COMET("firework_blue_long_comet", "Blue Long Comet", BurstPatterns.LongTrailComet::new, 0x4D8DFF, 0xB8D3FF, 0x2A5FD9),
     GREEN_LONG_COMET("firework_green_long_comet", "Green Long Comet", BurstPatterns.LongTrailComet::new, 0x55FF7A, 0xC6FFD3, 0x2ECC55),
-    SILVER_LONG_COMET("firework_silver_long_comet", "Silver Long Comet", BurstPatterns.LongTrailComet::new, 0xCFD8E5, 0xE6EFFF, 0xFFFFFF);
+    SILVER_LONG_COMET("firework_silver_long_comet", "Silver Long Comet", BurstPatterns.LongTrailComet::new, 0xCFD8E5, 0xE6EFFF, 0xFFFFFF),
+    LIME_DAYTIME_POWDER("firework_daytime_powder_lime", "Lime Daytime Powder", BurstPatterns.DaytimePowder::new, 0xB8FF00, 0xD4FF66),
+    MAGENTA_DAYTIME_POWDER("firework_daytime_powder_magenta", "Magenta Daytime Powder", BurstPatterns.DaytimePowder::new, 0xFF33CC, 0xFF99E6),
+    YELLOW_DAYTIME_POWDER("firework_daytime_powder_yellow", "Yellow Daytime Powder", BurstPatterns.DaytimePowder::new, 0xFFE600, 0xFFFF66),
+    ORANGE_DAYTIME_POWDER("firework_daytime_powder_orange", "Orange Daytime Powder", BurstPatterns.DaytimePowder::new, 0xFF6600, 0xFFAA44),
+    RED_DAYTIME_POWDER("firework_daytime_powder_red", "Red Daytime Powder", BurstPatterns.DaytimePowder::new, 0xFF2244, 0xFF6688),
+    BLUE_DAYTIME_POWDER("firework_daytime_powder_blue", "Blue Daytime Powder", BurstPatterns.DaytimePowder::new, 0x0066FF, 0x66AAFF),
+    RAINBOW_DAYTIME_POWDER_FAN("firework_daytime_powder_rainbow", "Rainbow Daytime Powder Fan", BurstPatterns.DaytimePowderFan::new, 0xB8FF00, 0xFFE600, 0xFF6600, 0xFF2244, 0xAA44FF, 0x0066FF, 0x00DDFF, 0x55FF7A);
 
     private final String blockId;
     private final String displayName;

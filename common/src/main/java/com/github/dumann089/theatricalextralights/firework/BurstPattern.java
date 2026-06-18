@@ -110,6 +110,16 @@ public abstract class BurstPattern {
         return false;
     }
 
+    /** Daytime powder — visible in daylight, minimal dynamic light. */
+    public boolean isDaytimePowder() {
+        return false;
+    }
+
+    /** Colored dust/smoke particles during flight (budget-limited). */
+    public boolean usesColoredPowderParticles() {
+        return isDaytimePowder();
+    }
+
     /**
      * If true, apex detection is skipped — the rocket keeps flying past its peak,
      * falling due to gravity, until it reaches its flight lifetime or collides.

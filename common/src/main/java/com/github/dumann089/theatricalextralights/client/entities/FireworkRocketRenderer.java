@@ -67,12 +67,19 @@ public class FireworkRocketRenderer extends EntityRenderer<FireworkRocketEntity>
 
         innerSize = pattern.getFlightHaloInnerSize();
         outerSize = pattern.getFlightHaloOuterSize();
-        alpha = pattern.isBurst() ? 0.55f : 0.95f;
+        alpha = pattern.isDaytimePowder() ? 0.25f : (pattern.isBurst() ? 0.55f : 0.95f);
         Vec3 delta = entity.getDeltaMovement();
         Vec3 direction = delta.lengthSqr() > 1.0E-4 ? delta.normalize() : new Vec3(0.0, 1.0, 0.0);
         poseStack.pushPose();
-        poseStack.translate(direction.x * 0.45, direction.y * 0.45, direction.z * 0.45);
+        if (!pattern.isDaytimePowder()) {
+            poseStack.translate(direction.x * 0.45, direction.y * 0.45, direction.z * 0.45);
+        }
         faceCamera(poseStack);
+        if (pattern.isDaytimePowder()) {
+            renderHaloQuad(poseStack, consumer, color, alpha, outerSize * 0.6f);
+            poseStack.popPose();
+            return;
+        }
         renderHaloQuad(poseStack, consumer, color, alpha * 0.55f, outerSize);
         if (!pattern.isBurst()) {
             renderHaloQuad(poseStack, consumer, 0xFFFFFF, alpha, innerSize * 0.55f);
@@ -114,9 +121,15 @@ public class FireworkRocketRenderer extends EntityRenderer<FireworkRocketEntity>
             poseStack.pushPose();
             poseStack.translate(offset.x, offset.y, offset.z);
             faceCamera(poseStack);
-            renderHaloQuad(poseStack, consumer, spark.color, alpha * 0.55f, scale * 1.6f);
-            renderHaloQuad(poseStack, consumer, 0xFFFFFF, alpha * 0.95f, scale * 0.55f);
-            renderHaloQuad(poseStack, consumer, spark.color, alpha, scale);
+            if (spark.powder) {
+                renderHaloQuad(poseStack, consumer, spark.color, alpha * 0.70f, scale * 3.2f);
+                renderHaloQuad(poseStack, consumer, spark.color, alpha * 0.92f, scale * 2.0f);
+                renderHaloQuad(poseStack, consumer, spark.color, alpha, scale * 1.25f);
+            } else {
+                renderHaloQuad(poseStack, consumer, spark.color, alpha * 0.55f, scale * 1.6f);
+                renderHaloQuad(poseStack, consumer, 0xFFFFFF, alpha * 0.95f, scale * 0.55f);
+                renderHaloQuad(poseStack, consumer, spark.color, alpha, scale);
+            }
             poseStack.popPose();
         }
     }

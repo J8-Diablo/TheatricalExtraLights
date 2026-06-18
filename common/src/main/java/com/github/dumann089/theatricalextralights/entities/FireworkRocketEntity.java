@@ -167,6 +167,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
             if (!exploded && !fading) {
                 pattern.onFlightTick(this, random);
                 FireworkSmokeEffects.trySpawnFlightSmoke(this, random, life);
+                FireworkSmokeEffects.trySpawnPowderParticle(this, random, life);
             } else if (exploded) {
                 if (!burstStarted) {
                     pattern.onBurstStart(this, random);

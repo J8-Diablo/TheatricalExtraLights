@@ -20,6 +20,8 @@ public final class Spark {
     public final float drag;
     public final boolean trail;
     public final boolean strobe;
+    /** Opaque daytime powder — larger, slower-fading colored smoke puffs. */
+    public final boolean powder;
 
     public int age;
 
@@ -28,6 +30,14 @@ public final class Spark {
                  int color, float scale, int lifetime,
                  float gravity, float drag,
                  boolean trail, boolean strobe) {
+        this(x, y, z, vx, vy, vz, color, scale, lifetime, gravity, drag, trail, strobe, false);
+    }
+
+    public Spark(double x, double y, double z,
+                 double vx, double vy, double vz,
+                 int color, float scale, int lifetime,
+                 float gravity, float drag,
+                 boolean trail, boolean strobe, boolean powder) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -44,6 +54,7 @@ public final class Spark {
         this.drag = drag;
         this.trail = trail;
         this.strobe = strobe;
+        this.powder = powder;
         this.age = 0;
     }
 
@@ -80,6 +91,10 @@ public final class Spark {
         if (t >= 1.0f) {
             return 0.0f;
         }
+        if (powder) {
+            float remaining = 1.0f - t;
+            return 0.50f + 0.50f * remaining * remaining;
+        }
         if (trail) {
             float remaining = 1.0f - t;
             return remaining * remaining * (3.0f - 2.0f * remaining);
@@ -88,6 +103,9 @@ public final class Spark {
     }
 
     public float getScale(float partialTick) {
+        if (powder) {
+            return scale * (1.0f + 0.08f * (1.0f - (age + partialTick) / lifetime));
+        }
         return scale;
     }
 }
