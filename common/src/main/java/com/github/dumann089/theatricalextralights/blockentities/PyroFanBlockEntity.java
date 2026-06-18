@@ -39,12 +39,15 @@ public class PyroFanBlockEntity extends ExtraLightsLightBlockEntity implements H
     private static final float BASE_LAUNCH_SPEED = 1.68f;
     private static final float MIN_SHOTS_PER_SECOND = 0.5f;
     private static final float MAX_SHOTS_PER_SECOND = 6.0f;
+    private static final int MAX_LAUNCHES_PER_TICK = 4;
+    private static final float MAX_ACCUMULATOR = 4.0f;
     private static final double TUBE_BASE_HEIGHT = 4.0 / 16.0;
 
     private final int[] tubeIntensity = new int[TUBE_COUNT];
     private final int[] prevTubeIntensity = new int[TUBE_COUNT];
     private final float[] fireAccumulator = new float[TUBE_COUNT];
     private final boolean[] pendingOneShot = new boolean[TUBE_COUNT];
+    private int launchRoundRobin;
     private int activePersonalityIndex = PyroFanFixture.PERSONALITY_3CH;
 
     public PyroFanBlockEntity(BlockPos pos, BlockState state) {
@@ -97,17 +100,25 @@ public class PyroFanBlockEntity extends ExtraLightsLightBlockEntity implements H
             return;
         }
 
-        for (int tube = 0; tube < TUBE_COUNT; tube++) {
+        int launchesThisTick = 0;
+
+        for (int offset = 0; offset < TUBE_COUNT && launchesThisTick < MAX_LAUNCHES_PER_TICK; offset++) {
+            int tube = (launchRoundRobin + offset) % TUBE_COUNT;
+            if (!pendingOneShot[tube] || tubeIntensity[tube] <= 0) {
+                continue;
+            }
+            if (launchTube(serverLevel, tube)) {
+                launchesThisTick++;
+                pendingOneShot[tube] = false;
+            }
+        }
+        launchRoundRobin = (launchRoundRobin + 1) % TUBE_COUNT;
+
+        for (int tube = 0; tube < TUBE_COUNT && launchesThisTick < MAX_LAUNCHES_PER_TICK; tube++) {
             int intensity = tubeIntensity[tube];
             if (intensity <= 0) {
                 fireAccumulator[tube] = 0.0f;
-                pendingOneShot[tube] = false;
                 continue;
-            }
-
-            if (pendingOneShot[tube]) {
-                launchTube(serverLevel, tube);
-                pendingOneShot[tube] = false;
             }
 
             if (intensity < 2) {
@@ -116,16 +127,20 @@ public class PyroFanBlockEntity extends ExtraLightsLightBlockEntity implements H
             }
 
             fireAccumulator[tube] += shotsPerSecond(intensity) / 20.0f;
-            while (fireAccumulator[tube] >= 1.0f) {
+            fireAccumulator[tube] = Math.min(fireAccumulator[tube], MAX_ACCUMULATOR);
+            while (fireAccumulator[tube] >= 1.0f && launchesThisTick < MAX_LAUNCHES_PER_TICK) {
+                if (!launchTube(serverLevel, tube)) {
+                    break;
+                }
                 fireAccumulator[tube] -= 1.0f;
-                launchTube(serverLevel, tube);
+                launchesThisTick++;
             }
         }
     }
 
-    private void launchTube(ServerLevel serverLevel, int tubeIndex) {
+    private boolean launchTube(ServerLevel serverLevel, int tubeIndex) {
         if (!FireworkRocketTracker.tryRegisterLaunch(serverLevel)) {
-            return;
+            return false;
         }
 
         Vec3 spawn = getTubeLaunchPosition(tubeIndex);
@@ -135,7 +150,7 @@ public class PyroFanBlockEntity extends ExtraLightsLightBlockEntity implements H
         rocket.setDeltaMovement(velocity);
         if (!serverLevel.addFreshEntity(rocket)) {
             FireworkRocketTracker.cancelLaunch(serverLevel);
-            return;
+            return false;
         }
         serverLevel.playSound(
                 null,
@@ -147,6 +162,7 @@ public class PyroFanBlockEntity extends ExtraLightsLightBlockEntity implements H
                 0.75f,
                 0.85f + serverLevel.random.nextFloat() * 0.25f
         );
+        return true;
     }
 
     private void applyTubeIntensity(int tubeIndex, int newIntensity) {
