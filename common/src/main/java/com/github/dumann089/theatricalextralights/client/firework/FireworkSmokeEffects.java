@@ -68,7 +68,7 @@ public final class FireworkSmokeEffects {
         if (!rocket.getPreset().getPattern().usesColoredPowderParticles()) {
             return;
         }
-        if (flightLife % (TheatricalExtraLightsConfig.getFireworkSmokeSpawnInterval() * 2) != 0) {
+        if (flightLife % TheatricalExtraLightsConfig.getFireworkSmokeSpawnInterval() != 0) {
             return;
         }
         if (!(rocket.level() instanceof ClientLevel level)) {
@@ -89,11 +89,11 @@ public final class FireworkSmokeEffects {
         float r = ((color >> 16) & 0xFF) / 255.0f;
         float g = ((color >> 8) & 0xFF) / 255.0f;
         float b = (color & 0xFF) / 255.0f;
-        float size = 1.6f + random.nextFloat() * 0.6f;
+        float size = 0.55f + random.nextFloat() * 0.35f;
         DustParticleOptions dust = new DustParticleOptions(new Vector3f(r, g, b), size);
-        double vx = rocket.getDeltaMovement().x * -0.02 + (random.nextDouble() - 0.5) * 0.008;
-        double vy = rocket.getDeltaMovement().y * -0.02 + 0.004;
-        double vz = rocket.getDeltaMovement().z * -0.02 + (random.nextDouble() - 0.5) * 0.008;
+        double vx = rocket.getDeltaMovement().x * -0.025 + (random.nextDouble() - 0.5) * 0.004;
+        double vy = rocket.getDeltaMovement().y * -0.015;
+        double vz = rocket.getDeltaMovement().z * -0.025 + (random.nextDouble() - 0.5) * 0.004;
         level.addParticle(dust, rocket.getX(), rocket.getY(), rocket.getZ(), vx, vy, vz);
     }
 }

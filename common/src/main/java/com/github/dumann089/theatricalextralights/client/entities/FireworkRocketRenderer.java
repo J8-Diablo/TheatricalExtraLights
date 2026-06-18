@@ -35,7 +35,7 @@ public class FireworkRocketRenderer extends EntityRenderer<FireworkRocketEntity>
         );
 
         renderRocketHalo(entity, pattern, color, partialTick, poseStack, lensConsumer);
-        renderSparks(entity, entityPos, partialTick, poseStack, lensConsumer);
+        renderSparks(entity, pattern, entityPos, partialTick, poseStack, lensConsumer);
     }
 
     private void renderRocketHalo(FireworkRocketEntity entity, BurstPattern pattern, int color, float partialTick, PoseStack poseStack, VertexConsumer consumer) {
@@ -107,7 +107,7 @@ public class FireworkRocketRenderer extends EntityRenderer<FireworkRocketEntity>
         poseStack.popPose();
     }
 
-    private void renderSparks(FireworkRocketEntity entity, Vec3 entityPos, float partialTick, PoseStack poseStack, VertexConsumer consumer) {
+    private void renderSparks(FireworkRocketEntity entity, BurstPattern pattern, Vec3 entityPos, float partialTick, PoseStack poseStack, VertexConsumer consumer) {
         for (Spark spark : entity.getSparks()) {
             float alpha = spark.getAlpha(partialTick);
             if (alpha <= 0.0f) {
@@ -120,9 +120,8 @@ public class FireworkRocketRenderer extends EntityRenderer<FireworkRocketEntity>
             poseStack.pushPose();
             poseStack.translate(offset.x, offset.y, offset.z);
             faceCamera(poseStack);
-            if (spark.powder) {
-                renderHaloQuad(poseStack, consumer, spark.color, alpha * 0.55f, scale * 1.85f);
-                renderHaloQuad(poseStack, consumer, spark.color, alpha * 0.88f, scale * 0.95f);
+            if (pattern.isDaytimePowder()) {
+                renderHaloQuad(poseStack, consumer, spark.color, alpha * 0.82f, scale * 0.75f);
             } else {
                 renderHaloQuad(poseStack, consumer, spark.color, alpha * 0.55f, scale * 1.6f);
                 renderHaloQuad(poseStack, consumer, 0xFFFFFF, alpha * 0.95f, scale * 0.55f);
