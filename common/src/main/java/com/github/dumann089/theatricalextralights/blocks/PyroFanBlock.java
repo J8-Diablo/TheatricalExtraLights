@@ -1,11 +1,11 @@
 package com.github.dumann089.theatricalextralights.blocks;
 
+import com.github.dumann089.theatricalextralights.TheatricalExtraLightsScreens;
 import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
 import com.github.dumann089.theatricalextralights.blockentities.PyroFanBlockEntity;
+import com.github.dumann089.theatricalextralights.net.OpenExtraLightsScreenPacket;
 import dev.imabad.theatrical.TheatricalClient;
-import dev.imabad.theatrical.TheatricalScreen;
 import dev.imabad.theatrical.blocks.Blocks;
-import dev.imabad.theatrical.net.OpenScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -105,7 +105,8 @@ public class PyroFanBlock extends ExtraLightsLightBlock {
                     return InteractionResult.SUCCESS;
                 }
             } else {
-                new OpenScreen(pos, TheatricalScreen.GENERIC_DMX).sendTo((ServerPlayer) player);
+                new OpenExtraLightsScreenPacket(pos, TheatricalExtraLightsScreens.CHANNEL_MENU)
+                        .sendTo((ServerPlayer) player);
             }
         }
         return InteractionResult.SUCCESS;

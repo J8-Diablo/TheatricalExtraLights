@@ -186,6 +186,12 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
         }
 
         BurstPattern pattern = preset.getPattern();
+        if (!level().isClientSide && tickCount > pattern.getServerHoldTicks()) {
+            releaseLight();
+            discard();
+            return;
+        }
+
         boolean clientSide = level().isClientSide;
 
         if (clientSide) {

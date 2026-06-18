@@ -6,6 +6,7 @@ import dev.imabad.theatrical.api.HangType;
 import dev.imabad.theatrical.api.dmx.DMXPersonality;
 import dev.imabad.theatrical.api.dmx.DMXSlot;
 import dev.imabad.theatrical.blocks.light.BaseLightBlock;
+import dev.imabad.theatrical.fixtures.SharedSlots;
 import ch.bildspur.artnet.rdm.RDMSlotID;
 import ch.bildspur.artnet.rdm.RDMSlotType;
 import net.minecraft.core.Direction;
@@ -15,6 +16,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.List;
 
 public class PyroFanFixture extends Fixture {
+    public static final int PERSONALITY_3CH = 0;
+    public static final int PERSONALITY_10CH = 1;
+
     private static final ResourceLocation STATIC_MODEL =
             new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/firework/firework_gold_comet_static");
     private static final ResourceLocation PAN_MODEL =
@@ -23,11 +27,15 @@ public class PyroFanFixture extends Fixture {
     private final float[] tiltPivot = new float[]{0.5f, 0.25f, 0.5f};
 
     private static List<DMXPersonality> buildPersonalities() {
-        DMXPersonality personality = new DMXPersonality(10, "10-Channel Pyro Fan");
+        DMXPersonality threeChannel = new DMXPersonality(3, "3-Channel Pyro Fan (All Tubes)")
+                .addSlot(SharedSlots.INTENSITY)
+                .addSlot(SharedSlots.TILT)
+                .addSlot(SharedSlots.FOCUS);
+        DMXPersonality tenChannel = new DMXPersonality(10, "10-Channel Pyro Fan (Per Tube)");
         for (int i = 1; i <= 10; i++) {
-            personality.addSlot(new DMXSlot("Tube " + i, RDMSlotType.ST_PRIMARY, RDMSlotID.SD_INTENSITY));
+            tenChannel.addSlot(new DMXSlot("Tube " + i, RDMSlotType.ST_PRIMARY, RDMSlotID.SD_INTENSITY));
         }
-        return List.of(personality);
+        return List.of(threeChannel, tenChannel);
     }
 
     @Override

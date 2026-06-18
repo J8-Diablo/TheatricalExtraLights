@@ -110,6 +110,20 @@ public abstract class BurstPattern {
         return false;
     }
 
+    /**
+     * Server-side entity lifetime — client keeps sparks locally until they fade.
+     * Must stay below client visual duration but release tracker slots promptly.
+     */
+    public int getServerHoldTicks() {
+        if (isDaytimePowder()) {
+            return 400;
+        }
+        if (isBurst()) {
+            return getBurstDuration() + 160;
+        }
+        return getFlightLifetime() + getCometFadeTicks() + 160;
+    }
+
     /** Daytime powder — visible in daylight, minimal dynamic light. */
     public boolean isDaytimePowder() {
         return false;

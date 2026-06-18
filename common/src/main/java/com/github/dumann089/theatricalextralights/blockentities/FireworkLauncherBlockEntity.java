@@ -110,7 +110,10 @@ public class FireworkLauncherBlockEntity extends ExtraLightsLightBlockEntity {
         FireworkRocketEntity rocket = createRocket(serverLevel);
         rocket.moveTo(spawn.x, spawn.y, spawn.z, 0.0f, 0.0f);
         rocket.setDeltaMovement(velocity);
-        serverLevel.addFreshEntity(rocket);
+        if (!serverLevel.addFreshEntity(rocket)) {
+            FireworkRocketTracker.cancelLaunch(serverLevel);
+            return;
+        }
         serverLevel.playSound(null, spawn.x, spawn.y, spawn.z, SoundEvents.FIREWORK_ROCKET_LAUNCH, SoundSource.BLOCKS, 0.9f, 0.9f + serverLevel.random.nextFloat() * 0.2f);
     }
 

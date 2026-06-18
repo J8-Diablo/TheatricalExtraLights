@@ -93,40 +93,40 @@ public final class BurstPatterns {
         }
     }
 
-    /** Holi-style paint cloud at apex — hundreds of slow-falling colored particles. */
+    /** Tiny color pop at apex — subtle, not a full Holi cloud. */
     private static void emitDaytimeColorBurst(FireworkRocketEntity rocket, RandomSource random) {
         int[] palette = rocket.getColors();
         double cx = rocket.getX();
         double cy = rocket.getY();
         double cz = rocket.getZ();
-        int count = 90 + random.nextInt(45);
+        int count = 6 + random.nextInt(6);
         for (int i = 0; i < count; i++) {
             double theta = random.nextDouble() * Math.PI * 2.0;
-            double cosPhi = random.nextDouble() * 0.8 + 0.05;
+            double cosPhi = random.nextDouble() * 0.55 + 0.2;
             double sinPhi = Math.sqrt(Math.max(0.0, 1.0 - cosPhi * cosPhi));
-            double speed = 0.12 + random.nextDouble() * 0.42;
+            double speed = 0.04 + random.nextDouble() * 0.10;
             double vx = sinPhi * Math.cos(theta) * speed;
-            double vy = cosPhi * speed * 0.6 + 0.03;
+            double vy = cosPhi * speed * 0.45 + 0.01;
             double vz = sinPhi * Math.sin(theta) * speed;
             int color = paletteAt(palette, i);
             rocket.addSpark(new Spark(
-                    cx + (random.nextDouble() - 0.5) * 0.2,
-                    cy + (random.nextDouble() - 0.5) * 0.2,
-                    cz + (random.nextDouble() - 0.5) * 0.2,
-                    vx + (random.nextDouble() - 0.5) * 0.02,
+                    cx + (random.nextDouble() - 0.5) * 0.08,
+                    cy + (random.nextDouble() - 0.5) * 0.08,
+                    cz + (random.nextDouble() - 0.5) * 0.08,
+                    vx,
                     vy,
-                    vz + (random.nextDouble() - 0.5) * 0.02,
+                    vz,
                     color,
-                    0.45f + random.nextFloat() * 0.35f,
-                    120 + random.nextInt(100),
-                    0.011f,
-                    0.985f,
+                    0.06f + random.nextFloat() * 0.05f,
+                    22 + random.nextInt(16),
+                    0.009f,
+                    0.990f,
                     false,
                     false,
                     true
             ));
         }
-        FireworkSmokeEffects.spawnDaytimeBurstParticles(rocket, random, palette, cx, cy, cz, 36);
+        FireworkSmokeEffects.spawnDaytimeBurstParticles(rocket, random, palette, cx, cy, cz, 3);
     }
 
     private static double launchYaw(FireworkRocketEntity rocket) {

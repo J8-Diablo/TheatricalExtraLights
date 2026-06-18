@@ -200,21 +200,21 @@ public final class FireworkSmokeEffects {
             double theta = random.nextDouble() * Math.PI * 2.0;
             double cosPhi = random.nextDouble() * 0.75 + 0.05;
             double sinPhi = Math.sqrt(Math.max(0.0, 1.0 - cosPhi * cosPhi));
-            double speed = 0.08 + random.nextDouble() * 0.35;
+            double speed = 0.03 + random.nextDouble() * 0.10;
             double vx = sinPhi * Math.cos(theta) * speed;
-            double vy = cosPhi * speed + 0.02;
+            double vy = cosPhi * speed * 0.5 + 0.008;
             double vz = sinPhi * Math.sin(theta) * speed;
             int color = palette[random.nextInt(palette.length)];
             spawnColoredDust(
                     level,
                     color,
-                    originX + (random.nextDouble() - 0.5) * 0.25,
-                    originY + (random.nextDouble() - 0.5) * 0.25,
-                    originZ + (random.nextDouble() - 0.5) * 0.25,
+                    originX + (random.nextDouble() - 0.5) * 0.08,
+                    originY + (random.nextDouble() - 0.5) * 0.08,
+                    originZ + (random.nextDouble() - 0.5) * 0.08,
                     vx,
                     vy,
                     vz,
-                    1.2f + random.nextFloat() * 1.0f
+                    0.35f + random.nextFloat() * 0.25f
             );
         }
     }

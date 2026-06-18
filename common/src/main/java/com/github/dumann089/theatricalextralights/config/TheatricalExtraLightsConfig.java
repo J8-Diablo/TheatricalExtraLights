@@ -37,7 +37,7 @@ public class TheatricalExtraLightsConfig {
     private Float volumetricBeamMaxAlpha = 0.15f;
     private Float volumetricBeamFadeLength = 12.0f;
 
-    private Integer maxConcurrentRockets = 120;
+    private Integer maxConcurrentRockets = 768;
     private Integer maxSparksPerRocket = 600;
     private Double fireworkRenderDistance = 2048.0;
     private Boolean fireworkDynamicLightEnabled = true;
@@ -97,7 +97,7 @@ public class TheatricalExtraLightsConfig {
     public static float getMaxGoboDistance() { return INSTANCE.maxGoboDistance; }
     public static boolean shouldRender2DBeam() { return INSTANCE.render2DBeam; }
 
-    public static int getMaxConcurrentRockets() { return INSTANCE.maxConcurrentRockets != null ? INSTANCE.maxConcurrentRockets : 120; }
+    public static int getMaxConcurrentRockets() { return INSTANCE.maxConcurrentRockets != null ? INSTANCE.maxConcurrentRockets : 768; }
     public static int getMaxSparksPerRocket() { return INSTANCE.maxSparksPerRocket != null ? INSTANCE.maxSparksPerRocket : 600; }
     public static double getFireworkRenderDistance() { return INSTANCE.fireworkRenderDistance != null ? INSTANCE.fireworkRenderDistance : 2048.0; }
     public static boolean isFireworkDynamicLightEnabled() { return INSTANCE.fireworkDynamicLightEnabled == null || INSTANCE.fireworkDynamicLightEnabled; }
