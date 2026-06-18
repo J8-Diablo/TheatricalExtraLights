@@ -16,6 +16,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -33,6 +36,11 @@ import java.util.UUID;
 public class FireworkRocketEntity extends Entity implements EntitySpawnExtension, DynamicLightProvider {
     private static final int MAX_TOTAL_TICKS = 400;
 
+    private static final EntityDataAccessor<Boolean> DATA_EXPLODED =
+            SynchedEntityData.defineId(FireworkRocketEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> DATA_FADING =
+            SynchedEntityData.defineId(FireworkRocketEntity.class, EntityDataSerializers.BOOLEAN);
+
     private FireworkPreset preset = FireworkPreset.RED_COMET;
     private BlockPos launcherPos = BlockPos.ZERO;
     private int life;
@@ -49,7 +57,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
     public FireworkRocketEntity(EntityType<? extends FireworkRocketEntity> entityType, Level level) {
         super(entityType, level);
-        noPhysics = false;
+        noPhysics = true;
     }
 
     public FireworkRocketEntity(Level level, FireworkPreset preset, BlockPos launcherPos) {
@@ -98,6 +106,29 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
         return life;
     }
 
+    /** Server-side max lifetime for this rocket's preset (see {@link BurstPattern#getServerHoldTicks()}). */
+    public int getServerHoldTicks() {
+        return preset.getPattern().getServerHoldTicks();
+    }
+
+    /**
+     * True when this rocket should be removed to avoid stacking in unloaded sky chunks.
+     */
+    public boolean shouldForceCleanup(ServerLevel level) {
+        if (tickCount > getServerHoldTicks() || tickCount > MAX_TOTAL_TICKS) {
+            return true;
+        }
+        double dx = getX() - (launcherPos.getX() + 0.5);
+        double dz = getZ() - (launcherPos.getZ() + 0.5);
+        if (dx * dx + dz * dz > 72.0 * 72.0) {
+            return true;
+        }
+        if (getY() > launcherPos.getY() + 64.0 || getY() > 260.0) {
+            return true;
+        }
+        return tickCount > 24 && !FireworkRocketTracker.hasNearbyPlayer(level, this);
+    }
+
     public BlockPos getLauncherPos() {
         return launcherPos;
     }
@@ -134,6 +165,8 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
     @Override
     protected void defineSynchedData() {
+        entityData.define(DATA_EXPLODED, false);
+        entityData.define(DATA_FADING, false);
     }
 
     @Override
@@ -179,22 +212,31 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
     public void tick() {
         super.tick();
 
-        if (tickCount > MAX_TOTAL_TICKS) {
-            releaseLight();
-            discard();
-            return;
-        }
-
         BurstPattern pattern = preset.getPattern();
-        if (!level().isClientSide && tickCount > pattern.getServerHoldTicks()) {
-            releaseLight();
-            discard();
-            return;
-        }
-
         boolean clientSide = level().isClientSide;
 
+        if (tickCount > MAX_TOTAL_TICKS) {
+            releaseLight();
+            if (!clientSide) {
+                discard();
+            }
+            return;
+        }
+
+        if (!clientSide && tickCount > pattern.getServerHoldTicks()) {
+            releaseLight();
+            discard();
+            return;
+        }
+
+        if (!clientSide && level() instanceof ServerLevel serverLevel && shouldForceCleanup(serverLevel)) {
+            releaseLight();
+            discard();
+            return;
+        }
+
         if (clientSide) {
+            syncVisualPhaseFromNetwork(pattern);
             tickClientLight();
             tickSparks();
 
@@ -220,9 +262,12 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
         if (exploded) {
             burstTickIndex++;
-            if (clientSide && burstTickIndex >= pattern.getBurstDuration() && sparks.isEmpty()) {
-                releaseLight();
-                discard();
+            if (clientSide && burstTickIndex >= pattern.getBurstDuration()) {
+                sparks.removeIf(Spark::isDead);
+                if (sparks.isEmpty() || burstTickIndex >= pattern.getBurstDuration() + 80) {
+                    sparks.clear();
+                    releaseLight();
+                }
             }
             return;
         }
@@ -232,9 +277,12 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
             double fadeDrag = 0.94;
             setDeltaMovement(fadeMotion.x * fadeDrag, fadeMotion.y * fadeDrag - 0.025, fadeMotion.z * fadeDrag);
             move(MoverType.SELF, getDeltaMovement());
-            if (clientSide && --fadeTicks <= 0 && sparks.isEmpty()) {
-                releaseLight();
-                discard();
+            if (clientSide && --fadeTicks <= 0) {
+                sparks.removeIf(Spark::isDead);
+                if (sparks.isEmpty() || fadeTicks <= -20) {
+                    sparks.clear();
+                    releaseLight();
+                }
             }
             return;
         }
@@ -259,9 +307,84 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
         move(MoverType.SELF, getDeltaMovement());
 
         boolean reachedApex = !pattern.continuesAfterApex() && getDeltaMovement().y <= 0.0 && life > 10;
-        if (horizontalCollision || verticalCollision || onGround() || life >= pattern.getFlightLifetime() || reachedApex) {
-            triggerEnd();
+        boolean endFlight = life >= pattern.getFlightLifetime() || reachedApex;
+        if (endFlight) {
+            if (clientSide) {
+                beginClientEndPhase(pattern);
+            } else {
+                triggerEnd();
+            }
         }
+    }
+
+    /** Client predicts burst/fade at apex so visuals do not wait on network sync. */
+    private void beginClientEndPhase(BurstPattern pattern) {
+        if (exploded || fading) {
+            return;
+        }
+        if (pattern.isBurst()) {
+            exploded = true;
+            fading = false;
+            burstTickIndex = 0;
+            burstStarted = false;
+            setDeltaMovement(Vec3.ZERO);
+        } else if (pattern.getCometFadeTicks() > 0) {
+            fading = true;
+            exploded = false;
+            fadeTicks = pattern.getCometFadeTicks();
+        }
+    }
+
+    @Override
+    public void lerpTo(double x, double y, double z, float yRot, float xRot, int steps, boolean teleport) {
+        if (level().isClientSide) {
+            if (teleport) {
+                setPos(x, y, z);
+            }
+            return;
+        }
+        super.lerpTo(x, y, z, yRot, xRot, steps, teleport);
+    }
+
+    private void syncVisualPhaseFromNetwork(BurstPattern pattern) {
+        boolean syncedExploded = entityData.get(DATA_EXPLODED);
+        boolean syncedFading = entityData.get(DATA_FADING);
+
+        if (syncedExploded) {
+            if (!exploded) {
+                burstTickIndex = 0;
+                burstStarted = false;
+                setDeltaMovement(Vec3.ZERO);
+            }
+            exploded = true;
+            fading = false;
+            return;
+        }
+
+        if (syncedFading) {
+            if (!fading) {
+                fadeTicks = pattern.getCometFadeTicks();
+            }
+            fading = true;
+            exploded = false;
+        }
+    }
+
+    private void setSyncedExploded() {
+        exploded = true;
+        fading = false;
+        burstTickIndex = 0;
+        setDeltaMovement(Vec3.ZERO);
+        entityData.set(DATA_EXPLODED, true);
+        entityData.set(DATA_FADING, false);
+    }
+
+    private void setSyncedFading(BurstPattern pattern) {
+        fading = true;
+        exploded = false;
+        fadeTicks = pattern.getCometFadeTicks();
+        entityData.set(DATA_FADING, true);
+        entityData.set(DATA_EXPLODED, false);
     }
 
     private void tickSparks() {
@@ -276,32 +399,22 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
             return;
         }
         BurstPattern pattern = preset.getPattern();
-        if (level() instanceof ServerLevel serverLevel) {
-            if (pattern.isBurst()) {
-                if (!pattern.isDaytimePowder()) {
-                    serverLevel.playSound(null, getX(), getY(), getZ(), SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.BLOCKS, 1.0f, 0.95f + random.nextFloat() * 0.1f);
-                    if (pattern.hasCrackleSound()) {
-                        serverLevel.playSound(null, getX(), getY(), getZ(), SoundEvents.FIREWORK_ROCKET_TWINKLE, SoundSource.BLOCKS, 0.9f, 0.9f + random.nextFloat() * 0.2f);
-                    }
+        if (!(level() instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        if (pattern.isBurst()) {
+            if (!pattern.isDaytimePowder()) {
+                serverLevel.playSound(null, getX(), getY(), getZ(), SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.BLOCKS, 1.0f, 0.95f + random.nextFloat() * 0.1f);
+                if (pattern.hasCrackleSound()) {
+                    serverLevel.playSound(null, getX(), getY(), getZ(), SoundEvents.FIREWORK_ROCKET_TWINKLE, SoundSource.BLOCKS, 0.9f, 0.9f + random.nextFloat() * 0.2f);
                 }
-                exploded = true;
-                burstTickIndex = 0;
-                setDeltaMovement(Vec3.ZERO);
-            } else if (pattern.getCometFadeTicks() > 0) {
-                serverLevel.playSound(null, getX(), getY(), getZ(), SoundEvents.FIREWORK_ROCKET_BLAST_FAR, SoundSource.BLOCKS, 0.4f, 1.1f + random.nextFloat() * 0.15f);
-                fading = true;
-                fadeTicks = pattern.getCometFadeTicks();
-            } else {
-                discard();
             }
+            setSyncedExploded();
+        } else if (pattern.getCometFadeTicks() > 0) {
+            serverLevel.playSound(null, getX(), getY(), getZ(), SoundEvents.FIREWORK_ROCKET_BLAST_FAR, SoundSource.BLOCKS, 0.4f, 1.1f + random.nextFloat() * 0.15f);
+            setSyncedFading(pattern);
         } else {
-            if (pattern.isBurst()) {
-                exploded = true;
-                burstTickIndex = 0;
-            } else if (pattern.getCometFadeTicks() > 0) {
-                fading = true;
-                fadeTicks = pattern.getCometFadeTicks();
-            }
+            discard();
         }
     }
 
@@ -370,13 +483,13 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
         } else {
             customColors = null;
         }
+        entityData.set(DATA_EXPLODED, exploded);
+        entityData.set(DATA_FADING, fading);
     }
 
     @Override
     public void remove(RemovalReason reason) {
-        if (!level().isClientSide) {
-            FireworkRocketTracker.onRemoved(level());
-        }
+        releaseLight();
         FireworkLightCompat.remove(this);
         shimmerLightRegistered = false;
         super.remove(reason);

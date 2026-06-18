@@ -5,6 +5,7 @@ import com.github.dumann089.theatricalextralights.blocks.Blocks;
 import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import com.github.dumann089.theatricalextralights.entities.ModEntities;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
+import com.github.dumann089.theatricalextralights.firework.FireworkRocketTracker;
 import com.github.dumann089.theatricalextralights.items.Items;
 import com.github.dumann089.theatricalextralights.net.ExtraLightsNet;
 import com.github.dumann089.theatricalextralights.net.ModNetworkHandler;
@@ -52,6 +53,7 @@ public class TheatricalExtraLights {
         ModNetworkHandler.register();
         ExtraLightsNet.init();
         TheatricalExtraLightsConfig.load();
+        FireworkRocketTracker.registerEvents();
     }
 }
 
