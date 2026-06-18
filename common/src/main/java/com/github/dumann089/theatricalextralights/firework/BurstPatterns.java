@@ -53,9 +53,9 @@ public final class BurstPatterns {
                     motion.z * -0.04 + jz * 0.2 + (random.nextDouble() - 0.5) * 0.025,
                     color,
                     0.38f + random.nextFloat() * 0.22f,
-                    70 + random.nextInt(50),
-                    0.007f,
-                    0.988f,
+                    32 + random.nextInt(18),
+                    0.008f,
+                    0.990f,
                     false,
                     false,
                     true
@@ -982,7 +982,7 @@ public final class BurstPatterns {
         @Override public boolean isBurst() { return false; }
         @Override public boolean isDaytimePowder() { return true; }
         @Override public int getBurstDuration() { return 0; }
-        @Override public int getCometFadeTicks() { return 220; }
+        @Override public int getCometFadeTicks() { return 120; }
         @Override public int getFlightLifetime() { return 62; }
         @Override public boolean continuesAfterApex() { return false; }
         @Override public double getFlightWobble() { return 0.012; }

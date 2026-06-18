@@ -266,7 +266,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
     private void tickSparks() {
         for (Spark spark : sparks) {
-            spark.tick();
+            spark.tick(level());
         }
         sparks.removeIf(Spark::isDead);
     }

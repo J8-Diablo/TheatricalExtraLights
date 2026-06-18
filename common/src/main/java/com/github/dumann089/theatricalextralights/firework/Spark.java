@@ -1,6 +1,7 @@
 package com.github.dumann089.theatricalextralights.firework;
 
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -59,16 +60,39 @@ public final class Spark {
     }
 
     public void tick() {
+        tick(null);
+    }
+
+    public void tick(Level level) {
         prevX = x;
         prevY = y;
         prevZ = z;
-        x += vx;
-        y += vy;
-        z += vz;
+
+        if (powder && level != null) {
+            SparkBlockCollision.MoveResult result = SparkBlockCollision.move(level, x, y, z, vx, vy, vz);
+            x = result.x();
+            y = result.y();
+            z = result.z();
+            if (result.blocked()) {
+                vx = 0.0;
+                vy = 0.0;
+                vz = 0.0;
+            } else {
+                applyDrag();
+            }
+        } else {
+            x += vx;
+            y += vy;
+            z += vz;
+            applyDrag();
+        }
+        age++;
+    }
+
+    private void applyDrag() {
         vx *= drag;
         vy = (vy - gravity) * drag;
         vz *= drag;
-        age++;
     }
 
     public boolean isDead() {
@@ -93,11 +117,7 @@ public final class Spark {
         }
         if (powder) {
             float remaining = 1.0f - t;
-            // Slow dissipation — stays opaque most of its life, fades at the end.
-            if (remaining > 0.65f) {
-                return 0.78f + 0.22f * (remaining - 0.65f) / 0.35f;
-            }
-            return 0.78f * remaining / 0.65f;
+            return remaining * remaining * (3.0f - 2.0f * remaining);
         }
         if (trail) {
             float remaining = 1.0f - t;
@@ -109,7 +129,7 @@ public final class Spark {
     public float getScale(float partialTick) {
         if (powder) {
             float t = (age + partialTick) / lifetime;
-            return scale * (1.0f + t * 1.2f);
+            return scale * (1.0f + t * 0.6f);
         }
         return scale;
     }

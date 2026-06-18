@@ -2,6 +2,7 @@ package com.github.dumann089.theatricalextralights.client.firework;
 
 import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import com.github.dumann089.theatricalextralights.entities.FireworkRocketEntity;
+import com.github.dumann089.theatricalextralights.firework.Spark;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -162,8 +163,8 @@ public final class FireworkSmokeEffects {
                 return;
             }
             double turb = 0.08;
-            spawnColoredDust(
-                    level,
+            spawnDaytimePowderSpark(
+                    rocket,
                     color,
                     rocket.getX() + (random.nextDouble() - 0.5) * turb,
                     rocket.getY() + (random.nextDouble() - 0.5) * turb * 0.35,
@@ -171,7 +172,8 @@ public final class FireworkSmokeEffects {
                     rocket.getDeltaMovement().x * -0.03 + (random.nextDouble() - 0.5) * 0.03,
                     rocket.getDeltaMovement().y * -0.02 + (random.nextDouble() - 0.5) * 0.02,
                     rocket.getDeltaMovement().z * -0.03 + (random.nextDouble() - 0.5) * 0.03,
-                    1.0f + random.nextFloat() * 0.8f
+                    0.55f + random.nextFloat() * 0.35f,
+                    14 + random.nextInt(10)
             );
         }
     }
@@ -205,8 +207,8 @@ public final class FireworkSmokeEffects {
             double vy = cosPhi * speed * 0.5 + 0.008;
             double vz = sinPhi * Math.sin(theta) * speed;
             int color = palette[random.nextInt(palette.length)];
-            spawnColoredDust(
-                    level,
+            spawnDaytimePowderSpark(
+                    rocket,
                     color,
                     originX + (random.nextDouble() - 0.5) * 0.08,
                     originY + (random.nextDouble() - 0.5) * 0.08,
@@ -214,7 +216,8 @@ public final class FireworkSmokeEffects {
                     vx,
                     vy,
                     vz,
-                    0.35f + random.nextFloat() * 0.25f
+                    0.22f + random.nextFloat() * 0.12f,
+                    18 + random.nextInt(10)
             );
         }
     }
@@ -252,8 +255,8 @@ public final class FireworkSmokeEffects {
             double vz = Math.cos(yaw) * horizontal;
 
             int color = palette[Math.floorMod(stream, palette.length)];
-            spawnColoredDust(
-                    level,
+            spawnDaytimePowderSpark(
+                    rocket,
                     color,
                     originX + (random.nextDouble() - 0.5) * 0.1,
                     originY + (random.nextDouble() - 0.5) * 0.05,
@@ -261,9 +264,32 @@ public final class FireworkSmokeEffects {
                     vx,
                     vy,
                     vz,
-                    1.3f + random.nextFloat() * 0.9f
+                    0.75f + random.nextFloat() * 0.35f,
+                    45 + random.nextInt(25)
             );
         }
+    }
+
+    private static void spawnDaytimePowderSpark(
+            FireworkRocketEntity rocket,
+            int color,
+            double x, double y, double z,
+            double vx, double vy, double vz,
+            float scale,
+            int lifetime
+    ) {
+        rocket.addSpark(new Spark(
+                x, y, z,
+                vx, vy, vz,
+                color,
+                scale,
+                lifetime,
+                0.010f,
+                0.986f,
+                false,
+                false,
+                true
+        ));
     }
 
     private static void spawnColoredDust(
