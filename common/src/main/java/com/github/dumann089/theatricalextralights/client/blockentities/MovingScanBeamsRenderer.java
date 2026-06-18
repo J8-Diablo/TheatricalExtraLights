@@ -1,7 +1,7 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.MovingScanBeamsBlockEntity;
-import com.github.dumann089.theatricalextralights.blockentities.MovingVL2CBeamsBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.MovingScanBeamsBlockEntity;
 import com.github.dumann089.theatricalextralights.client.Beam2DRenderTypes;
 import com.github.dumann089.theatricalextralights.client.gobo.FakeVolumetricBeamPattern;
 import com.github.dumann089.theatricalextralights.client.gobo.GoboLibrary;
@@ -35,8 +35,15 @@ public class MovingScanBeamsRenderer extends ExtraLightsFixtureRenderer<MovingSc
     /** Per-BE projector — prevents cache thrashing between multiple fixtures. */
     private final WeakHashMap<MovingScanBeamsBlockEntity, GoboGPUProjector> goboProjectors = new WeakHashMap<>();
 
+    private static class SmoothingState {
+        float smoothPan = 0f;
+        float smoothTilt = 0f;
+        long lastUpdateTime = -1;
+    }
+    private final Map<MovingScanBeamsBlockEntity, MovingScanBeamsRenderer.SmoothingState> smoothingStates = new WeakHashMap<>();
+    private static final float SMOOTH_SPEED = 25f;
+    
     private final WeakHashMap<MovingScanBeamsBlockEntity, VolumetricBeamRenderer> volumetricRenderers = new WeakHashMap<>();
-
     private final Map<MovingScanBeamsBlockEntity, float[]> structuralCache = new WeakHashMap<>();
     private final Map<MovingScanBeamsBlockEntity, Long> structuralCacheTicks = new WeakHashMap<>();
 
@@ -74,6 +81,7 @@ public class MovingScanBeamsRenderer extends ExtraLightsFixtureRenderer<MovingSc
         if (cachedTiltModel == null){
             cachedTiltModel = TheatricalExpectPlatform.getBakedModel(blockEntity.getFixture().getTiltModel());
         }
+        poseStack.pushPose();
         //#region Fixture Hanging
         poseStack.translate(0.5F, 0, .5F);
         if(isHanging){
@@ -120,16 +128,27 @@ public class MovingScanBeamsRenderer extends ExtraLightsFixtureRenderer<MovingSc
         }
         // Static Model Render
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedStaticModel, packedLight, packedOverlay);
-        //#region Model Pan
+        MovingScanBeamsRenderer.SmoothingState state = smoothingStates.computeIfAbsent(blockEntity, k -> new MovingScanBeamsRenderer.SmoothingState());
+
+        long now = System.nanoTime();
+        if (state.lastUpdateTime < 0) state.lastUpdateTime = now;
+        float deltaTime = (now - state.lastUpdateTime) / 1_000_000_000f;
+        state.lastUpdateTime = now;
+        deltaTime = Math.min(deltaTime, 0.1f);
+
+        float targetPan = blockEntity.getPrevPan() + (blockEntity.getPan() - blockEntity.getPrevPan()) * partialTicks;
+        float targetTilt = blockEntity.getPrevTilt() + (blockEntity.getTilt() - blockEntity.getPrevTilt()) * partialTicks;
+
+        float alpha = 1f - (float) Math.exp(-SMOOTH_SPEED * deltaTime);
+        state.smoothPan = state.smoothPan + (targetPan - state.smoothPan) * alpha;
+        state.smoothTilt = state.smoothTilt + (targetTilt - state.smoothTilt) * alpha;
+
         float[] pans = blockEntity.getFixture().getPanRotationPosition();
         poseStack.translate(pans[0], pans[1], pans[2]);
-        int prevPan = blockEntity.getPrevPan();
-        int pan = blockEntity.getPan();
-        poseStack.mulPose(Axis.YP.rotationDegrees((prevPan + (pan - prevPan) * partialTicks)));
+        poseStack.mulPose(Axis.YP.rotationDegrees(state.smoothPan));
         poseStack.translate(-pans[0], -pans[1], -pans[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedPanModel, packedLight, packedOverlay);
-        //#endregion
-        //#region Model Tilt
+
         float[] tilts = blockEntity.getFixture().getTiltRotationPosition();
         poseStack.translate(tilts[0], tilts[1], tilts[2]);
         if (isFlipped) {
@@ -137,12 +156,10 @@ public class MovingScanBeamsRenderer extends ExtraLightsFixtureRenderer<MovingSc
         } else {
             poseStack.mulPose(Axis.XP.rotationDegrees(180));
         }
-        int prevTilt = blockEntity.getPrevTilt();
-        int tilt = blockEntity.getTilt();
-        poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
+        poseStack.mulPose(Axis.XP.rotationDegrees(state.smoothTilt));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel, packedLight, packedOverlay);
-        //#endregion
+        poseStack.popPose();
     }
 
     @Override
@@ -200,11 +217,9 @@ public class MovingScanBeamsRenderer extends ExtraLightsFixtureRenderer<MovingSc
                 float coneHalfAngle = 1.0f + zoomNorm * (19.0f - 1.0f);
                 float tanHalfAngle  = (float) Math.tan(Math.toRadians(coneHalfAngle));
 
-                // 🛡️ Obtención segura de textura
                 ResourceLocation goboTex = GoboLibrary.SCAN.getTexture(blockEntity.getGobo());
                 if (goboTex == null) goboTex = new ResourceLocation("theatricalextralights", "textures/empty_fallback.png");
 
-                // NUEVO: Instancia corregida con baseRadius
                 BeamRenderData renderData = new BeamRenderData(
                         blockEntity.getBlockPos(),
                         origin,
@@ -221,7 +236,7 @@ public class MovingScanBeamsRenderer extends ExtraLightsFixtureRenderer<MovingSc
                         blockEntity.getLevel(),
                         1.0f, // widthScale
                         1.0f,
-                        0.15f
+                        0.18f
                 );
 
                 volumetricRenderers.computeIfAbsent(blockEntity, k -> new VolumetricBeamRenderer())
@@ -268,7 +283,6 @@ public class MovingScanBeamsRenderer extends ExtraLightsFixtureRenderer<MovingSc
                     poseStack.popPose();
                 }
 
-                // ── Fake Volumetric Beams según el patrón del gobo activo ───────
                 renderFakeVolumetricBeams(builder, poseStack, blockEntity, camera,
                         partialTick, alpha, color, goboSlot);
 
@@ -383,14 +397,13 @@ public class MovingScanBeamsRenderer extends ExtraLightsFixtureRenderer<MovingSc
             poseStack.mulPose(Axis.ZP.rotationDegrees(180));
             poseStack.translate(-0.5F, -0.5, -.5F);
         }
+        MovingScanBeamsRenderer.SmoothingState state = smoothingStates.computeIfAbsent(blockEntity, k -> new MovingScanBeamsRenderer.SmoothingState());
+
         float[] pans = blockEntity.getFixture().getPanRotationPosition();
         poseStack.translate(pans[0], pans[1], pans[2]);
-        int prevPan = blockEntity.getPrevPan();
-        int pan = blockEntity.getPan();
-        poseStack.mulPose(Axis.YP.rotationDegrees((prevPan + (pan - prevPan) * partialTicks)));
+        poseStack.mulPose(Axis.YP.rotationDegrees(state.smoothPan));
         poseStack.translate(-pans[0], -pans[1], -pans[2]);
-        //#endregion
-        //#region Model Tilt
+
         float[] tilts = blockEntity.getFixture().getTiltRotationPosition();
         poseStack.translate(tilts[0], tilts[1], tilts[2]);
         if (isFlipped) {
@@ -400,8 +413,7 @@ public class MovingScanBeamsRenderer extends ExtraLightsFixtureRenderer<MovingSc
         }
         int prevTilt = blockEntity.getPrevTilt();
         int tilt = blockEntity.getTilt();
-        poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
+        poseStack.mulPose(Axis.XP.rotationDegrees(state.smoothTilt));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
-        //#endregion
     }
 }

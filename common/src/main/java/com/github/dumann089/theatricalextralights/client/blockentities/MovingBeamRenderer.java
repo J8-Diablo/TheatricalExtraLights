@@ -109,7 +109,7 @@ public class MovingBeamRenderer extends ExtraLightsFixtureRenderer<MovingBeamBlo
     }
     private final Double beamOpacity = TheatricalConfig.INSTANCE.CLIENT.beamOpacity;
 
-    private static final Vec3 LENS_OFFSET = new Vec3(0.5f, 0.78125f, 0.023f);
+    private static final Vec3 LENS_OFFSET = new Vec3(0.5f, 0.78125f, 0.2f);
     private static final float MIN_ANGLE_DEG = 1.0f;
     private static final float MAX_ANGLE_DEG = 15.0f;
 
@@ -141,7 +141,7 @@ public class MovingBeamRenderer extends ExtraLightsFixtureRenderer<MovingBeamBlo
             singlePose.translate(LENS_OFFSET.x, LENS_OFFSET.y, LENS_OFFSET.z);
 
             submitVolumetricBeam(blockEntity, singlePose, partialTicks, MIN_ANGLE_DEG, MAX_ANGLE_DEG,
-                    GoboLibrary.MACVIP, 0, focusNorm, 1.0f, 1.0f, 0, color, intensityNorm, baseRadius);
+                    GoboLibrary.WASH, 0, focusNorm, 2.5f, 2.5f, 0, color, intensityNorm, baseRadius);
         } else {
             int beamCount = 2 + (int)((goboValue - 1) / 255f * 14);
             float goboRot = blockEntity.getGoboRotation();
@@ -157,7 +157,7 @@ public class MovingBeamRenderer extends ExtraLightsFixtureRenderer<MovingBeamBlo
                 beamPose.mulPose(Axis.XP.rotationDegrees(spreadAngleDeg));
 
                 submitVolumetricBeam(blockEntity, beamPose, partialTicks, MIN_ANGLE_DEG, MAX_ANGLE_DEG,
-                        GoboLibrary.MACVIP, goboValue, focusNorm, 1.0f, 1.0f, i, color, intensityNorm, 0.10f);
+                        GoboLibrary.WASH, goboValue, focusNorm, 2.5f, 2.5f, i, color, intensityNorm, 0.17f);
             }
         }
 

@@ -129,6 +129,9 @@ public class TheatricalExtraLightsClient {
         BlockEntityRendererRegistry.register(BlockEntities.VL6C_GOBO.get(), VL6CGoboRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.IRIS_700_GOBO.get(), Iris700GoboRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.PRO_SPOT_GOBO.get(), ProSpotGoboRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.MINI_SCAN_GOBO.get(), MiniScanGobosRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.MINI_SPOT_GOBO.get(), MiniSpotGobosRenderer::new);
+
 
         BlockEntityRendererRegistry.register(BlockEntities.CONFETTI_CANNON.get(), ConfettiCannonRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.FLAME_PROJECTOR.get(), ctx -> new StaticFixtureRenderer<>(ctx));

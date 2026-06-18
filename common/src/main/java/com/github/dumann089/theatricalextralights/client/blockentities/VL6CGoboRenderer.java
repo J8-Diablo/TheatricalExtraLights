@@ -1,6 +1,7 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.MovingScanBeamsBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.MovingVL2CBeamsBlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.VL6CGoboBlockEntity;
 import com.github.dumann089.theatricalextralights.client.Beam2DRenderTypes;
 import com.github.dumann089.theatricalextralights.client.gobo.GoboLibrary;
@@ -36,6 +37,13 @@ public class VL6CGoboRenderer extends ExtraLightsFixtureRenderer<VL6CGoboBlockEn
     private final WeakHashMap<VL6CGoboBlockEntity, GoboGPUProjector> goboProjectors = new WeakHashMap<>();
     private final WeakHashMap<VL6CGoboBlockEntity, VolumetricBeamRenderer> volumetricRenderers = new WeakHashMap<>();
 
+    private static class SmoothingState {
+        float smoothPan = 0f;
+        float smoothTilt = 0f;
+        long lastUpdateTime = -1;
+    }
+    private final Map<VL6CGoboBlockEntity, VL6CGoboRenderer.SmoothingState> smoothingStates = new WeakHashMap<>();
+    private static final float SMOOTH_SPEED = 10f;
 
     private final Map<VL6CGoboBlockEntity, float[]> structuralCache = new WeakHashMap<>();
     private final Map<VL6CGoboBlockEntity, Long> structuralCacheTicks = new WeakHashMap<>();
@@ -114,12 +122,24 @@ public class VL6CGoboRenderer extends ExtraLightsFixtureRenderer<VL6CGoboBlockEn
         }
 
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedStaticModel, packedLight, packedOverlay);
+        VL6CGoboRenderer.SmoothingState state = smoothingStates.computeIfAbsent(blockEntity, k -> new VL6CGoboRenderer.SmoothingState());
+
+        long now = System.nanoTime();
+        if (state.lastUpdateTime < 0) state.lastUpdateTime = now;
+        float deltaTime = (now - state.lastUpdateTime) / 1_000_000_000f;
+        state.lastUpdateTime = now;
+        deltaTime = Math.min(deltaTime, 0.1f);
+
+        float targetPan = blockEntity.getPrevPan() + (blockEntity.getPan() - blockEntity.getPrevPan()) * partialTicks;
+        float targetTilt = blockEntity.getPrevTilt() + (blockEntity.getTilt() - blockEntity.getPrevTilt()) * partialTicks;
+
+        float alpha = 1f - (float) Math.exp(-SMOOTH_SPEED * deltaTime);
+        state.smoothPan = state.smoothPan + (targetPan - state.smoothPan) * alpha;
+        state.smoothTilt = state.smoothTilt + (targetTilt - state.smoothTilt) * alpha;
 
         float[] pans = blockEntity.getFixture().getPanRotationPosition();
         poseStack.translate(pans[0], pans[1], pans[2]);
-        int prevPan = blockEntity.getPrevPan();
-        int pan = blockEntity.getPan();
-        poseStack.mulPose(Axis.YP.rotationDegrees((prevPan + (pan - prevPan) * partialTicks)));
+        poseStack.mulPose(Axis.YP.rotationDegrees(state.smoothPan));
         poseStack.translate(-pans[0], -pans[1], -pans[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedPanModel, packedLight, packedOverlay);
 
@@ -130,9 +150,7 @@ public class VL6CGoboRenderer extends ExtraLightsFixtureRenderer<VL6CGoboBlockEn
         } else {
             poseStack.mulPose(Axis.XP.rotationDegrees(180));
         }
-        int prevTilt = blockEntity.getPrevTilt();
-        int tilt = blockEntity.getTilt();
-        poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
+        poseStack.mulPose(Axis.XP.rotationDegrees(state.smoothTilt));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel, packedLight, packedOverlay);
         poseStack.popPose();
@@ -213,7 +231,7 @@ public class VL6CGoboRenderer extends ExtraLightsFixtureRenderer<VL6CGoboBlockEn
                         blockEntity.getLevel(),
                         1.0f, // widthScale
                         1.0f,
-                        0.15f
+                        0.12f
                 );
 
                 volumetricRenderers.computeIfAbsent(blockEntity, k -> new VolumetricBeamRenderer())
@@ -264,11 +282,11 @@ public class VL6CGoboRenderer extends ExtraLightsFixtureRenderer<VL6CGoboBlockEn
                 // ── Lens glow & lens cap ─────────────────────────────────────────
                 poseStack.pushPose();
                 poseStack.translate(0.5f, 0.643f, 0.137f);
-                renderLensGlow(builder, poseStack, color, 0.045f);
+                renderLensGlow(builder, poseStack, color, 0.055f);
                 poseStack.popPose();
 
                 renderLens(bufferSource, poseStack, alpha, color,
-                        0.45f, 0.5f, 0.640f, 0.163f);
+                        0.25f, 0.5f, 0.640f, 0.163f);
 
                 poseStack.popPose();
             }
@@ -364,11 +382,11 @@ public class VL6CGoboRenderer extends ExtraLightsFixtureRenderer<VL6CGoboBlockEn
             poseStack.mulPose(Axis.ZP.rotationDegrees(180));
             poseStack.translate(-0.5F, -0.5, -.5F);
         }
+        VL6CGoboRenderer.SmoothingState state = smoothingStates.computeIfAbsent(blockEntity, k -> new VL6CGoboRenderer.SmoothingState());
+
         float[] pans = blockEntity.getFixture().getPanRotationPosition();
         poseStack.translate(pans[0], pans[1], pans[2]);
-        int prevPan = blockEntity.getPrevPan();
-        int pan = blockEntity.getPan();
-        poseStack.mulPose(Axis.YP.rotationDegrees((prevPan + (pan - prevPan) * partialTicks)));
+        poseStack.mulPose(Axis.YP.rotationDegrees(state.smoothPan));
         poseStack.translate(-pans[0], -pans[1], -pans[2]);
 
         float[] tilts = blockEntity.getFixture().getTiltRotationPosition();
@@ -380,7 +398,7 @@ public class VL6CGoboRenderer extends ExtraLightsFixtureRenderer<VL6CGoboBlockEn
         }
         int prevTilt = blockEntity.getPrevTilt();
         int tilt = blockEntity.getTilt();
-        poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
+        poseStack.mulPose(Axis.XP.rotationDegrees(state.smoothTilt));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
     }
 }

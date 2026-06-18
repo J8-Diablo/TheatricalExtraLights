@@ -58,12 +58,16 @@ public class GoboGPUProjector {
 
     // Shared executor — one daemon thread is enough since rebuilds are
 // per-fixture and short-lived (< 5 ms at typical ray counts).
+    // Reemplazar tu REBUILD_EXECUTOR actual por este:
     private static final java.util.concurrent.ExecutorService REBUILD_EXECUTOR =
-            java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
-                Thread t = new Thread(r, "gobo-geometry-rebuild");
-                t.setDaemon(true); // won't block JVM shutdown
-                return t;
-            });
+            java.util.concurrent.Executors.newFixedThreadPool(
+                    Math.max(1, Math.min(4, Runtime.getRuntime().availableProcessors() / 2)),
+                    r -> {
+                        Thread t = new Thread(r, "gobo-geometry-rebuild");
+                        t.setDaemon(true);
+                        t.setPriority(Thread.NORM_PRIORITY - 1); // Prioridad ligeramente baja para no afectar los ticks del server/render
+                        return t;
+                    });
 
     // ── Reused Vector4f slots for the lazy-render closure ──────────────────────
     private final Vector4f tmpLightPos = new Vector4f();
@@ -270,20 +274,44 @@ public class GoboGPUProjector {
                 }
 
                 // Grab a synchronized snapshot for this frame
+                // Grab a synchronized snapshot for this frame
                 VboState state = frontState;
                 int snapCount = state.quadCount;
                 float[] verts = state.verts;
 
+                // Extraemos las variables del foco de luz al mismo nivel del ciclo
+                double ox = finalOrigin.x, oy = finalOrigin.y, oz = finalOrigin.z;
+                double bx = finalBeamDir.x, by = finalBeamDir.y, bz = finalBeamDir.z;
+                double ux = finalAxisU.x, uy = finalAxisU.y, uz = finalAxisU.z;
+                double vxA = finalAxisV.x, vyA = finalAxisV.y, vzA = finalAxisV.z;
+
                 for (int i = 0; i < snapCount; i++) {
                     int vIdx = i * 12;
-                    vc.vertex(matrix, verts[vIdx],   verts[vIdx+1], verts[vIdx+2])
-                            .color(r, g, b, finalAlpha).uv(0f, 0f).endVertex();
-                    vc.vertex(matrix, verts[vIdx+3], verts[vIdx+4], verts[vIdx+5])
-                            .color(r, g, b, finalAlpha).uv(0f, 0f).endVertex();
-                    vc.vertex(matrix, verts[vIdx+6], verts[vIdx+7], verts[vIdx+8])
-                            .color(r, g, b, finalAlpha).uv(0f, 0f).endVertex();
-                    vc.vertex(matrix, verts[vIdx+9], verts[vIdx+10],verts[vIdx+11])
-                            .color(r, g, b, finalAlpha).uv(0f, 0f).endVertex();
+
+                    // Iteramos sobre los 4 vértices del Quad (0, 1, 2, 3)
+                    for (int j = 0; j < 4; j++) {
+                        float vx = verts[vIdx + (j * 3)];
+                        float vy = verts[vIdx + (j * 3) + 1];
+                        float vz = verts[vIdx + (j * 3) + 2];
+
+                        // 1. Vector desde el foco de luz en el mundo hasta este vértice exacto
+                        double vecX = vx - ox;
+                        double vecY = vy - oy;
+                        double vecZ = vz - oz;
+
+                        // 2. Distancia Z proyectada a lo largo de la dirección de la luz
+                        double zDist = vecX * bx + vecY * by + vecZ * bz;
+                        double rZ = Math.max(zDist * tanHalfAngle, 0.0001);
+
+                        // 3. Distancia X e Y proyectadas en los ejes del gobo
+                        double uDist = vecX * ux + vecY * uy + vecZ * uz;
+                        double vDist = vecX * vxA + vecY * vyA + vecZ * vzA;
+
+                        // 4. Mapeo cónico de las coordenadas (Igual que en tu GLSL)
+                        float u = (float) ((uDist / rZ) * 0.5 + 0.5);
+                        float v = (float) (1.0 - ((vDist / rZ) * 0.5 + 0.5));
+                        vc.vertex(matrix, vx, vy, vz).color(r, g, b, finalAlpha).uv(u, v).endVertex();
+                    }
                 }
 
                 poseStack.popPose();
@@ -348,12 +376,13 @@ public class GoboGPUProjector {
     private void scheduleRebuild(Level level, BlockPos bePos, Vec3 finalOrigin,
                                  Vec3 finalBeamDir, Vec3 finalAxisU, Vec3 finalAxisV,
                                  float scanLen, float tanHalfAngle, int newGeoHash) {
-        cachedGeoHash = newGeoHash;
 
         if (!rebuildInFlight.compareAndSet(false, true)) {
-            // Another rebuild is already running — skip this request
             return;
         }
+
+        // Solo actualizamos el hash si hemos adquirido el "lock" y vamos a procesarlo
+        cachedGeoHash = newGeoHash;
 
         // Capture immutable snapshots — nothing mutable is shared with the worker
         final double ox = finalOrigin.x, oy = finalOrigin.y, oz = finalOrigin.z;

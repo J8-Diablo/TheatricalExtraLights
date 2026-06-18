@@ -4,6 +4,7 @@ import com.github.dumann089.theatricalextralights.TheatricalExtraLightsClient;
 import com.github.dumann089.theatricalextralights.client.ModShaders;
 import com.github.dumann089.theatricalextralights.client.ConfettiCannonClientSetup;
 import com.github.dumann089.theatricalextralights.client.ConfettiCannonItemRenderer;
+import com.github.dumann089.theatricalextralights.client.model.ConfettiCannonModel;
 import com.github.dumann089.theatricalextralights.items.Items;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import net.fabricmc.api.ClientModInitializer;
@@ -17,7 +18,10 @@ public class TheatricalExtraLightsClientFabric implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         // Inicialización original
-        ConfettiCannonClientSetup.registerModelLayer(EntityModelLayerRegistry::registerModelLayer);
+        EntityModelLayerRegistry.registerModelLayer(
+                ConfettiCannonModel.LAYER_LOCATION,
+                ConfettiCannonModel::createBodyLayer
+        );
         TheatricalExtraLightsClient.init();
         registerConfettiCannonItemRenderer();
 

@@ -109,7 +109,7 @@ public class MovingVL6Renderer extends ExtraLightsFixtureRenderer<MovingVL6Block
     }
     private final Double beamOpacity = TheatricalConfig.INSTANCE.CLIENT.beamOpacity;
 
-    private static final Vec3 LENS_OFFSET = new Vec3(0.5f, 0.78125f, 0.023f);
+    private static final Vec3 LENS_OFFSET = new Vec3(0.5f, 0.78125f, 0.2f);
     private static final float MIN_ANGLE_DEG = 1.0f;
     private static final float MAX_ANGLE_DEG = 15.0f;
 

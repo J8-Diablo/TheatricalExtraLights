@@ -40,7 +40,7 @@ void main() {
     // Soft edge fade — but clamp minimum alpha inside the cone to avoid
     // dark/bright seams at block boundaries showing through as grid lines.
 
-    float edgeFadeRange = rZ * 0.55;
+    float edgeFadeRange = rZ * 0.25;
     float edgeFade = 1.0 - smoothstep(rZ - edgeFadeRange, rZ, distFromCenter);
 
     // Ensure fragments well inside the cone never go below a minimum alpha,

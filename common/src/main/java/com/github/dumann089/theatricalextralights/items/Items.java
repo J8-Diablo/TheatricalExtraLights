@@ -411,6 +411,14 @@ public class Items {
             "pro_spot_gobo",
             () -> new BlockItem(Blocks.PRO_SPOT_GOBO_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
+    public static final RegistrySupplier<Item> MINI_SCAN_GOBO = ITEMS.register(
+            "mini_scan_gobo",
+            () -> new BlockItem(Blocks.MINI_SCAN_GOBO_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> MINI_SPOT_GOBO = ITEMS.register(
+            "mini_spot_gobo",
+            () -> new BlockItem(Blocks.MINI_SPOT_GOBO_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
     public static final RegistrySupplier<Item> WASHLED = ITEMS.register(
             "washled",
             () -> new BlockItem(Blocks.WASHLED_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))

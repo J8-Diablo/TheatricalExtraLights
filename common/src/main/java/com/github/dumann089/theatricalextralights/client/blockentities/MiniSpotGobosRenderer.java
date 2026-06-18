@@ -1,6 +1,6 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
-import com.github.dumann089.theatricalextralights.blockentities.MovingVL2CBeamsBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.MiniSpotGobosBlockEntity;
 import com.github.dumann089.theatricalextralights.client.Beam2DRenderTypes;
 import com.github.dumann089.theatricalextralights.client.blockentities.GoboGPUProjector;
 import com.github.dumann089.theatricalextralights.client.gobo.FakeVolumetricBeamPattern;
@@ -30,30 +30,30 @@ import java.util.Optional;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL2CBeamsBlockEntity> {
+public class MiniSpotGobosRenderer extends ExtraLightsFixtureRenderer<MiniSpotGobosBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
     private final Double beamOpacity = TheatricalConfig.INSTANCE.CLIENT.beamOpacity;
 
-    private final WeakHashMap<MovingVL2CBeamsBlockEntity, GoboGPUProjector> goboProjectors = new WeakHashMap<>();
+    private final WeakHashMap<MiniSpotGobosBlockEntity, GoboGPUProjector> goboProjectors = new WeakHashMap<>();
 
     private static class SmoothingState {
         float smoothPan = 0f;
         float smoothTilt = 0f;
         long lastUpdateTime = -1;
     }
-    private final Map<MovingVL2CBeamsBlockEntity, SmoothingState> smoothingStates = new WeakHashMap<>();
+    private final Map<MiniSpotGobosBlockEntity, SmoothingState> smoothingStates = new WeakHashMap<>();
     private static final float SMOOTH_SPEED = 10f;
 
-    private final WeakHashMap<MovingVL2CBeamsBlockEntity, VolumetricBeamRenderer> volumetricRenderers = new WeakHashMap<>();
+    private final WeakHashMap<MiniSpotGobosBlockEntity, VolumetricBeamRenderer> volumetricRenderers = new WeakHashMap<>();
 
-    private final Map<MovingVL2CBeamsBlockEntity, float[]> structuralCache = new WeakHashMap<>();
-    private final Map<MovingVL2CBeamsBlockEntity, Long> structuralCacheTicks = new WeakHashMap<>();
+    private final Map<MiniSpotGobosBlockEntity, float[]> structuralCache = new WeakHashMap<>();
+    private final Map<MiniSpotGobosBlockEntity, Long> structuralCacheTicks = new WeakHashMap<>();
 
-    public MovingVL2CBeamsRenderer(BlockEntityRendererProvider.Context context) {
+    public MiniSpotGobosRenderer(BlockEntityRendererProvider.Context context) {
         super(context);
     }
 
-    private float[] getThrottledStructuralTransforms(MovingVL2CBeamsBlockEntity be, BlockState state) {
+    private float[] getThrottledStructuralTransforms(MiniSpotGobosBlockEntity be, BlockState state) {
         long currentTick = be.getLevel().getGameTime();
         Long lastTick = structuralCacheTicks.get(be);
 
@@ -73,7 +73,7 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
     }
 
     @Override
-    public void renderModel(MovingVL2CBeamsBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging, int packedLight, int packedOverlay) {
+    public void renderModel(MiniSpotGobosBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging, int packedLight, int packedOverlay) {
         if(cachedStaticModel == null){
             cachedStaticModel = TheatricalExpectPlatform.getBakedModel(blockEntity.getFixture().getStaticModel());
         }
@@ -159,7 +159,7 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
 
     @Override
     public void beforeRenderBeam(
-            MovingVL2CBeamsBlockEntity blockEntity,
+            MiniSpotGobosBlockEntity blockEntity,
             PoseStack poseStack,
             VertexConsumer vertexConsumer,
             MultiBufferSource multiBufferSource,
@@ -174,7 +174,7 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
         if (blockEntity.getIntensity() <= 0) return;
 
         if (blockEntity.getGobo() >= 0) {
-            Vec3 localLensOffset = new Vec3(0.5f, 0.781f, 0.2f);
+            Vec3 localLensOffset = new Vec3(0.5f, 0.406F, 0.312F);
             float[] panPivot = blockEntity.getFixture().getPanRotationPosition();
             float[] tiltPivot = blockEntity.getFixture().getTiltRotationPosition();
             float[] structuralTransform = getThrottledStructuralTransforms(blockEntity, blockstate);
@@ -192,7 +192,7 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
                     tiltPivot,
                     structuralTransform,
                     1.0f,
-                    19.0f
+                    12.0f
             );
 
             // =========================================================================
@@ -210,11 +210,11 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
                 Vec3 beamDir = new Vec3(-headMatrix.m20(), -headMatrix.m21(), -headMatrix.m22()).normalize();
 
                 float zoomNorm      = blockEntity.getPartialZoom(partialTicks) / 255.0f;
-                float coneHalfAngle = 1.0f + zoomNorm * (19.0f - 1.0f);
+                float coneHalfAngle = 1.0f + zoomNorm * (12.0f - 1.0f);
                 float tanHalfAngle  = (float) Math.tan(Math.toRadians(coneHalfAngle));
 
                 // 🛡️ Obtención segura de textura
-                ResourceLocation goboTex = GoboLibrary.VL2C.getTexture(blockEntity.getGobo());
+                ResourceLocation goboTex = GoboLibrary.MINISPOT.getTexture(blockEntity.getGobo());
                 if (goboTex == null) goboTex = new ResourceLocation("theatricalextralights", "textures/empty_fallback.png");
 
                 // NUEVO: Instancia corregida con baseRadius
@@ -234,7 +234,7 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
                         blockEntity.getLevel(),
                         1.0f, // widthScale
                         1.0f,
-                        0.12f
+                        0.09f
                 );
 
                 volumetricRenderers.computeIfAbsent(blockEntity, k -> new VolumetricBeamRenderer())
@@ -267,7 +267,7 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
 
                 if (goboSlot == 0) {
                     poseStack.pushPose();
-                    poseStack.translate(0.5f, 0.781f, 0.2f);
+                    poseStack.translate(0.5f, 0.406F, 0.312F);
                     if (TheatricalExtraLightsConfig.shouldRender2DBeam()) {
                         renderLightBeam2D(builder, poseStack, blockEntity, camera,
                                 alpha, 0.00f, (float) blockEntity.getDistance(), color, 0.007f);
@@ -282,12 +282,12 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
                         partialTick, alpha, color, goboSlot);
 
                 poseStack.pushPose();
-                poseStack.translate(0.5f, 0.781f, 0.2f);
-                renderLensGlow(builder, poseStack, color, 0.12f);
+                poseStack.translate(0.5f, 0.406F, 0.312F);
+                renderLensGlow(builder, poseStack, color, 0.065f);
                 poseStack.popPose();
 
                 renderLens(bufferSource, poseStack, alpha, color,
-                        0.12f, 0.5f, 0.781f, 0.2f);
+                        0.065f, 0.5f, 0.406F, 0.312F);
 
                 poseStack.popPose();
             }
@@ -301,7 +301,7 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
 
     private void renderFakeVolumetricBeams(
             VertexConsumer builder, PoseStack poseStack,
-            MovingVL2CBeamsBlockEntity blockEntity, Camera camera,
+            MiniSpotGobosBlockEntity blockEntity, Camera camera,
             float partialTick, float alpha, int color, int goboSlot
     ) {
         FakeVolumetricBeamPattern pattern = GoboLibrary.VL2C.getPattern(goboSlot);
@@ -340,7 +340,7 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
     }
 
     @Override
-    public void preparePoseStack(MovingVL2CBeamsBlockEntity blockEntity, PoseStack poseStack, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging) {
+    public void preparePoseStack(MiniSpotGobosBlockEntity blockEntity, PoseStack poseStack, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging) {
         poseStack.translate(0.5F, 0, .5F);
         if(isHanging){
             Direction hangDirection = blockState.getValue(HangableBlock.HANG_DIRECTION);

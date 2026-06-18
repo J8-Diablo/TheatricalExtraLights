@@ -1,12 +1,12 @@
 package com.github.dumann089.theatricalextralights.client.render.beam;
 
 import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
+import com.github.dumann089.theatricalextralights.client.IrisCompat;
 import com.github.dumann089.theatricalextralights.client.ModShaders;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.imabad.theatrical.client.LazyRenderers;
 import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.phys.Vec3;
@@ -24,6 +24,7 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
     private final int[] beamR = new int[MAX_BEAMS_PER_FIXTURE];
     private final int[] beamG = new int[MAX_BEAMS_PER_FIXTURE];
     private final int[] beamB = new int[MAX_BEAMS_PER_FIXTURE];
+    private final float[] beamAlphaScale = new float[MAX_BEAMS_PER_FIXTURE];
     private final RenderType[] beamRenderTypes = new RenderType[MAX_BEAMS_PER_FIXTURE];
 
     private final boolean[] processedSlots = new boolean[MAX_BEAMS_PER_FIXTURE];
@@ -46,7 +47,7 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
         float maxDist = TheatricalExtraLightsConfig.getVolumetricBeamDistance();
 
         boolean hitBlock = data.scanLen() < maxDist;
-        float scanLen = hitBlock ? data.scanLen() + 0.5f : maxDist;
+        float scanLen = hitBlock ? data.scanLen() + 2.5f : maxDist;
         if (scanLen <= 0.0f) return;
 
         float slicesPerMeter = (float) baseSlices / maxDist;
@@ -72,12 +73,18 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
             cachedHashSlots[slot] = currentHash;
         }
 
-        float intensity = data.intensity() * TheatricalExtraLightsConfig.getVolumetricBeamBrightness();
-        this.beamR[slot] = (int) (((data.color() >> 16) & 0xFF) * intensity);
-        this.beamG[slot] = (int) (((data.color() >> 8)  & 0xFF) * intensity);
-        this.beamB[slot] = (int) ((data.color() & 0xFF)         * intensity);
-        this.beamRenderTypes[slot] = ModShaders.getVolumetricRenderType(data.goboTexture());
+        this.beamR[slot] = (data.color() >> 16) & 0xFF;
+        this.beamG[slot] = (data.color() >> 8)  & 0xFF;
+        this.beamB[slot] =  data.color()         & 0xFF;
 
+        float rawIntensity = Math.min(data.intensity() * TheatricalExtraLightsConfig.getVolumetricBeamBrightness(), 1.0f);
+        this.beamAlphaScale[slot] = (float) Math.pow(rawIntensity, 0.5);
+
+        if (IrisCompat.isShadersActive()) {
+            this.beamRenderTypes[slot] = ModShaders.getVolumetricFallbackRenderType(data.goboTexture());
+        } else {
+            this.beamRenderTypes[slot] = ModShaders.getVolumetricRenderType(data.goboTexture());
+        }
         this.activeBeamCount++;
     }
 
@@ -135,48 +142,40 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
                     double eDistSq = edx*edx + edy*edy + edz*edz;
                     boolean eVisible = (eDot >= -4.0 && eDot < 0) || (eDot >= 0 && (eDot * eDot) >= eDistSq * 0.05);
 
-                    if (!sVisible && !eVisible) {
-                        continue;
-                    }
+                    if (!sVisible && !eVisible) continue;
 
-                    int r = beamR[k];
-                    int g = beamG[k];
+                    int r  = beamR[k];
+                    int g  = beamG[k];
                     int bl = beamB[k];
+                    float alphaScale = beamAlphaScale[k];
 
                     for (int i = 0; i < quadCount; i++) {
                         int offsetVert = i * 24;
 
                         double sliceX = blockX + verts[offsetVert];
-                        double sliceY = blockY + verts[offsetVert+1];
-                        double sliceZ = blockZ + verts[offsetVert+2];
+                        double sliceY = blockY + verts[offsetVert + 1];
+                        double sliceZ = blockZ + verts[offsetVert + 2];
 
                         double dx = sliceX - camX;
                         double dy = sliceY - camY;
                         double dz = sliceZ - camZ;
 
-                        if (dx*lx + dy*ly + dz*lz < -0.4) {
-                            continue;
-                        }
+                        if (dx*lx + dy*ly + dz*lz < -0.4) continue;
 
                         double dSq = dx*dx + dy*dy + dz*dz;
                         float proximityFactor = 1.0f;
 
                         if (dSq < 25.0) {
-                            if (dSq <= 2.25) {
-                                continue;
-                            }
+                            if (dSq <= 2.25) continue;
                             proximityFactor = (float) ((Math.sqrt(dSq) - 1.5) / 3.5);
                         }
 
                         float baseAlpha = verts[offsetVert + 5];
-                        float finalAlpha = baseAlpha * proximityFactor;
+                        float finalAlpha = baseAlpha * proximityFactor * alphaScale;
 
-                        if (finalAlpha <= 0.005f) {
-                            continue;
-                        }
+                        if (finalAlpha <= 0.001f) continue;
 
-                        int alphaInt = (int)(finalAlpha * 255.0f);
-                        if (alphaInt > 255) alphaInt = 255;
+                        int alphaInt = Math.min((int)(finalAlpha * 255.0f), 255);
 
                         for (int v = 0; v < 4; v++) {
                             int vOffset = offsetVert + (v * 6);
@@ -203,9 +202,8 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
                                  float density, float maxAlpha, float fadeLen, boolean hitBlock) {
 
         int totalSlices = slices * SLICE_MULTIPLIER;
-        // Conectamos un slice con el siguiente de forma continua (totalSlices - 1 segmentos)
         int totalSegments = totalSlices - 1;
-        int requiredSize = totalSegments * 2 * 6;
+        int requiredSize = totalSegments * 4 * 6;
 
         if (cachedVertsSlots[slot].length < requiredSize) {
             cachedVertsSlots[slot] = new float[requiredSize + 512];
@@ -275,7 +273,7 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
             float radiusWN = radiusN * data.widthScale();
             float radiusHN = radiusN * data.heightScale();
 
-            if (sliceAlphaC <= 0.005f && sliceAlphaN <= 0.005f) continue;
+            if (sliceAlphaC <= 0.001f && sliceAlphaN <= 0.001f) continue;
 
             verts[idx++] = (float)(cxC - ux*radiusWC + vx*radiusHC); verts[idx++] = (float)(cyC - uy*radiusWC + vy*radiusHC); verts[idx++] = (float)(czC - uz*radiusWC + vz*radiusHC);
             verts[idx++] = 0.0f; verts[idx++] = 0.0f; verts[idx++] = sliceAlphaC;

@@ -118,6 +118,7 @@ public class Fixtures {
 
 
 
+
     public static final RegistrySupplier<Fixture> WASHLIGHT =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "washlight"), WashlightFixture::new);
 
@@ -383,6 +384,10 @@ public class Fixtures {
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "iris_700_gobo"), Iris700GoboFixture::new);
     public static final RegistrySupplier<Fixture> PRO_SPOT_GOBO =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "pro_spot_gobo"), ProSpotGoboFixture::new);
+    public static final RegistrySupplier<Fixture> MINI_SCAN_GOBOS =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "mini_scan_gobos"), MiniScanGobosFixture::new);
+    public static final RegistrySupplier<Fixture> MINI_SPOT_GOBOS =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "mini_spot_gobos"), MiniSpotGobosFixture::new);
 
 
     public static Fixture getFireworkFixture(FireworkPreset preset) {

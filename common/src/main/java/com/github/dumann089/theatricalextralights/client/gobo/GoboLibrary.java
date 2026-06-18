@@ -30,6 +30,29 @@ public enum GoboLibrary {
             new GoboEntry("generic_1/gobo19", FakeVolumetricBeamPattern.CROSS_5)
     ),
 
+    MINISCAN(
+            new GoboEntry("generic_1/open",   FakeVolumetricBeamPattern.SINGLE),
+            new GoboEntry("generic_1/gobo9",  FakeVolumetricBeamPattern.RING_8),
+            new GoboEntry("generic_1/gobo16", FakeVolumetricBeamPattern.SPIRAL_6),
+            new GoboEntry("generic_1/gobo17", FakeVolumetricBeamPattern.DOUBLE_RING),
+            new GoboEntry("generic_1/gobo21", FakeVolumetricBeamPattern.CROSS_5),
+            new GoboEntry("generic_1/gobo12", FakeVolumetricBeamPattern.FAN_7),
+            new GoboEntry("generic_1/gobo26",  FakeVolumetricBeamPattern.SCATTER_NATURE),
+            new GoboEntry("generic_1/gobo40", FakeVolumetricBeamPattern.RING_8),
+            new GoboEntry("generic_1/gobo39", FakeVolumetricBeamPattern.SPIRAL_6),
+            new GoboEntry("generic_1/gobo30", FakeVolumetricBeamPattern.CROSS_5)
+    ),
+    MINISPOT(
+            new GoboEntry("generic_2/open",   FakeVolumetricBeamPattern.SINGLE),
+            new GoboEntry("generic_2/ring",  FakeVolumetricBeamPattern.RING_8),
+            new GoboEntry("generic_2/breakups", FakeVolumetricBeamPattern.SPIRAL_6),
+            new GoboEntry("generic_2/dots_radial", FakeVolumetricBeamPattern.DOUBLE_RING),
+            new GoboEntry("generic_2/flowers", FakeVolumetricBeamPattern.CROSS_5),
+            new GoboEntry("generic_2/stains", FakeVolumetricBeamPattern.FAN_7),
+            new GoboEntry("generic_2/bubbles",  FakeVolumetricBeamPattern.SCATTER_NATURE),
+            new GoboEntry("generic_2/spiral", FakeVolumetricBeamPattern.RING_8)
+    ),
+
     VL6C(
             new GoboEntry("generic_3/open",          FakeVolumetricBeamPattern.SINGLE),
             new GoboEntry("generic_3/gobo9",         FakeVolumetricBeamPattern.SCATTER_NATURE),
@@ -96,6 +119,9 @@ public enum GoboLibrary {
     // Reuses the generic_2/open texture; swap for a dedicated texture if desired.
     MACVIP(
             new GoboEntry("generic_2/open", FakeVolumetricBeamPattern.SINGLE)
+    ),
+    WASH(
+            new GoboEntry("generic_1/wash", FakeVolumetricBeamPattern.SINGLE)
     ),
 
     // Moving bar — open beam only. The bar shape comes from widthScale/heightScale
