@@ -39,6 +39,7 @@ dependencies {
 
     // Theatrical
     modImplementation group: "dev.imabad", name: "Theatrical", version: "${theatrical_version}", changing: true
+    implementation "ch.bildspur:artnet4j:0.6.3"
 }
 
 publishing {

@@ -55,7 +55,12 @@ public enum FireworkPreset {
     SALUTE_WHITE("firework_salute_white", "White Salute", BurstPatterns.Salute::new, 0xFFFFFF, 0xFFF5C9),
     HEART_PINK("firework_heart_pink", "Pink Heart", BurstPatterns.Heart::new, 0xFF66AA, 0xFFCCDD),
     DOUBLE_BURST_PURPLE("firework_double_burst_purple", "Purple Double Burst", BurstPatterns.DoubleBurst::new, 0xC77BFF, 0xFF66AA, 0xE0BBFF),
-    WHISTLER_SILVER("firework_whistler_silver", "Silver Whistler", BurstPatterns.Whistler::new, 0xCFD8E5, 0xE6EFFF, 0xFFFFFF);
+    WHISTLER_SILVER("firework_whistler_silver", "Silver Whistler", BurstPatterns.Whistler::new, 0xCFD8E5, 0xE6EFFF, 0xFFFFFF),
+    GOLD_LONG_COMET("firework_gold_long_comet", "Gold Long Comet", BurstPatterns.LongTrailComet::new, 0xFFC451, 0xFFE9AE, 0xFF8C20),
+    RED_LONG_COMET("firework_red_long_comet", "Red Long Comet", BurstPatterns.LongTrailComet::new, 0xFF4A4A, 0xFFB3B3, 0xFF3030),
+    BLUE_LONG_COMET("firework_blue_long_comet", "Blue Long Comet", BurstPatterns.LongTrailComet::new, 0x4D8DFF, 0xB8D3FF, 0x2A5FD9),
+    GREEN_LONG_COMET("firework_green_long_comet", "Green Long Comet", BurstPatterns.LongTrailComet::new, 0x55FF7A, 0xC6FFD3, 0x2ECC55),
+    SILVER_LONG_COMET("firework_silver_long_comet", "Silver Long Comet", BurstPatterns.LongTrailComet::new, 0xCFD8E5, 0xE6EFFF, 0xFFFFFF);
 
     private final String blockId;
     private final String displayName;

@@ -157,8 +157,15 @@ public class BlockEntities {
                     Blocks.FIREWORK_SALUTE_WHITE_BLOCK.get(),
                     Blocks.FIREWORK_HEART_PINK_BLOCK.get(),
                     Blocks.FIREWORK_DOUBLE_BURST_PURPLE_BLOCK.get(),
-                    Blocks.FIREWORK_WHISTLER_SILVER_BLOCK.get()
+                    Blocks.FIREWORK_WHISTLER_SILVER_BLOCK.get(),
+                    Blocks.FIREWORK_GOLD_LONG_COMET_BLOCK.get(),
+                    Blocks.FIREWORK_RED_LONG_COMET_BLOCK.get(),
+                    Blocks.FIREWORK_BLUE_LONG_COMET_BLOCK.get(),
+                    Blocks.FIREWORK_GREEN_LONG_COMET_BLOCK.get(),
+                    Blocks.FIREWORK_SILVER_LONG_COMET_BLOCK.get()
             ).build(null));
+    public static final RegistrySupplier<BlockEntityType<PyroFanBlockEntity>> PYRO_FAN = BLOCK_ENTITIES.register("pyro_fan", () ->
+            BlockEntityType.Builder.of(PyroFanBlockEntity::new, Blocks.PYRO_FAN_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<RgbFireworkLauncherBlockEntity>> RGB_FIREWORK_LAUNCHER = BLOCK_ENTITIES.register("firework_rgb_launcher", () ->
             BlockEntityType.Builder.of(RgbFireworkLauncherBlockEntity::new, Blocks.FIREWORK_RGB_LAUNCHER_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<GerbBlockEntity>> GERB_GOLD = BLOCK_ENTITIES.register("gerb_gold", () ->

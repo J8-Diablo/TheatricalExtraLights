@@ -4,30 +4,31 @@ import com.github.dumann089.theatricalextralights.TheatricalExtraLights;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.api.HangType;
 import dev.imabad.theatrical.api.dmx.DMXPersonality;
+import dev.imabad.theatrical.api.dmx.DMXSlot;
 import dev.imabad.theatrical.blocks.light.BaseLightBlock;
-import com.github.dumann089.theatricalextralights.fixtures.ExtraLightsDmxSlots;
-import dev.imabad.theatrical.fixtures.SharedSlots;
+import ch.bildspur.artnet.rdm.RDMSlotID;
+import ch.bildspur.artnet.rdm.RDMSlotType;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
 
-public class RgbFireworkLauncherFixture extends Fixture {
-    private static final List<DMXPersonality> PERSONALITIES = List.of(
-            new DMXPersonality(7, "7-Channel RGB Firework")
-                    .addSlot(SharedSlots.INTENSITY)
-                    .addSlot(SharedSlots.TILT)
-                    .addSlot(SharedSlots.FOCUS)
-                    .addSlot(SharedSlots.RED)
-                    .addSlot(SharedSlots.GREEN)
-                    .addSlot(SharedSlots.BLUE)
-                    .addSlot(ExtraLightsDmxSlots.EFFECT)
-    );
-
-    private static final ResourceLocation STATIC_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/firework/firework_rgb_launcher_static");
-    private static final ResourceLocation PAN_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/firework/firework_rgb_launcher_pan");
+public class PyroFanFixture extends Fixture {
+    private static final ResourceLocation STATIC_MODEL =
+            new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/firework/firework_gold_comet_static");
+    private static final ResourceLocation PAN_MODEL =
+            new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/firework/firework_gold_comet_pan");
+    private static final List<DMXPersonality> PERSONALITIES = buildPersonalities();
     private final float[] tiltPivot = new float[]{0.5f, 0.25f, 0.5f};
+
+    private static List<DMXPersonality> buildPersonalities() {
+        DMXPersonality personality = new DMXPersonality(10, "10-Channel Pyro Fan");
+        for (int i = 1; i <= 10; i++) {
+            personality.addSlot(new DMXSlot("Tube " + i, RDMSlotType.ST_PRIMARY, RDMSlotID.SD_INTENSITY));
+        }
+        return List.of(personality);
+    }
 
     @Override
     public ResourceLocation getTiltModel() {

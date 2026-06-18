@@ -4,6 +4,7 @@ import com.github.dumann089.theatricalextralights.blocks.FireworkLauncherBlock;
 import com.github.dumann089.theatricalextralights.entities.FireworkRocketEntity;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import com.github.dumann089.theatricalextralights.firework.FireworkPreset;
+import com.github.dumann089.theatricalextralights.firework.FireworkRocketTracker;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.api.dmx.DMXPersonality;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
@@ -101,6 +102,9 @@ public class FireworkLauncherBlockEntity extends ExtraLightsLightBlockEntity {
     }
 
     private void launch(ServerLevel serverLevel) {
+        if (!FireworkRocketTracker.tryRegisterLaunch(serverLevel)) {
+            return;
+        }
         Vec3 spawn = getLaunchPosition();
         Vec3 velocity = getLaunchVelocity();
         FireworkRocketEntity rocket = createRocket(serverLevel);

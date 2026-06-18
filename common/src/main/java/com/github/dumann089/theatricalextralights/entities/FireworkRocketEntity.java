@@ -1,9 +1,12 @@
 package com.github.dumann089.theatricalextralights.entities;
 
+import com.github.dumann089.theatricalextralights.client.firework.FireworkSmokeEffects;
 import com.github.dumann089.theatricalextralights.compat.FireworkLightCompat;
+import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import com.github.dumann089.theatricalextralights.firework.BurstPattern;
 import com.github.dumann089.theatricalextralights.firework.FireworkColorUtil;
 import com.github.dumann089.theatricalextralights.firework.FireworkPreset;
+import com.github.dumann089.theatricalextralights.firework.FireworkRocketTracker;
 import com.github.dumann089.theatricalextralights.firework.Spark;
 import dev.architectury.extensions.network.EntitySpawnExtension;
 import dev.architectury.networking.NetworkManager;
@@ -28,7 +31,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class FireworkRocketEntity extends Entity implements EntitySpawnExtension, DynamicLightProvider {
-    private static final double MAX_RENDER_DISTANCE = 2048.0;
     private static final int MAX_TOTAL_TICKS = 400;
 
     private FireworkPreset preset = FireworkPreset.RED_COMET;
@@ -95,6 +97,10 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
     }
 
     public void addSpark(Spark spark) {
+        int maxSparks = TheatricalExtraLightsConfig.getMaxSparksPerRocket();
+        if (maxSparks > 0 && sparks.size() >= maxSparks) {
+            return;
+        }
         sparks.add(spark);
     }
 
@@ -160,6 +166,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
             if (!exploded && !fading) {
                 pattern.onFlightTick(this, random);
+                FireworkSmokeEffects.trySpawnFlightSmoke(this, random, life);
             } else if (exploded) {
                 if (!burstStarted) {
                     pattern.onBurstStart(this, random);
@@ -284,7 +291,8 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
     @Override
     public boolean shouldRenderAtSqrDistance(double distance) {
-        return distance < MAX_RENDER_DISTANCE * MAX_RENDER_DISTANCE;
+        double max = TheatricalExtraLightsConfig.getFireworkRenderDistance();
+        return distance < max * max;
     }
 
     @Override
@@ -324,6 +332,9 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
     @Override
     public void remove(RemovalReason reason) {
+        if (!level().isClientSide) {
+            FireworkRocketTracker.onRemoved(level());
+        }
         FireworkLightCompat.remove(this);
         shimmerLightRegistered = false;
         super.remove(reason);
@@ -355,7 +366,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
     @Override
     public int getLightLuminance() {
-        if (!level().isClientSide) {
+        if (!level().isClientSide || !TheatricalExtraLightsConfig.isFireworkDynamicLightEnabled()) {
             return 0;
         }
         BurstPattern pattern = preset.getPattern();

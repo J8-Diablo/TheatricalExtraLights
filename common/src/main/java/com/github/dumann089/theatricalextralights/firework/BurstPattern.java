@@ -105,6 +105,11 @@ public abstract class BurstPattern {
         return 0.005;
     }
 
+    /** Client-side smoke trail behind comet rockets (budget-limited). */
+    public boolean spawnsFlightSmoke() {
+        return false;
+    }
+
     /**
      * If true, apex detection is skipped — the rocket keeps flying past its peak,
      * falling due to gravity, until it reaches its flight lifetime or collides.

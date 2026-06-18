@@ -327,6 +327,30 @@ public class Items {
             "firework_rgb_launcher",
             () -> new BlockItem(Blocks.FIREWORK_RGB_LAUNCHER_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
     );
+    public static final RegistrySupplier<Item> PYRO_FAN = ITEMS.register(
+            "pyro_fan",
+            () -> new BlockItem(Blocks.PYRO_FAN_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_GOLD_LONG_COMET = ITEMS.register(
+            "firework_gold_long_comet",
+            () -> new BlockItem(Blocks.FIREWORK_GOLD_LONG_COMET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_RED_LONG_COMET = ITEMS.register(
+            "firework_red_long_comet",
+            () -> new BlockItem(Blocks.FIREWORK_RED_LONG_COMET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_BLUE_LONG_COMET = ITEMS.register(
+            "firework_blue_long_comet",
+            () -> new BlockItem(Blocks.FIREWORK_BLUE_LONG_COMET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_GREEN_LONG_COMET = ITEMS.register(
+            "firework_green_long_comet",
+            () -> new BlockItem(Blocks.FIREWORK_GREEN_LONG_COMET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_SILVER_LONG_COMET = ITEMS.register(
+            "firework_silver_long_comet",
+            () -> new BlockItem(Blocks.FIREWORK_SILVER_LONG_COMET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
     public static final RegistrySupplier<Item> GERB_GOLD = ITEMS.register(
             "gerb_gold",
             () -> new BlockItem(Blocks.GERB_GOLD_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))

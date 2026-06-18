@@ -353,6 +353,18 @@ public class Fixtures {
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_whistler_silver"), () -> new FireworkLauncherFixture(FireworkPreset.WHISTLER_SILVER));
     public static final RegistrySupplier<Fixture> FIREWORK_RGB_LAUNCHER =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_rgb_launcher"), RgbFireworkLauncherFixture::new);
+    public static final RegistrySupplier<Fixture> PYRO_FAN =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "pyro_fan"), PyroFanFixture::new);
+    public static final RegistrySupplier<Fixture> FIREWORK_GOLD_LONG_COMET =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_gold_long_comet"), () -> new FireworkLauncherFixture(FireworkPreset.GOLD_LONG_COMET));
+    public static final RegistrySupplier<Fixture> FIREWORK_RED_LONG_COMET =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_red_long_comet"), () -> new FireworkLauncherFixture(FireworkPreset.RED_LONG_COMET));
+    public static final RegistrySupplier<Fixture> FIREWORK_BLUE_LONG_COMET =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_blue_long_comet"), () -> new FireworkLauncherFixture(FireworkPreset.BLUE_LONG_COMET));
+    public static final RegistrySupplier<Fixture> FIREWORK_GREEN_LONG_COMET =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_green_long_comet"), () -> new FireworkLauncherFixture(FireworkPreset.GREEN_LONG_COMET));
+    public static final RegistrySupplier<Fixture> FIREWORK_SILVER_LONG_COMET =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_silver_long_comet"), () -> new FireworkLauncherFixture(FireworkPreset.SILVER_LONG_COMET));
     public static final RegistrySupplier<Fixture> GERB_GOLD =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "gerb_gold"), GerbFixture::new);
     public static final RegistrySupplier<Fixture> FLAME_PROJECTOR =
@@ -439,6 +451,11 @@ public class Fixtures {
             case HEART_PINK -> FIREWORK_HEART_PINK.get();
             case DOUBLE_BURST_PURPLE -> FIREWORK_DOUBLE_BURST_PURPLE.get();
             case WHISTLER_SILVER -> FIREWORK_WHISTLER_SILVER.get();
+            case GOLD_LONG_COMET -> FIREWORK_GOLD_LONG_COMET.get();
+            case RED_LONG_COMET -> FIREWORK_RED_LONG_COMET.get();
+            case BLUE_LONG_COMET -> FIREWORK_BLUE_LONG_COMET.get();
+            case GREEN_LONG_COMET -> FIREWORK_GREEN_LONG_COMET.get();
+            case SILVER_LONG_COMET -> FIREWORK_SILVER_LONG_COMET.get();
         };
     }
 
@@ -496,6 +513,11 @@ public class Fixtures {
             case HEART_PINK -> FIREWORK_HEART_PINK.getId();
             case DOUBLE_BURST_PURPLE -> FIREWORK_DOUBLE_BURST_PURPLE.getId();
             case WHISTLER_SILVER -> FIREWORK_WHISTLER_SILVER.getId();
+            case GOLD_LONG_COMET -> FIREWORK_GOLD_LONG_COMET.getId();
+            case RED_LONG_COMET -> FIREWORK_RED_LONG_COMET.getId();
+            case BLUE_LONG_COMET -> FIREWORK_BLUE_LONG_COMET.getId();
+            case GREEN_LONG_COMET -> FIREWORK_GREEN_LONG_COMET.getId();
+            case SILVER_LONG_COMET -> FIREWORK_SILVER_LONG_COMET.getId();
         };
     }
 

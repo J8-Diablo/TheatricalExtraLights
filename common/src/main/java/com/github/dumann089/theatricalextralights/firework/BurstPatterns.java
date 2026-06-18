@@ -339,6 +339,7 @@ public final class BurstPatterns {
         @Override public float getFlightLightSpread() { return 38.0f; }
         @Override public float getFlightHaloInnerSize() { return 2.5f; }
         @Override public float getFlightHaloOuterSize() { return 4.2f; }
+        @Override public boolean spawnsFlightSmoke() { return true; }
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
@@ -756,6 +757,7 @@ public final class BurstPatterns {
         @Override public float getFlightLightSpread() { return 32.0f; }
         @Override public float getFlightHaloInnerSize() { return 1.7f; }
         @Override public float getFlightHaloOuterSize() { return 2.55f; }
+        @Override public boolean spawnsFlightSmoke() { return true; }
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
@@ -778,6 +780,63 @@ public final class BurstPatterns {
             double vz = motion.z + (random.nextDouble() - 0.5) * scatter;
             rocket.addSpark(new Spark(rocket.getX(), rocket.getY(), rocket.getZ(),
                     vx, vy, vz, color, 0.30f + random.nextFloat() * 0.12f, 14, 0.006f, 0.97f, true, false));
+        }
+    }
+
+    /**
+     * Long ascending comet with dense trail, then a slow falling cascade after apex.
+     */
+    public static class LongTrailComet extends BurstPattern {
+        @Override public boolean isBurst() { return false; }
+        @Override public int getBurstDuration() { return 0; }
+        @Override public int getCometFadeTicks() { return 52; }
+        @Override public int getFlightLifetime() { return 220; }
+        @Override public boolean continuesAfterApex() { return true; }
+        @Override public float getLaunchSpeedMultiplier() { return 1.12f; }
+        @Override public float getFlightLightSpread() { return 34.0f; }
+        @Override public float getFlightHaloInnerSize() { return 1.8f; }
+        @Override public float getFlightHaloOuterSize() { return 2.7f; }
+        @Override public boolean spawnsFlightSmoke() { return true; }
+
+        @Override
+        public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
+            int[] palette = rocket.getColors();
+            int primary = rocket.getLaunchColor();
+            int secondary = palette.length > 1 ? palette[1] : primary;
+            emitFlightTrail(rocket, random, primary, 0.56f, 18, true);
+            if (random.nextFloat() < 0.45f) {
+                emitFlightTrail(rocket, random, secondary, 0.42f, 14, true);
+            }
+        }
+
+        @Override
+        public void onFadeTick(FireworkRocketEntity rocket, RandomSource random, int remainingTicks) {
+            int[] palette = rocket.getColors();
+            int primary = rocket.getLaunchColor();
+            int secondary = palette.length > 1 ? palette[1] : primary;
+            float fade = remainingTicks / (float) Math.max(1, getCometFadeTicks());
+            if (fade <= 0.0f) {
+                return;
+            }
+            int count = 2 + random.nextInt(3);
+            for (int i = 0; i < count; i++) {
+                double scatter = 0.10 * fade;
+                double vx = (random.nextDouble() - 0.5) * scatter;
+                double vy = -0.04 - random.nextDouble() * 0.10 * fade;
+                double vz = (random.nextDouble() - 0.5) * scatter;
+                int color = random.nextBoolean() ? primary : secondary;
+                rocket.addSpark(new Spark(
+                        rocket.getX(), rocket.getY(), rocket.getZ(),
+                        vx, vy, vz,
+                        color,
+                        0.28f + random.nextFloat() * 0.14f,
+                        24 + random.nextInt(18),
+                        0.012f,
+                        0.975f,
+                        true,
+                        false
+                ));
+            }
         }
     }
 }

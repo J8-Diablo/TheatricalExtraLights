@@ -168,6 +168,12 @@ public class Blocks {
     public static final RegistrySupplier<Block> FIREWORK_DOUBLE_BURST_PURPLE_BLOCK = BLOCKS.register("firework_double_burst_purple", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.DOUBLE_BURST_PURPLE));
     public static final RegistrySupplier<Block> FIREWORK_WHISTLER_SILVER_BLOCK = BLOCKS.register("firework_whistler_silver", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.WHISTLER_SILVER));
     public static final RegistrySupplier<Block> FIREWORK_RGB_LAUNCHER_BLOCK = BLOCKS.register("firework_rgb_launcher", RgbFireworkLauncherBlock::new);
+    public static final RegistrySupplier<Block> PYRO_FAN_BLOCK = BLOCKS.register("pyro_fan", PyroFanBlock::new);
+    public static final RegistrySupplier<Block> FIREWORK_GOLD_LONG_COMET_BLOCK = BLOCKS.register("firework_gold_long_comet", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.GOLD_LONG_COMET));
+    public static final RegistrySupplier<Block> FIREWORK_RED_LONG_COMET_BLOCK = BLOCKS.register("firework_red_long_comet", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.RED_LONG_COMET));
+    public static final RegistrySupplier<Block> FIREWORK_BLUE_LONG_COMET_BLOCK = BLOCKS.register("firework_blue_long_comet", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.BLUE_LONG_COMET));
+    public static final RegistrySupplier<Block> FIREWORK_GREEN_LONG_COMET_BLOCK = BLOCKS.register("firework_green_long_comet", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.GREEN_LONG_COMET));
+    public static final RegistrySupplier<Block> FIREWORK_SILVER_LONG_COMET_BLOCK = BLOCKS.register("firework_silver_long_comet", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.SILVER_LONG_COMET));
     public static final RegistrySupplier<Block> GERB_GOLD_BLOCK = BLOCKS.register("gerb_gold", GerbBlock::new);
     public static final RegistrySupplier<Block> FLAME_PROJECTOR_BLOCK = BLOCKS.register("flame_projector", FlameProjectorBlock::new);
     public static final RegistrySupplier<Block> CONFETTI_CANNON_BLOCK = BLOCKS.register("confetti_cannon", ConfettiCannonBlock::new);
