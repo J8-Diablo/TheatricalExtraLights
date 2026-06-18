@@ -93,7 +93,11 @@ public final class Spark {
         }
         if (powder) {
             float remaining = 1.0f - t;
-            return 0.35f + 0.65f * remaining;
+            // Slow dissipation — stays opaque most of its life, fades at the end.
+            if (remaining > 0.65f) {
+                return 0.78f + 0.22f * (remaining - 0.65f) / 0.35f;
+            }
+            return 0.78f * remaining / 0.65f;
         }
         if (trail) {
             float remaining = 1.0f - t;
@@ -103,6 +107,10 @@ public final class Spark {
     }
 
     public float getScale(float partialTick) {
+        if (powder) {
+            float t = (age + partialTick) / lifetime;
+            return scale * (1.0f + t * 1.2f);
+        }
         return scale;
     }
 }

@@ -121,7 +121,7 @@ public class FireworkRocketRenderer extends EntityRenderer<FireworkRocketEntity>
             poseStack.translate(offset.x, offset.y, offset.z);
             faceCamera(poseStack);
             if (pattern.isDaytimePowder()) {
-                renderHaloQuad(poseStack, consumer, spark.color, alpha * 0.92f, scale * 1.35f);
+                renderPowderCloud(poseStack, consumer, spark.color, alpha, scale);
             } else {
                 renderHaloQuad(poseStack, consumer, spark.color, alpha * 0.55f, scale * 1.6f);
                 renderHaloQuad(poseStack, consumer, 0xFFFFFF, alpha * 0.95f, scale * 0.55f);
@@ -139,6 +139,12 @@ public class FireworkRocketRenderer extends EntityRenderer<FireworkRocketEntity>
     @Override
     public ResourceLocation getTextureLocation(FireworkRocketEntity entity) {
         return LENS_TEXTURE;
+    }
+
+    private static void renderPowderCloud(PoseStack poseStack, VertexConsumer consumer, int color, float alpha, float scale) {
+        renderHaloQuad(poseStack, consumer, color, alpha * 0.35f, scale * 2.4f);
+        renderHaloQuad(poseStack, consumer, color, alpha * 0.55f, scale * 1.6f);
+        renderHaloQuad(poseStack, consumer, color, alpha * 0.85f, scale);
     }
 
     private static void renderHaloQuad(PoseStack poseStack, VertexConsumer consumer, int color, float alpha, float size) {

@@ -44,6 +44,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
     private final List<Spark> sparks = new ArrayList<>();
     private boolean shimmerLightRegistered;
     private boolean daytimeFanFired;
+    private boolean daytimeBurstFired;
     private int[] customColors;
 
     public FireworkRocketEntity(EntityType<? extends FireworkRocketEntity> entityType, Level level) {
@@ -107,6 +108,15 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
             return false;
         }
         daytimeFanFired = true;
+        return true;
+    }
+
+    /** One-shot guard for Holi burst at apex. */
+    public boolean tryFireDaytimeBurst() {
+        if (daytimeBurstFired) {
+            return false;
+        }
+        daytimeBurstFired = true;
         return true;
     }
 
@@ -184,8 +194,13 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
             if (!exploded && !fading) {
                 pattern.onFlightTick(this, random);
-                FireworkSmokeEffects.trySpawnFlightSmoke(this, random, life);
-                FireworkSmokeEffects.trySpawnPowderParticle(this, random, life);
+                if (pattern.isDaytimePowder()) {
+                    FireworkSmokeEffects.trySpawnDaytimeLaunchPlume(this, random, life);
+                    FireworkSmokeEffects.trySpawnDaytimeFlightTrail(this, random, life);
+                } else {
+                    FireworkSmokeEffects.trySpawnFlightSmoke(this, random, life);
+                    FireworkSmokeEffects.trySpawnPowderParticle(this, random, life);
+                }
             } else if (exploded) {
                 if (!burstStarted) {
                     pattern.onBurstStart(this, random);
