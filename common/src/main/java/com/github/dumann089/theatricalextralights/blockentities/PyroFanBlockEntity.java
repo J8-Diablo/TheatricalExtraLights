@@ -36,7 +36,7 @@ public class PyroFanBlockEntity extends ExtraLightsLightBlockEntity implements H
     private static final float FAN_LATERAL_SPREAD = 1.35f;
     /** Composante verticale commune — même inclinaison de base pour tous. */
     private static final float FAN_UP_STRENGTH = 1.0f;
-    private static final float BASE_LAUNCH_SPEED = 2.0f;
+    private static final float BASE_LAUNCH_SPEED = 1.68f;
     private static final float MIN_SHOTS_PER_SECOND = 0.5f;
     private static final float MAX_SHOTS_PER_SECOND = 6.0f;
     private static final double TUBE_BASE_HEIGHT = 4.0 / 16.0;
@@ -50,7 +50,7 @@ public class PyroFanBlockEntity extends ExtraLightsLightBlockEntity implements H
     public PyroFanBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntities.PYRO_FAN.get(), pos, state);
         tilt = 128;
-        focus = 145;
+        focus = 120;
         syncChannelCountFromPersonality();
     }
 
