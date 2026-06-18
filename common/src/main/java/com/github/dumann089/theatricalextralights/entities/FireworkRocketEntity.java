@@ -199,7 +199,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
         if (exploded) {
             burstTickIndex++;
-            if (burstTickIndex >= pattern.getBurstDuration() && (clientSide ? sparks.isEmpty() : true)) {
+            if (clientSide && burstTickIndex >= pattern.getBurstDuration() && sparks.isEmpty()) {
                 releaseLight();
                 discard();
             }
@@ -211,7 +211,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
             double fadeDrag = 0.94;
             setDeltaMovement(fadeMotion.x * fadeDrag, fadeMotion.y * fadeDrag - 0.025, fadeMotion.z * fadeDrag);
             move(MoverType.SELF, getDeltaMovement());
-            if (--fadeTicks <= 0 && (clientSide ? sparks.isEmpty() : !pattern.isDaytimePowder())) {
+            if (clientSide && --fadeTicks <= 0 && sparks.isEmpty()) {
                 releaseLight();
                 discard();
             }
@@ -257,9 +257,11 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
         BurstPattern pattern = preset.getPattern();
         if (level() instanceof ServerLevel serverLevel) {
             if (pattern.isBurst()) {
-                serverLevel.playSound(null, getX(), getY(), getZ(), SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.BLOCKS, 1.0f, 0.95f + random.nextFloat() * 0.1f);
-                if (pattern.hasCrackleSound()) {
-                    serverLevel.playSound(null, getX(), getY(), getZ(), SoundEvents.FIREWORK_ROCKET_TWINKLE, SoundSource.BLOCKS, 0.9f, 0.9f + random.nextFloat() * 0.2f);
+                if (!pattern.isDaytimePowder()) {
+                    serverLevel.playSound(null, getX(), getY(), getZ(), SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.BLOCKS, 1.0f, 0.95f + random.nextFloat() * 0.1f);
+                    if (pattern.hasCrackleSound()) {
+                        serverLevel.playSound(null, getX(), getY(), getZ(), SoundEvents.FIREWORK_ROCKET_TWINKLE, SoundSource.BLOCKS, 0.9f, 0.9f + random.nextFloat() * 0.2f);
+                    }
                 }
                 exploded = true;
                 burstTickIndex = 0;

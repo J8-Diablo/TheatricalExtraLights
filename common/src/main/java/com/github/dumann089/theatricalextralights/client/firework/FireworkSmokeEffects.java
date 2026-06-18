@@ -99,4 +99,63 @@ public final class FireworkSmokeEffects {
         double vz = rocket.getDeltaMovement().z * -0.025 + (random.nextDouble() - 0.5) * 0.004;
         level.addParticle(dust, rocket.getX(), rocket.getY(), rocket.getZ(), vx, vy, vz);
     }
+
+    /** Extra colored dust along each fan stream — visible in daylight. */
+    public static void spawnDaytimeFanParticles(
+            FireworkRocketEntity rocket,
+            RandomSource random,
+            int[] palette,
+            double originX,
+            double originY,
+            double originZ,
+            double baseYaw,
+            float spreadDegrees
+    ) {
+        if (!TheatricalExtraLightsConfig.isFireworkSmokeEnabled()) {
+            return;
+        }
+        if (!(rocket.level() instanceof ClientLevel level)) {
+            return;
+        }
+        if (Minecraft.getInstance().player == null) {
+            return;
+        }
+        double dx = originX - Minecraft.getInstance().player.getX();
+        double dy = originY - Minecraft.getInstance().player.getY();
+        double dz = originZ - Minecraft.getInstance().player.getZ();
+        if (dx * dx + dy * dy + dz * dz > 128.0 * 128.0) {
+            return;
+        }
+
+        int streams = 24;
+        for (int stream = 0; stream < streams; stream++) {
+            if (budgetThisTick <= 0) {
+                return;
+            }
+            float yawOffset = (-spreadDegrees * 0.5f) + (spreadDegrees * stream / Math.max(1, streams - 1));
+            double yaw = baseYaw + Math.toRadians(yawOffset);
+            double pitch = Math.toRadians(34.0 + random.nextDouble() * 12.0);
+            double speed = 0.55 + random.nextDouble() * 0.25;
+            double horizontal = Math.cos(pitch) * speed;
+            double vx = -Math.sin(yaw) * horizontal;
+            double vy = Math.sin(pitch) * speed;
+            double vz = Math.cos(yaw) * horizontal;
+
+            int color = palette[Math.floorMod(stream, palette.length)];
+            float r = ((color >> 16) & 0xFF) / 255.0f;
+            float g = ((color >> 8) & 0xFF) / 255.0f;
+            float b = (color & 0xFF) / 255.0f;
+            DustParticleOptions dust = new DustParticleOptions(new Vector3f(r, g, b), 1.1f + random.nextFloat() * 0.6f);
+            budgetThisTick--;
+            level.addParticle(
+                    dust,
+                    originX + (random.nextDouble() - 0.5) * 0.08,
+                    originY + (random.nextDouble() - 0.5) * 0.04,
+                    originZ + (random.nextDouble() - 0.5) * 0.08,
+                    vx,
+                    vy,
+                    vz
+            );
+        }
+    }
 }

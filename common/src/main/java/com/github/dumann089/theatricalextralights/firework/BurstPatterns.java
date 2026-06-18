@@ -1,5 +1,6 @@
 package com.github.dumann089.theatricalextralights.firework;
 
+import com.github.dumann089.theatricalextralights.client.firework.FireworkSmokeEffects;
 import com.github.dumann089.theatricalextralights.entities.FireworkRocketEntity;
 import dev.imabad.theatrical.blocks.light.BaseLightBlock;
 import net.minecraft.core.Direction;
@@ -75,8 +76,8 @@ public final class BurstPatterns {
                     vy + (random.nextDouble() - 0.5) * 0.008,
                     vz + (random.nextDouble() - 0.5) * 0.012,
                     color,
-                    0.16f + random.nextFloat() * 0.08f,
-                    40 + random.nextInt(22),
+                    0.28f + random.nextFloat() * 0.14f,
+                    52 + random.nextInt(28),
                     0.0f,
                     0.992f,
                     true,
@@ -106,20 +107,21 @@ public final class BurstPatterns {
         double cx = rocket.getX();
         double cy = rocket.getY();
         double cz = rocket.getZ();
-        int streams = 40;
-        float spread = 158.0f;
+        int streams = 48;
+        float spread = 165.0f;
         for (int stream = 0; stream < streams; stream++) {
             float yawOffset = (-spread * 0.5f) + (spread * stream / Math.max(1, streams - 1));
             double yaw = baseYaw + Math.toRadians(yawOffset);
-            double pitch = Math.toRadians(30.0 + random.nextDouble() * 14.0);
-            double speed = 0.58 + random.nextDouble() * 0.28;
+            double pitch = Math.toRadians(32.0 + random.nextDouble() * 16.0);
+            double speed = 0.82 + random.nextDouble() * 0.38;
             double horizontal = Math.cos(pitch) * speed;
             double vx = -Math.sin(yaw) * horizontal;
             double vy = Math.sin(pitch) * speed;
             double vz = Math.cos(yaw) * horizontal;
             int color = paletteAt(palette, stream);
-            emitPowderStreamStreak(rocket, random, cx, cy, cz, vx, vy, vz, color, 3);
+            emitPowderStreamStreak(rocket, random, cx, cy, cz, vx, vy, vz, color, 6);
         }
+        FireworkSmokeEffects.spawnDaytimeFanParticles(rocket, random, palette, cx, cy, cz, baseYaw, spread);
     }
 
     /**
@@ -960,16 +962,14 @@ public final class BurstPatterns {
     }
 
     /**
-     * Rainbow daytime powder fan — ground-level fan aligned with launch direction.
-     * Uses comet fade instead of burst so effects always run client-side.
+     * Rainbow daytime powder fan — instant fan burst aligned with launch direction.
      */
     public static class DaytimePowderFan extends BurstPattern {
-        @Override public boolean isBurst() { return false; }
+        @Override public boolean isBurst() { return true; }
         @Override public boolean isDaytimePowder() { return true; }
-        @Override public int getBurstDuration() { return 0; }
-        @Override public int getCometFadeTicks() { return 140; }
-        @Override public int getFlightLifetime() { return 6; }
-        @Override public float getLaunchSpeedMultiplier() { return 0.12f; }
+        @Override public int getBurstDuration() { return 120; }
+        @Override public int getFlightLifetime() { return 1; }
+        @Override public float getLaunchSpeedMultiplier() { return 0.02f; }
         @Override public double getFlightWobble() { return 0.0; }
         @Override public int getFlightLuminance() { return 0; }
         @Override public float getFlightLightSpread() { return 0.0f; }
@@ -984,7 +984,7 @@ public final class BurstPatterns {
         }
 
         @Override
-        public void onFadeTick(FireworkRocketEntity rocket, RandomSource random, int remainingTicks) {
+        public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
             if (rocket.tryFireDaytimeFan()) {
                 emitOrientedPowderFan(rocket, random);
             }

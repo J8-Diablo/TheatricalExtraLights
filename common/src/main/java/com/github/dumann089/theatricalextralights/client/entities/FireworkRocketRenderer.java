@@ -121,7 +121,7 @@ public class FireworkRocketRenderer extends EntityRenderer<FireworkRocketEntity>
             poseStack.translate(offset.x, offset.y, offset.z);
             faceCamera(poseStack);
             if (pattern.isDaytimePowder()) {
-                renderHaloQuad(poseStack, consumer, spark.color, alpha * 0.82f, scale * 0.75f);
+                renderHaloQuad(poseStack, consumer, spark.color, alpha * 0.92f, scale * 1.35f);
             } else {
                 renderHaloQuad(poseStack, consumer, spark.color, alpha * 0.55f, scale * 1.6f);
                 renderHaloQuad(poseStack, consumer, 0xFFFFFF, alpha * 0.95f, scale * 0.55f);

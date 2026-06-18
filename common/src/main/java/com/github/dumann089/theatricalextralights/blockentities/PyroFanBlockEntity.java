@@ -95,7 +95,7 @@ public class PyroFanBlockEntity extends ExtraLightsLightBlockEntity {
 
         Vec3 spawn = getTubeLaunchPosition(tubeIndex);
         Vec3 velocity = getTubeLaunchVelocity(tubeIndex, serverLevel.random);
-        FireworkRocketEntity rocket = new FireworkRocketEntity(serverLevel, FireworkPreset.GOLD_COMET, worldPosition);
+        FireworkRocketEntity rocket = new FireworkRocketEntity(serverLevel, FireworkPreset.GOLD_LONG_COMET, worldPosition);
         rocket.moveTo(spawn.x, spawn.y, spawn.z, 0.0f, 0.0f);
         rocket.setDeltaMovement(velocity);
         serverLevel.addFreshEntity(rocket);
@@ -147,7 +147,7 @@ public class PyroFanBlockEntity extends ExtraLightsLightBlockEntity {
                 LAUNCH_PITCH_DEGREES,
                 tubeYawOffset(tubeIndex),
                 1.0f,
-                FireworkPreset.GOLD_COMET.getPattern().getLaunchSpeedMultiplier(),
+                FireworkPreset.GOLD_LONG_COMET.getPattern().getLaunchSpeedMultiplier(),
                 random
         );
     }
@@ -195,9 +195,9 @@ public class PyroFanBlockEntity extends ExtraLightsLightBlockEntity {
         pan = 0;
         tilt = 0;
         focus = 255;
-        red = (FireworkPreset.GOLD_COMET.getLaunchColor() >> 16) & 0xFF;
-        green = (FireworkPreset.GOLD_COMET.getLaunchColor() >> 8) & 0xFF;
-        blue = FireworkPreset.GOLD_COMET.getLaunchColor() & 0xFF;
+        red = (FireworkPreset.GOLD_LONG_COMET.getLaunchColor() >> 16) & 0xFF;
+        green = (FireworkPreset.GOLD_LONG_COMET.getLaunchColor() >> 8) & 0xFF;
+        blue = FireworkPreset.GOLD_LONG_COMET.getLaunchColor() & 0xFF;
 
         if (level != null) {
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
