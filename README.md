@@ -154,7 +154,7 @@ Add scenic blocks (backdrops, decor) so laser beams continue to a wall behind th
 
 ## Contributing & credits
 
-**Authors:** [dumann089](https://github.com/dumann089) · Rushmead · J8-Diablo  
+**Authors:** [dumann089](https://github.com/dumann089) · Rushmead · J8-Diablo · nailec  
 
 **License:** [MIT](LICENSE) — Copyright (c) 2025 Stuart Pomeroy
 
