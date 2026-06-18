@@ -11,21 +11,27 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.Collections;
 import java.util.List;
 
 
 public class AtomictiltFixture extends Fixture {
 
-    private static final List<DMXPersonality> PERSONALITIES = Collections.singletonList(
-            new DMXPersonality(6, "6-Channel Mode")
+    private static final List<DMXPersonality> PERSONALITIES = List.of(
+            new DMXPersonality(6, "6-Channel RGB + Focus + Tilt")
                     .addSlot(SharedSlots.INTENSITY)
                     .addSlot(SharedSlots.RED)
                     .addSlot(SharedSlots.GREEN)
                     .addSlot(SharedSlots.BLUE)
                     .addSlot(SharedSlots.FOCUS)
+                    .addSlot(SharedSlots.TILT),
+            new DMXPersonality(7, "7-Channel RGB + Focus + Strobe + Tilt")
+                    .addSlot(SharedSlots.INTENSITY)
+                    .addSlot(SharedSlots.RED)
+                    .addSlot(SharedSlots.GREEN)
+                    .addSlot(SharedSlots.BLUE)
+                    .addSlot(SharedSlots.FOCUS)
+                    .addSlot(SharedSlots.FOCUS)
                     .addSlot(SharedSlots.TILT)
-
     );
 
     private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/atomictilt/atomictilt_tilt");

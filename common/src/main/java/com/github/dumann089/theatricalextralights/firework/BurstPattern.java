@@ -105,6 +105,35 @@ public abstract class BurstPattern {
         return 0.005;
     }
 
+    /** Client-side smoke trail behind comet rockets (budget-limited). */
+    public boolean spawnsFlightSmoke() {
+        return false;
+    }
+
+    /**
+     * Server-side entity lifetime — client keeps sparks locally until they fade.
+     * Must stay below client visual duration but release tracker slots promptly.
+     */
+    public int getServerHoldTicks() {
+        if (isDaytimePowder()) {
+            return 400;
+        }
+        if (isBurst()) {
+            return getBurstDuration() + 160;
+        }
+        return getFlightLifetime() + getCometFadeTicks() + 160;
+    }
+
+    /** Daytime powder — visible in daylight, minimal dynamic light. */
+    public boolean isDaytimePowder() {
+        return false;
+    }
+
+    /** Colored dust particles during flight (budget-limited). Daytime powder uses spark streaks only. */
+    public boolean usesColoredPowderParticles() {
+        return false;
+    }
+
     /**
      * If true, apex detection is skipped — the rocket keeps flying past its peak,
      * falling due to gravity, until it reaches its flight lifetime or collides.

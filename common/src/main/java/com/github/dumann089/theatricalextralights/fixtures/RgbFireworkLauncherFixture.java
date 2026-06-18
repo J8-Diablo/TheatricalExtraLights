@@ -5,6 +5,7 @@ import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.api.HangType;
 import dev.imabad.theatrical.api.dmx.DMXPersonality;
 import dev.imabad.theatrical.blocks.light.BaseLightBlock;
+import com.github.dumann089.theatricalextralights.fixtures.ExtraLightsDmxSlots;
 import dev.imabad.theatrical.fixtures.SharedSlots;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -21,7 +22,7 @@ public class RgbFireworkLauncherFixture extends Fixture {
                     .addSlot(SharedSlots.RED)
                     .addSlot(SharedSlots.GREEN)
                     .addSlot(SharedSlots.BLUE)
-                    .addSlot(SharedSlots.PAN)
+                    .addSlot(ExtraLightsDmxSlots.EFFECT)
     );
 
     private static final ResourceLocation STATIC_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/firework/firework_rgb_launcher_static");

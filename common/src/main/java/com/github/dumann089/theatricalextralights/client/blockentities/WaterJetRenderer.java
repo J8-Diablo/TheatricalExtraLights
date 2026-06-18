@@ -102,71 +102,7 @@ public class WaterJetRenderer extends ExtraLightsRenderer<WaterJetBlockEntity> {
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel,  packedLight, packedOverlay);
         //#endregion
     }
-    @Override
-    public void beforeRenderBeam(WaterJetBlockEntity blockEntity, PoseStack poseStack,
-                                 VertexConsumer vertexConsumer, MultiBufferSource multiBufferSource,
-                                 Direction facing, float partialTicks, boolean isFlipped,
-                                 BlockState blockstate, boolean isHanging, int packedLight, int packedOverlay) {
-
-        if(blockEntity.getIntensity() > 0){
-            LazyRenderers.addLazyRender(new LazyRenderers.LazyRenderer() {
-                @Override
-                public void render(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, Camera camera, float partialTick) {
-
-                    if (Minecraft.getInstance().isPaused()) return;
-
-                    Vec3 offset = Vec3.atLowerCornerOf(blockEntity.getBlockPos()).subtract(camera.getPosition());
-                    poseStack.pushPose();
-                    poseStack.translate(offset.x, offset.y, offset.z);
-
-                    preparePoseStack(blockEntity, poseStack, facing, partialTicks, isFlipped, blockstate, isHanging);
-
-                    double x = blockEntity.getBlockPos().getX() + 0.5;
-                    double y = blockEntity.getBlockPos().getY() + 1.81f;
-                    double z = blockEntity.getBlockPos().getZ() + 0.5;
-
-                    float pan = blockEntity.getPrevPan() + (blockEntity.getPan() - blockEntity.getPrevPan()) * partialTicks;
-                    float tilt = blockEntity.getPrevTilt() + (blockEntity.getTilt() - blockEntity.getPrevTilt()) * partialTicks;
-
-                    double yaw = Math.toRadians(pan);
-                    double pitch = Math.toRadians(tilt);
-
-                    double dirX = -Math.sin(yaw) * Math.cos(pitch);
-                    double dirY = Math.sin(pitch);
-                    double dirZ = Math.cos(yaw) * Math.cos(pitch);
-
-                    switch(facing) {
-                        case NORTH -> { double tmp = dirX; dirX = -dirX; dirZ = -dirZ; }
-                        case EAST -> { double tmp = dirX; dirX = dirZ; dirZ = -tmp; }
-                        case WEST -> { double tmp = dirX; dirX = -dirZ; dirZ = tmp; }
-                        case SOUTH, UP, DOWN -> {}
-                    }
-
-                    double maxHeight = 37.0;
-                    double targetHeight = (blockEntity.getIntensity() / 255.0) * maxHeight;
-
-                    blockEntity.smoothedHeight += (targetHeight - blockEntity.smoothedHeight) * 0.1;
-
-                    double speed = blockEntity.smoothedHeight * 0.05;
-
-                    if (blockEntity.getLevel() !=null)
-                        blockEntity.getLevel().addAlwaysVisibleParticle(ModParticle.WATERJETPARTICLE.get(),
-                            true,
-                            x, y, z,
-                            dirX * speed, dirY * speed, dirZ * speed);
-                    poseStack.popPose();
-                }
-
-                @Override
-                public Vec3 getPos(float partialTick) {
-                    return blockEntity.getBlockPos().getCenter();
-                }
-            });
-        }
-    }
-
-
-    @Override
+        @Override
     public void preparePoseStack(WaterJetBlockEntity blockEntity, PoseStack poseStack, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging) {
         //#region Fixture Hanging
         poseStack.translate(0.5F, 0, .5F);

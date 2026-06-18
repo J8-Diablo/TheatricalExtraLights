@@ -4,6 +4,7 @@ import com.github.dumann089.theatricalextralights.blocks.FireworkLauncherBlock;
 import com.github.dumann089.theatricalextralights.entities.FireworkRocketEntity;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import com.github.dumann089.theatricalextralights.firework.FireworkPreset;
+import com.github.dumann089.theatricalextralights.firework.FireworkRocketTracker;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.api.dmx.DMXPersonality;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
@@ -101,12 +102,18 @@ public class FireworkLauncherBlockEntity extends ExtraLightsLightBlockEntity {
     }
 
     private void launch(ServerLevel serverLevel) {
+        if (!FireworkRocketTracker.tryRegisterLaunch(serverLevel)) {
+            return;
+        }
         Vec3 spawn = getLaunchPosition();
         Vec3 velocity = getLaunchVelocity();
         FireworkRocketEntity rocket = createRocket(serverLevel);
         rocket.moveTo(spawn.x, spawn.y, spawn.z, 0.0f, 0.0f);
         rocket.setDeltaMovement(velocity);
-        serverLevel.addFreshEntity(rocket);
+        if (!serverLevel.addFreshEntity(rocket)) {
+            FireworkRocketTracker.cancelLaunch(serverLevel);
+            return;
+        }
         serverLevel.playSound(null, spawn.x, spawn.y, spawn.z, SoundEvents.FIREWORK_ROCKET_LAUNCH, SoundSource.BLOCKS, 0.9f, 0.9f + serverLevel.random.nextFloat() * 0.2f);
     }
 

@@ -37,6 +37,6 @@ public class ConfettiBurstPacket {
     }
 
     public void handle(Supplier<NetworkManager.PacketContext> contextSupplier) {
-        contextSupplier.get().queue(() -> ConfettiBurstClient.spawn(origin, direction, intensity));
+        contextSupplier.get().queue(() -> ConfettiBurstClient.queue(origin, direction, intensity));
     }
 }

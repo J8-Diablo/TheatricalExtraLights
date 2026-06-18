@@ -121,7 +121,7 @@ public class WaterJetBloomBlock extends ExtraLightsLightBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        return blockEntityType == BlockEntities.WATER_JET_BLOOM.get() ? WaterJetBloomBlockEntity::tick : null;
+        return null;
     }
 
     @Override

@@ -1,9 +1,12 @@
 package com.github.dumann089.theatricalextralights.entities;
 
+import com.github.dumann089.theatricalextralights.client.firework.FireworkSmokeEffects;
 import com.github.dumann089.theatricalextralights.compat.FireworkLightCompat;
+import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import com.github.dumann089.theatricalextralights.firework.BurstPattern;
 import com.github.dumann089.theatricalextralights.firework.FireworkColorUtil;
 import com.github.dumann089.theatricalextralights.firework.FireworkPreset;
+import com.github.dumann089.theatricalextralights.firework.FireworkRocketTracker;
 import com.github.dumann089.theatricalextralights.firework.Spark;
 import dev.architectury.extensions.network.EntitySpawnExtension;
 import dev.architectury.networking.NetworkManager;
@@ -28,7 +31,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class FireworkRocketEntity extends Entity implements EntitySpawnExtension, DynamicLightProvider {
-    private static final double MAX_RENDER_DISTANCE = 2048.0;
     private static final int MAX_TOTAL_TICKS = 400;
 
     private FireworkPreset preset = FireworkPreset.RED_COMET;
@@ -41,6 +43,8 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
     private boolean burstStarted;
     private final List<Spark> sparks = new ArrayList<>();
     private boolean shimmerLightRegistered;
+    private boolean daytimeFanFired;
+    private boolean daytimeBurstFired;
     private int[] customColors;
 
     public FireworkRocketEntity(EntityType<? extends FireworkRocketEntity> entityType, Level level) {
@@ -90,11 +94,41 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
         return fadeTicks;
     }
 
+    public int getFlightLife() {
+        return life;
+    }
+
+    public BlockPos getLauncherPos() {
+        return launcherPos;
+    }
+
+    /** One-shot guard for rainbow powder fan client effect. */
+    public boolean tryFireDaytimeFan() {
+        if (daytimeFanFired) {
+            return false;
+        }
+        daytimeFanFired = true;
+        return true;
+    }
+
+    /** One-shot guard for Holi burst at apex. */
+    public boolean tryFireDaytimeBurst() {
+        if (daytimeBurstFired) {
+            return false;
+        }
+        daytimeBurstFired = true;
+        return true;
+    }
+
     public List<Spark> getSparks() {
         return sparks;
     }
 
     public void addSpark(Spark spark) {
+        int maxSparks = TheatricalExtraLightsConfig.getMaxSparksPerRocket();
+        if (maxSparks > 0 && sparks.size() >= maxSparks) {
+            return;
+        }
         sparks.add(spark);
     }
 
@@ -152,6 +186,12 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
         }
 
         BurstPattern pattern = preset.getPattern();
+        if (!level().isClientSide && tickCount > pattern.getServerHoldTicks()) {
+            releaseLight();
+            discard();
+            return;
+        }
+
         boolean clientSide = level().isClientSide;
 
         if (clientSide) {
@@ -160,6 +200,13 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
             if (!exploded && !fading) {
                 pattern.onFlightTick(this, random);
+                if (pattern.isDaytimePowder()) {
+                    FireworkSmokeEffects.trySpawnDaytimeLaunchPlume(this, random, life);
+                    FireworkSmokeEffects.trySpawnDaytimeFlightTrail(this, random, life);
+                } else {
+                    FireworkSmokeEffects.trySpawnFlightSmoke(this, random, life);
+                    FireworkSmokeEffects.trySpawnPowderParticle(this, random, life);
+                }
             } else if (exploded) {
                 if (!burstStarted) {
                     pattern.onBurstStart(this, random);
@@ -173,7 +220,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
         if (exploded) {
             burstTickIndex++;
-            if (burstTickIndex >= pattern.getBurstDuration() && (clientSide ? sparks.isEmpty() : true)) {
+            if (clientSide && burstTickIndex >= pattern.getBurstDuration() && sparks.isEmpty()) {
                 releaseLight();
                 discard();
             }
@@ -185,7 +232,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
             double fadeDrag = 0.94;
             setDeltaMovement(fadeMotion.x * fadeDrag, fadeMotion.y * fadeDrag - 0.025, fadeMotion.z * fadeDrag);
             move(MoverType.SELF, getDeltaMovement());
-            if (--fadeTicks <= 0 && (clientSide ? sparks.isEmpty() : true)) {
+            if (clientSide && --fadeTicks <= 0 && sparks.isEmpty()) {
                 releaseLight();
                 discard();
             }
@@ -219,7 +266,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
     private void tickSparks() {
         for (Spark spark : sparks) {
-            spark.tick();
+            spark.tick(level());
         }
         sparks.removeIf(Spark::isDead);
     }
@@ -231,9 +278,11 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
         BurstPattern pattern = preset.getPattern();
         if (level() instanceof ServerLevel serverLevel) {
             if (pattern.isBurst()) {
-                serverLevel.playSound(null, getX(), getY(), getZ(), SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.BLOCKS, 1.0f, 0.95f + random.nextFloat() * 0.1f);
-                if (pattern.hasCrackleSound()) {
-                    serverLevel.playSound(null, getX(), getY(), getZ(), SoundEvents.FIREWORK_ROCKET_TWINKLE, SoundSource.BLOCKS, 0.9f, 0.9f + random.nextFloat() * 0.2f);
+                if (!pattern.isDaytimePowder()) {
+                    serverLevel.playSound(null, getX(), getY(), getZ(), SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.BLOCKS, 1.0f, 0.95f + random.nextFloat() * 0.1f);
+                    if (pattern.hasCrackleSound()) {
+                        serverLevel.playSound(null, getX(), getY(), getZ(), SoundEvents.FIREWORK_ROCKET_TWINKLE, SoundSource.BLOCKS, 0.9f, 0.9f + random.nextFloat() * 0.2f);
+                    }
                 }
                 exploded = true;
                 burstTickIndex = 0;
@@ -284,7 +333,8 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
     @Override
     public boolean shouldRenderAtSqrDistance(double distance) {
-        return distance < MAX_RENDER_DISTANCE * MAX_RENDER_DISTANCE;
+        double max = TheatricalExtraLightsConfig.getFireworkRenderDistance();
+        return distance < max * max;
     }
 
     @Override
@@ -324,6 +374,9 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
     @Override
     public void remove(RemovalReason reason) {
+        if (!level().isClientSide) {
+            FireworkRocketTracker.onRemoved(level());
+        }
         FireworkLightCompat.remove(this);
         shimmerLightRegistered = false;
         super.remove(reason);
@@ -355,7 +408,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
     @Override
     public int getLightLuminance() {
-        if (!level().isClientSide) {
+        if (!level().isClientSide || !TheatricalExtraLightsConfig.isFireworkDynamicLightEnabled()) {
             return 0;
         }
         BurstPattern pattern = preset.getPattern();

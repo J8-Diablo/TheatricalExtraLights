@@ -1,9 +1,11 @@
 package com.github.dumann089.theatricalextralights.client.particle;
 
+import com.github.dumann089.theatricalextralights.client.ConfettiBurstClient;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
@@ -22,6 +24,7 @@ import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class ConfettiParticle extends TextureSheetParticle {
+    private static final double DETAIL_DISTANCE_SQ = 40.0D * 40.0D;
     private static final PerlinSimplexNoise X_NOISE = noise(58637214);
     private static final PerlinSimplexNoise Z_NOISE = noise(823917);
     private static final PerlinSimplexNoise YAW_NOISE = noise(28943157);
@@ -52,7 +55,10 @@ public class ConfettiParticle extends TextureSheetParticle {
         gravity = 0.028F;
         friction = 0.982F;
         hasPhysics = true;
-        lifetime = this.random.nextIntBetweenInclusive(650, 1000);
+        float lifetimeScale = ConfettiBurstClient.spawnLifetimeScale();
+        int minLife = Math.max(180, Math.round(650 * lifetimeScale));
+        int maxLife = Math.max(minLife + 40, Math.round(1000 * lifetimeScale));
+        lifetime = this.random.nextIntBetweenInclusive(minLife, maxLife);
         quadSize *= 1.25F;
         // Keep original Supplementaries texture colours (no HSV tint).
         setColor(1.0F, 1.0F, 1.0F);
@@ -98,15 +104,19 @@ public class ConfettiParticle extends TextureSheetParticle {
         boolean still = xo == x && zo == z && yo == y && age > 8;
         boolean ascending = age < 35 && yd > 0.02F;
         boolean hasLanded = (onGround || still) && !ascending;
+        boolean detailed = isNearCamera();
 
-        float posChange = 0.01F;
-        xd += posChange * X_NOISE.getValue(particleRandom, age, false);
-        zd += posChange * Z_NOISE.getValue(particleRandom, age, false);
+        if (detailed) {
+            float posChange = 0.01F;
+            xd += posChange * X_NOISE.getValue(particleRandom, age, false);
+            zd += posChange * Z_NOISE.getValue(particleRandom, age, false);
+        }
+
         oYaw = yaw;
         oPitch = pitch;
         oRoll = roll;
 
-        if (!hasLanded) {
+        if (!hasLanded && detailed) {
             float rotChange = 0.1F;
             dYaw += (float) (rotChange * YAW_NOISE.getValue(particleRandom, age, false));
             dRoll += (float) (rotChange * ROLL_NOISE.getValue(particleRandom, age, false));
@@ -114,18 +124,28 @@ public class ConfettiParticle extends TextureSheetParticle {
             yaw += dYaw;
             pitch += dPitch;
             roll += dRoll;
-        } else {
+        } else if (hasLanded) {
             age = Math.max(age, lifetime - 20);
         }
 
-        float moment = 0.98F;
-        dYaw *= moment;
-        dRoll *= moment;
-        dPitch *= moment;
+        if (detailed) {
+            float moment = 0.98F;
+            dYaw *= moment;
+            dRoll *= moment;
+            dPitch *= moment;
+        }
 
         super.tick();
         setSpriteFromAge(sprites);
         alpha = Math.min(1.0F, 1.0F - (float) age / (float) lifetime);
+    }
+
+    private boolean isNearCamera() {
+        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        double dx = x - camera.getPosition().x;
+        double dy = y - camera.getPosition().y;
+        double dz = z - camera.getPosition().z;
+        return dx * dx + dy * dy + dz * dz <= DETAIL_DISTANCE_SQ;
     }
 
     @Override

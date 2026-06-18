@@ -1,6 +1,8 @@
 package com.github.dumann089.theatricalextralights;
 
 import com.github.dumann089.theatricalextralights.blockentities.BlockEntities;
+import com.github.dumann089.theatricalextralights.client.ConfettiBurstClient;
+import com.github.dumann089.theatricalextralights.client.firework.FireworkSmokeEffects;
 import com.github.dumann089.theatricalextralights.client.ExtraLightsClientScreens;
 import com.github.dumann089.theatricalextralights.client.ModParticleClient;
 import com.github.dumann089.theatricalextralights.client.blockentities.*;
@@ -133,12 +135,19 @@ public class TheatricalExtraLightsClient {
         BlockEntityRendererRegistry.register(BlockEntities.CONFETTI_CANNON.get(), ConfettiCannonRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.FLAME_PROJECTOR.get(), ctx -> new StaticFixtureRenderer<>(ctx));
         BlockEntityRendererRegistry.register(BlockEntities.GERB_GOLD.get(), ctx -> new StaticFixtureRenderer<>(ctx));
+        BlockEntityRendererRegistry.register(BlockEntities.PYRO_FAN.get(), ctx -> new StaticFixtureRenderer<>(ctx));
 
         EntityRendererRegistry.register(ModEntities.FIREWORK_ROCKET, FireworkRocketRenderer::new);
 
         com.github.dumann089.theatricalextralights.client.followspot.FollowspotCameraClient.init();
 
-        ClientTickEvent.CLIENT_POST.register(client -> FireworkLightCompat.flushPending());
+        ClientTickEvent.CLIENT_POST.register(client -> {
+            ConfettiBurstClient.tick();
+            if (client.level != null) {
+                FireworkSmokeEffects.beginClientTick(client.level.getGameTime());
+            }
+            FireworkLightCompat.flushPending();
+        });
     }
 
     public static void handleOpenScreen(OpenExtraLightsScreenPacket packet) {

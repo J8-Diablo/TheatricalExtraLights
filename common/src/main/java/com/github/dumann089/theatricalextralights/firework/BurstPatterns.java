@@ -1,7 +1,11 @@
 package com.github.dumann089.theatricalextralights.firework;
 
+import com.github.dumann089.theatricalextralights.client.firework.FireworkSmokeEffects;
 import com.github.dumann089.theatricalextralights.entities.FireworkRocketEntity;
+import dev.imabad.theatrical.blocks.light.BaseLightBlock;
+import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -30,6 +34,137 @@ public final class BurstPatterns {
                 rocket.getX() + jx, rocket.getY() + jy, rocket.getZ() + jz,
                 motion.x + jx * 0.4, motion.y + jy * 0.4, motion.z + jz * 0.4,
                 color, scale, lifetime, 0.0f, 0.95f, trail, false));
+    }
+
+    /** Thick colored smoke puff left in the flight trail — turbulence + slow fall. */
+    private static void emitDaytimeTrailPuff(FireworkRocketEntity rocket, RandomSource random, int color) {
+        Vec3 motion = rocket.getDeltaMovement();
+        double turb = 0.10;
+        for (int i = 0; i < 2; i++) {
+            double jx = (random.nextDouble() - 0.5) * turb;
+            double jy = (random.nextDouble() - 0.5) * turb * 0.4;
+            double jz = (random.nextDouble() - 0.5) * turb;
+            rocket.addSpark(new Spark(
+                    rocket.getX() + jx,
+                    rocket.getY() + jy,
+                    rocket.getZ() + jz,
+                    motion.x * -0.04 + jx * 0.2 + (random.nextDouble() - 0.5) * 0.025,
+                    motion.y * -0.02 + jy * 0.15 + (random.nextDouble() - 0.5) * 0.015,
+                    motion.z * -0.04 + jz * 0.2 + (random.nextDouble() - 0.5) * 0.025,
+                    color,
+                    0.38f + random.nextFloat() * 0.22f,
+                    32 + random.nextInt(18),
+                    0.008f,
+                    0.990f,
+                    false,
+                    false,
+                    true
+            ));
+        }
+    }
+
+    /** Cone/stream of colored powder — fan or directed burst. */
+    private static void emitDaytimePowderStream(
+            FireworkRocketEntity rocket,
+            RandomSource random,
+            double x, double y, double z,
+            double vx, double vy, double vz,
+            int color,
+            int count
+    ) {
+        for (int i = 0; i < count; i++) {
+            double spread = 0.04;
+            rocket.addSpark(new Spark(
+                    x + (random.nextDouble() - 0.5) * spread,
+                    y + (random.nextDouble() - 0.5) * spread * 0.35,
+                    z + (random.nextDouble() - 0.5) * spread,
+                    vx + (random.nextDouble() - 0.5) * 0.025,
+                    vy + (random.nextDouble() - 0.5) * 0.018,
+                    vz + (random.nextDouble() - 0.5) * 0.025,
+                    color,
+                    0.42f + random.nextFloat() * 0.28f,
+                    100 + random.nextInt(80),
+                    0.010f,
+                    0.986f,
+                    false,
+                    false,
+                    true
+            ));
+        }
+    }
+
+    /** Tiny color pop at apex — subtle, not a full Holi cloud. */
+    private static void emitDaytimeColorBurst(FireworkRocketEntity rocket, RandomSource random) {
+        int[] palette = rocket.getColors();
+        double cx = rocket.getX();
+        double cy = rocket.getY();
+        double cz = rocket.getZ();
+        int count = 6 + random.nextInt(6);
+        for (int i = 0; i < count; i++) {
+            double theta = random.nextDouble() * Math.PI * 2.0;
+            double cosPhi = random.nextDouble() * 0.55 + 0.2;
+            double sinPhi = Math.sqrt(Math.max(0.0, 1.0 - cosPhi * cosPhi));
+            double speed = 0.04 + random.nextDouble() * 0.10;
+            double vx = sinPhi * Math.cos(theta) * speed;
+            double vy = cosPhi * speed * 0.45 + 0.01;
+            double vz = sinPhi * Math.sin(theta) * speed;
+            int color = paletteAt(palette, i);
+            rocket.addSpark(new Spark(
+                    cx + (random.nextDouble() - 0.5) * 0.08,
+                    cy + (random.nextDouble() - 0.5) * 0.08,
+                    cz + (random.nextDouble() - 0.5) * 0.08,
+                    vx,
+                    vy,
+                    vz,
+                    color,
+                    0.06f + random.nextFloat() * 0.05f,
+                    22 + random.nextInt(16),
+                    0.009f,
+                    0.990f,
+                    false,
+                    false,
+                    true
+            ));
+        }
+        FireworkSmokeEffects.spawnDaytimeBurstParticles(rocket, random, palette, cx, cy, cz, 3);
+    }
+
+    private static double launchYaw(FireworkRocketEntity rocket) {
+        Vec3 motion = rocket.getDeltaMovement();
+        if (motion.horizontalDistanceSqr() > 1.0E-4) {
+            return Math.atan2(-motion.x, motion.z);
+        }
+        if (rocket.level() != null) {
+            BlockState state = rocket.level().getBlockState(rocket.getLauncherPos());
+            if (state.hasProperty(BaseLightBlock.FACING)) {
+                Direction launchFacing = state.getValue(BaseLightBlock.FACING).getClockWise();
+                return Math.toRadians(launchFacing.toYRot());
+            }
+        }
+        return 0.0;
+    }
+
+    private static void emitOrientedPowderFan(FireworkRocketEntity rocket, RandomSource random) {
+        int[] palette = rocket.getColors();
+        double baseYaw = launchYaw(rocket);
+        double cx = rocket.getX();
+        double cy = rocket.getY();
+        double cz = rocket.getZ();
+        int streams = 44;
+        float spread = 155.0f;
+        for (int stream = 0; stream < streams; stream++) {
+            float yawOffset = (-spread * 0.5f) + (spread * stream / Math.max(1, streams - 1));
+            double yaw = baseYaw + Math.toRadians(yawOffset);
+            double pitch = Math.toRadians(30.0 + random.nextDouble() * 50.0);
+            double speed = 0.55 + random.nextDouble() * 0.55;
+            double horizontal = Math.cos(pitch) * speed;
+            double vx = -Math.sin(yaw) * horizontal;
+            double vy = Math.sin(pitch) * speed;
+            double vz = Math.cos(yaw) * horizontal;
+            int color = paletteAt(palette, stream);
+            emitDaytimePowderStream(rocket, random, cx, cy, cz, vx, vy, vz, color, 3);
+        }
+        FireworkSmokeEffects.spawnDaytimeFanParticles(rocket, random, palette, cx, cy, cz, baseYaw, spread);
     }
 
     /**
@@ -339,6 +474,7 @@ public final class BurstPatterns {
         @Override public float getFlightLightSpread() { return 38.0f; }
         @Override public float getFlightHaloInnerSize() { return 2.5f; }
         @Override public float getFlightHaloOuterSize() { return 4.2f; }
+        @Override public boolean spawnsFlightSmoke() { return true; }
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
@@ -756,6 +892,7 @@ public final class BurstPatterns {
         @Override public float getFlightLightSpread() { return 32.0f; }
         @Override public float getFlightHaloInnerSize() { return 1.7f; }
         @Override public float getFlightHaloOuterSize() { return 2.55f; }
+        @Override public boolean spawnsFlightSmoke() { return true; }
 
         @Override
         public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
@@ -778,6 +915,129 @@ public final class BurstPatterns {
             double vz = motion.z + (random.nextDouble() - 0.5) * scatter;
             rocket.addSpark(new Spark(rocket.getX(), rocket.getY(), rocket.getZ(),
                     vx, vy, vz, color, 0.30f + random.nextFloat() * 0.12f, 14, 0.006f, 0.97f, true, false));
+        }
+    }
+
+    /**
+     * Long ascending comet with dense trail, then a slow falling cascade after apex.
+     */
+    public static class LongTrailComet extends BurstPattern {
+        @Override public boolean isBurst() { return false; }
+        @Override public int getBurstDuration() { return 0; }
+        @Override public int getCometFadeTicks() { return 52; }
+        @Override public int getFlightLifetime() { return 220; }
+        @Override public boolean continuesAfterApex() { return true; }
+        @Override public float getLaunchSpeedMultiplier() { return 1.12f; }
+        @Override public float getFlightLightSpread() { return 34.0f; }
+        @Override public float getFlightHaloInnerSize() { return 1.8f; }
+        @Override public float getFlightHaloOuterSize() { return 2.7f; }
+        @Override public boolean spawnsFlightSmoke() { return true; }
+
+        @Override
+        public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
+            int[] palette = rocket.getColors();
+            int primary = rocket.getLaunchColor();
+            int secondary = palette.length > 1 ? palette[1] : primary;
+            emitFlightTrail(rocket, random, primary, 0.56f, 18, true);
+            if (random.nextFloat() < 0.45f) {
+                emitFlightTrail(rocket, random, secondary, 0.42f, 14, true);
+            }
+        }
+
+        @Override
+        public void onFadeTick(FireworkRocketEntity rocket, RandomSource random, int remainingTicks) {
+            int[] palette = rocket.getColors();
+            int primary = rocket.getLaunchColor();
+            int secondary = palette.length > 1 ? palette[1] : primary;
+            float fade = remainingTicks / (float) Math.max(1, getCometFadeTicks());
+            if (fade <= 0.0f) {
+                return;
+            }
+            int count = 2 + random.nextInt(3);
+            for (int i = 0; i < count; i++) {
+                double scatter = 0.10 * fade;
+                double vx = (random.nextDouble() - 0.5) * scatter;
+                double vy = -0.04 - random.nextDouble() * 0.10 * fade;
+                double vz = (random.nextDouble() - 0.5) * scatter;
+                int color = random.nextBoolean() ? primary : secondary;
+                rocket.addSpark(new Spark(
+                        rocket.getX(), rocket.getY(), rocket.getZ(),
+                        vx, vy, vz,
+                        color,
+                        0.28f + random.nextFloat() * 0.14f,
+                        24 + random.nextInt(18),
+                        0.012f,
+                        0.975f,
+                        true,
+                        false
+                ));
+            }
+        }
+    }
+
+    /**
+     * Daytime smoke rocket — launch plume, colored ascent trail, Holi burst at apex.
+     */
+    public static class DaytimePowder extends BurstPattern {
+        @Override public boolean isBurst() { return false; }
+        @Override public boolean isDaytimePowder() { return true; }
+        @Override public int getBurstDuration() { return 0; }
+        @Override public int getCometFadeTicks() { return 120; }
+        @Override public int getFlightLifetime() { return 62; }
+        @Override public boolean continuesAfterApex() { return false; }
+        @Override public double getFlightWobble() { return 0.012; }
+        @Override public double getGravity() { return 0.028; }
+        @Override public double getDrag() { return 0.991; }
+        @Override public float getLaunchSpeedMultiplier() { return 0.72f; }
+        @Override public int getFlightLuminance() { return 0; }
+        @Override public float getFlightLightSpread() { return 0.0f; }
+        @Override public float getFlightHaloInnerSize() { return 0.0f; }
+        @Override public float getFlightHaloOuterSize() { return 0.0f; }
+
+        @Override
+        public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
+            int[] palette = rocket.getColors();
+            emitDaytimeTrailPuff(rocket, random, rocket.getLaunchColor());
+            if (palette.length > 1 && random.nextFloat() < 0.35f) {
+                emitDaytimeTrailPuff(rocket, random, palette[1]);
+            }
+        }
+
+        @Override
+        public void onFadeTick(FireworkRocketEntity rocket, RandomSource random, int remainingTicks) {
+            if (rocket.tryFireDaytimeBurst()) {
+                emitDaytimeColorBurst(rocket, random);
+            }
+        }
+    }
+
+    /**
+     * Rainbow daytime powder fan — ground cone burst, no night flash.
+     */
+    public static class DaytimePowderFan extends BurstPattern {
+        @Override public boolean isBurst() { return true; }
+        @Override public boolean isDaytimePowder() { return true; }
+        @Override public int getBurstDuration() { return 200; }
+        @Override public int getFlightLifetime() { return 1; }
+        @Override public float getLaunchSpeedMultiplier() { return 0.02f; }
+        @Override public double getFlightWobble() { return 0.0; }
+        @Override public int getFlightLuminance() { return 0; }
+        @Override public float getFlightLightSpread() { return 0.0f; }
+        @Override public float getFlightHaloInnerSize() { return 0.0f; }
+        @Override public float getFlightHaloOuterSize() { return 0.0f; }
+
+        @Override
+        public void onFlightTick(FireworkRocketEntity rocket, RandomSource random) {
+            if (rocket.tryFireDaytimeFan()) {
+                emitOrientedPowderFan(rocket, random);
+            }
+        }
+
+        @Override
+        public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
+            if (rocket.tryFireDaytimeFan()) {
+                emitOrientedPowderFan(rocket, random);
+            }
         }
     }
 }

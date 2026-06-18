@@ -37,6 +37,14 @@ public class TheatricalExtraLightsConfig {
     private Float volumetricBeamMaxAlpha = 0.15f;
     private Float volumetricBeamFadeLength = 12.0f;
 
+    private Integer maxConcurrentRockets = 768;
+    private Integer maxSparksPerRocket = 600;
+    private Double fireworkRenderDistance = 2048.0;
+    private Boolean fireworkDynamicLightEnabled = true;
+    private Boolean fireworkSmokeEnabled = true;
+    private Integer fireworkSmokeBudgetPerTick = 24;
+    private Integer fireworkSmokeSpawnInterval = 3;
+
     private transient Set<String> laserPassThroughSet;
 
     static {
@@ -88,6 +96,14 @@ public class TheatricalExtraLightsConfig {
     public static boolean shouldRenderLens() { return INSTANCE.renderLens; }
     public static float getMaxGoboDistance() { return INSTANCE.maxGoboDistance; }
     public static boolean shouldRender2DBeam() { return INSTANCE.render2DBeam; }
+
+    public static int getMaxConcurrentRockets() { return INSTANCE.maxConcurrentRockets != null ? INSTANCE.maxConcurrentRockets : 768; }
+    public static int getMaxSparksPerRocket() { return INSTANCE.maxSparksPerRocket != null ? INSTANCE.maxSparksPerRocket : 600; }
+    public static double getFireworkRenderDistance() { return INSTANCE.fireworkRenderDistance != null ? INSTANCE.fireworkRenderDistance : 2048.0; }
+    public static boolean isFireworkDynamicLightEnabled() { return INSTANCE.fireworkDynamicLightEnabled == null || INSTANCE.fireworkDynamicLightEnabled; }
+    public static boolean isFireworkSmokeEnabled() { return INSTANCE.fireworkSmokeEnabled == null || INSTANCE.fireworkSmokeEnabled; }
+    public static int getFireworkSmokeBudgetPerTick() { return INSTANCE.fireworkSmokeBudgetPerTick != null ? INSTANCE.fireworkSmokeBudgetPerTick : 24; }
+    public static int getFireworkSmokeSpawnInterval() { return Math.max(1, INSTANCE.fireworkSmokeSpawnInterval != null ? INSTANCE.fireworkSmokeSpawnInterval : 3); }
 
     /* ================= SETTERS ================= */
 
