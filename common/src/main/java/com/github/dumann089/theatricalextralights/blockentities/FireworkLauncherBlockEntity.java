@@ -42,8 +42,8 @@ public class FireworkLauncherBlockEntity extends ExtraLightsLightBlockEntity {
     private static final float LAUNCH_SPEED = 2.0f;
     private static final float MIN_LAUNCH_POWER = 0.7f;
     private static final float MAX_LAUNCH_POWER = 2.6f;
-    private static final int MAX_LAUNCHES_PER_TICK = 4;
-    private static final float MAX_ACCUMULATOR = 4.0f;
+    private static final int MAX_LAUNCHES_PER_TICK = 6;
+    private static final float MAX_ACCUMULATOR = 8.0f;
     private static final double TUBE_LENGTH = 10.0 / 16.0;
     private static final double TUBE_BASE_HEIGHT = 4.0 / 16.0;
 
@@ -121,9 +121,9 @@ public class FireworkLauncherBlockEntity extends ExtraLightsLightBlockEntity {
         rocket.moveTo(spawn.x, spawn.y, spawn.z, 0.0f, 0.0f);
         rocket.setDeltaMovement(velocity);
         if (!serverLevel.addFreshEntity(rocket)) {
-            FireworkRocketTracker.cancelLaunch(serverLevel);
             return false;
         }
+        FireworkRocketTracker.registerLaunch(serverLevel);
         serverLevel.playSound(null, spawn.x, spawn.y, spawn.z, SoundEvents.FIREWORK_ROCKET_LAUNCH, SoundSource.BLOCKS, 0.9f, 0.9f + serverLevel.random.nextFloat() * 0.2f);
         return true;
     }

@@ -119,6 +119,7 @@ public class BlockEntities {
                     Blocks.FIREWORK_AMBER_PEONY_BLOCK.get(),
                     Blocks.FIREWORK_VIOLET_PEONY_BLOCK.get(),
                     Blocks.FIREWORK_WHITE_STROBE_BURST_BLOCK.get(),
+                    Blocks.FIREWORK_WHITE_AERIAL_STROBE_BLOCK.get(),
                     Blocks.FIREWORK_GOLD_WILLOW_BLOCK.get(),
                     Blocks.FIREWORK_RED_WILLOW_BLOCK.get(),
                     Blocks.FIREWORK_BLUE_WILLOW_BLOCK.get(),

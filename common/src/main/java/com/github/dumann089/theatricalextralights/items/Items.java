@@ -167,6 +167,10 @@ public class Items {
             "firework_white_strobe_burst",
             () -> new BlockItem(Blocks.FIREWORK_WHITE_STROBE_BURST_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
     );
+    public static final RegistrySupplier<Item> FIREWORK_WHITE_AERIAL_STROBE = ITEMS.register(
+            "firework_white_aerial_strobe",
+            () -> new BlockItem(Blocks.FIREWORK_WHITE_AERIAL_STROBE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
     public static final RegistrySupplier<Item> FIREWORK_GOLD_WILLOW = ITEMS.register(
             "firework_gold_willow",
             () -> new BlockItem(Blocks.FIREWORK_GOLD_WILLOW_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))

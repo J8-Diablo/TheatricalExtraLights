@@ -273,6 +273,8 @@ public class Fixtures {
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_violet_peony"), () -> new FireworkLauncherFixture(FireworkPreset.VIOLET_PEONY));
     public static final RegistrySupplier<Fixture> FIREWORK_WHITE_STROBE_BURST =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_white_strobe_burst"), () -> new FireworkLauncherFixture(FireworkPreset.WHITE_STROBE_BURST));
+    public static final RegistrySupplier<Fixture> FIREWORK_WHITE_AERIAL_STROBE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_white_aerial_strobe"), () -> new FireworkLauncherFixture(FireworkPreset.WHITE_AERIAL_STROBE));
     public static final RegistrySupplier<Fixture> FIREWORK_GOLD_WILLOW =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_gold_willow"), () -> new FireworkLauncherFixture(FireworkPreset.GOLD_WILLOW));
     public static final RegistrySupplier<Fixture> FIREWORK_RED_WILLOW =
@@ -426,6 +428,7 @@ public class Fixtures {
             case AMBER_PEONY -> FIREWORK_AMBER_PEONY.get();
             case VIOLET_PEONY -> FIREWORK_VIOLET_PEONY.get();
             case WHITE_STROBE_BURST -> FIREWORK_WHITE_STROBE_BURST.get();
+            case WHITE_AERIAL_STROBE -> FIREWORK_WHITE_AERIAL_STROBE.get();
             case GOLD_WILLOW -> FIREWORK_GOLD_WILLOW.get();
             case RED_WILLOW -> FIREWORK_RED_WILLOW.get();
             case BLUE_WILLOW -> FIREWORK_BLUE_WILLOW.get();
@@ -495,6 +498,7 @@ public class Fixtures {
             case AMBER_PEONY -> FIREWORK_AMBER_PEONY.getId();
             case VIOLET_PEONY -> FIREWORK_VIOLET_PEONY.getId();
             case WHITE_STROBE_BURST -> FIREWORK_WHITE_STROBE_BURST.getId();
+            case WHITE_AERIAL_STROBE -> FIREWORK_WHITE_AERIAL_STROBE.getId();
             case GOLD_WILLOW -> FIREWORK_GOLD_WILLOW.getId();
             case RED_WILLOW -> FIREWORK_RED_WILLOW.getId();
             case BLUE_WILLOW -> FIREWORK_BLUE_WILLOW.getId();

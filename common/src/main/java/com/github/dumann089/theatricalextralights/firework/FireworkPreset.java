@@ -17,6 +17,7 @@ public enum FireworkPreset {
     AMBER_PEONY("firework_amber_peony", "Amber Peony", BurstPatterns.Peony::new, 0xFFA040, 0xFFD9A0),
     VIOLET_PEONY("firework_violet_peony", "Violet Peony", BurstPatterns.Peony::new, 0xC77BFF, 0xE0BBFF),
     WHITE_STROBE_BURST("firework_white_strobe_burst", "White Strobe Burst", BurstPatterns.Strobe::new, 0xFFFFFF, 0xFFF5C9),
+    WHITE_AERIAL_STROBE("firework_white_aerial_strobe", "White Aerial Strobe", BurstPatterns.AerialStrobe::new, 0xFFFFFF, 0xFFF5C9),
     GOLD_WILLOW("firework_gold_willow", "Gold Willow", BurstPatterns.Willow::new, 0xFFCD63, 0xFFF1B8),
     RED_WILLOW("firework_red_willow", "Red Willow", BurstPatterns.Willow::new, 0xFF5B5B, 0xFFD1D1),
     BLUE_WILLOW("firework_blue_willow", "Blue Willow", BurstPatterns.Willow::new, 0x4D8DFF, 0xB8D3FF),

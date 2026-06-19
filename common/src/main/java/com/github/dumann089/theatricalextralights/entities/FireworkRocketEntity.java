@@ -54,6 +54,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
     private boolean daytimeFanFired;
     private boolean daytimeBurstFired;
     private int[] customColors;
+    private double fadeStartY = Double.NaN;
 
     public FireworkRocketEntity(EntityType<? extends FireworkRocketEntity> entityType, Level level) {
         super(entityType, level);
@@ -245,7 +246,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
                 if (pattern.isDaytimePowder()) {
                     FireworkSmokeEffects.trySpawnDaytimeLaunchPlume(this, random, life);
                     FireworkSmokeEffects.trySpawnDaytimeFlightTrail(this, random, life);
-                } else {
+                } else if (!pattern.hasInvisibleFlight()) {
                     FireworkSmokeEffects.trySpawnFlightSmoke(this, random, life);
                     FireworkSmokeEffects.trySpawnPowderParticle(this, random, life);
                 }
@@ -273,10 +274,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
         }
 
         if (fading) {
-            Vec3 fadeMotion = getDeltaMovement();
-            double fadeDrag = 0.94;
-            setDeltaMovement(fadeMotion.x * fadeDrag, fadeMotion.y * fadeDrag - 0.025, fadeMotion.z * fadeDrag);
-            move(MoverType.SELF, getDeltaMovement());
+            tickFadeMotion(pattern);
             if (clientSide && --fadeTicks <= 0) {
                 sparks.removeIf(Spark::isDead);
                 if (sparks.isEmpty() || fadeTicks <= -20) {
@@ -329,10 +327,40 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
             burstStarted = false;
             setDeltaMovement(Vec3.ZERO);
         } else if (pattern.getCometFadeTicks() > 0) {
-            fading = true;
-            exploded = false;
-            fadeTicks = pattern.getCometFadeTicks();
+            beginFadePhase(pattern);
         }
+    }
+
+    private void beginFadePhase(BurstPattern pattern) {
+        fading = true;
+        exploded = false;
+        fadeTicks = pattern.getCometFadeTicks();
+        if (pattern.getFadeDescentBlocks() > 0.0) {
+            fadeStartY = getY();
+        }
+    }
+
+    private void tickFadeMotion(BurstPattern pattern) {
+        Vec3 fadeMotion = getDeltaMovement();
+        double fadeDrag = 0.94;
+        double maxDescent = pattern.getFadeDescentBlocks();
+        if (maxDescent > 0.0) {
+            if (Double.isNaN(fadeStartY)) {
+                fadeStartY = getY();
+            }
+            int totalFade = pattern.getCometFadeTicks();
+            int elapsed = totalFade - fadeTicks;
+            float progress = Math.min(1.0f, Math.max(0.0f, elapsed / (float) Math.max(1, totalFade)));
+            double minY = fadeStartY - maxDescent;
+            double targetY = fadeStartY - maxDescent * progress;
+            double dx = fadeMotion.x * fadeDrag;
+            double dz = fadeMotion.z * fadeDrag;
+            setPos(getX(), Math.max(minY, targetY), getZ());
+            setDeltaMovement(dx, 0.0, dz);
+            return;
+        }
+        setDeltaMovement(fadeMotion.x * fadeDrag, fadeMotion.y * fadeDrag - 0.025, fadeMotion.z * fadeDrag);
+        move(MoverType.SELF, getDeltaMovement());
     }
 
     @Override
@@ -363,10 +391,11 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
         if (syncedFading) {
             if (!fading) {
-                fadeTicks = pattern.getCometFadeTicks();
+                beginFadePhase(pattern);
             }
             fading = true;
             exploded = false;
+            return;
         }
     }
 
@@ -380,9 +409,7 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
     }
 
     private void setSyncedFading(BurstPattern pattern) {
-        fading = true;
-        exploded = false;
-        fadeTicks = pattern.getCometFadeTicks();
+        beginFadePhase(pattern);
         entityData.set(DATA_FADING, true);
         entityData.set(DATA_EXPLODED, false);
     }
@@ -489,6 +516,9 @@ public class FireworkRocketEntity extends Entity implements EntitySpawnExtension
 
     @Override
     public void remove(RemovalReason reason) {
+        if (!level().isClientSide && level() instanceof ServerLevel serverLevel) {
+            FireworkRocketTracker.onRemoved(serverLevel);
+        }
         releaseLight();
         FireworkLightCompat.remove(this);
         shimmerLightRegistered = false;
