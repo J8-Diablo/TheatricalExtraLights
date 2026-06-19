@@ -171,6 +171,34 @@ public class Items {
             "firework_white_aerial_strobe",
             () -> new BlockItem(Blocks.FIREWORK_WHITE_AERIAL_STROBE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
     );
+    public static final RegistrySupplier<Item> FIREWORK_RED_AERIAL_STROBE = ITEMS.register(
+            "firework_red_aerial_strobe",
+            () -> new BlockItem(Blocks.FIREWORK_RED_AERIAL_STROBE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_BLUE_AERIAL_STROBE = ITEMS.register(
+            "firework_blue_aerial_strobe",
+            () -> new BlockItem(Blocks.FIREWORK_BLUE_AERIAL_STROBE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_GREEN_AERIAL_STROBE = ITEMS.register(
+            "firework_green_aerial_strobe",
+            () -> new BlockItem(Blocks.FIREWORK_GREEN_AERIAL_STROBE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_GOLD_AERIAL_STROBE = ITEMS.register(
+            "firework_gold_aerial_strobe",
+            () -> new BlockItem(Blocks.FIREWORK_GOLD_AERIAL_STROBE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_AMBER_AERIAL_STROBE = ITEMS.register(
+            "firework_amber_aerial_strobe",
+            () -> new BlockItem(Blocks.FIREWORK_AMBER_AERIAL_STROBE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_VIOLET_AERIAL_STROBE = ITEMS.register(
+            "firework_violet_aerial_strobe",
+            () -> new BlockItem(Blocks.FIREWORK_VIOLET_AERIAL_STROBE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FIREWORK_SILVER_AERIAL_STROBE = ITEMS.register(
+            "firework_silver_aerial_strobe",
+            () -> new BlockItem(Blocks.FIREWORK_SILVER_AERIAL_STROBE_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
     public static final RegistrySupplier<Item> FIREWORK_GOLD_WILLOW = ITEMS.register(
             "firework_gold_willow",
             () -> new BlockItem(Blocks.FIREWORK_GOLD_WILLOW_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))

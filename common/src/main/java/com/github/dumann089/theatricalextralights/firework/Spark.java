@@ -23,6 +23,8 @@ public final class Spark {
     public final boolean strobe;
     /** Opaque daytime powder — larger, slower-fading colored smoke puffs. */
     public final boolean powder;
+    /** When set, the spark cannot fall below this Y (stage mines). */
+    public final double minFloorY;
 
     public int age;
 
@@ -31,7 +33,7 @@ public final class Spark {
                  int color, float scale, int lifetime,
                  float gravity, float drag,
                  boolean trail, boolean strobe) {
-        this(x, y, z, vx, vy, vz, color, scale, lifetime, gravity, drag, trail, strobe, false);
+        this(x, y, z, vx, vy, vz, color, scale, lifetime, gravity, drag, trail, strobe, false, Double.NaN);
     }
 
     public Spark(double x, double y, double z,
@@ -39,6 +41,14 @@ public final class Spark {
                  int color, float scale, int lifetime,
                  float gravity, float drag,
                  boolean trail, boolean strobe, boolean powder) {
+        this(x, y, z, vx, vy, vz, color, scale, lifetime, gravity, drag, trail, strobe, powder, Double.NaN);
+    }
+
+    public Spark(double x, double y, double z,
+                 double vx, double vy, double vz,
+                 int color, float scale, int lifetime,
+                 float gravity, float drag,
+                 boolean trail, boolean strobe, boolean powder, double minFloorY) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -56,6 +66,7 @@ public final class Spark {
         this.trail = trail;
         this.strobe = strobe;
         this.powder = powder;
+        this.minFloorY = minFloorY;
         this.age = 0;
     }
 
@@ -86,7 +97,19 @@ public final class Spark {
             z += vz;
             applyDrag();
         }
+        enforceFloor();
         age++;
+    }
+
+    private void enforceFloor() {
+        if (Double.isNaN(minFloorY) || y >= minFloorY) {
+            return;
+        }
+        y = minFloorY;
+        prevY = Math.max(prevY, minFloorY);
+        if (vy < 0.0) {
+            vy = 0.0;
+        }
     }
 
     private void applyDrag() {

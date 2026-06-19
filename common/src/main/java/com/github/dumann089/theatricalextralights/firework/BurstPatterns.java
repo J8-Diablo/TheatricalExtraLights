@@ -717,21 +717,53 @@ public final class BurstPatterns {
         @Override
         public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
             int[] palette = rocket.getColors();
+            double floorY = rocket.getY();
             int count = 200;
             for (int i = 0; i < count; i++) {
-                double theta = random.nextDouble() * Math.PI * 2.0;
-                double horizontal = 0.08 + random.nextDouble() * 0.22;
-                double upward = 1.05 + random.nextDouble() * 0.45;
+                double azimuth = random.nextDouble() * Math.PI * 2.0;
+                double coneAngle = random.nextDouble() * 0.48;
                 double speed = 1.55 + random.nextDouble() * 0.95;
-                double dirLen = Math.sqrt(horizontal * horizontal + upward * upward);
-                double vx = (Math.cos(theta) * horizontal / dirLen) * speed;
-                double vy = (upward / dirLen) * speed;
-                double vz = (Math.sin(theta) * horizontal / dirLen) * speed;
+                double vy = Math.cos(coneAngle) * speed;
+                double horiz = Math.sin(coneAngle) * speed;
+                double vx = Math.cos(azimuth) * horiz;
+                double vz = Math.sin(azimuth) * horiz;
                 int color = paletteAt(palette, i);
-                rocket.addSpark(new Spark(rocket.getX(), rocket.getY(), rocket.getZ(),
-                        vx, vy, vz, color, 0.46f, 85 + random.nextInt(25), 0.007f, 0.992f, true, false));
+                rocket.addSpark(new Spark(
+                        rocket.getX(), floorY, rocket.getZ(),
+                        vx, vy, vz,
+                        color,
+                        0.46f,
+                        85 + random.nextInt(25),
+                        0.007f,
+                        0.992f,
+                        true,
+                        false,
+                        false,
+                        floorY
+                ));
             }
-            spawnEmbers(rocket, random, 70);
+            for (int i = 0; i < 35; i++) {
+                double theta = random.nextDouble() * Math.PI * 2.0;
+                double spread = 0.12 + random.nextDouble() * 0.18;
+                double speed = 0.25 + random.nextDouble() * 0.40;
+                double vx = Math.cos(theta) * spread * speed;
+                double vz = Math.sin(theta) * spread * speed;
+                double vy = 0.40 + random.nextDouble() * 0.50;
+                int color = paletteAt(palette, i);
+                rocket.addSpark(new Spark(
+                        rocket.getX(), floorY, rocket.getZ(),
+                        vx, vy, vz,
+                        color,
+                        0.18f + random.nextFloat() * 0.10f,
+                        90 + random.nextInt(50),
+                        0.004f,
+                        0.996f,
+                        false,
+                        false,
+                        false,
+                        floorY
+                ));
+            }
         }
     }
 
