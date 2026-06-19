@@ -39,8 +39,8 @@ public class PyroFanBlockEntity extends ExtraLightsLightBlockEntity implements H
     private static final float BASE_LAUNCH_SPEED = 1.68f;
     private static final float MIN_SHOTS_PER_SECOND = 0.5f;
     private static final float MAX_SHOTS_PER_SECOND = 6.0f;
-    private static final int MAX_LAUNCHES_PER_TICK = 4;
-    private static final float MAX_ACCUMULATOR = 4.0f;
+    private static final int MAX_LAUNCHES_PER_TICK = 6;
+    private static final float MAX_ACCUMULATOR = 8.0f;
     private static final double TUBE_BASE_HEIGHT = 4.0 / 16.0;
 
     private final int[] tubeIntensity = new int[TUBE_COUNT];
@@ -149,9 +149,9 @@ public class PyroFanBlockEntity extends ExtraLightsLightBlockEntity implements H
         rocket.moveTo(spawn.x, spawn.y, spawn.z, 0.0f, 0.0f);
         rocket.setDeltaMovement(velocity);
         if (!serverLevel.addFreshEntity(rocket)) {
-            FireworkRocketTracker.cancelLaunch(serverLevel);
             return false;
         }
+        FireworkRocketTracker.registerLaunch(serverLevel);
         serverLevel.playSound(
                 null,
                 spawn.x,

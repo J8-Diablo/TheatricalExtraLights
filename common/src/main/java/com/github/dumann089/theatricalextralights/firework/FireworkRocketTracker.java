@@ -3,6 +3,7 @@ package com.github.dumann089.theatricalextralights.firework;
 import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import com.github.dumann089.theatricalextralights.entities.FireworkRocketEntity;
 import dev.architectury.event.events.common.TickEvent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
@@ -11,6 +12,9 @@ import net.minecraft.world.phys.AABB;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Limits concurrent firework rockets and reclaims orphans that stack in sky chunks.
@@ -19,6 +23,9 @@ public final class FireworkRocketTracker {
     private static final AABB WORLD_BOUNDS = new AABB(-3.0E7, -64, -3.0E7, 3.0E7, 320, 3.0E7);
     private static final int ABSOLUTE_MAX_TICKS = 420;
     private static final double PLAYER_KEEP_RANGE = 160.0;
+    private static final double RECONCILE_RANGE = 192.0;
+
+    private static final Map<ResourceKey<Level>, AtomicInteger> ACTIVE_COUNTS = new ConcurrentHashMap<>();
 
     private FireworkRocketTracker() {
     }
@@ -31,6 +38,7 @@ public final class FireworkRocketTracker {
         if (level.getGameTime() % 20L != 0L) {
             return;
         }
+        reconcile(level);
         cleanupOrphans(level);
     }
 
@@ -43,29 +51,37 @@ public final class FireworkRocketTracker {
             return true;
         }
 
-        int count = countActive(serverLevel);
+        int count = getActiveCount(serverLevel);
         if (count >= max) {
             purgeExpired(serverLevel);
-        } else if (count > max / 2) {
-            cleanupOrphans(serverLevel);
+            count = getActiveCount(serverLevel);
+        } else if (count > (max * 4) / 5) {
+            purgeFinished(serverLevel);
+            reconcile(serverLevel);
+            count = getActiveCount(serverLevel);
         }
 
-        return countActive(serverLevel) < max;
+        return count < max;
+    }
+
+    public static void registerLaunch(ServerLevel level) {
+        activeCounter(level).incrementAndGet();
     }
 
     public static void cancelLaunch(Level level) {
     }
 
-    public static void onRemoved(Level level) {
+    public static void onRemoved(ServerLevel level) {
+        activeCounter(level).updateAndGet(value -> Math.max(0, value - 1));
     }
 
     public static int countActive(ServerLevel level) {
-        return level.getEntitiesOfClass(FireworkRocketEntity.class, WORLD_BOUNDS).size();
+        return scanRockets(level, showBounds(level));
     }
 
     /** Reclaim rockets that flew too far/high or linger without nearby players. */
     public static void cleanupOrphans(ServerLevel level) {
-        for (FireworkRocketEntity rocket : List.copyOf(level.getEntitiesOfClass(FireworkRocketEntity.class, WORLD_BOUNDS))) {
+        for (FireworkRocketEntity rocket : List.copyOf(level.getEntitiesOfClass(FireworkRocketEntity.class, showBounds(level)))) {
             if (rocket.shouldForceCleanup(level)) {
                 rocket.discard();
             }
@@ -73,7 +89,7 @@ public final class FireworkRocketTracker {
     }
 
     public static void purgeFinished(ServerLevel level) {
-        for (FireworkRocketEntity rocket : level.getEntitiesOfClass(FireworkRocketEntity.class, WORLD_BOUNDS)) {
+        for (FireworkRocketEntity rocket : level.getEntitiesOfClass(FireworkRocketEntity.class, showBounds(level))) {
             int hold = rocket.getPreset().getPattern().getServerHoldTicks();
             if (rocket.tickCount > hold || rocket.tickCount > ABSOLUTE_MAX_TICKS || rocket.shouldForceCleanup(level)) {
                 rocket.discard();
@@ -90,7 +106,7 @@ public final class FireworkRocketTracker {
         }
 
         List<FireworkRocketEntity> rockets = new ArrayList<>(
-                level.getEntitiesOfClass(FireworkRocketEntity.class, WORLD_BOUNDS)
+                level.getEntitiesOfClass(FireworkRocketEntity.class, showBounds(level))
         );
         while (rockets.size() > max) {
             rockets.sort(Comparator.comparingInt(r -> r.tickCount));
@@ -98,8 +114,9 @@ public final class FireworkRocketTracker {
                 break;
             }
             rockets.remove(0).discard();
-            rockets = new ArrayList<>(level.getEntitiesOfClass(FireworkRocketEntity.class, WORLD_BOUNDS));
+            rockets = new ArrayList<>(level.getEntitiesOfClass(FireworkRocketEntity.class, showBounds(level)));
         }
+        reconcile(level);
     }
 
     public static boolean hasNearbyPlayer(ServerLevel level, FireworkRocketEntity rocket) {
@@ -110,5 +127,33 @@ public final class FireworkRocketTracker {
             }
         }
         return false;
+    }
+
+    private static int getActiveCount(ServerLevel level) {
+        return activeCounter(level).get();
+    }
+
+    private static void reconcile(ServerLevel level) {
+        activeCounter(level).set(scanRockets(level, showBounds(level)));
+    }
+
+    private static AtomicInteger activeCounter(ServerLevel level) {
+        return ACTIVE_COUNTS.computeIfAbsent(level.dimension(), key -> new AtomicInteger());
+    }
+
+    private static AABB showBounds(ServerLevel level) {
+        if (level.players().isEmpty()) {
+            return WORLD_BOUNDS;
+        }
+        AABB combined = null;
+        for (ServerPlayer player : level.players()) {
+            AABB box = player.getBoundingBox().inflate(RECONCILE_RANGE);
+            combined = combined == null ? box : combined.minmax(box);
+        }
+        return combined == null ? WORLD_BOUNDS : combined;
+    }
+
+    private static int scanRockets(ServerLevel level, AABB bounds) {
+        return level.getEntitiesOfClass(FireworkRocketEntity.class, bounds).size();
     }
 }
