@@ -61,7 +61,7 @@ Hundreds of placeable fixtures across creative tabs **Theatrical: Extra Lights**
 - **Blinders & strobes** — 4×2 blinder, atomic strobe (34ch), atomic tilt, white strobe
 - **Effects** — laser, laser mirror, LED fountain, RGB / vertical bars, scrollers, invisible light
 - **Water jets** — jets, cones, bloom, fog, organ pipes, moving fan, and more
-- **Pyro** — flame projector, gold gerb, 50+ firework launcher effects
+- **Pyro** — 50+ firework launchers, Pyro Fan, RGB launcher, confetti, gerbs, flame projector, daytime powder *(see [Pyro](#pyro-theatrical-pyro-tab) below)*
 - **Rig** — mini truss, corner, T-corner, cross joint
 - **Followspot console** — operator desk to remotely aim and dim a patched 7ch followspot
 
@@ -84,6 +84,64 @@ All DMX fixtures work with Theatrical’s **Configuration Card**, **Art-Net netw
 - **French & German** — full UI translation for the console screen
 
 ![Followspot console UI](https://github.com/user-attachments/assets/24806e2a-fff8-4193-958f-a28e9cdad39e)
+
+### Pyro *(Theatrical Pyro tab)*
+
+Stage pyrotechnics controlled over DMX — launchers, mines, gerbs, and specialty effects for finales and daytime shows.
+
+**Creative tab:** **Theatrical Pyro** — all pyro blocks and firework launchers in one place.
+
+#### DMX control
+
+Most **firework launchers** use a **3-channel** personality:
+
+| Channel | Role |
+|---------|------|
+| **Intensity** | Fire rate (0 = off). Values ≥ 2 start firing; higher = faster shots. |
+| **Tilt** | Launch angle (0° = horizontal → 180° = straight up). Controls apex height. |
+| **Focus** | Launch power — how high and how far each shell travels. |
+
+Patch with the Configuration Card like any other fixture. **Shift + right-click** to open address / network settings.
+
+#### Firework launchers *(50+ presets)*
+
+Each launcher is a fixed effect type. Grouped by pattern family:
+
+| Family | Examples |
+|--------|----------|
+| **Comets** | Red / blue / green / gold — trailing shells, no burst |
+| **Long comets** | Gold, red, blue, green, silver — dense trail, short hover at apex |
+| **Peonies** | Classic sphere bursts — 7 colours |
+| **Willows** | Heavy drooping trails — 7 colours |
+| **Chrysanthemums** | Streak-filled spheres — 7 colours |
+| **Crossettes** | Crisscross secondary breaks — 7 colours |
+| **Mines** | Ground fountain — tall column, minimal fall-back |
+| **Special shells** | Palm, ring, spinner, horsetail, spider, diadem, salute, heart, double burst, multicolor, whistler |
+| **Strobe** | White strobe burst (scatter) · **White aerial strobe** (silent ascent, 4 s flash in the sky) |
+| **Daytime powder** | Lime, magenta, yellow, orange, red, blue — Holi-style coloured smoke, visible in daylight |
+| **Rainbow fan** | Multi-colour daytime powder fan |
+
+Effects use a custom spark renderer (not vanilla particles), optional **dynamic light** on bursts, and budget-limited smoke trails on comets.
+
+#### Specialty pyro fixtures
+
+| Fixture | Channels | Description |
+|---------|----------|-------------|
+| **Pyro Fan** | 3ch or **10ch** | 10 tubes firing gold comets in a vertical fan. 10ch mode: per-tube intensity + global tilt/focus. |
+| **RGB Firework Launcher** | **7ch** | Intensity, RGB, effect select, tilt, focus — pick any comet/burst preset and tint it. |
+| **Confetti cannon** | 1ch | High-altitude confetti burst on DMX trigger. |
+| **Gold gerb** | DMX | Stage gerb fountain. |
+| **Flame projector** | DMX | Continuous flame effect. |
+
+#### Tips
+
+- Aim launchers with **tilt** before a show; use **focus** to match song dynamics.
+- **Daytime powder** and **rainbow fan** are designed for bright maps — minimal dynamic light, coloured plumes.
+- **Long comets** stop at apex and fade with a short controlled drop (~3 blocks).
+- **Mines** burst at the launcher — no rocket flight; good for stage-edge columns.
+- Intense pyro shows are throttled server-side (max concurrent rockets, per-tick launch cap) to stay stable on large rigs.
+
+**Pyro-related config** (in `theatricalextralights.json`): `fireworkRenderDistance`, `fireworkDynamicLightEnabled`, `fireworkSmokeEnabled`, `fireworkSmokeBudgetPerTick`, `fireworkSmokeSpawnInterval`.
 
 ---
 
@@ -137,6 +195,13 @@ Add scenic blocks (backdrops, decor) so laser beams continue to a wall behind th
 3. Adjust Focus / RGB / Intensity with the sliders; use **ZQSD** for pan/tilt from the desk.
 4. **Control fixture** for first-person aiming at the lens; **Esc** to exit.
 
+**Pyro**
+
+1. Grab launchers from the **Theatrical Pyro** creative tab.
+2. Patch each launcher on your Art-Net network (3ch default — intensity / tilt / focus).
+3. Raise **intensity** above 1 to fire; adjust **tilt** for height and **focus** for reach.
+4. For finales, combine **Pyro Fan** (10 tubes), **mines** (ground columns), and aerial shells (peonies, long comets, aerial strobe).
+
 **Tips**
 
 - **Shift + right-click** a fixture to open its DMX settings (address, universe, mode, network).
@@ -154,7 +219,7 @@ Add scenic blocks (backdrops, decor) so laser beams continue to a wall behind th
 
 ## Contributing & credits
 
-**Authors:** [dumann089](https://github.com/dumann089) · Rushmead · J8-Diablo  
+**Authors:** [dumann089](https://github.com/dumann089) · Rushmead · J8-Diablo · nailec  
 
 **License:** [MIT](LICENSE) — Copyright (c) 2025 Stuart Pomeroy
 

@@ -268,6 +268,96 @@ public final class BurstPatterns {
     }
 
     /**
+     * Silent ascent (no trail), then a fixed aerial strobe for four seconds at apex.
+     */
+    public static class AerialStrobe extends BurstPattern {
+        private static final int BURST_DURATION = 80;
+
+        @Override public boolean isBurst() { return true; }
+        @Override public boolean isAerialStrobe() { return true; }
+        @Override public boolean hasInvisibleFlight() { return true; }
+        @Override public int getBurstDuration() { return BURST_DURATION; }
+        @Override public int getFlightLifetime() { return FLIGHT_LIFETIME; }
+        @Override public int getFlightLuminance() { return 0; }
+        @Override public float getFlightLightSpread() { return 0.0f; }
+        @Override public float getFlightHaloInnerSize() { return 0.0f; }
+        @Override public float getFlightHaloOuterSize() { return 0.0f; }
+
+        @Override
+        public int getBurstLuminance(int tickIndex) {
+            if (tickIndex >= BURST_DURATION) {
+                return 0;
+            }
+            return tickIndex % 4 < 2 ? 15 : 0;
+        }
+
+        @Override
+        public float getBurstLightSpread(int tickIndex) {
+            if (tickIndex >= BURST_DURATION) {
+                return 0.0f;
+            }
+            return tickIndex % 4 < 2 ? 60.0f : 4.0f;
+        }
+
+        @Override
+        public float getBurstHaloInnerSize(int tickIndex) {
+            if (tickIndex >= BURST_DURATION) {
+                return 0.0f;
+            }
+            return tickIndex % 4 < 2 ? 14.0f : 4.0f;
+        }
+
+        @Override
+        public float getBurstHaloOuterSize(int tickIndex) {
+            if (tickIndex >= BURST_DURATION) {
+                return 0.0f;
+            }
+            return tickIndex % 4 < 2 ? 22.0f : 6.0f;
+        }
+
+        @Override
+        public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
+            spawnAerialStrobeSparks(rocket, random, BURST_DURATION);
+        }
+
+        @Override
+        public void onBurstTick(FireworkRocketEntity rocket, RandomSource random, int tickIndex) {
+            if (tickIndex > 0 && tickIndex % 6 == 0) {
+                spawnAerialStrobeSparks(rocket, random, BURST_DURATION - tickIndex);
+            }
+        }
+
+        private static void spawnAerialStrobeSparks(FireworkRocketEntity rocket, RandomSource random, int remainingTicks) {
+            if (remainingTicks <= 0) {
+                return;
+            }
+            int color = rocket.getLaunchColor();
+            int count = 4 + random.nextInt(3);
+            double radius = 0.35;
+            for (int i = 0; i < count; i++) {
+                double jx = (random.nextDouble() - 0.5) * radius;
+                double jy = (random.nextDouble() - 0.5) * radius * 0.5;
+                double jz = (random.nextDouble() - 0.5) * radius;
+                rocket.addSpark(new Spark(
+                        rocket.getX() + jx,
+                        rocket.getY() + jy,
+                        rocket.getZ() + jz,
+                        0.0,
+                        0.0,
+                        0.0,
+                        color,
+                        0.55f + random.nextFloat() * 0.25f,
+                        Math.min(remainingTicks, 10 + random.nextInt(8)),
+                        0.0f,
+                        1.0f,
+                        false,
+                        true
+                ));
+            }
+        }
+    }
+
+    /**
      * Three concentric color shells expanding at different speeds. Each shell is a
      * full uniform sphere in its own color from the preset palette, so three rings
      * are visible separating outward.
@@ -627,21 +717,53 @@ public final class BurstPatterns {
         @Override
         public void onBurstStart(FireworkRocketEntity rocket, RandomSource random) {
             int[] palette = rocket.getColors();
+            double floorY = rocket.getY();
             int count = 200;
             for (int i = 0; i < count; i++) {
-                double theta = random.nextDouble() * Math.PI * 2.0;
-                double horizontal = 0.10 + random.nextDouble() * 0.30;
-                double upward = 1.00 + random.nextDouble() * 0.50;
-                double speed = 1.50 + random.nextDouble() * 1.00;
-                double dirLen = Math.sqrt(horizontal * horizontal + upward * upward);
-                double vx = (Math.cos(theta) * horizontal / dirLen) * speed;
-                double vy = (upward / dirLen) * speed;
-                double vz = (Math.sin(theta) * horizontal / dirLen) * speed;
+                double azimuth = random.nextDouble() * Math.PI * 2.0;
+                double coneAngle = random.nextDouble() * 0.48;
+                double speed = 1.55 + random.nextDouble() * 0.95;
+                double vy = Math.cos(coneAngle) * speed;
+                double horiz = Math.sin(coneAngle) * speed;
+                double vx = Math.cos(azimuth) * horiz;
+                double vz = Math.sin(azimuth) * horiz;
                 int color = paletteAt(palette, i);
-                rocket.addSpark(new Spark(rocket.getX(), rocket.getY(), rocket.getZ(),
-                        vx, vy, vz, color, 0.46f, 70 + random.nextInt(20), 0.040f, 0.985f, true, false));
+                rocket.addSpark(new Spark(
+                        rocket.getX(), floorY, rocket.getZ(),
+                        vx, vy, vz,
+                        color,
+                        0.46f,
+                        85 + random.nextInt(25),
+                        0.007f,
+                        0.992f,
+                        true,
+                        false,
+                        false,
+                        floorY
+                ));
             }
-            spawnEmbers(rocket, random, 70);
+            for (int i = 0; i < 35; i++) {
+                double theta = random.nextDouble() * Math.PI * 2.0;
+                double spread = 0.12 + random.nextDouble() * 0.18;
+                double speed = 0.25 + random.nextDouble() * 0.40;
+                double vx = Math.cos(theta) * spread * speed;
+                double vz = Math.sin(theta) * spread * speed;
+                double vy = 0.40 + random.nextDouble() * 0.50;
+                int color = paletteAt(palette, i);
+                rocket.addSpark(new Spark(
+                        rocket.getX(), floorY, rocket.getZ(),
+                        vx, vy, vz,
+                        color,
+                        0.18f + random.nextFloat() * 0.10f,
+                        90 + random.nextInt(50),
+                        0.004f,
+                        0.996f,
+                        false,
+                        false,
+                        false,
+                        floorY
+                ));
+            }
         }
     }
 
@@ -919,14 +1041,20 @@ public final class BurstPatterns {
     }
 
     /**
-     * Long ascending comet with dense trail, then a slow falling cascade after apex.
+     * Long ascending comet with dense trail, then a short controlled drop after apex.
      */
     public static class LongTrailComet extends BurstPattern {
+        private static final double FADE_DESCENT_BLOCKS = 3.0;
+
         @Override public boolean isBurst() { return false; }
         @Override public int getBurstDuration() { return 0; }
         @Override public int getCometFadeTicks() { return 52; }
         @Override public int getFlightLifetime() { return 220; }
-        @Override public boolean continuesAfterApex() { return true; }
+        @Override public boolean continuesAfterApex() { return false; }
+        @Override public double getFadeDescentBlocks() { return FADE_DESCENT_BLOCKS; }
+        @Override public int getServerHoldTicks() {
+            return getFlightLifetime() + getCometFadeTicks() + 24;
+        }
         @Override public float getLaunchSpeedMultiplier() { return 1.12f; }
         @Override public float getFlightLightSpread() { return 34.0f; }
         @Override public float getFlightHaloInnerSize() { return 1.8f; }

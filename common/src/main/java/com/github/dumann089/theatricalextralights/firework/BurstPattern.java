@@ -110,6 +110,16 @@ public abstract class BurstPattern {
         return false;
     }
 
+    /** Ascent with no visible head, trail, or dynamic light until the effect triggers. */
+    public boolean hasInvisibleFlight() {
+        return false;
+    }
+
+    /** Sustained on/off flash at apex instead of a scattering burst. */
+    public boolean isAerialStrobe() {
+        return false;
+    }
+
     /**
      * Server-side entity lifetime. Kept short for comets so concurrent slots recycle
      * during pyro fan shows (full arc is simulated client-side).
@@ -148,6 +158,14 @@ public abstract class BurstPattern {
      */
     public boolean continuesAfterApex() {
         return false;
+    }
+
+    /**
+     * Controlled vertical drop during comet fade, measured from the apex position.
+     * {@code <= 0} keeps legacy gravity-based fade motion.
+     */
+    public double getFadeDescentBlocks() {
+        return 0.0;
     }
 
     /**

@@ -273,6 +273,22 @@ public class Fixtures {
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_violet_peony"), () -> new FireworkLauncherFixture(FireworkPreset.VIOLET_PEONY));
     public static final RegistrySupplier<Fixture> FIREWORK_WHITE_STROBE_BURST =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_white_strobe_burst"), () -> new FireworkLauncherFixture(FireworkPreset.WHITE_STROBE_BURST));
+    public static final RegistrySupplier<Fixture> FIREWORK_WHITE_AERIAL_STROBE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_white_aerial_strobe"), () -> new FireworkLauncherFixture(FireworkPreset.WHITE_AERIAL_STROBE));
+    public static final RegistrySupplier<Fixture> FIREWORK_RED_AERIAL_STROBE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_red_aerial_strobe"), () -> new FireworkLauncherFixture(FireworkPreset.RED_AERIAL_STROBE));
+    public static final RegistrySupplier<Fixture> FIREWORK_BLUE_AERIAL_STROBE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_blue_aerial_strobe"), () -> new FireworkLauncherFixture(FireworkPreset.BLUE_AERIAL_STROBE));
+    public static final RegistrySupplier<Fixture> FIREWORK_GREEN_AERIAL_STROBE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_green_aerial_strobe"), () -> new FireworkLauncherFixture(FireworkPreset.GREEN_AERIAL_STROBE));
+    public static final RegistrySupplier<Fixture> FIREWORK_GOLD_AERIAL_STROBE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_gold_aerial_strobe"), () -> new FireworkLauncherFixture(FireworkPreset.GOLD_AERIAL_STROBE));
+    public static final RegistrySupplier<Fixture> FIREWORK_AMBER_AERIAL_STROBE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_amber_aerial_strobe"), () -> new FireworkLauncherFixture(FireworkPreset.AMBER_AERIAL_STROBE));
+    public static final RegistrySupplier<Fixture> FIREWORK_VIOLET_AERIAL_STROBE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_violet_aerial_strobe"), () -> new FireworkLauncherFixture(FireworkPreset.VIOLET_AERIAL_STROBE));
+    public static final RegistrySupplier<Fixture> FIREWORK_SILVER_AERIAL_STROBE =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_silver_aerial_strobe"), () -> new FireworkLauncherFixture(FireworkPreset.SILVER_AERIAL_STROBE));
     public static final RegistrySupplier<Fixture> FIREWORK_GOLD_WILLOW =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "firework_gold_willow"), () -> new FireworkLauncherFixture(FireworkPreset.GOLD_WILLOW));
     public static final RegistrySupplier<Fixture> FIREWORK_RED_WILLOW =
@@ -426,6 +442,14 @@ public class Fixtures {
             case AMBER_PEONY -> FIREWORK_AMBER_PEONY.get();
             case VIOLET_PEONY -> FIREWORK_VIOLET_PEONY.get();
             case WHITE_STROBE_BURST -> FIREWORK_WHITE_STROBE_BURST.get();
+            case WHITE_AERIAL_STROBE -> FIREWORK_WHITE_AERIAL_STROBE.get();
+            case RED_AERIAL_STROBE -> FIREWORK_RED_AERIAL_STROBE.get();
+            case BLUE_AERIAL_STROBE -> FIREWORK_BLUE_AERIAL_STROBE.get();
+            case GREEN_AERIAL_STROBE -> FIREWORK_GREEN_AERIAL_STROBE.get();
+            case GOLD_AERIAL_STROBE -> FIREWORK_GOLD_AERIAL_STROBE.get();
+            case AMBER_AERIAL_STROBE -> FIREWORK_AMBER_AERIAL_STROBE.get();
+            case VIOLET_AERIAL_STROBE -> FIREWORK_VIOLET_AERIAL_STROBE.get();
+            case SILVER_AERIAL_STROBE -> FIREWORK_SILVER_AERIAL_STROBE.get();
             case GOLD_WILLOW -> FIREWORK_GOLD_WILLOW.get();
             case RED_WILLOW -> FIREWORK_RED_WILLOW.get();
             case BLUE_WILLOW -> FIREWORK_BLUE_WILLOW.get();
@@ -495,6 +519,14 @@ public class Fixtures {
             case AMBER_PEONY -> FIREWORK_AMBER_PEONY.getId();
             case VIOLET_PEONY -> FIREWORK_VIOLET_PEONY.getId();
             case WHITE_STROBE_BURST -> FIREWORK_WHITE_STROBE_BURST.getId();
+            case WHITE_AERIAL_STROBE -> FIREWORK_WHITE_AERIAL_STROBE.getId();
+            case RED_AERIAL_STROBE -> FIREWORK_RED_AERIAL_STROBE.getId();
+            case BLUE_AERIAL_STROBE -> FIREWORK_BLUE_AERIAL_STROBE.getId();
+            case GREEN_AERIAL_STROBE -> FIREWORK_GREEN_AERIAL_STROBE.getId();
+            case GOLD_AERIAL_STROBE -> FIREWORK_GOLD_AERIAL_STROBE.getId();
+            case AMBER_AERIAL_STROBE -> FIREWORK_AMBER_AERIAL_STROBE.getId();
+            case VIOLET_AERIAL_STROBE -> FIREWORK_VIOLET_AERIAL_STROBE.getId();
+            case SILVER_AERIAL_STROBE -> FIREWORK_SILVER_AERIAL_STROBE.getId();
             case GOLD_WILLOW -> FIREWORK_GOLD_WILLOW.getId();
             case RED_WILLOW -> FIREWORK_RED_WILLOW.getId();
             case BLUE_WILLOW -> FIREWORK_BLUE_WILLOW.getId();

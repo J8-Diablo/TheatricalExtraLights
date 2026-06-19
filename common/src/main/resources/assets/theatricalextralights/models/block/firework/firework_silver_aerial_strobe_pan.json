@@ -1,0 +1,7 @@
+﻿{
+  "parent": "theatricalextralights:block/firework/launcher_pan_base",
+  "textures": {
+    "tube": "theatricalextralights:block/light_side",
+    "accent": "minecraft:block/light_gray_concrete"
+  }
+}
