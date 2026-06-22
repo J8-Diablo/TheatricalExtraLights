@@ -101,6 +101,11 @@ public class BlockEntities {
     public static final RegistrySupplier<BlockEntityType<WaterJetConeBlockEntity>> WATER_JET_CONE = BLOCK_ENTITIES.register("water_jet_cone", () -> BlockEntityType.Builder.of(WaterJetConeBlockEntity::new, Blocks.WATER_JET_CONE_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<WaterJetBloomBlockEntity>> WATER_JET_BLOOM = BLOCK_ENTITIES.register("water_jet_bloom", () -> BlockEntityType.Builder.of(WaterJetBloomBlockEntity::new, Blocks.WATER_JET_BLOOM_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<WaterJetFogBlockEntity>> WATER_JET_FOG = BLOCK_ENTITIES.register("water_jet_fog", () -> BlockEntityType.Builder.of(WaterJetFogBlockEntity::new, Blocks.WATER_JET_FOG_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<FanWaterJetBlockEntity>> FAN_WATER_JET = BLOCK_ENTITIES.register("fan_water_jet", () -> BlockEntityType.Builder.of(FanWaterJetBlockEntity::new, Blocks.FAN_WATER_JET_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<CakeWaterJetBlockEntity>> CAKE_WATER_JET = BLOCK_ENTITIES.register("cake_water_jet", () -> BlockEntityType.Builder.of(CakeWaterJetBlockEntity::new, Blocks.CAKE_WATER_JET_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<VaseWaterJetBlockEntity>> VASE_WATER_JET = BLOCK_ENTITIES.register("vase_water_jet", () -> BlockEntityType.Builder.of(VaseWaterJetBlockEntity::new, Blocks.VASE_WATER_JET_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<WaltzesWaterJetBlockEntity>> WALTZES_WATER_JET = BLOCK_ENTITIES.register("waltzes_water_jet", () -> BlockEntityType.Builder.of(WaltzesWaterJetBlockEntity::new, Blocks.WALTZES_WATER_JET_BLOCK.get()).build(null));
+
 
     public static final RegistrySupplier<BlockEntityType<WhiteStrobeBlockEntity>> WHITE_STROBE = BLOCK_ENTITIES.register("white_strobe", () -> BlockEntityType.Builder.of(WhiteStrobeBlockEntity::new, Blocks.WHITE_STROBE_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<FireworkLauncherBlockEntity>> FIREWORK_LAUNCHER = BLOCK_ENTITIES.register("firework_launcher", () ->
@@ -212,7 +217,6 @@ public class BlockEntities {
     public static final RegistrySupplier<BlockEntityType<FollowspotConsoleBlockEntity>> FOLLOWSPOT_CONSOLE =
             BLOCK_ENTITIES.register("followspot_console",
                     () -> BlockEntityType.Builder.of(FollowspotConsoleBlockEntity::new, Blocks.FOLLOWSPOT_CONSOLE_BLOCK.get()).build(null));
-
     public static void init(){
         BLOCK_ENTITIES.register();
     }

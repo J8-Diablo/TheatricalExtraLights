@@ -764,6 +764,18 @@ public class Items {
             "water_jet_fog",
             () -> new BlockItem(Blocks.WATER_JET_FOG_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
+    public static final RegistrySupplier<Item> FAN_WATER_JET = ITEMS.register(
+            "fan_water_jet",
+            () -> new BlockItem(Blocks.FAN_WATER_JET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> CAKE_WATER_JET = ITEMS.register(
+            "cake_water_jet",
+            () -> new BlockItem(Blocks.CAKE_WATER_JET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
+    public static final RegistrySupplier<Item> VASE_WATER_JET = ITEMS.register(
+            "vase_water_jet",
+            () -> new BlockItem(Blocks.VASE_WATER_JET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
 
     public static void init(){
         ITEMS.register();

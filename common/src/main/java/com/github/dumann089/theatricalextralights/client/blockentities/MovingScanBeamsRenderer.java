@@ -129,7 +129,6 @@ public class MovingScanBeamsRenderer extends ExtraLightsFixtureRenderer<MovingSc
         // Static Model Render
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedStaticModel, packedLight, packedOverlay);
         MovingScanBeamsRenderer.SmoothingState state = smoothingStates.computeIfAbsent(blockEntity, k -> new MovingScanBeamsRenderer.SmoothingState());
-
         long now = System.nanoTime();
         if (state.lastUpdateTime < 0) state.lastUpdateTime = now;
         float deltaTime = (now - state.lastUpdateTime) / 1_000_000_000f;
@@ -184,6 +183,8 @@ public class MovingScanBeamsRenderer extends ExtraLightsFixtureRenderer<MovingSc
             float[] tiltPivot = blockEntity.getFixture().getTiltRotationPosition();
             float[] structuralTransform = getThrottledStructuralTransforms(blockEntity, blockstate);
 
+            MovingScanBeamsRenderer.SmoothingState state = smoothingStates.computeIfAbsent(blockEntity, k -> new MovingScanBeamsRenderer.SmoothingState());
+
             goboProjectors.computeIfAbsent(blockEntity, k -> new GoboGPUProjector()).render(
                     blockEntity,
                     multiBufferSource,
@@ -197,7 +198,9 @@ public class MovingScanBeamsRenderer extends ExtraLightsFixtureRenderer<MovingSc
                     tiltPivot,
                     structuralTransform,
                     1.0f,   // minAngle: zoom gobo
-                    19.0f   // maxAngle: zoom gobo
+                    19.0f,   // maxAngle: zoom gobo
+                    state.smoothPan,
+                    state.smoothTilt
             );
 
             // =========================================================================

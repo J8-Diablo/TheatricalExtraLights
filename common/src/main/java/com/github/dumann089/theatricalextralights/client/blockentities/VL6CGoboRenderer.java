@@ -178,6 +178,8 @@ public class VL6CGoboRenderer extends ExtraLightsFixtureRenderer<VL6CGoboBlockEn
             float[] tiltPivot = blockEntity.getFixture().getTiltRotationPosition();
             float[] structuralTransform = getThrottledStructuralTransforms(blockEntity, blockstate);
 
+            VL6CGoboRenderer.SmoothingState state = smoothingStates.computeIfAbsent(blockEntity, k -> new VL6CGoboRenderer.SmoothingState());
+
             goboProjectors.computeIfAbsent(blockEntity, k -> new GoboGPUProjector()).render(
                     blockEntity,
                     multiBufferSource,
@@ -191,8 +193,12 @@ public class VL6CGoboRenderer extends ExtraLightsFixtureRenderer<VL6CGoboBlockEn
                     tiltPivot,
                     structuralTransform,
                     1.0f,   // minAngle: zoom gobo
-                    19.0f   // maxAngle: zoom gobo
+                    19.0f,   // maxAngle: zoom gobo
+                    state.smoothPan,
+                    state.smoothTilt
             );
+
+
             // =========================================================================
             if (TheatricalExtraLightsConfig.isVolumetricBeamEnabled()) {
                 PoseStack localStack = new PoseStack();

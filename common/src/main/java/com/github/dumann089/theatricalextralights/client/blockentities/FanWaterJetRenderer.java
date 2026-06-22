@@ -1,48 +1,35 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
-import com.github.dumann089.theatricalextralights.blockentities.SpinnerBlockEntity;
-import com.github.dumann089.theatricalextralights.blockentities.SpinnerBlockEntity;
-import com.github.dumann089.theatricalextralights.client.particle.JetVariant;
-import com.github.dumann089.theatricalextralights.client.particle.WaterJetParticleOptions;
+import com.github.dumann089.theatricalextralights.blockentities.FanWaterJetBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.imabad.theatrical.TheatricalExpectPlatform;
 import dev.imabad.theatrical.blocks.HangableBlock;
-import dev.imabad.theatrical.client.LazyRenderers;
-import com.github.dumann089.theatricalextralights.client.blockentities.ExtraLightsRenderer;
-import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
 
-import java.util.Map;
 import java.util.Optional;
-import java.util.WeakHashMap;
 
-public class SpinnerRenderer extends ExtraLightsRenderer<SpinnerBlockEntity> {
+public class FanWaterJetRenderer extends ExtraLightsRenderer<FanWaterJetBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
 
-    public SpinnerRenderer(BlockEntityRendererProvider.Context context) {
+    private static final double[] PARTICLE_X_OFFSETS = {
+            -0.9375, -0.625, -0.25, 0.125, 0.5, 0.875, 1.25, 1.625, 1.9375
+    };
+
+    private static final double[] HEIGHT_MULTIPLIERS = {
+            0.6, 0.7, 0.8, 0.9, 1.0, 0.9, 0.8, 0.7, 0.6
+    };
+
+    public FanWaterJetRenderer(BlockEntityRendererProvider.Context context) {
         super(context);
     }
 
-    private static class SmoothingState {
-        float smoothPan = 0f;
-        float smoothTilt = 0f;
-        long lastUpdateTime = -1;
-    }
-    private final Map<SpinnerBlockEntity, SpinnerRenderer.SmoothingState> smoothingStates = new WeakHashMap<>();
-    private static final float SMOOTH_SPEED = 5f;
-    
     @Override
-    public void renderModel(SpinnerBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer,
-                            Direction facing, float partialTicks, boolean isFlipped, BlockState blockState,
-                            boolean isHanging, int packedLight, int packedOverlay) {
+    public void renderModel(FanWaterJetBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging, int packedLight, int packedOverlay) {
         if(cachedStaticModel == null){
             cachedStaticModel = TheatricalExpectPlatform.getBakedModel(blockEntity.getFixture().getStaticModel());
         }
@@ -52,7 +39,7 @@ public class SpinnerRenderer extends ExtraLightsRenderer<SpinnerBlockEntity> {
         if (cachedTiltModel == null){
             cachedTiltModel = TheatricalExpectPlatform.getBakedModel(blockEntity.getFixture().getTiltModel());
         }
-
+        //#region Fixture Hanging
         poseStack.translate(0.5F, 0, .5F);
         if(isHanging){
             Direction hangDirection = blockState.getValue(HangableBlock.HANG_DIRECTION);
@@ -72,18 +59,17 @@ public class SpinnerRenderer extends ExtraLightsRenderer<SpinnerBlockEntity> {
                     }
                 }
             } else {
-
+                //TODO: Handle hanging up
             }
             poseStack.translate(0, -0.5, 0F);
         }
-
+        //#endregion
         if(facing.getAxis() == Direction.Axis.X){
             poseStack.mulPose(Axis.YP.rotationDegrees(facing.toYRot()));
         } else {
             poseStack.mulPose(Axis.YP.rotationDegrees(facing.getOpposite().toYRot()));
         }
         poseStack.translate(-0.5F, 0, -.5F);
-
         if (isHanging) {
             Optional<BlockState> optionalSupport = blockEntity.getSupportingStructure();
             if (optionalSupport.isPresent()) {
@@ -93,51 +79,31 @@ public class SpinnerRenderer extends ExtraLightsRenderer<SpinnerBlockEntity> {
                 poseStack.translate(0, 0.19, 0);
             }
         }
-        poseStack.pushPose();
-
+        // Static Model Render
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedStaticModel, packedLight, packedOverlay);
-        SpinnerRenderer.SmoothingState state = smoothingStates.computeIfAbsent(blockEntity, k -> new SpinnerRenderer.SmoothingState());
-
-        long now = System.nanoTime();
-        if (state.lastUpdateTime < 0) state.lastUpdateTime = now;
-        float deltaTime = (now - state.lastUpdateTime) / 1_000_000_000f;
-        state.lastUpdateTime = now;
-        deltaTime = Math.min(deltaTime, 0.1f);
-
-        float targetPan = blockEntity.getPrevPan() + (blockEntity.getPan() - blockEntity.getPrevPan()) * partialTicks;
-        float targetTilt = blockEntity.getPrevTilt() + (blockEntity.getTilt() - blockEntity.getPrevTilt()) * partialTicks;
-
-        float alpha = 1f - (float) Math.exp(-SMOOTH_SPEED * deltaTime);
-        state.smoothPan = state.smoothPan + (targetPan - state.smoothPan) * alpha;
-        state.smoothTilt = state.smoothTilt + (targetTilt - state.smoothTilt) * alpha;
-
-        float prevSpin = blockEntity.getPrevSpinAngle();
-        float currentSpin = blockEntity.getSpinAngle();
-        float interpolatedSpin = prevSpin + (currentSpin - prevSpin) * partialTicks;
-
+        //#region Model Pan
         float[] pans = blockEntity.getFixture().getPanRotationPosition();
         poseStack.translate(pans[0], pans[1], pans[2]);
-        poseStack.mulPose(Axis.YP.rotationDegrees(state.smoothPan));
-        poseStack.mulPose(Axis.YN.rotationDegrees(interpolatedSpin));
+        int prevPan = blockEntity.getPrevPan();
+        int pan = blockEntity.getPan();
+        poseStack.mulPose(Axis.YN.rotationDegrees((prevPan + (pan - prevPan) * partialTicks)));
         poseStack.translate(-pans[0], -pans[1], -pans[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedPanModel, packedLight, packedOverlay);
-
+        //#endregion
+        //#region Model Tilt
         float[] tilts = blockEntity.getFixture().getTiltRotationPosition();
         poseStack.translate(tilts[0], tilts[1], tilts[2]);
-        if (isFlipped) {
-            poseStack.mulPose(Axis.XP.rotationDegrees(-180));
-        } else {
-            poseStack.mulPose(Axis.XP.rotationDegrees(180));
-        }
-        poseStack.mulPose(Axis.XP.rotationDegrees(state.smoothTilt));
+        int prevTilt = blockEntity.getPrevTilt();
+        int tilt = blockEntity.getTilt();
+        poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
-        minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel, packedLight, packedOverlay);
-        poseStack.popPose();
+        minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel,  packedLight, packedOverlay);
+        //#endregion
     }
 
         @Override
-    public void preparePoseStack(SpinnerBlockEntity blockEntity, PoseStack poseStack, Direction facing,
-                                 float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging) {
+    public void preparePoseStack(FanWaterJetBlockEntity blockEntity, PoseStack poseStack, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging) {
+        //#region Fixture Hanging
         poseStack.translate(0.5F, 0, .5F);
         if(isHanging){
             Direction hangDirection = blockState.getValue(HangableBlock.HANG_DIRECTION);
@@ -157,18 +123,17 @@ public class SpinnerRenderer extends ExtraLightsRenderer<SpinnerBlockEntity> {
                     }
                 }
             } else {
-
+                //TODO: Handle hanging up
             }
             poseStack.translate(0, -0.5, 0F);
         }
-
+        //#endregion
         if(facing.getAxis() == Direction.Axis.X){
             poseStack.mulPose(Axis.YP.rotationDegrees(facing.toYRot()));
         } else {
             poseStack.mulPose(Axis.YP.rotationDegrees(facing.getOpposite().toYRot()));
         }
         poseStack.translate(-0.5F, 0, -.5F);
-
         if (isHanging) {
             Optional<BlockState> optionalSupport = blockEntity.getSupportingStructure();
             if (optionalSupport.isPresent()) {
@@ -178,30 +143,21 @@ public class SpinnerRenderer extends ExtraLightsRenderer<SpinnerBlockEntity> {
                 poseStack.translate(0, 0.19, 0);
             }
         }
-            // Dentro de preparePoseStack()
-
-            SpinnerRenderer.SmoothingState state = smoothingStates.computeIfAbsent(blockEntity, k -> new SpinnerRenderer.SmoothingState());
-
-            float prevSpin = blockEntity.getPrevSpinAngle();
-            float currentSpin = blockEntity.getSpinAngle();
-            float interpolatedSpin = prevSpin + (currentSpin - prevSpin) * partialTicks;
-
-            float[] pans = blockEntity.getFixture().getPanRotationPosition();
-            poseStack.translate(pans[0], pans[1], pans[2]);
-            poseStack.mulPose(Axis.YP.rotationDegrees(state.smoothPan));
-            poseStack.mulPose(Axis.YN.rotationDegrees(interpolatedSpin));
-            poseStack.translate(-pans[0], -pans[1], -pans[2]);
-
-            float[] tilts = blockEntity.getFixture().getTiltRotationPosition();
-            poseStack.translate(tilts[0], tilts[1], tilts[2]);
-            if (isFlipped) {
-                poseStack.mulPose(Axis.XP.rotationDegrees(-180));
-            } else {
-                poseStack.mulPose(Axis.XP.rotationDegrees(180));
-            }
-            int prevTilt = blockEntity.getPrevTilt();
-            int tilt = blockEntity.getTilt();
-            poseStack.mulPose(Axis.XP.rotationDegrees(state.smoothTilt));
-            poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
+        //#region Model Pan
+        float[] pans = blockEntity.getFixture().getPanRotationPosition();
+        poseStack.translate(pans[0], pans[1], pans[2]);
+        int prevPan = blockEntity.getPrevPan();
+        int pan = blockEntity.getPan();
+        poseStack.mulPose(Axis.YN.rotationDegrees((prevPan + (pan - prevPan) * partialTicks)));
+        poseStack.translate(-pans[0], -pans[1], -pans[2]);
+        //#endregion
+        //#region Model Tilt
+        float[] tilts = blockEntity.getFixture().getTiltRotationPosition();
+        poseStack.translate(tilts[0], tilts[1], tilts[2]);
+        int prevTilt = blockEntity.getPrevTilt();
+        int tilt = blockEntity.getTilt();
+        poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
+        poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
+        //#endregion
     }
 }

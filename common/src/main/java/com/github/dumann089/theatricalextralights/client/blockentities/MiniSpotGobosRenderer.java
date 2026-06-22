@@ -179,6 +179,8 @@ public class MiniSpotGobosRenderer extends ExtraLightsFixtureRenderer<MiniSpotGo
             float[] tiltPivot = blockEntity.getFixture().getTiltRotationPosition();
             float[] structuralTransform = getThrottledStructuralTransforms(blockEntity, blockstate);
 
+            MiniSpotGobosRenderer.SmoothingState state = smoothingStates.computeIfAbsent(blockEntity, k -> new MiniSpotGobosRenderer.SmoothingState());
+
             goboProjectors.computeIfAbsent(blockEntity, k -> new GoboGPUProjector()).render(
                     blockEntity,
                     multiBufferSource,
@@ -192,7 +194,9 @@ public class MiniSpotGobosRenderer extends ExtraLightsFixtureRenderer<MiniSpotGo
                     tiltPivot,
                     structuralTransform,
                     1.0f,
-                    12.0f
+                    12.0f,
+                    state.smoothPan,
+                    state.smoothTilt
             );
 
             // =========================================================================

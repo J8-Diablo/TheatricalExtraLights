@@ -1,6 +1,7 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
-import com.github.dumann089.theatricalextralights.blockentities.MovingScanBeamsBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.SpotXtremeGoboBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.SpotXtremeGoboBlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.SpotXtremeGoboBlockEntity;
 import com.github.dumann089.theatricalextralights.client.Beam2DRenderTypes;
 import com.github.dumann089.theatricalextralights.client.gobo.GoboLibrary;
@@ -36,7 +37,14 @@ public class SpotXtremeGoboRenderer extends ExtraLightsFixtureRenderer<SpotXtrem
     private final WeakHashMap<SpotXtremeGoboBlockEntity, GoboGPUProjector> goboProjectors = new WeakHashMap<>();
     private final WeakHashMap<SpotXtremeGoboBlockEntity, VolumetricBeamRenderer> volumetricRenderers = new WeakHashMap<>();
 
-
+    private static class SmoothingState {
+        float smoothPan = 0f;
+        float smoothTilt = 0f;
+        long lastUpdateTime = -1;
+    }
+    private final Map<SpotXtremeGoboBlockEntity, SpotXtremeGoboRenderer.SmoothingState> smoothingStates = new WeakHashMap<>();
+    private static final float SMOOTH_SPEED = 25f;
+    
     private final Map<SpotXtremeGoboBlockEntity, float[]> structuralCache = new WeakHashMap<>();
     private final Map<SpotXtremeGoboBlockEntity, Long> structuralCacheTicks = new WeakHashMap<>();
 
@@ -74,8 +82,8 @@ public class SpotXtremeGoboRenderer extends ExtraLightsFixtureRenderer<SpotXtrem
         if (cachedTiltModel == null){
             cachedTiltModel = TheatricalExpectPlatform.getBakedModel(blockEntity.getFixture().getTiltModel());
         }
-
         poseStack.pushPose();
+        //#region Fixture Hanging
         poseStack.translate(0.5F, 0, .5F);
         if(isHanging){
             Direction hangDirection = blockState.getValue(HangableBlock.HANG_DIRECTION);
@@ -96,15 +104,22 @@ public class SpotXtremeGoboRenderer extends ExtraLightsFixtureRenderer<SpotXtrem
                         poseStack.mulPose(Axis.ZN.rotationDegrees(90));
                     }
                 }
+            } else {
+                //TODO: Handle hanging up
             }
             poseStack.translate(0, -0.5, 0F);
         }
-
+        //#endregion
         poseStack.mulPose(Axis.YP.rotationDegrees(facing.toYRot()));
         poseStack.translate(-0.5F, 0, -.5F);
         if (isHanging) {
-            float[] transforms = getThrottledStructuralTransforms(blockEntity, blockState);
-            poseStack.translate(transforms[0], transforms[1], transforms[2]);
+            Optional<BlockState> optionalSupport = blockEntity.getSupportingStructure();
+            if (optionalSupport.isPresent()) {
+                float[] transforms = blockEntity.getFixture().getTransforms(blockState, optionalSupport.get());
+                poseStack.translate(transforms[0], transforms[1], transforms[2]);
+            } else {
+                poseStack.translate(0, 0.19, 0);
+            }
             poseStack.translate(0, -0.08, 0);
         }
         if (isFlipped) {
@@ -112,14 +127,25 @@ public class SpotXtremeGoboRenderer extends ExtraLightsFixtureRenderer<SpotXtrem
             poseStack.mulPose(Axis.ZP.rotationDegrees(180));
             poseStack.translate(-0.5F, -0.5, -.5F);
         }
-
+        // Static Model Render
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedStaticModel, packedLight, packedOverlay);
+        SpotXtremeGoboRenderer.SmoothingState state = smoothingStates.computeIfAbsent(blockEntity, k -> new SpotXtremeGoboRenderer.SmoothingState());
+        long now = System.nanoTime();
+        if (state.lastUpdateTime < 0) state.lastUpdateTime = now;
+        float deltaTime = (now - state.lastUpdateTime) / 1_000_000_000f;
+        state.lastUpdateTime = now;
+        deltaTime = Math.min(deltaTime, 0.1f);
+
+        float targetPan = blockEntity.getPrevPan() + (blockEntity.getPan() - blockEntity.getPrevPan()) * partialTicks;
+        float targetTilt = blockEntity.getPrevTilt() + (blockEntity.getTilt() - blockEntity.getPrevTilt()) * partialTicks;
+
+        float alpha = 1f - (float) Math.exp(-SMOOTH_SPEED * deltaTime);
+        state.smoothPan = state.smoothPan + (targetPan - state.smoothPan) * alpha;
+        state.smoothTilt = state.smoothTilt + (targetTilt - state.smoothTilt) * alpha;
 
         float[] pans = blockEntity.getFixture().getPanRotationPosition();
         poseStack.translate(pans[0], pans[1], pans[2]);
-        int prevPan = blockEntity.getPrevPan();
-        int pan = blockEntity.getPan();
-        poseStack.mulPose(Axis.YP.rotationDegrees((prevPan + (pan - prevPan) * partialTicks)));
+        poseStack.mulPose(Axis.YP.rotationDegrees(state.smoothPan));
         poseStack.translate(-pans[0], -pans[1], -pans[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedPanModel, packedLight, packedOverlay);
 
@@ -130,9 +156,7 @@ public class SpotXtremeGoboRenderer extends ExtraLightsFixtureRenderer<SpotXtrem
         } else {
             poseStack.mulPose(Axis.XP.rotationDegrees(180));
         }
-        int prevTilt = blockEntity.getPrevTilt();
-        int tilt = blockEntity.getTilt();
-        poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
+        poseStack.mulPose(Axis.XP.rotationDegrees(state.smoothTilt));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel, packedLight, packedOverlay);
         poseStack.popPose();
@@ -160,6 +184,8 @@ public class SpotXtremeGoboRenderer extends ExtraLightsFixtureRenderer<SpotXtrem
             float[] tiltPivot = blockEntity.getFixture().getTiltRotationPosition();
             float[] structuralTransform = getThrottledStructuralTransforms(blockEntity, blockstate);
 
+            SpotXtremeGoboRenderer.SmoothingState state = smoothingStates.computeIfAbsent(blockEntity, k -> new SpotXtremeGoboRenderer.SmoothingState());
+
             goboProjectors.computeIfAbsent(blockEntity, k -> new GoboGPUProjector()).render(
                     blockEntity,
                     multiBufferSource,
@@ -173,8 +199,11 @@ public class SpotXtremeGoboRenderer extends ExtraLightsFixtureRenderer<SpotXtrem
                     tiltPivot,
                     structuralTransform,
                     1.0f,   // minAngle: zoom gobo
-                    19.0f   // maxAngle: zoom gobo
+                    19.0f,   // maxAngle: zoom gobo
+                    state.smoothPan,
+                    state.smoothTilt
             );
+            
             // =========================================================================
             if (TheatricalExtraLightsConfig.isVolumetricBeamEnabled()) {
                 PoseStack localStack = new PoseStack();
@@ -349,14 +378,22 @@ public class SpotXtremeGoboRenderer extends ExtraLightsFixtureRenderer<SpotXtrem
                         poseStack.mulPose(Axis.ZN.rotationDegrees(90));
                     }
                 }
+            } else {
+                //TODO: Handle hanging up
             }
             poseStack.translate(0, -0.5, 0F);
         }
+        //#endregion
         poseStack.mulPose(Axis.YP.rotationDegrees(facing.toYRot()));
         poseStack.translate(-0.5F, 0, -.5F);
         if (isHanging) {
-            float[] transforms = getThrottledStructuralTransforms(blockEntity, blockState);
-            poseStack.translate(transforms[0], transforms[1], transforms[2]);
+            Optional<BlockState> optionalSupport = blockEntity.getSupportingStructure();
+            if (optionalSupport.isPresent()) {
+                float[] transforms = blockEntity.getFixture().getTransforms(blockState, optionalSupport.get());
+                poseStack.translate(transforms[0], transforms[1], transforms[2]);
+            } else {
+                poseStack.translate(0, 0.19, 0);
+            }
             poseStack.translate(0, -0.08, 0);
         }
         if (isFlipped) {
@@ -364,11 +401,11 @@ public class SpotXtremeGoboRenderer extends ExtraLightsFixtureRenderer<SpotXtrem
             poseStack.mulPose(Axis.ZP.rotationDegrees(180));
             poseStack.translate(-0.5F, -0.5, -.5F);
         }
+        SpotXtremeGoboRenderer.SmoothingState state = smoothingStates.computeIfAbsent(blockEntity, k -> new SpotXtremeGoboRenderer.SmoothingState());
+
         float[] pans = blockEntity.getFixture().getPanRotationPosition();
         poseStack.translate(pans[0], pans[1], pans[2]);
-        int prevPan = blockEntity.getPrevPan();
-        int pan = blockEntity.getPan();
-        poseStack.mulPose(Axis.YP.rotationDegrees((prevPan + (pan - prevPan) * partialTicks)));
+        poseStack.mulPose(Axis.YP.rotationDegrees(state.smoothPan));
         poseStack.translate(-pans[0], -pans[1], -pans[2]);
 
         float[] tilts = blockEntity.getFixture().getTiltRotationPosition();
@@ -380,7 +417,7 @@ public class SpotXtremeGoboRenderer extends ExtraLightsFixtureRenderer<SpotXtrem
         }
         int prevTilt = blockEntity.getPrevTilt();
         int tilt = blockEntity.getTilt();
-        poseStack.mulPose(Axis.XP.rotationDegrees((prevTilt + (tilt - prevTilt) * partialTicks)));
+        poseStack.mulPose(Axis.XP.rotationDegrees(state.smoothTilt));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
     }
 }

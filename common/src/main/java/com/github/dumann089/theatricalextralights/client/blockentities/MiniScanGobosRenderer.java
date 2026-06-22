@@ -183,6 +183,8 @@ public class MiniScanGobosRenderer extends ExtraLightsFixtureRenderer<MiniScanGo
             float[] tiltPivot = blockEntity.getFixture().getTiltRotationPosition();
             float[] structuralTransform = getThrottledStructuralTransforms(blockEntity, blockstate);
 
+            MiniScanGobosRenderer.SmoothingState state = smoothingStates.computeIfAbsent(blockEntity, k -> new MiniScanGobosRenderer.SmoothingState());
+
             goboProjectors.computeIfAbsent(blockEntity, k -> new GoboGPUProjector()).render(
                     blockEntity,
                     multiBufferSource,
@@ -195,8 +197,10 @@ public class MiniScanGobosRenderer extends ExtraLightsFixtureRenderer<MiniScanGo
                     panPivot,
                     tiltPivot,
                     structuralTransform,
-                    1.0f,   // minAngle: zoom gobo
-                    12.0f   // maxAngle: zoom gobo
+                    1.0f,
+                    12.0f,
+                    state.smoothPan,
+                    state.smoothTilt
             );
 
             // =========================================================================

@@ -149,6 +149,14 @@ public class Fixtures {
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "water_jet_bloom"), WaterJetBloomFixture::new);
     public static final RegistrySupplier<Fixture> WATER_JET_FOG =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "water_jet_fog"), WaterJetFogFixture::new);
+    public static final RegistrySupplier<Fixture> FAN_WATER_JET =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "fan_water_jet"), FanWaterJetFixture::new);
+    public static final RegistrySupplier<Fixture> CAKE_WATER_JET =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "cake_water_jet"), CakeWaterJetFixture::new);
+    public static final RegistrySupplier<Fixture> VASE_WATER_JET =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "vase_water_jet"), VaseWaterJetFixture::new);
+    public static final RegistrySupplier<Fixture> WALTZES_WATER_JET =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "waltzes_water_jet"), WaltzesWaterJetFixture::new);
 
     public static final RegistrySupplier<Fixture> x8PAR_RED =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "x8par_red"), x8par_redFixture::new);

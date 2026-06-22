@@ -113,6 +113,11 @@ public class Blocks {
     public static final RegistrySupplier<Block> WATER_JET_CONE_BLOCK = BLOCKS.register("water_jet_cone", WaterJetConeBlock::new);
     public static final RegistrySupplier<Block> WATER_JET_BLOOM_BLOCK = BLOCKS.register("water_jet_bloom", WaterJetBloomBlock::new);
     public static final RegistrySupplier<Block> WATER_JET_FOG_BLOCK = BLOCKS.register("water_jet_fog", WaterJetFogBlock::new);
+    public static final RegistrySupplier<Block> FAN_WATER_JET_BLOCK = BLOCKS.register("fan_water_jet", FanWaterJetBlock::new);
+    public static final RegistrySupplier<Block> CAKE_WATER_JET_BLOCK = BLOCKS.register("cake_water_jet", CakeWaterJetBlock::new);
+    public static final RegistrySupplier<Block> VASE_WATER_JET_BLOCK = BLOCKS.register("vase_water_jet", VaseWaterJetBlock::new);
+    public static final RegistrySupplier<Block> WALTZES_WATER_JET_BLOCK = BLOCKS.register("waltzes_water_jet", WaltzesWaterJetBlock::new);
+
 
     public static final RegistrySupplier<Block> WHITE_STROBE_BLOCK = BLOCKS.register("white_strobe", WhiteStrobeBlock::new);
     public static final RegistrySupplier<Block> FIREWORK_RED_COMET_BLOCK = BLOCKS.register("firework_red_comet", () -> new FireworkLauncherBlock(com.github.dumann089.theatricalextralights.firework.FireworkPreset.RED_COMET));

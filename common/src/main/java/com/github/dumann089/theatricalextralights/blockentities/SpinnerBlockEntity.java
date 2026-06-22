@@ -93,7 +93,7 @@ public class SpinnerBlockEntity extends ExtraLightsLightBlockEntity
     }
 
     public void updateSpin() {
-        float intensityNorm = intensity / 255.0f;
+        float intensityNorm = getIntensity() / 255.0f;
 
         prevSpinAngle = spinAccumulator;
         spinAccumulator += intensityNorm * 3.3f;
@@ -110,9 +110,7 @@ public class SpinnerBlockEntity extends ExtraLightsLightBlockEntity
         int start = getChannelStart() > 0 ? getChannelStart() - 1 : 0;
         byte[] ourValues = Arrays.copyOfRange(dmxValues, start, start + 1);
         if (ourValues.length < 1) return;
-
         intensity = Byte.toUnsignedInt(ourValues[0]);
-
         if (storePrev()) {
             sync();
         }
@@ -171,6 +169,7 @@ public class SpinnerBlockEntity extends ExtraLightsLightBlockEntity
         tag.putFloat("JetHeight", jetHeight);
         tag.putFloat("JetThickness", jetThickness);
         tag.putFloat("NozzleAngle", nozzleAngle);
+        tag.putInt("Intensity", intensity);
     }
 
     @Override
@@ -179,6 +178,7 @@ public class SpinnerBlockEntity extends ExtraLightsLightBlockEntity
         if (tag.contains("JetHeight")) jetHeight = tag.getFloat("JetHeight");
         if (tag.contains("JetThickness")) jetThickness = tag.getFloat("JetThickness");
         if (tag.contains("NozzleAngle")) nozzleAngle = tag.getFloat("NozzleAngle");
+        if (tag.contains("Intensity")) intensity = tag.getInt("Intensity");
     }
 
     @Override
@@ -187,6 +187,7 @@ public class SpinnerBlockEntity extends ExtraLightsLightBlockEntity
         tag.putFloat("JetHeight", jetHeight);
         tag.putFloat("JetThickness", jetThickness);
         tag.putFloat("NozzleAngle", nozzleAngle);
+        tag.putInt("Intensity", intensity);
         return tag;
     }
 

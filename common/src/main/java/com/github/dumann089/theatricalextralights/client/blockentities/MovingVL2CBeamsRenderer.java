@@ -35,7 +35,6 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
     private final Double beamOpacity = TheatricalConfig.INSTANCE.CLIENT.beamOpacity;
 
     private final WeakHashMap<MovingVL2CBeamsBlockEntity, GoboGPUProjector> goboProjectors = new WeakHashMap<>();
-
     private static class SmoothingState {
         float smoothPan = 0f;
         float smoothTilt = 0f;
@@ -179,6 +178,8 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
             float[] tiltPivot = blockEntity.getFixture().getTiltRotationPosition();
             float[] structuralTransform = getThrottledStructuralTransforms(blockEntity, blockstate);
 
+            SmoothingState state = smoothingStates.computeIfAbsent(blockEntity, k -> new SmoothingState());
+
             goboProjectors.computeIfAbsent(blockEntity, k -> new GoboGPUProjector()).render(
                     blockEntity,
                     multiBufferSource,
@@ -192,7 +193,9 @@ public class MovingVL2CBeamsRenderer extends ExtraLightsFixtureRenderer<MovingVL
                     tiltPivot,
                     structuralTransform,
                     1.0f,
-                    19.0f
+                    19.0f,
+                    state.smoothPan,
+                    state.smoothTilt
             );
 
             // =========================================================================

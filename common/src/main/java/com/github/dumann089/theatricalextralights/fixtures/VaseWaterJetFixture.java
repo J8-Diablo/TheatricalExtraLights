@@ -1,7 +1,6 @@
 package com.github.dumann089.theatricalextralights.fixtures;
 
 import com.github.dumann089.theatricalextralights.TheatricalExtraLights;
-import dev.imabad.theatrical.Theatrical;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.api.HangType;
 import dev.imabad.theatrical.api.dmx.DMXPersonality;
@@ -14,22 +13,20 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.Collections;
 import java.util.List;
 
-public class LEDfountainFixture extends Fixture {
+public class VaseWaterJetFixture extends Fixture {
 
     private static final List<DMXPersonality> PERSONALITIES = Collections.singletonList(
-            new DMXPersonality(3, "3-Channel Mode")
-                    .addSlot(SharedSlots.RED)
-                    .addSlot(SharedSlots.GREEN)
-                    .addSlot(SharedSlots.BLUE)
+            new DMXPersonality(1, "1-Channel Mode")
+                    .addSlot(SharedSlots.INTENSITY)
     );
 
-    private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/fountain_lamp/fountain_lamp_body_only");
-    private static final ResourceLocation PAN_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/fountain_lamp/fountain_lamp_handle_only");
-    private static final ResourceLocation STATIC_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/fountain_lamp/fountain_lamp_hook_bar");
+    private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/vasejet/vase_tilt");
+    private static final ResourceLocation PAN_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/vasejet/vase_pan");
+    private static final ResourceLocation STATIC_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/vasejet/vase_static");
 
-    private final float[] tiltRotation = new float[]{0.5F, 1.75F, .5F};
-    private final float[] panRotation = new float[]{0.5F, 0F, .41F};
-    private final float[] beamStartPosition = new float[]{0.5F, 1.77F, 0.3F};
+    private final float[] tiltRotation = new float[]{0.5F, 1.858F, 0.51F};
+    private final float[] panRotation = new float[]{0.5F, 0.988F, .5F};
+    private final float[] beamStartPosition = new float[]{0.5F, 1.765f, 0.518F};
 
     @Override
     public ResourceLocation getTiltModel() {
@@ -68,7 +65,7 @@ public class LEDfountainFixture extends Fixture {
 
     @Override
     public float getBeamWidth() {
-        return 0.0f;
+        return 0.15f;
     }
 
     @Override
@@ -106,6 +103,6 @@ public class LEDfountainFixture extends Fixture {
 
     @Override
     public double getLightRadius() {
-        return 16.0;
+        return 0.0;
     }
 }

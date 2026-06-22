@@ -77,6 +77,26 @@ public class GoboGPUProjector {
 
     private static final Direction[] DIRS = Direction.values();
 
+    // ── Variables para limitar la caída de FPS al mover suavemente ──────────────
+    private long lastEntityCheckTime = 0;
+    private long lastRebuildTime = 0;
+    private float cachedMaxLen = 100.0f;
+
+    // ── Control de movimiento para rebuild adaptativo ──────────────────────────
+    // Guarda el pan/tilt del frame anterior para detectar si el fixture sigue moviendose
+    private float lastKnownPan  = Float.NaN;
+    private float lastKnownTilt = Float.NaN;
+    // Cuantos frames consecutivos el fixture estuvo quieto
+    private int   stillFrameCount = 0;
+    // Threshold: diferencia de pan/tilt en grados que se considera "en movimiento"
+    private static final float MOTION_THRESHOLD_DEG = 0.15f;
+    // Frames quietos necesarios antes de permitir un rebuild
+    private static final int   STILL_FRAMES_REQUIRED = 4;
+    // Cooldown durante movimiento (ms) — rebuilds muy espaciados
+    private static final long  REBUILD_COOLDOWN_MOVING_MS = 200L;
+    // Cooldown en reposo (ms) — rebuild rapido cuando el fixture se detiene
+    private static final long  REBUILD_COOLDOWN_STILL_MS  = 60L;
+
     // ── Geometry cache ─────────────────────────────────────────────────────────
     private int   cachedGeoHash   = Integer.MIN_VALUE;
 
@@ -104,14 +124,17 @@ public class GoboGPUProjector {
             T be, MultiBufferSource multiBufferSource, Direction facing, float partialTicks,
             boolean isFlipped, BlockState blockState, boolean isHanging, Vec3 localLensOffset,
             float[] panPivot, float[] tiltPivot, float[] structuralTransform,
-            float minAngle, float maxAngle) {
+            float minAngle, float maxAngle, float smoothPan, float smoothTilt) {
 
         float intensity01 = be.getPartialIntensity(partialTicks) / 255f;
         if (intensity01 <= 0f || be.getLevel() == null) return;
 
         int   colour   = be.getColour() == 0 ? 0xFFFFFF : be.getColour();
-        float panDeg   = be.getPartialPanDeg(partialTicks);
-        float tiltDeg  = be.getPartialTiltDeg(partialTicks);
+
+        // --- USAMOS LOS VALORES SUAVES EN LUGAR DE LOS DEL BLOCK ENTITY ---
+        float panDeg   = smoothPan;
+        float tiltDeg  = smoothTilt;
+
         float zoomNorm = be.getPartialZoom(partialTicks) / 255f;
         float coneHalfAngle = minAngle + zoomNorm * (maxAngle - minAngle);
 
@@ -128,20 +151,26 @@ public class GoboGPUProjector {
                 .add(raycastOriginVec.x, raycastOriginVec.y, raycastOriginVec.z);
         Vec3 beamDir = new Vec3(raycastDirVec.x, raycastDirVec.y, raycastDirVec.z).normalize();
 
-        // ── Entity hit → shorten beam ──────────────────────────────────────────
-        float finalLen = TheatricalExtraLightsConfig.getLaserBeamLength() * 1.5f;
-        Vec3  centerEnd = origin.add(beamDir.scale(finalLen));
-        AABB  beamVolume = new AABB(origin, centerEnd).inflate(3.0);
+        // ── Entity hit → shorten beam (OPTIMIZADO CON CACHÉ) ───────────────────
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastEntityCheckTime > 50) {
+            float tempLen = TheatricalExtraLightsConfig.getLaserBeamLength() * 1.5f;
+            Vec3  centerEnd = origin.add(beamDir.scale(tempLen));
+            AABB  beamVolume = new AABB(origin, centerEnd).inflate(3.0);
 
-        List<LivingEntity> entities = be.getLevel().getEntitiesOfClass(
-                LivingEntity.class, beamVolume, e -> !e.isSpectator());
-        for (LivingEntity entity : entities) {
-            Optional<Vec3> hit = entity.getBoundingBox().clip(origin, centerEnd);
-            if (hit.isPresent()) {
-                float d = (float) origin.distanceToSqr(hit.get());
-                if (d < finalLen * finalLen) finalLen = (float) Math.sqrt(d);
+            List<LivingEntity> entities = be.getLevel().getEntitiesOfClass(
+                    LivingEntity.class, beamVolume, e -> !e.isSpectator());
+            for (LivingEntity entity : entities) {
+                Optional<Vec3> hit = entity.getBoundingBox().clip(origin, centerEnd);
+                if (hit.isPresent()) {
+                    float d = (float) origin.distanceToSqr(hit.get());
+                    if (d < tempLen * tempLen) tempLen = (float) Math.sqrt(d);
+                }
             }
+            cachedMaxLen = tempLen;
+            lastEntityCheckTime = currentTime;
         }
+        float finalLen = cachedMaxLen;
 
         // ── Beam axes (with optional gobo rotation) ───────────────────────────
         Vec3 axisU, axisV;
@@ -175,25 +204,19 @@ public class GoboGPUProjector {
         final Vec3   finalAxisU     = axisU;
         final Vec3   finalAxisV     = axisV;
         final float  finalMaxLen    = finalLen;
-        final float  finalZoomNorm  = zoomNorm;   // 0 = narrow, 1 = wide
+        final float  finalZoomNorm  = zoomNorm;
 
         LazyRenderers.addLazyRender(new LazyRenderers.LazyRenderer() {
-
-
             @Override
             public void render(MultiBufferSource.BufferSource bufferSource,
                                PoseStack poseStack, Camera camera, float partialTick) {
 
                 Vec3 camPos = camera.getPosition();
 
-
-
-                // ── Transform light vectors into view space ────────────────────
                 poseStack.pushPose();
                 poseStack.translate(-camPos.x, -camPos.y, -camPos.z);
                 Matrix4f matrix = poseStack.last().pose();
 
-                // Reuse pre-allocated Vector4f slots — zero allocations here
                 tmpLightPos.set((float) finalOrigin.x, (float) finalOrigin.y,
                         (float) finalOrigin.z, 1.0f);
                 matrix.transform(tmpLightPos);
@@ -213,7 +236,6 @@ public class GoboGPUProjector {
                 matrix.transform(tmpAxisV);
                 tmpAxisV.normalize();
 
-                // ── Vertex buffer setup ───────────────────────────────────────
                 ResourceLocation texture    = be.getGoboLibrary().getTexture(finalGoboSlot);
                 RenderType       renderType = ModShaders.getGoboRenderType(texture);
                 VertexConsumer   vc         = bufferSource.getBuffer(renderType);
@@ -223,37 +245,24 @@ public class GoboGPUProjector {
                 int   b          = finalColour          & 0xFF;
                 int   finalAlpha = (int)(Math.min(1f, finalIntensity * 1.5f) * 255f);
 
-                // ── Zoom-driven scan length ───────────────────────────────────
-                // zoomNorm=0 → narrow beam → projects far (up to MaxGoboDistance)
-                // zoomNorm=1 → wide  beam → cuts off early (SCAN_LEN_ZOOM_MAX)
-                //
-                // Quadratic ease-in so the cut-off feels gradual at low zoom
-                // and aggressive at high zoom, matching how a real gobo frosts out.
-                // Scan length at min zoom = full configured gobo distance.
-                // The ray-march rebuild handles long projections cheaply now,
-                // so no internal cap is needed — let the config decide.
                 float scanLenAtMin  = TheatricalExtraLightsConfig.getMaxGoboDistance();
-                float zoomT         = finalZoomNorm * finalZoomNorm; // ease-in^2
+                float zoomT         = finalZoomNorm * finalZoomNorm;
                 float scanLen       = scanLenAtMin + zoomT * (SCAN_LEN_ZOOM_MAX - scanLenAtMin);
-                // Also respect the actual beam stop (entity hit, etc.)
                 scanLen = Math.min(scanLen, finalMaxLen);
 
-                // Coarser hash quantisation so partial-tick interpolation jitter
-                // (sub-degree pan/tilt drift, sub-block scan changes) does not
-                // invalidate the cache every frame. Trade some precision in
-                // when-to-rebuild for a stable cache hit during steady state.
-                int qDirX = Math.round((float) finalBeamDir.x * 16f);
-                int qDirY = Math.round((float) finalBeamDir.y * 16f);
-                int qDirZ = Math.round((float) finalBeamDir.z * 16f);
-                int qTan  = Math.round(tanHalfAngle * 20f);
-                int qScan = Math.round(scanLen / 4f);   // bucket by 4 blocks
+                // Cuantización gruesa: solo cambia cuando el cono apunta a bloques distintos.
+                // * 8 en vez de 16 → resolución ~7° por click (suficiente para detectar
+                //   cambio de bloque objetivo sin disparar rebuild en cada frame de lerp).
+                // * scanLen redondeada a 2 bloques para estabilidad adicional.
+                int qDirX = Math.round((float) finalBeamDir.x * 8f);
+                int qDirY = Math.round((float) finalBeamDir.y * 8f);
+                int qDirZ = Math.round((float) finalBeamDir.z * 8f);
+                int qTan  = Math.round(tanHalfAngle * 10f);
+                int qScan = Math.round(scanLen / 2f);
 
                 int geoHash = java.util.Objects.hash(
                         bePos, qDirX, qDirY, qDirZ, qTan, qScan);
 
-                // ── Shader uniforms (after scanLen is computed) ───────────────
-                // MaxLen is set to scanLen so the shader's lengthFade matches
-                // the zoom-driven cutoff exactly — no geometry/shader mismatch.
                 ShaderInstance shader = ModShaders.goboProjectorShader;
                 if (shader != null) {
                     shader.safeGetUniform("LightPos").set(tmpLightPos.x(), tmpLightPos.y(), tmpLightPos.z());
@@ -266,20 +275,41 @@ public class GoboGPUProjector {
                             .set(TheatricalExtraLightsConfig.getMaxGoboDistance());
                 }
 
-                // Trigger async rebuild if geometry is stale — render thread never blocks
-                if (geoHash != cachedGeoHash) {
+                // ── Rebuild adaptativo basado en detección de movimiento ────────────
+                // Detectamos si el fixture está en movimiento comparando pan/tilt actuales
+                // con los del frame anterior. smoothPan/smoothTilt llegan como parámetros
+                // del render() y son capturados en las finals de abajo.
+                long renderTime = System.currentTimeMillis();
+
+                boolean isMoving = false;
+                if (!Float.isNaN(lastKnownPan) && !Float.isNaN(lastKnownTilt)) {
+                    float dpan  = Math.abs(smoothPan  - lastKnownPan);
+                    float dtilt = Math.abs(smoothTilt - lastKnownTilt);
+                    isMoving = (dpan > MOTION_THRESHOLD_DEG || dtilt > MOTION_THRESHOLD_DEG);
+                }
+                lastKnownPan  = smoothPan;
+                lastKnownTilt = smoothTilt;
+
+                if (isMoving) {
+                    stillFrameCount = 0;
+                } else {
+                    if (stillFrameCount < STILL_FRAMES_REQUIRED) stillFrameCount++;
+                }
+
+                boolean fixtureIsStill = (stillFrameCount >= STILL_FRAMES_REQUIRED);
+                long cooldown = fixtureIsStill ? REBUILD_COOLDOWN_STILL_MS : REBUILD_COOLDOWN_MOVING_MS;
+
+                if (geoHash != cachedGeoHash && (renderTime - lastRebuildTime > cooldown)) {
                     scheduleRebuild(level, bePos, finalOrigin, finalBeamDir,
                             finalAxisU, finalAxisV,
                             scanLen, tanHalfAngle, geoHash);
+                    lastRebuildTime = renderTime;
                 }
 
-                // Grab a synchronized snapshot for this frame
-                // Grab a synchronized snapshot for this frame
                 VboState state = frontState;
                 int snapCount = state.quadCount;
                 float[] verts = state.verts;
 
-                // Extraemos las variables del foco de luz al mismo nivel del ciclo
                 double ox = finalOrigin.x, oy = finalOrigin.y, oz = finalOrigin.z;
                 double bx = finalBeamDir.x, by = finalBeamDir.y, bz = finalBeamDir.z;
                 double ux = finalAxisU.x, uy = finalAxisU.y, uz = finalAxisU.z;
@@ -288,26 +318,21 @@ public class GoboGPUProjector {
                 for (int i = 0; i < snapCount; i++) {
                     int vIdx = i * 12;
 
-                    // Iteramos sobre los 4 vértices del Quad (0, 1, 2, 3)
                     for (int j = 0; j < 4; j++) {
                         float vx = verts[vIdx + (j * 3)];
                         float vy = verts[vIdx + (j * 3) + 1];
                         float vz = verts[vIdx + (j * 3) + 2];
 
-                        // 1. Vector desde el foco de luz en el mundo hasta este vértice exacto
                         double vecX = vx - ox;
                         double vecY = vy - oy;
                         double vecZ = vz - oz;
 
-                        // 2. Distancia Z proyectada a lo largo de la dirección de la luz
                         double zDist = vecX * bx + vecY * by + vecZ * bz;
                         double rZ = Math.max(zDist * tanHalfAngle, 0.0001);
 
-                        // 3. Distancia X e Y proyectadas en los ejes del gobo
                         double uDist = vecX * ux + vecY * uy + vecZ * uz;
                         double vDist = vecX * vxA + vecY * vyA + vecZ * vzA;
 
-                        // 4. Mapeo cónico de las coordenadas (Igual que en tu GLSL)
                         float u = (float) ((uDist / rZ) * 0.5 + 0.5);
                         float v = (float) (1.0 - ((vDist / rZ) * 0.5 + 0.5));
                         vc.vertex(matrix, vx, vy, vz).color(r, g, b, finalAlpha).uv(u, v).endVertex();
