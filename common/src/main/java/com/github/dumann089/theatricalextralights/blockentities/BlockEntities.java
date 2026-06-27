@@ -2,6 +2,7 @@ package com.github.dumann089.theatricalextralights.blockentities;
 
 import com.github.dumann089.theatricalextralights.TheatricalExtraLightsRegistry;
 import com.github.dumann089.theatricalextralights.blocks.Blocks;
+import com.github.dumann089.theatricalextralights.blocks.WaltzCurtainBlock;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.registries.Registries;
@@ -105,6 +106,7 @@ public class BlockEntities {
     public static final RegistrySupplier<BlockEntityType<CakeWaterJetBlockEntity>> CAKE_WATER_JET = BLOCK_ENTITIES.register("cake_water_jet", () -> BlockEntityType.Builder.of(CakeWaterJetBlockEntity::new, Blocks.CAKE_WATER_JET_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<VaseWaterJetBlockEntity>> VASE_WATER_JET = BLOCK_ENTITIES.register("vase_water_jet", () -> BlockEntityType.Builder.of(VaseWaterJetBlockEntity::new, Blocks.VASE_WATER_JET_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<WaltzesWaterJetBlockEntity>> WALTZES_WATER_JET = BLOCK_ENTITIES.register("waltzes_water_jet", () -> BlockEntityType.Builder.of(WaltzesWaterJetBlockEntity::new, Blocks.WALTZES_WATER_JET_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<WaltzCurtainBlockEntity>> WALTZ_CURTAIN = BLOCK_ENTITIES.register("waltz_curtain", () -> BlockEntityType.Builder.of(WaltzCurtainBlockEntity::new, Blocks.WALTZ_CURTAIN_BLOCK.get()).build(null));
 
 
     public static final RegistrySupplier<BlockEntityType<WhiteStrobeBlockEntity>> WHITE_STROBE = BLOCK_ENTITIES.register("white_strobe", () -> BlockEntityType.Builder.of(WhiteStrobeBlockEntity::new, Blocks.WHITE_STROBE_BLOCK.get()).build(null));

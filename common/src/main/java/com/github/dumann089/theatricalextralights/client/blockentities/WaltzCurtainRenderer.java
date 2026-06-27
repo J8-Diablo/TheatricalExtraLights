@@ -1,6 +1,6 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
-import com.github.dumann089.theatricalextralights.blockentities.WaltzesWaterJetBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.WaltzCurtainBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Optional;
 
-public class WaltzesWaterJetRenderer extends ExtraLightsRenderer<WaltzesWaterJetBlockEntity> {
+public class WaltzCurtainRenderer extends ExtraLightsRenderer<WaltzCurtainBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
 
     private static final double[] PARTICLE_Z_OFFSETS = {
@@ -24,12 +24,12 @@ public class WaltzesWaterJetRenderer extends ExtraLightsRenderer<WaltzesWaterJet
             0.6, 0.7, 0.8, 0.9, 1.0, 0.9, 0.8, 0.7, 0.6
     };
 
-    public WaltzesWaterJetRenderer(BlockEntityRendererProvider.Context context) {
+    public WaltzCurtainRenderer(BlockEntityRendererProvider.Context context) {
         super(context);
     }
 
     @Override
-    public void renderModel(WaltzesWaterJetBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging, int packedLight, int packedOverlay) {
+    public void renderModel(WaltzCurtainBlockEntity blockEntity, PoseStack poseStack, VertexConsumer vertexConsumer, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging, int packedLight, int packedOverlay) {
         if(cachedStaticModel == null){
             cachedStaticModel = TheatricalExpectPlatform.getBakedModel(blockEntity.getFixture().getStaticModel());
         }
@@ -94,7 +94,7 @@ public class WaltzesWaterJetRenderer extends ExtraLightsRenderer<WaltzesWaterJet
         float[] tilts = blockEntity.getFixture().getTiltRotationPosition();
         poseStack.translate(tilts[0], tilts[1], tilts[2]);
         float smoothTilt = blockEntity.getRenderAngle(partialTicks);
-        poseStack.mulPose(Axis.XP.rotationDegrees(smoothTilt));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(smoothTilt));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel,  packedLight, packedOverlay);
         //#endregion
@@ -102,7 +102,7 @@ public class WaltzesWaterJetRenderer extends ExtraLightsRenderer<WaltzesWaterJet
 
 
     @Override
-    public void preparePoseStack(WaltzesWaterJetBlockEntity blockEntity, PoseStack poseStack, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging) {
+    public void preparePoseStack(WaltzCurtainBlockEntity blockEntity, PoseStack poseStack, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging) {
         //#region Fixture Hanging
         poseStack.translate(0.5F, 0, .5F);
         if(isHanging){

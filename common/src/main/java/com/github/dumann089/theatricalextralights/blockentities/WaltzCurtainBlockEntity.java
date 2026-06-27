@@ -4,7 +4,6 @@ import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasJe
 import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasJetThickness;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import dev.imabad.theatrical.api.Fixture;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -12,9 +11,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.Arrays;
-
-public class WaltzesWaterJetBlockEntity extends ExtraLightsLightBlockEntity
+public class WaltzCurtainBlockEntity extends ExtraLightsLightBlockEntity
         implements HasJetHeight, HasJetThickness {
 
     public double smoothedHeight = 0.0;
@@ -33,8 +30,8 @@ public class WaltzesWaterJetBlockEntity extends ExtraLightsLightBlockEntity
     /** Acumulador de tiempo para el modo de oscilación automática. */
     public float swayTime = 0;
 
-    public WaltzesWaterJetBlockEntity(BlockPos pos, BlockState state) {
-        super(BlockEntities.WALTZES_WATER_JET.get(), pos, state);
+    public WaltzCurtainBlockEntity(BlockPos pos, BlockState state) {
+        super(BlockEntities.WALTZ_CURTAIN.get(), pos, state);
         setChannelCount(3);
     }
 
@@ -83,6 +80,8 @@ public class WaltzesWaterJetBlockEntity extends ExtraLightsLightBlockEntity
     // -------------------
     // DMX
     // -------------------
+
+    public float currentSwing = 0;
 
     @Override
     public void consume(byte[] dmxValues) {
@@ -153,7 +152,7 @@ public class WaltzesWaterJetBlockEntity extends ExtraLightsLightBlockEntity
 
     @Override
     public Fixture getFixture() {
-        return Fixtures.WALTZES_WATER_JET.get();
+        return Fixtures.WALTZ_CURTAIN.get();
     }
 
     @Override
@@ -173,7 +172,7 @@ public class WaltzesWaterJetBlockEntity extends ExtraLightsLightBlockEntity
 
     @Override
     public ResourceLocation getFixtureId() {
-        return Fixtures.WALTZES_WATER_JET.getId();
+        return Fixtures.WALTZ_CURTAIN.getId();
     }
 
     @Override

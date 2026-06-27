@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.Collections;
 import java.util.List;
 
-public class WaltzesWaterJetFixture extends Fixture {
+public class WaltzCurtainFixture extends Fixture {
 
     private static final List<DMXPersonality> PERSONALITIES = Collections.singletonList(
             new DMXPersonality(3, "2-Channel Mode")
@@ -24,8 +24,8 @@ public class WaltzesWaterJetFixture extends Fixture {
 
     );
 
-    private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/waltzesjet/waltzes_tilt");
-    private static final ResourceLocation PAN_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/waltzesjet/waltzes_pan");
+    private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/waltzesjet/waltzescurtain_tilt");
+    private static final ResourceLocation PAN_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/waltzesjet/waltzescurtain_pan");
     private static final ResourceLocation STATIC_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/waltzesjet/waltzes_static");
 
     private final float[] tiltRotation = new float[]{0.5F, 1.858F, 0.51F};

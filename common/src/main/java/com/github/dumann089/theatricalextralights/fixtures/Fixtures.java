@@ -157,6 +157,9 @@ public class Fixtures {
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "vase_water_jet"), VaseWaterJetFixture::new);
     public static final RegistrySupplier<Fixture> WALTZES_WATER_JET =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "waltzes_water_jet"), WaltzesWaterJetFixture::new);
+    public static final RegistrySupplier<Fixture> WALTZ_CURTAIN =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "waltz_curtain"), WaltzCurtainFixture::new);
+
 
     public static final RegistrySupplier<Fixture> x8PAR_RED =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "x8par_red"), x8par_redFixture::new);

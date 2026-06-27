@@ -117,6 +117,7 @@ public class TheatricalExtraLightsClient {
         BlockEntityRendererRegistry.register(BlockEntities.CAKE_WATER_JET.get(), CakeWaterJetRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.VASE_WATER_JET.get(), VaseWaterJetRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.WALTZES_WATER_JET.get(), WaltzesWaterJetRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntities.WALTZ_CURTAIN.get(), WaltzCurtainRenderer::new);
 
 
         BlockEntityRendererRegistry.register(BlockEntities.WHITE_STROBE.get(), WhiteStrobeRenderer::new);
