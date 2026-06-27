@@ -419,6 +419,10 @@ public class Items {
             "flame_projector",
             () -> new BlockItem(Blocks.FLAME_PROJECTOR_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
     );
+    public static final RegistrySupplier<Item> FLAME_THROWER = ITEMS.register(
+            "flame_thrower",
+            () -> new BlockItem(Blocks.FLAME_THROWER_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
     public static final RegistrySupplier<Item> CONFETTI_CANNON = ITEMS.register(
             "confetti_cannon",
             ConfettiCannonItemRegistration::create

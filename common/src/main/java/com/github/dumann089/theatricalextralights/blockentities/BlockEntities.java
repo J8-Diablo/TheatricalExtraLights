@@ -192,6 +192,8 @@ public class BlockEntities {
             BlockEntityType.Builder.of(GerbBlockEntity::new, Blocks.GERB_GOLD_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<FlameProjectorBlockEntity>> FLAME_PROJECTOR = BLOCK_ENTITIES.register("flame_projector", () ->
             BlockEntityType.Builder.of(FlameProjectorBlockEntity::new, Blocks.FLAME_PROJECTOR_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<FlameThrowerBlockEntity>> FLAME_THROWER = BLOCK_ENTITIES.register("flame_thrower", () ->
+            BlockEntityType.Builder.of(FlameThrowerBlockEntity::new, Blocks.FLAME_THROWER_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<ConfettiCannonBlockEntity>> CONFETTI_CANNON = BLOCK_ENTITIES.register("confetti_cannon", () ->
             BlockEntityType.Builder.of(ConfettiCannonBlockEntity::new, Blocks.CONFETTI_CANNON_BLOCK.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<LaserMirrorBlockEntity>> LASER_MIRROR = BLOCK_ENTITIES.register("laser_mirror", () -> BlockEntityType.Builder.of(LaserMirrorBlockEntity::new, Blocks.LASER_MIRROR_BLOCK.get()).build(null));

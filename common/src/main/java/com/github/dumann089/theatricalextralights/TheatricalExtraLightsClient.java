@@ -142,6 +142,7 @@ public class TheatricalExtraLightsClient {
 
         BlockEntityRendererRegistry.register(BlockEntities.CONFETTI_CANNON.get(), ConfettiCannonRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.FLAME_PROJECTOR.get(), ctx -> new StaticFixtureRenderer<>(ctx));
+        BlockEntityRendererRegistry.register(BlockEntities.FLAME_THROWER.get(), FlameThrowerRenderer::new);
         BlockEntityRendererRegistry.register(BlockEntities.GERB_GOLD.get(), ctx -> new StaticFixtureRenderer<>(ctx));
         BlockEntityRendererRegistry.register(BlockEntities.PYRO_FAN.get(), ctx -> new StaticFixtureRenderer<>(ctx));
 
