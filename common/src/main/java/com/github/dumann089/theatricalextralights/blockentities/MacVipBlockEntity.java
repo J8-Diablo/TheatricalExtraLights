@@ -75,6 +75,11 @@ public class MacVipBlockEntity extends ExtraLightsLightBlockEntity implements Ha
         }
     }
 
+    @Override
+    protected boolean needsContinuousClientRender() {
+        return super.needsContinuousClientRender() || goboSpin > 0;
+    }
+
     // ─── Consume DMX ─────────────────────────────────────────────────────────
     @Override
     public void consume(byte[] dmxValues) {

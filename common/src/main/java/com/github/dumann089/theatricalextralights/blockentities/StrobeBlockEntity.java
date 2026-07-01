@@ -4,6 +4,8 @@ import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasPe
 import com.github.dumann089.theatricalextralights.blocks.StrobeBlock;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import com.github.dumann089.theatricalextralights.util.DmxShutterStrobeHelper;
+import com.github.dumann089.theatricalextralights.util.DmxStrobeFixture;
+import com.github.dumann089.theatricalextralights.client.StrobeRenderHelper;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.api.dmx.DMXPersonality;
 import net.minecraft.core.BlockPos;
@@ -21,7 +23,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.Arrays;
 import java.util.List;
 
-public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements HasPersonality {
+public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements HasPersonality, DmxStrobeFixture {
     private static final int LEGACY_4CH_MODE = 0;
     private static final int FOCUS_5CH_MODE = 1;
     private static final int FOCUS_STROBE_6CH_MODE = 2;
@@ -91,6 +93,31 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
     private long getGameTimeForStrobe() {
         return level != null ? level.getGameTime() : 0L;
     }
+
+    @Override
+    public int getRawDimmer() {
+        return intensity;
+    }
+
+    @Override
+    public int getStrobeChannelValue() {
+        return usesStrobeChannel() ? strobe : OPEN;
+    }
+
+    @Override
+    public long getStrobeGameTime() {
+        return getGameTimeForStrobe();
+    }
+
+    @Override
+    public float getRenderedIntensity(float partialTick) {
+        if (usesStrobeChannel()) {
+            return DmxStrobeFixture.super.getRenderedIntensity(partialTick);
+        }
+        return prevIntensity + (intensity - prevIntensity) * partialTick;
+    }
+
+    private static final int OPEN = 255;
 
     @Override
     public float getIntensity() {
@@ -192,10 +219,15 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
         super.lightTick();
         if (level != null && level.isClientSide && usesStrobeChannel()) {
             prevStrobe = strobe;
-            if (DmxShutterStrobeHelper.isStrobing(strobe)) {
+            if (shouldForceStrobeRepaint()) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+                markStrobeSectionDirty();
             }
         }
+    }
+
+    private void markStrobeSectionDirty() {
+        StrobeRenderHelper.markSectionDirty(getBlockPos());
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, StrobeBlockEntity be) {

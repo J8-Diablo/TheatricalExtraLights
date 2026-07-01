@@ -4,6 +4,8 @@ import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasPe
 import com.github.dumann089.theatricalextralights.blocks.AtomictiltBlock;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import com.github.dumann089.theatricalextralights.util.DmxShutterStrobeHelper;
+import com.github.dumann089.theatricalextralights.util.DmxStrobeFixture;
+import com.github.dumann089.theatricalextralights.client.StrobeRenderHelper;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.api.dmx.DMXPersonality;
 import net.minecraft.core.BlockPos;
@@ -18,7 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.Arrays;
 import java.util.List;
 
-public class AtomictiltBlockEntity extends ExtraLightsLightBlockEntity implements HasPersonality {
+public class AtomictiltBlockEntity extends ExtraLightsLightBlockEntity implements HasPersonality, DmxStrobeFixture {
     private static final int RGB_FOCUS_TILT_MODE = 0;
     private static final int RGB_FOCUS_STROBE_TILT_MODE = 1;
 
@@ -77,6 +79,29 @@ public class AtomictiltBlockEntity extends ExtraLightsLightBlockEntity implement
 
     private long getGameTimeForStrobe() {
         return level != null ? level.getGameTime() : 0L;
+    }
+
+    @Override
+    public int getRawDimmer() {
+        return intensity;
+    }
+
+    @Override
+    public int getStrobeChannelValue() {
+        return usesStrobeChannel() ? strobe : 255;
+    }
+
+    @Override
+    public long getStrobeGameTime() {
+        return getGameTimeForStrobe();
+    }
+
+    @Override
+    public float getRenderedIntensity(float partialTick) {
+        if (usesStrobeChannel()) {
+            return DmxStrobeFixture.super.getRenderedIntensity(partialTick);
+        }
+        return prevIntensity + (intensity - prevIntensity) * partialTick;
     }
 
     @Override
@@ -142,8 +167,9 @@ public class AtomictiltBlockEntity extends ExtraLightsLightBlockEntity implement
         super.lightTick();
         if (level != null && level.isClientSide && usesStrobeChannel()) {
             prevStrobe = strobe;
-            if (DmxShutterStrobeHelper.isStrobing(strobe)) {
+            if (shouldForceStrobeRepaint()) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+                StrobeRenderHelper.markSectionDirty(getBlockPos());
             }
         }
     }

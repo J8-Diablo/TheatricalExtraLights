@@ -4,6 +4,7 @@ import com.github.dumann089.theatricalextralights.blockentities.Blinder2x2warmBl
 import com.github.dumann089.theatricalextralights.blockentities.StrobeBlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.WhiteStrobeBlockEntity;
 import com.github.dumann089.theatricalextralights.client.LensRenderTypes;
+import com.github.dumann089.theatricalextralights.client.StrobeRenderHelper;
 import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -151,8 +152,7 @@ public class WhiteStrobeRenderer extends ExtraLightsRenderer<WhiteStrobeBlockEnt
                     VertexConsumer beamConsumer =
                             multiBufferSource.getBuffer(TheatricalRenderTypes.BEAM);
 
-                    float intensity = blockEntity.getPrevIntensity()
-                            + (blockEntity.getIntensity() - blockEntity.getPrevIntensity()) * partialTicks;
+                    float intensity = StrobeRenderHelper.renderedIntensity(blockEntity, partialTicks);
 
                     int color = blockEntity.getColour();
                     int r = (color >> 16) & 0xFF;

@@ -1,5 +1,6 @@
 package com.github.dumann089.theatricalextralights.blockentities;
 
+import com.github.dumann089.theatricalextralights.client.StrobeRenderHelper;
 import com.github.dumann089.theatricalextralights.util.FollowspotDmxHelper;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -99,7 +100,19 @@ public abstract class ExtraLightsLightBlockEntity extends BaseDMXConsumerLightBl
             prevRed = red;
             prevGreen = green;
             prevBlue = blue;
+            if (needsContinuousClientRender()) {
+                StrobeRenderHelper.markSectionDirty(getBlockPos());
+            }
         }
+    }
+
+    /**
+     * Sodium met en cache le rendu des block entities — les faisceaux/lentilles passent
+     * par LazyRenderers depuis {@code beforeRenderBeam}, donc il faut invalider le chunk
+     * tant que la fixture est visuellement active.
+     */
+    protected boolean needsContinuousClientRender() {
+        return intensity > 0;
     }
 
     @Override

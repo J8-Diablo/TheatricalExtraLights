@@ -2,7 +2,7 @@ package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.StrobeBlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.WhiteStrobeBlockEntity;
-import com.github.dumann089.theatricalextralights.client.LensRenderTypes;
+import com.github.dumann089.theatricalextralights.client.StrobeRenderHelper;
 import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -162,8 +162,7 @@ public class StrobeRenderer extends ExtraLightsFixtureRenderer<StrobeBlockEntity
                 poseStack.translate(offset.x, offset.y, offset.z);
                 preparePoseStack(blockEntity, poseStack, facing, partialTick, isFlipped, blockstate, isHanging);
 
-                float intensity = blockEntity.getPrevIntensity()
-                        + (blockEntity.getIntensity() - blockEntity.getPrevIntensity()) * partialTicks;
+                float intensity = StrobeRenderHelper.renderedIntensity(blockEntity, partialTicks);
                 float focusInterpolated = blockEntity.getPrevFocus()
                         + (blockEntity.getFocus() - blockEntity.getPrevFocus()) * partialTicks;
                 float focusNorm = (Math.max(1f, focusInterpolated) - 1f) / 254f;

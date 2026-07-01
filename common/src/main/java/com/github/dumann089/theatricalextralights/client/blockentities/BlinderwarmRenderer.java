@@ -3,6 +3,7 @@ package com.github.dumann089.theatricalextralights.client.blockentities;
 import com.github.dumann089.theatricalextralights.blockentities.BlinderBlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.BlinderwarmBlockEntity;
 import com.github.dumann089.theatricalextralights.client.LensRenderTypes;
+import com.github.dumann089.theatricalextralights.client.StrobeRenderHelper;
 import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -140,8 +141,7 @@ public class BlinderwarmRenderer extends ExtraLightsRenderer<BlinderwarmBlockEnt
                     VertexConsumer beamConsumer =
                             multiBufferSource.getBuffer(TheatricalRenderTypes.BEAM);
 
-                    float intensity = blockEntity.getPrevIntensity()
-                            + (blockEntity.getIntensity() - blockEntity.getPrevIntensity()) * partialTicks;
+                    float intensity = StrobeRenderHelper.renderedIntensity(blockEntity, partialTicks);
 
                     int color = blockEntity.getColour();
                     int r = (color >> 16) & 0xFF;
