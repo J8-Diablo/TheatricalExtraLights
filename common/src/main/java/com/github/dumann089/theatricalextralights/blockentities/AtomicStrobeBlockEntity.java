@@ -119,10 +119,8 @@ public class AtomicStrobeBlockEntity extends ExtraLightsLightBlockEntity {
         } else {
             red = green = blue = 0;
         }
-        if (level != null) {
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        }
-        setChanged();
+        boolean changed = intensity != _pi || red != _pr || green != _pg || blue != _pb || focus != _pf;
+        finishDmxUpdate(changed, prevAdvanced);
     }
 
     /** @return packed 0xRRGGBB for the zone (0–{@link #RGB_ZONE_COUNT}-1). */
