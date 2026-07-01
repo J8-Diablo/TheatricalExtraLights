@@ -25,10 +25,12 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
     private static final int LEGACY_4CH_MODE = 0;
     private static final int FOCUS_5CH_MODE = 1;
     private static final int FOCUS_STROBE_6CH_MODE = 2;
-    private static final float MIN_LIGHT_SPREAD = 1.0f;
-    private static final float FOCUS_SPREAD_MULTIPLIER = 30.0f;
-    private static final float CLOSE_EMISSION_DISTANCE = 3.0f;
-    private static final float FAR_EMISSION_DISTANCE = 10.0f;
+    /** Spread dynamique : focus 1 = faisceau serré, focus 255 = flood (aligné sur lightRadius). */
+    private static final float MIN_LIGHT_SPREAD = 0.35f;
+    private static final float CLOSE_EMISSION_DISTANCE = 0.75f;
+    private static final float FAR_EMISSION_DISTANCE = 7.5f;
+    /** Réduit la lumière dynamique au focus minimum pour éviter un éclairage trop fort à DMX 1. */
+    private static final float MIN_LUMINANCE_SCALE = 0.22f;
 
     private int activePersonalityIndex = FOCUS_5CH_MODE;
     /** Canal strobe DMX (personnalité 6 canaux). */
@@ -119,17 +121,22 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
     }
 
     @Override
+    public int getLightLuminance() {
+        if (activePersonalityIndex == LEGACY_4CH_MODE) {
+            return super.getLightLuminance();
+        }
+        float scale = Mth.lerp(getNormalizedFocus(), MIN_LUMINANCE_SCALE, 1.0f);
+        float effective = getIntensity();
+        return (int) ((effective / 255f) * scale * 15f);
+    }
+
+    @Override
     public float getLightSpread() {
         if (activePersonalityIndex == LEGACY_4CH_MODE) {
             return 50.0f;
         }
-        float normalizedFocus = getNormalizedFocus();
-        float maxLightSpread = (float) (getFixture().getLightRadius() * FOCUS_SPREAD_MULTIPLIER);
-        return Mth.lerp(
-                normalizedFocus,
-                MIN_LIGHT_SPREAD,
-                maxLightSpread
-        );
+        float maxLightSpread = (float) getFixture().getLightRadius();
+        return Mth.lerp(getNormalizedFocus(), MIN_LIGHT_SPREAD, maxLightSpread);
     }
 
     @Override

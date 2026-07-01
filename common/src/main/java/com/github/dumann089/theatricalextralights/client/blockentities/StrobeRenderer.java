@@ -22,6 +22,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
@@ -35,7 +36,9 @@ import java.util.Optional;
 public class StrobeRenderer extends ExtraLightsFixtureRenderer<StrobeBlockEntity> {
     private static final float SOURCE_BEAM_HALF_WIDTH = 0.4375f;
     private static final float SOURCE_BEAM_HALF_HEIGHT = 0.21875f;
-    private static final float LENS_SIZE = 2.80f;
+    private static final float MAX_LENS_SIZE = 2.80f;
+    private static final float MIN_LENS_SIZE = 0.55f;
+    private static final float MIN_VISUAL_INTENSITY_SCALE = 0.30f;
 
     private BakedModel cachedPanModel;
     private BakedModel cachedTiltModel;
@@ -161,11 +164,16 @@ public class StrobeRenderer extends ExtraLightsFixtureRenderer<StrobeBlockEntity
 
                 float intensity = blockEntity.getPrevIntensity()
                         + (blockEntity.getIntensity() - blockEntity.getPrevIntensity()) * partialTicks;
+                float focusInterpolated = blockEntity.getPrevFocus()
+                        + (blockEntity.getFocus() - blockEntity.getPrevFocus()) * partialTicks;
+                float focusNorm = (Math.max(1f, focusInterpolated) - 1f) / 254f;
+                float visualScale = Mth.lerp(focusNorm, MIN_VISUAL_INTENSITY_SCALE, 1.0f);
+                float lensSize = Mth.lerp(focusNorm, MIN_LENS_SIZE, MAX_LENS_SIZE);
                 int color = blockEntity.getColour();
                 int r = (color >> 16) & 0xFF;
                 int g = (color >> 8) & 0xFF;
                 int b = color & 0xFF;
-                int a = (int) ((intensity / 255f) * 255f);
+                int a = (int) ((intensity / 255f) * visualScale * 255f);
 
                 VertexConsumer sourceBeamConsumer = bufferSource.getBuffer(TheatricalRenderTypes.BEAM);
                 poseStack.pushPose();
@@ -178,7 +186,7 @@ public class StrobeRenderer extends ExtraLightsFixtureRenderer<StrobeBlockEntity
                 addVertex(sourceBeamConsumer, m, normal, r, g, b, a, -SOURCE_BEAM_HALF_WIDTH, -SOURCE_BEAM_HALF_HEIGHT, 0f);
                 poseStack.popPose();
 
-                renderLens(multiBufferSource, poseStack, 0.25f, color, LENS_SIZE, 0.5f, 0.65f, 0.343f);
+                renderLens(multiBufferSource, poseStack, 0.25f * visualScale, color, lensSize, 0.5f, 0.65f, 0.343f);
                 poseStack.popPose();
             }
 
