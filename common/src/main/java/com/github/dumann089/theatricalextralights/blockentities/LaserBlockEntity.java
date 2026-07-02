@@ -69,27 +69,28 @@ public class LaserBlockEntity extends ExtraLightsLightBlockEntity {
         }
         boolean prevAdvanced = beginDmxUpdate();
         int _pi = intensity, _pr = red, _pg = green, _pb = blue, _pf = focus, _pp = pan, _pt = tilt;
+        int _pr2 = red2, _pg2 = green2, _pb2 = blue2, _pr3 = red3, _pg3 = green3, _pb3 = blue3;
+        int _pattern = pattern, _size = size, _amp = amplitude, _speed = speed, _rot = rotation, _persist = persistence;
 
-                intensity = u(v[0]);
-        red       = u(v[1]);
-        green     = u(v[2]);
-        blue      = u(v[3]);
-        red2      = u(v[4]);
-        green2    = u(v[5]);
-        blue2     = u(v[6]);
-        red3      = u(v[7]);
-        green3    = u(v[8]);
-        blue3     = u(v[9]);
-        pattern   = u(v[10]);
-        size      = u(v[11]);
+        intensity = u(v[0]);
+        red = u(v[1]);
+        green = u(v[2]);
+        blue = u(v[3]);
+        red2 = u(v[4]);
+        green2 = u(v[5]);
+        blue2 = u(v[6]);
+        red3 = u(v[7]);
+        green3 = u(v[8]);
+        blue3 = u(v[9]);
+        pattern = u(v[10]);
+        size = u(v[11]);
         amplitude = u(v[12]);
-        speed     = u(v[13]);
-        rotation  = u(v[14]);
-        pan       = (int) ((u(v[15]) * 160) / 255f) - 80;
-        tilt      = -(int) ((u(v[16]) - 127) * 45) / 127;
-        focus     = u(v[17]);
+        speed = u(v[13]);
+        rotation = u(v[14]);
+        pan = (int) ((u(v[15]) * 160) / 255f) - 80;
+        tilt = -(int) ((u(v[16]) - 127) * 45) / 127;
+        focus = u(v[17]);
         persistence = u(v[18]);
-        // DEBUG: log first 5 consume() calls regardless of values, so we can see if it's being invoked
         if (consumeLogCounter < 5) {
             consumeLogCounter++;
             TheatricalExtraLights.LOGGER.info(
@@ -97,10 +98,13 @@ public class LaserBlockEntity extends ExtraLightsLightBlockEntity {
                     getBlockPos(), consumeLogCounter, intensity, pattern, size, amplitude, pan, tilt,
                     getChannelCount(), getChannelStart(), v.length);
         }
-        if (level != null) {
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-        }
-        setChanged();
+        boolean changed = intensity != _pi || red != _pr || green != _pg || blue != _pb || focus != _pf
+                || pan != _pp || tilt != _pt
+                || red2 != _pr2 || green2 != _pg2 || blue2 != _pb2
+                || red3 != _pr3 || green3 != _pg3 || blue3 != _pb3
+                || pattern != _pattern || size != _size || amplitude != _amp || speed != _speed
+                || rotation != _rot || persistence != _persist;
+        finishDmxUpdate(changed, prevAdvanced);
     }
 
     @Override

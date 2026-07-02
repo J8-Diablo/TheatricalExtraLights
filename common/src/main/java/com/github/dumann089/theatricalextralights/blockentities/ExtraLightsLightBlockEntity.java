@@ -2,6 +2,7 @@ package com.github.dumann089.theatricalextralights.blockentities;
 
 import com.github.dumann089.theatricalextralights.client.StrobeRenderHelper;
 import com.github.dumann089.theatricalextralights.util.FollowspotDmxHelper;
+import com.github.dumann089.theatricalextralights.util.TheatricalDmxFrameBridge;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -26,14 +27,16 @@ public abstract class ExtraLightsLightBlockEntity extends BaseDMXConsumerLightBl
 
     /**
      * Sync client si valeurs changées OU si prev* serveur ont rattrapé (pattern Theatrical).
-     * {@code setChanged()} seulement quand les valeurs DMX ont changé.
+     * Utilise le batch DMXFrame si Theatrical récent est présent, sinon vanilla.
      */
     protected void finishDmxUpdate(boolean valuesChanged, boolean prevAdvanced) {
         if (level == null || level.isClientSide) {
             return;
         }
         if (valuesChanged || prevAdvanced) {
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+            if (!TheatricalDmxFrameBridge.markDirtyIfBatchEnabled(getBlockPos())) {
+                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+            }
         }
         if (valuesChanged) {
             setChanged();
