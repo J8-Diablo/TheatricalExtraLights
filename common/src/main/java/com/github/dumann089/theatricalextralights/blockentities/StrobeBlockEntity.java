@@ -27,6 +27,12 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
     private static final int LEGACY_4CH_MODE = 0;
     private static final int FOCUS_5CH_MODE = 1;
     private static final int FOCUS_STROBE_6CH_MODE = 2;
+    private static final int RGB_ONLY_3CH_MODE = 3;
+    /** Dimmer fixe pour le mode RGB only (100 %). */
+    private static final int FIXED_RGB_ONLY_INTENSITY = 255;
+    /** Focus fixe pour le mode RGB only (faisceau serré type strobe). */
+    private static final int FIXED_RGB_ONLY_FOCUS = 4;
+    private static final int OPEN = 255;
     /** Spread dynamique : focus 1 = faisceau serré, focus 255 = flood (aligné sur lightRadius). */
     private static final float MIN_LIGHT_SPREAD = 0.35f;
     private static final float CLOSE_EMISSION_DISTANCE = 0.75f;
@@ -65,6 +71,11 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
         setChannelCount(getPersonalityChannelCount());
         if (activePersonalityIndex == LEGACY_4CH_MODE) {
             focus = 255;
+        } else if (activePersonalityIndex == RGB_ONLY_3CH_MODE) {
+            intensity = FIXED_RGB_ONLY_INTENSITY;
+            focus = FIXED_RGB_ONLY_FOCUS;
+            strobe = OPEN;
+            prevStrobe = OPEN;
         } else {
             focus = Math.max(1, focus);
         }
@@ -88,6 +99,10 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
 
     private boolean usesStrobeChannel() {
         return activePersonalityIndex == FOCUS_STROBE_6CH_MODE;
+    }
+
+    private boolean isRgbOnlyMode() {
+        return activePersonalityIndex == RGB_ONLY_3CH_MODE;
     }
 
     private long getGameTimeForStrobe() {
@@ -117,8 +132,6 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
         return prevIntensity + (intensity - prevIntensity) * partialTick;
     }
 
-    private static final int OPEN = 255;
-
     @Override
     public float getIntensity() {
         if (usesStrobeChannel()) {
@@ -143,6 +156,9 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
     public int getFocus() {
         if (activePersonalityIndex == LEGACY_4CH_MODE) {
             return 255;
+        }
+        if (isRgbOnlyMode()) {
+            return FIXED_RGB_ONLY_FOCUS;
         }
         return Math.max(1, focus);
     }
@@ -194,19 +210,28 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
         boolean prevAdvanced = beginDmxUpdate();
         int _pi = intensity, _pr = red, _pg = green, _pb = blue, _pf = focus, _ps = strobe;
 
-        intensity = convertByteToInt(ourValues[0]);
-        red = convertByteToInt(ourValues[1]);
-        green = convertByteToInt(ourValues[2]);
-        blue = convertByteToInt(ourValues[3]);
-        if (channelCount >= 5) {
-            focus = Math.max(1, convertByteToInt(ourValues[4]));
+        if (isRgbOnlyMode()) {
+            red = convertByteToInt(ourValues[0]);
+            green = convertByteToInt(ourValues[1]);
+            blue = convertByteToInt(ourValues[2]);
+            intensity = FIXED_RGB_ONLY_INTENSITY;
+            focus = FIXED_RGB_ONLY_FOCUS;
+            strobe = OPEN;
         } else {
-            focus = 128;
-        }
-        if (channelCount >= 6) {
-            strobe = convertByteToInt(ourValues[5]);
-        } else if (usesStrobeChannel()) {
-            strobe = 255;
+            intensity = convertByteToInt(ourValues[0]);
+            red = convertByteToInt(ourValues[1]);
+            green = convertByteToInt(ourValues[2]);
+            blue = convertByteToInt(ourValues[3]);
+            if (channelCount >= 5) {
+                focus = Math.max(1, convertByteToInt(ourValues[4]));
+            } else {
+                focus = 128;
+            }
+            if (channelCount >= 6) {
+                strobe = convertByteToInt(ourValues[5]);
+            } else if (usesStrobeChannel()) {
+                strobe = 255;
+            }
         }
 
         boolean changed = intensity != _pi || red != _pr || green != _pg || blue != _pb

@@ -33,7 +33,11 @@ public class StrobeFixture extends Fixture {
                     .addSlot(SharedSlots.GREEN)
                     .addSlot(SharedSlots.BLUE)
                     .addSlot(SharedSlots.FOCUS)
-                    .addSlot(SharedSlots.FOCUS)
+                    .addSlot(SharedSlots.FOCUS),
+            new DMXPersonality(3, "3-Channel Strobe RGB Only")
+                    .addSlot(SharedSlots.RED)
+                    .addSlot(SharedSlots.GREEN)
+                    .addSlot(SharedSlots.BLUE)
     );
 
     private static final ResourceLocation TILT_MODEL = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/strobe/new_strobe_tilt");
