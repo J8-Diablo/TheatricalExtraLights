@@ -2,6 +2,7 @@ package com.github.dumann089.theatricalextralights.blockentities;
 
 import com.github.dumann089.theatricalextralights.TheatricalExtraLights;
 import com.github.dumann089.theatricalextralights.blocks.LaserBlock;
+import com.github.dumann089.theatricalextralights.client.StrobeRenderHelper;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import com.github.dumann089.theatricalextralights.laser.LaserPattern;
 import dev.imabad.theatrical.api.Fixture;
@@ -144,6 +145,28 @@ public class LaserBlockEntity extends ExtraLightsLightBlockEntity implements Dmx
         red3 = buf.readUnsignedByte();
         green3 = buf.readUnsignedByte();
         blue3 = buf.readUnsignedByte();
+        markClientBeamDirty();
+    }
+
+    @Override
+    public void applyDmxFrameBase(int intensity, int red, int green, int blue,
+                                  int prevIntensity, int prevRed, int prevGreen, int prevBlue) {
+        super.applyDmxFrameBase(intensity, red, green, blue, prevIntensity, prevRed, prevGreen, prevBlue);
+        markClientBeamDirty();
+    }
+
+    @Override
+    public void applyDmxFramePanTiltFocus(int pan, int tilt, int focus,
+                                          int prevPan, int prevTilt, int prevFocus) {
+        super.applyDmxFramePanTiltFocus(pan, tilt, focus, prevPan, prevTilt, prevFocus);
+        markClientBeamDirty();
+    }
+
+    /** Batch DMX does not trigger block entity packets — force Sodium to re-run lazy beam render. */
+    private void markClientBeamDirty() {
+        if (level != null && level.isClientSide) {
+            StrobeRenderHelper.markSectionDirty(getBlockPos());
+        }
     }
 
     @Override
@@ -239,7 +262,7 @@ public class LaserBlockEntity extends ExtraLightsLightBlockEntity implements Dmx
 
     @Override
     protected boolean needsContinuousClientRender() {
-        return intensity > 0;
+        return intensity > 0 || speed > 0;
     }
 
     // ----- Getters used by the renderer -----
