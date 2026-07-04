@@ -5,10 +5,11 @@ import com.github.dumann089.theatricalextralights.blocks.LaserBlock;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import com.github.dumann089.theatricalextralights.laser.LaserPattern;
 import dev.imabad.theatrical.api.Fixture;
-import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
+import dev.imabad.theatrical.api.dmx.DmxFrameExtendedFixture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -18,7 +19,7 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
 
-public class LaserBlockEntity extends ExtraLightsLightBlockEntity {
+public class LaserBlockEntity extends ExtraLightsLightBlockEntity implements DmxFrameExtendedFixture {
     public static final int CHANNEL_COUNT = 19;
 
     // Secondary/tertiary RGB
@@ -105,6 +106,44 @@ public class LaserBlockEntity extends ExtraLightsLightBlockEntity {
                 || pattern != _pattern || size != _size || amplitude != _amp || speed != _speed
                 || rotation != _rot || persistence != _persist;
         finishDmxUpdate(changed, prevAdvanced);
+    }
+
+    @Override
+    public byte dmxFrameExtraType() {
+        return EXTRA_TYPE_LASER;
+    }
+
+    /** 12 bytes: pattern params (6) + secondary/tertiary RGB (6). */
+    @Override
+    public void writeDmxFrameExtras(FriendlyByteBuf buf) {
+        buf.writeByte(pattern);
+        buf.writeByte(size);
+        buf.writeByte(amplitude);
+        buf.writeByte(speed);
+        buf.writeByte(rotation);
+        buf.writeByte(persistence);
+        buf.writeByte(red2);
+        buf.writeByte(green2);
+        buf.writeByte(blue2);
+        buf.writeByte(red3);
+        buf.writeByte(green3);
+        buf.writeByte(blue3);
+    }
+
+    @Override
+    public void applyDmxFrameExtras(FriendlyByteBuf buf) {
+        pattern = buf.readUnsignedByte();
+        size = buf.readUnsignedByte();
+        amplitude = buf.readUnsignedByte();
+        speed = buf.readUnsignedByte();
+        rotation = buf.readUnsignedByte();
+        persistence = buf.readUnsignedByte();
+        red2 = buf.readUnsignedByte();
+        green2 = buf.readUnsignedByte();
+        blue2 = buf.readUnsignedByte();
+        red3 = buf.readUnsignedByte();
+        green3 = buf.readUnsignedByte();
+        blue3 = buf.readUnsignedByte();
     }
 
     @Override
@@ -196,6 +235,11 @@ public class LaserBlockEntity extends ExtraLightsLightBlockEntity {
 
     private static int u(byte b) {
         return Byte.toUnsignedInt(b);
+    }
+
+    @Override
+    protected boolean needsContinuousClientRender() {
+        return intensity > 0;
     }
 
     // ----- Getters used by the renderer -----
