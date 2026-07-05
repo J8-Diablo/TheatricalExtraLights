@@ -8,10 +8,11 @@ import net.minecraft.world.phys.Vec3;
 
 /** Block-space offsets and fixture rotations for Extra Lights fixtures. */
 public final class DirectionOffset {
-    public static final Vec3 FLAME_HEAD_PIVOT = new Vec3(0.0, -0.12, 0.19);
-    /** Pivot tête BER (aligné sur le modèle Extra Lights). */
-    public static final Vec3 FLAME_HEAD_RENDER_PIVOT = new Vec3(0.0, -0.12, -0.19);
-    public static final Vec3 FLAME_NOZZLE_OFFSET = new Vec3(0.0, 0.13 - 5.0 / 16.0, 0.18);
+    public static final Vec3 FLAME_HEAD_PIVOT = Vec3.ZERO;
+    /** Pivot tête — origine Blockbench [8, 8, 8] = centre du bloc. */
+    public static final Vec3 FLAME_HEAD_RENDER_PIVOT = Vec3.ZERO;
+    /** Sortie du bec (centre du groupe head du modèle flame machine). */
+    public static final Vec3 FLAME_NOZZLE_OFFSET = new Vec3(5.0 / 16.0 - 0.5, 2.1 / 16.0 - 0.5, 8.0 / 16.0 - 0.5);
 
     private DirectionOffset() {
     }

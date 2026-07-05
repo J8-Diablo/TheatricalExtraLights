@@ -24,7 +24,7 @@ public class FlameThrowerFixture extends Fixture {
     private final float[] pivot = new float[]{0.5f, 0.5125f, 0.5f};
 
     public FlameThrowerFixture() {
-        this.bodyModel = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/flame_thrower");
+        this.bodyModel = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/flame_thrower_body");
         this.headModel = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/flame_thrower_head");
     }
 
@@ -55,7 +55,7 @@ public class FlameThrowerFixture extends Fixture {
 
     @Override
     public float[] getBeamStartPosition() {
-        return new float[]{0.5f, 0.65f, 0.62f};
+        return new float[]{5f / 16f, 2.1f / 16f, 8f / 16f};
     }
 
     @Override

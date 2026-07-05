@@ -20,15 +20,33 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 import java.io.IOException;
 
-@Mod.EventBusSubscriber(modid = TheatricalExtraLights.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(
+        value = Dist.CLIENT,
+        modid = TheatricalExtraLights.MOD_ID,
+        bus = Mod.EventBusSubscriber.Bus.MOD
+)
 public final class TheatricalExtraLightsForgeClient {
-
     private TheatricalExtraLightsForgeClient() {
     }
 
     @SubscribeEvent
-    public static void onClientSetup(final FMLClientSetupEvent event) {
+    public static void clientSetup(final FMLClientSetupEvent event) {
         TheatricalExtraLightsClient.init();
+    }
+
+    @SubscribeEvent
+    public static void registerParticleProviders(final RegisterParticleProvidersEvent event) {
+        ModParticleClientImpl.registerForgeProviders(event);
+    }
+
+    @SubscribeEvent
+    public static void registerLayerDefinitions(final EntityRenderersEvent.RegisterLayerDefinitions event) {
+        ConfettiCannonClientSetup.registerModelLayer(event::registerLayerDefinition);
+    }
+
+    @SubscribeEvent
+    public static void registerEntityRenderers(final EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(ModEntities.FIREWORK_ROCKET.get(), FireworkRocketRenderer::new);
     }
 
     @SubscribeEvent
@@ -54,20 +72,5 @@ public final class TheatricalExtraLightsForgeClient {
         } catch (IOException e) {
             throw new RuntimeException("Error cargando los shaders para Theatrical Extra Lights", e);
         }
-    }
-
-    @SubscribeEvent
-    public static void registerEntityRenderers(final EntityRenderersEvent.RegisterRenderers event) {
-        event.registerEntityRenderer(ModEntities.FIREWORK_ROCKET.get(), FireworkRocketRenderer::new);
-    }
-
-    @SubscribeEvent
-    public static void registerLayerDefinitions(final EntityRenderersEvent.RegisterLayerDefinitions event) {
-        ConfettiCannonClientSetup.registerModelLayer(event::registerLayerDefinition);
-    }
-
-    @SubscribeEvent
-    public static void registerParticleProviders(final RegisterParticleProvidersEvent event) {
-        ModParticleClientImpl.registerForgeProviders(event);
     }
 }

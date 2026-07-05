@@ -40,6 +40,8 @@ public class TheatricalExtraLightsConfig {
     private Integer maxConcurrentRockets = 768;
     private Integer maxSparksPerRocket = 600;
     private Double fireworkRenderDistance = 2048.0;
+    /** Si true, la portée pyro suit la render distance client / view distance serveur (plafonnée par fireworkRenderDistance). */
+    private Boolean fireworkDynamicRenderDistance = true;
     private Boolean fireworkDynamicLightEnabled = true;
     private Boolean fireworkSmokeEnabled = true;
     private Integer fireworkSmokeBudgetPerTick = 24;
@@ -100,6 +102,7 @@ public class TheatricalExtraLightsConfig {
     public static int getMaxConcurrentRockets() { return INSTANCE.maxConcurrentRockets != null ? INSTANCE.maxConcurrentRockets : 768; }
     public static int getMaxSparksPerRocket() { return INSTANCE.maxSparksPerRocket != null ? INSTANCE.maxSparksPerRocket : 600; }
     public static double getFireworkRenderDistance() { return INSTANCE.fireworkRenderDistance != null ? INSTANCE.fireworkRenderDistance : 2048.0; }
+    public static boolean useFireworkDynamicRenderDistance() { return INSTANCE.fireworkDynamicRenderDistance == null || INSTANCE.fireworkDynamicRenderDistance; }
     public static boolean isFireworkDynamicLightEnabled() { return INSTANCE.fireworkDynamicLightEnabled == null || INSTANCE.fireworkDynamicLightEnabled; }
     public static boolean isFireworkSmokeEnabled() { return INSTANCE.fireworkSmokeEnabled == null || INSTANCE.fireworkSmokeEnabled; }
     public static int getFireworkSmokeBudgetPerTick() { return INSTANCE.fireworkSmokeBudgetPerTick != null ? INSTANCE.fireworkSmokeBudgetPerTick : 24; }

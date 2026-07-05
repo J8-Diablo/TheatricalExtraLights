@@ -99,6 +99,10 @@ public class Items {
             "blinder2x2warm",
             () -> new BlockItem(Blocks.BLINDER2X2WARM_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
+    public static final RegistrySupplier<Item> BLINDER1X1 = ITEMS.register(
+            "blinder1x1",
+            () -> new BlockItem(Blocks.BLINDER1X1_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
     public static final RegistrySupplier<Item> BLINDER_WARM = ITEMS.register(
             "blinder_warm",
             () -> new BlockItem(Blocks.BLINDER_WARM_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))

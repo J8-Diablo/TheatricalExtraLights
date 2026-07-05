@@ -1,6 +1,8 @@
 package com.github.dumann089.theatricalextralights.blockentities;
 
+import com.github.dumann089.theatricalextralights.client.StrobeRenderHelper;
 import com.github.dumann089.theatricalextralights.util.FollowspotDmxHelper;
+import com.github.dumann089.theatricalextralights.util.TheatricalDmxFrameBridge;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -25,14 +27,16 @@ public abstract class ExtraLightsLightBlockEntity extends BaseDMXConsumerLightBl
 
     /**
      * Sync client si valeurs changées OU si prev* serveur ont rattrapé (pattern Theatrical).
-     * {@code setChanged()} seulement quand les valeurs DMX ont changé.
+     * Utilise le batch DMXFrame si Theatrical récent est présent, sinon vanilla.
      */
     protected void finishDmxUpdate(boolean valuesChanged, boolean prevAdvanced) {
         if (level == null || level.isClientSide) {
             return;
         }
         if (valuesChanged || prevAdvanced) {
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+            if (!TheatricalDmxFrameBridge.markDirtyIfBatchEnabled(getBlockPos())) {
+                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+            }
         }
         if (valuesChanged) {
             setChanged();
@@ -99,7 +103,19 @@ public abstract class ExtraLightsLightBlockEntity extends BaseDMXConsumerLightBl
             prevRed = red;
             prevGreen = green;
             prevBlue = blue;
+            if (needsContinuousClientRender()) {
+                StrobeRenderHelper.markSectionDirty(getBlockPos());
+            }
         }
+    }
+
+    /**
+     * Sodium met en cache le rendu des block entities — les faisceaux/lentilles passent
+     * par LazyRenderers depuis {@code beforeRenderBeam}, donc il faut invalider le chunk
+     * tant que la fixture est visuellement active.
+     */
+    protected boolean needsContinuousClientRender() {
+        return intensity > 0;
     }
 
     @Override

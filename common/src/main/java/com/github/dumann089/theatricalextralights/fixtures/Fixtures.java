@@ -420,6 +420,8 @@ public class Fixtures {
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "blinder2x2"), Blinder2x2Fixture::new);
     public static final RegistrySupplier<Fixture> BLINDER2X2WARM =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "blinder2x2warm"), Blinder2x2warmFixture::new);
+    public static final RegistrySupplier<Fixture> BLINDER1X1 =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "blinder1x1"), Blinder1x1Fixture::new);
     public static final RegistrySupplier<Fixture> MINI_BAR =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "mini_bar"), MiniBarFixture::new);
     public static final RegistrySupplier<Fixture> A1X1PAR64 =
@@ -448,6 +450,7 @@ public class Fixtures {
             case BLUE_COMET -> FIREWORK_BLUE_COMET.get();
             case GREEN_COMET -> FIREWORK_GREEN_COMET.get();
             case GOLD_COMET -> FIREWORK_GOLD_COMET.get();
+            case PYRO_FAN_COMET -> FIREWORK_GOLD_COMET.get();
             case GOLD_BELL_COMET -> FIREWORK_GOLD_BELL_COMET.get();
             case RED_PEONY -> FIREWORK_RED_PEONY.get();
             case BLUE_PEONY -> FIREWORK_BLUE_PEONY.get();
@@ -525,6 +528,7 @@ public class Fixtures {
             case BLUE_COMET -> FIREWORK_BLUE_COMET.getId();
             case GREEN_COMET -> FIREWORK_GREEN_COMET.getId();
             case GOLD_COMET -> FIREWORK_GOLD_COMET.getId();
+            case PYRO_FAN_COMET -> FIREWORK_GOLD_COMET.getId();
             case GOLD_BELL_COMET -> FIREWORK_GOLD_BELL_COMET.getId();
             case RED_PEONY -> FIREWORK_RED_PEONY.getId();
             case BLUE_PEONY -> FIREWORK_BLUE_PEONY.getId();

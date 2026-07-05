@@ -27,6 +27,22 @@ public class Beam2DRenderTypes {
                     .createCompositeState(false)
     );
 
+    public static final RenderType FLOOR_PATCH = RenderType.create(
+            "extra_lights_floor_patch",
+            DefaultVertexFormat.POSITION_COLOR,
+            VertexFormat.Mode.TRIANGLES,
+            512,
+            false,
+            true,
+            RenderType.CompositeState.builder()
+                    .setShaderState(new ShaderStateShard(GameRenderer::getPositionColorShader))
+                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                    .setWriteMaskState(COLOR_WRITE)
+                    .setCullState(NO_CULL)
+                    .setDepthTestState(LEQUAL_DEPTH_TEST)
+                    .createCompositeState(false)
+    );
+
     // SHADERS
     public static final RenderType BEAM_SHADERS = RenderType.create(
             "beam_shaders",
