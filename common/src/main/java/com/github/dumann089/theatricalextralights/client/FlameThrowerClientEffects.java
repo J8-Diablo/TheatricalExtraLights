@@ -24,7 +24,7 @@ public final class FlameThrowerClientEffects {
                 SoundLoopManager.play(
                         blockEntity.getLevel(),
                         blockEntity.getBlockPos(),
-                        ModSounds.FLAME_THROWER_START.get(),
+                        null,
                         ModSounds.FLAME_THROWER_LOOP.get(),
                         0.5f,
                         1.0f
@@ -49,13 +49,13 @@ public final class FlameThrowerClientEffects {
         }
 
         Direction facing = blockEntity.getBlockState().getValue(BaseLightBlock.FACING);
-        float panAngle = blockEntity.getHeadAngle(minecraft.getFrameTime());
+        float headRenderAngle = blockEntity.getHeadRenderAngle(minecraft.getFrameTime());
 
         FlameThrowerParticleSpawner.spawnJet(
                 level,
                 blockEntity.getBlockPos(),
                 facing,
-                panAngle,
+                headRenderAngle,
                 blockEntity.getIntensity(),
                 level.random
         );

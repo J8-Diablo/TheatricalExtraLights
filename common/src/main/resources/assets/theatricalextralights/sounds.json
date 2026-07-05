@@ -7,14 +7,9 @@
       "theatricalextralights:confetti_cannon_pop_2"
     ]
   },
-  "block.flame_thrower.start": {
-    "sounds": [
-      "theatricalextralights:block/flame_thrower.start"
-    ]
-  },
   "block.flame_thrower.loop": {
     "sounds": [
-      "theatricalextralights:block/flame_thrower.loop"
+      "theatricalextralights:flame_thrower.loop"
     ]
   }
 }

@@ -55,6 +55,11 @@ public class ModParticle {
             () -> new SimpleParticleType(false) {}
     );
 
+    public static final RegistrySupplier<SimpleParticleType> FLAME_THROWER_PUFF = PARTICLE_TYPES.register(
+            "flame_thrower_puff",
+            () -> new SimpleParticleType(false) {}
+    );
+
     public static void initialize() {
         PARTICLE_TYPES.register();
     }

@@ -7,6 +7,7 @@ import com.github.dumann089.theatricalextralights.client.ModShaders;
 import com.github.dumann089.theatricalextralights.client.entities.FireworkRocketRenderer;
 import com.github.dumann089.theatricalextralights.client.forge.ModParticleClientImpl;
 import com.github.dumann089.theatricalextralights.entities.ModEntities;
+import dev.imabad.theatrical.compat.ModCompat;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
@@ -51,6 +52,12 @@ public final class TheatricalExtraLightsForgeClient {
 
     @SubscribeEvent
     public static void registerShaders(final RegisterShadersEvent event) {
+        // Shimmer 0.2.4 intercepte le reload global des shaders vanilla (particle, etc.)
+        // et plante sur fog_distance ; on utilise les fallbacks beacon beam à la place.
+        if (ModCompat.SHIMMER) {
+            return;
+        }
+
         try {
             event.registerShader(
                     new ShaderInstance(

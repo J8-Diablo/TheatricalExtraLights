@@ -16,7 +16,9 @@ import net.minecraft.client.renderer.texture.TextureManager;
 
 @Environment(EnvType.CLIENT)
 public final class ExtraLightsRenderTypes {
-    /** Rendu additif du jet du lance-flammes. */
+    /**
+     * Rendu additif du jet — shader particule vanilla (format {@link DefaultVertexFormat#PARTICLE}).
+     */
     public static final ParticleRenderType FLAME_THROWER_JET = new ParticleRenderType() {
         @Override
         public void begin(BufferBuilder builder, TextureManager textureManager) {
@@ -46,5 +48,10 @@ public final class ExtraLightsRenderTypes {
     };
 
     private ExtraLightsRenderTypes() {
+    }
+
+    /** Rendu additif custom ; évite le shader vanilla particle (compatible Shimmer). */
+    public static ParticleRenderType flameThrowerJetRenderType() {
+        return FLAME_THROWER_JET;
     }
 }

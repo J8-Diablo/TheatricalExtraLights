@@ -8,66 +8,102 @@ import net.minecraft.world.phys.Vec3;
 
 /** Block-space offsets and fixture rotations for Extra Lights fixtures. */
 public final class DirectionOffset {
-    public static final Vec3 FLAME_HEAD_PIVOT = Vec3.ZERO;
-    /** Pivot tête — origine Blockbench [8, 8, 8] = centre du bloc. */
-    public static final Vec3 FLAME_HEAD_RENDER_PIVOT = Vec3.ZERO;
-    /** Sortie du bec (centre du groupe head du modèle flame machine). */
-    public static final Vec3 FLAME_NOZZLE_OFFSET = new Vec3(5.0 / 16.0 - 0.5, 2.1 / 16.0 - 0.5, 8.0 / 16.0 - 0.5);
+    /** Pivot Blockbench / rotation tête [5, 2.1, 8]. */
+    public static final Vec3 FLAME_HEAD_PIVOT_BLOCK = new Vec3(5.0 / 16.0, 2.1 / 16.0, 8.0 / 16.0);
+    /** Sommet du tube [5, 3.3, 8]. */
+    public static final Vec3 FLAME_NOZZLE_BLOCK = new Vec3(5.0 / 16.0, 3.3 / 16.0, 8.0 / 16.0);
+    /** Alignement mesh (base y=0.9 → support y=1.2). */
+    public static final Vec3 FLAME_HEAD_MESH_LIFT = new Vec3(0.0, 0.3 / 16.0, 0.0);
+    /** Distance pivot → sommet du tube (inclut le mesh lift du renderer). */
+    private static final double NOZZLE_ARM = (FLAME_NOZZLE_BLOCK.y - FLAME_HEAD_PIVOT_BLOCK.y) + FLAME_HEAD_MESH_LIFT.y;
 
     private DirectionOffset() {
     }
 
-    public static Vec3 correctedOffset(Direction dir, Vec3 offset) {
-        if (dir == null || offset == null) {
-            return Vec3.ZERO;
-        }
-        double x = offset.x + 0.5;
-        double y = offset.y + 0.5;
-        double z = offset.z + 0.5;
-        return switch (dir) {
-            case SOUTH -> new Vec3(x, y, z);
-            case WEST -> new Vec3(1.0 - z, y, x);
-            case NORTH -> new Vec3(1.0 - x, y, 1.0 - z);
-            case EAST -> new Vec3(z, y, 1.0 - x);
-            default -> Vec3.ZERO;
-        };
-    }
-
-    /** DMX pan 0-255, 128 = centre vertical, 0/255 = horizontal ±90° (180° total). */
     public static float panToAngle(int panValue) {
         return (Mth.clamp(panValue, 0, 255) - 128) / 128.0f * 90.0f;
     }
 
-    /** Point d'émission fixe au bec (le pan incline le jet, pas le spawn). */
-    public static Vec3 flameNozzlePosition(Direction facing) {
-        return correctedOffset(facing, FLAME_NOZZLE_OFFSET);
-    }
-
-    /** Même signe que {@link #panJetDirection} pour que la tête suive le jet. */
     public static float panToHeadRenderAngle(int panValue) {
-        return -panToAngle(panValue);
+        return panToAngle(panValue);
     }
 
-    /**
-     * 128 = vertical, 0/255 = quasi horizontal gauche/droite.
-     */
-    public static Vec3 panJetDirection(Direction facing, float panAngleDegrees) {
-        double rad = Math.toRadians(panAngleDegrees);
-        double sin = Math.sin(rad);
+    public static Vec3 flameNozzlePosition(Direction facing, float headRenderAngleDegrees) {
+        float signedAngle = headRenderAngleDegrees * panRotationSign(facing);
+        Vec3 tipFromPivot = localNozzleOffset(signedAngle);
+        return FLAME_HEAD_PIVOT_BLOCK.add(tipFromPivot);
+    }
+
+    public static Vec3 flamePointAlongJet(Direction facing, float headRenderAngleDegrees, double distance) {
+        Vec3 nozzle = flameNozzlePosition(facing, headRenderAngleDegrees);
+        Vec3 direction = headJetDirection(facing, headRenderAngleDegrees);
+        return nozzle.add(direction.scale(distance));
+    }
+
+    /** 128 DMX = vertical ; pan incline sud/nord (plan YZ). */
+    public static Vec3 headJetDirection(Direction facing, float headRenderAngleDegrees) {
+        float signedAngle = headRenderAngleDegrees * panRotationSign(facing);
+        return modelDirectionToBlockSpace(facing, localJetDirection(signedAngle));
+    }
+
+    public static void applyPanRotation(PoseStack poseStack, Direction facing, float headRenderAngleDegrees) {
+        applyFixtureRotation(poseStack, facing, new Vec3(headRenderAngleDegrees, 0.0, 0.0));
+    }
+
+    public static Vec3 neutralNozzleBlock() {
+        return FLAME_NOZZLE_BLOCK;
+    }
+
+    /** Même yaw Y que {@code FlameThrowerRenderer.applyFixturePose} — coords modèle → espace bloc. */
+    public static Vec3 modelToBlockSpace(Direction facing, Vec3 modelCoord) {
+        double centerX = modelCoord.x - 0.5;
+        double centerZ = modelCoord.z - 0.5;
+        double rad = Math.toRadians(fixtureFacingYaw(facing));
         double cos = Math.cos(rad);
-        Vec3 localJet = new Vec3(-sin, cos, 0.0);
-        return localDirectionToWorld(facing, localJet);
+        double sin = Math.sin(rad);
+        double rotatedX = centerX * cos - centerZ * sin;
+        double rotatedZ = centerX * sin + centerZ * cos;
+        return new Vec3(rotatedX + 0.5, modelCoord.y, rotatedZ + 0.5);
     }
 
-    private static Vec3 localDirectionToWorld(Direction facing, Vec3 local) {
-        Vec3 world = switch (facing) {
-            case SOUTH -> new Vec3(local.x, local.y, local.z);
-            case NORTH -> new Vec3(-local.x, local.y, -local.z);
-            case EAST -> new Vec3(-local.z, local.y, local.x);
-            case WEST -> new Vec3(local.z, local.y, -local.x);
-            default -> local;
+    private static Vec3 modelDirectionToBlockSpace(Direction facing, Vec3 localDir) {
+        double rad = Math.toRadians(fixtureFacingYaw(facing));
+        double cos = Math.cos(rad);
+        double sin = Math.sin(rad);
+        double dx = localDir.x;
+        double dz = localDir.z;
+        Vec3 rotated = new Vec3(
+                dx * cos - dz * sin,
+                localDir.y,
+                dx * sin + dz * cos
+        );
+        return rotated.lengthSqr() > 1.0e-6 ? rotated.normalize() : new Vec3(0.0, 1.0, 0.0);
+    }
+
+    private static float fixtureFacingYaw(Direction facing) {
+        if (facing.getAxis() == Direction.Axis.X) {
+            return facing.toYRot();
+        }
+        return facing.getOpposite().toYRot();
+    }
+
+    private static float panRotationSign(Direction facing) {
+        return switch (facing) {
+            case SOUTH, WEST -> -1.0f;
+            default -> 1.0f;
         };
-        return world.lengthSqr() > 1.0e-6 ? world.normalize() : new Vec3(0.0, 1.0, 0.0);
+    }
+
+    private static Vec3 localNozzleOffset(float signedAngleDegrees) {
+        double rad = Math.toRadians(signedAngleDegrees);
+        double cos = Math.cos(rad);
+        double sin = Math.sin(rad);
+        return new Vec3(0.0, cos * NOZZLE_ARM, sin * NOZZLE_ARM);
+    }
+
+    private static Vec3 localJetDirection(float signedAngleDegrees) {
+        double rad = Math.toRadians(signedAngleDegrees);
+        return new Vec3(0.0, Math.cos(rad), Math.sin(rad));
     }
 
     public static void applyFixtureRotation(PoseStack poseStack, Direction facing, Vec3 rotation) {

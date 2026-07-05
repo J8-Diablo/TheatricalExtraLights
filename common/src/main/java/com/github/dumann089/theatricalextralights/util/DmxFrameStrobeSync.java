@@ -1,7 +1,7 @@
 package com.github.dumann089.theatricalextralights.util;
 
 import com.github.dumann089.theatricalextralights.client.StrobeRenderHelper;
-import dev.imabad.theatrical.api.dmx.DmxFrameExtendedFixture;
+import com.github.dumann089.theatricalextralights.compat.dmx.DmxFrameExtendedFixture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.Level;

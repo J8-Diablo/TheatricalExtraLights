@@ -50,12 +50,17 @@ public class FlameThrowerRenderer extends ExtraLightsRenderer<FlameThrowerBlockE
         float prevHeadAngle = DirectionOffset.panToHeadRenderAngle(blockEntity.getPrevPan());
         headAngle = prevHeadAngle + (headAngle - prevHeadAngle) * partialTicks;
 
-        Vec3 headOffset = DirectionOffset.correctedOffset(facing, DirectionOffset.FLAME_HEAD_RENDER_PIVOT);
+        Vec3 pivot = DirectionOffset.FLAME_HEAD_PIVOT_BLOCK;
 
         poseStack.pushPose();
-        poseStack.translate(headOffset.x, headOffset.y, headOffset.z);
-        poseStack.mulPose(Axis.ZP.rotationDegrees(headAngle));
-        poseStack.translate(-0.5, -0.5, -0.5);
+        poseStack.translate(pivot.x, pivot.y, pivot.z);
+        DirectionOffset.applyPanRotation(poseStack, facing, headAngle);
+        poseStack.translate(
+                DirectionOffset.FLAME_HEAD_MESH_LIFT.x,
+                DirectionOffset.FLAME_HEAD_MESH_LIFT.y,
+                DirectionOffset.FLAME_HEAD_MESH_LIFT.z
+        );
+        poseStack.translate(-pivot.x, -pivot.y, -pivot.z);
         minecraftRenderModel(
                 poseStack,
                 vertexConsumer,

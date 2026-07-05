@@ -41,10 +41,14 @@ dependencies {
     modImplementation group: "dev.imabad", name: "Theatrical", version: "${theatrical_version}", changing: true
     implementation "ch.bildspur:artnet4j:0.6.3"
 
-    // DmxFrameExtendedFixture (laser batch extras) — compile against local Theatrical-official when Maven is behind
+    // Compile against local Theatrical-official when Maven is behind (DmxFrame batch API).
     def theatricalApiClasses = file("${rootDir}/../Theatrical-official-1.20.1/common/build/classes/java/main")
     if (theatricalApiClasses.exists()) {
         compileOnly files(theatricalApiClasses)
+    }
+
+    if (rootProject.include_shimmer == "true") {
+        modCompileOnly "com.lowdragmc.shimmer:Shimmer-common:${rootProject.shimmer_version}"
     }
 }
 

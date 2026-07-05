@@ -37,6 +37,12 @@ public class FlameThrowerBlockEntity extends ExtraLightsLightBlockEntity {
         }
     }
 
+    public float getHeadRenderAngle(float partialTick) {
+        float current = DirectionOffset.panToHeadRenderAngle(getPan());
+        float previous = DirectionOffset.panToHeadRenderAngle(getPrevPan());
+        return Mth.lerp(partialTick, previous, current);
+    }
+
     public float getHeadAngle(float partialTick) {
         float current = DirectionOffset.panToAngle(getPan());
         float previous = DirectionOffset.panToAngle(getPrevPan());

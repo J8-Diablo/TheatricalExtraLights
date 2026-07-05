@@ -15,9 +15,6 @@ public class ModSounds {
             SOUNDS.register("confetti_cannon.pop", () ->
                     SoundEvent.createVariableRangeEvent(new ResourceLocation(TheatricalExtraLights.MOD_ID, "confetti_cannon.pop")));
 
-    public static final RegistrySupplier<SoundEvent> FLAME_THROWER_START =
-            SOUNDS.register("block.flame_thrower.start", () ->
-                    SoundEvent.createVariableRangeEvent(new ResourceLocation(TheatricalExtraLights.MOD_ID, "block.flame_thrower.start")));
     public static final RegistrySupplier<SoundEvent> FLAME_THROWER_LOOP =
             SOUNDS.register("block.flame_thrower.loop", () ->
                     SoundEvent.createVariableRangeEvent(new ResourceLocation(TheatricalExtraLights.MOD_ID, "block.flame_thrower.loop")));

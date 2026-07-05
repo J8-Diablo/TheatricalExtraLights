@@ -13,17 +13,15 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 
-/** Coeur du jet — gros, chaud, visible de loin. */
+/** Bouffée au bout du jet — grosse, s'évapore vite. */
 @Environment(EnvType.CLIENT)
-public class FlameThrowerJetParticle extends TextureSheetParticle {
-    private static final float CONE_SPREAD = 0.055f;
-    private static final float DRAG = 0.915f;
+public class FlameThrowerPuffParticle extends TextureSheetParticle {
+    private static final float EXPAND_RATE = 0.075f;
 
     private final SpriteSet sprites;
-    private final float startSize;
     private final float peakSize;
 
-    protected FlameThrowerJetParticle(
+    protected FlameThrowerPuffParticle(
             ClientLevel level,
             double x,
             double y,
@@ -38,23 +36,22 @@ public class FlameThrowerJetParticle extends TextureSheetParticle {
         this.sprites = sprites;
 
         Vec3 axis = normalizeDirection(dirX, dirY, dirZ);
-        float speed = 0.62f + random.nextFloat() * 0.45f;
-        Vec3 lateral = randomDiskOffset(axis, random, CONE_SPREAD * (0.65f + random.nextFloat() * 0.55f));
+        Vec3 lateral = randomDiskOffset(axis, random, 0.09f + random.nextFloat() * 0.07f);
+        float drift = 0.05f + random.nextFloat() * 0.07f;
 
-        xd = axis.x * speed + lateral.x;
-        yd = axis.y * speed + lateral.y;
-        zd = axis.z * speed + lateral.z;
+        xd = axis.x * drift + lateral.x;
+        yd = axis.y * drift + lateral.y + 0.01f;
+        zd = axis.z * drift + lateral.z;
 
         hasPhysics = false;
         gravity = 0.0f;
-        lifetime = 10 + random.nextInt(10);
-        startSize = 0.18f + random.nextFloat() * 0.1f;
-        peakSize = startSize * (1.85f + random.nextFloat() * 0.55f);
-        quadSize = startSize * 0.9f;
-        alpha = 1.0f;
+        lifetime = 5 + random.nextInt(5);
+        peakSize = 0.28f + random.nextFloat() * 0.14f;
+        quadSize = peakSize * 0.65f;
+        alpha = 0.8f + random.nextFloat() * 0.2f;
         rCol = 1.0f;
-        gCol = 0.95f + random.nextFloat() * 0.05f;
-        bCol = 0.65f + random.nextFloat() * 0.15f;
+        gCol = 0.45f + random.nextFloat() * 0.2f;
+        bCol = 0.05f + random.nextFloat() * 0.08f;
         pickSprite(sprites);
     }
 
@@ -99,38 +96,29 @@ public class FlameThrowerJetParticle extends TextureSheetParticle {
             return;
         }
 
-        float life = (float) age / (float) lifetime;
-        float drag = life > 0.45f ? DRAG * 0.88f : DRAG;
-        xd *= drag;
-        yd *= drag;
-        zd *= drag;
-        if (life > 0.5f) {
-            yd += 0.005f * (life - 0.5f);
-        }
+        xd *= 0.88f;
+        yd *= 0.88f;
+        yd += 0.003f;
+        zd *= 0.88f;
         move(xd, yd, zd);
 
-        if (life < 0.2f) {
-            float t = life / 0.2f;
-            quadSize = Mth.lerp(t, startSize * 0.9f, peakSize);
-            rCol = 1.0f;
-            gCol = Mth.lerp(t, 0.85f, 1.0f);
-            bCol = Mth.lerp(t, 0.35f, 0.7f);
-            alpha = 0.98f;
-        } else if (life < 0.55f) {
-            float t = (life - 0.2f) / 0.35f;
-            quadSize = Mth.lerp(t, peakSize, peakSize * 0.82f);
-            rCol = 1.0f;
-            gCol = Mth.lerp(t, 1.0f, 0.5f);
-            bCol = Mth.lerp(t, 0.7f, 0.1f);
-            alpha = 1.0f - t * 0.3f;
-        } else {
-            float t = (life - 0.55f) / 0.45f;
-            t = Mth.clamp(t, 0.0f, 1.0f);
-            quadSize = peakSize * (1.0f - t * 0.75f);
-            rCol = Mth.lerp(t, 1.0f, 0.4f);
-            gCol = Mth.lerp(t, 0.5f, 0.08f);
+        float life = (float) age / (float) lifetime;
+        quadSize = Math.min(peakSize * 2.8f, quadSize + EXPAND_RATE);
+
+        if (life < 0.35f) {
+            float t = life / 0.35f;
+            rCol = Mth.lerp(t, 1.0f, 0.85f);
+            gCol = Mth.lerp(t, 0.55f, 0.35f);
             bCol = 0.0f;
-            alpha = (1.0f - t) * (1.0f - t);
+            alpha = Mth.lerp(t, 0.9f, 0.6f);
+        } else {
+            float t = (life - 0.35f) / 0.65f;
+            t = Mth.clamp(t, 0.0f, 1.0f);
+            rCol = Mth.lerp(t, 0.85f, 0.35f);
+            gCol = Mth.lerp(t, 0.35f, 0.08f);
+            bCol = 0.0f;
+            alpha = (1.0f - t) * (1.0f - t) * 0.6f;
+            quadSize = peakSize * (1.6f - t * 0.55f);
         }
 
         setSpriteFromAge(sprites);
@@ -155,7 +143,7 @@ public class FlameThrowerJetParticle extends TextureSheetParticle {
                 double dirY,
                 double dirZ
         ) {
-            return new FlameThrowerJetParticle(level, x, y, z, dirX, dirY, dirZ, sprites, level.random);
+            return new FlameThrowerPuffParticle(level, x, y, z, dirX, dirY, dirZ, sprites, level.random);
         }
     }
 }

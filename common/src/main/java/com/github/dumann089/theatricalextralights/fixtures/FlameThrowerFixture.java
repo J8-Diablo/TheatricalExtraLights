@@ -1,6 +1,7 @@
 package com.github.dumann089.theatricalextralights.fixtures;
 
 import com.github.dumann089.theatricalextralights.TheatricalExtraLights;
+import com.github.dumann089.theatricalextralights.util.DirectionOffset;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.api.HangType;
 import dev.imabad.theatrical.api.dmx.DMXPersonality;
@@ -21,7 +22,11 @@ public class FlameThrowerFixture extends Fixture {
 
     private final ResourceLocation bodyModel;
     private final ResourceLocation headModel;
-    private final float[] pivot = new float[]{0.5f, 0.5125f, 0.5f};
+    private final float[] pivot = new float[]{
+            (float) DirectionOffset.FLAME_HEAD_PIVOT_BLOCK.x,
+            (float) DirectionOffset.FLAME_HEAD_PIVOT_BLOCK.y,
+            (float) DirectionOffset.FLAME_HEAD_PIVOT_BLOCK.z
+    };
 
     public FlameThrowerFixture() {
         this.bodyModel = new ResourceLocation(TheatricalExtraLights.MOD_ID, "block/flame_thrower_body");
@@ -55,7 +60,11 @@ public class FlameThrowerFixture extends Fixture {
 
     @Override
     public float[] getBeamStartPosition() {
-        return new float[]{5f / 16f, 2.1f / 16f, 8f / 16f};
+        return new float[]{
+                (float) DirectionOffset.FLAME_NOZZLE_BLOCK.x,
+                (float) DirectionOffset.FLAME_NOZZLE_BLOCK.y,
+                (float) DirectionOffset.FLAME_NOZZLE_BLOCK.z
+        };
     }
 
     @Override

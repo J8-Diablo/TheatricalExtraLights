@@ -6,7 +6,7 @@ import com.github.dumann089.theatricalextralights.client.StrobeRenderHelper;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import com.github.dumann089.theatricalextralights.laser.LaserPattern;
 import dev.imabad.theatrical.api.Fixture;
-import dev.imabad.theatrical.api.dmx.DmxFrameExtendedFixture;
+import com.github.dumann089.theatricalextralights.compat.dmx.DmxFrameExtendedFixture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
