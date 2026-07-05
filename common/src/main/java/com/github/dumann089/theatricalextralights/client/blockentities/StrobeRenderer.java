@@ -20,6 +20,8 @@ import dev.imabad.theatrical.blocks.HangableBlock;
 
 import dev.imabad.theatrical.client.LazyRenderers;
 
+import dev.imabad.theatrical.client.TheatricalRenderTypes;
+
 import net.minecraft.client.Camera;
 
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -38,6 +40,8 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import net.minecraft.world.phys.Vec3;
 
+import org.joml.Matrix3f;
+
 import org.joml.Matrix4f;
 
 
@@ -47,6 +51,12 @@ import java.util.Optional;
 
 
 public class StrobeRenderer extends ExtraLightsFixtureRenderer<StrobeBlockEntity> {
+
+    private static final float SOURCE_BEAM_HALF_WIDTH = 0.4375f;
+
+    private static final float SOURCE_BEAM_HALF_HEIGHT = 0.21875f;
+
+    private static final float MIN_VISUAL_INTENSITY_SCALE = 0.30f;
 
     private static final int FLOOR_PATCH_SEGMENTS = 24;
 
@@ -274,7 +284,7 @@ public class StrobeRenderer extends ExtraLightsFixtureRenderer<StrobeBlockEntity
 
     ) {
 
-        if (blockEntity.getIntensity() <= 0 || blockEntity.getEmissionBlock() == null) {
+        if (blockEntity.getIntensity() <= 0) {
 
             return;
 
@@ -287,6 +297,72 @@ public class StrobeRenderer extends ExtraLightsFixtureRenderer<StrobeBlockEntity
             @Override
 
             public void render(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, Camera camera, float partialTick) {
+
+                float intensity = StrobeRenderHelper.renderedIntensity(blockEntity, partialTick);
+
+                if (intensity <= 0f) {
+
+                    return;
+
+                }
+
+
+
+                float focusInterpolated = blockEntity.getPrevFocus()
+
+                        + (blockEntity.getFocus() - blockEntity.getPrevFocus()) * partialTick;
+
+                float focusNorm = (Math.max(1f, focusInterpolated) - 1f) / 254f;
+
+                float visualScale = Mth.lerp(focusNorm, MIN_VISUAL_INTENSITY_SCALE, 1.0f);
+
+
+
+                int color = blockEntity.getColour();
+
+                int r = (color >> 16) & 0xFF;
+
+                int g = (color >> 8) & 0xFF;
+
+                int b = color & 0xFF;
+
+                int a = (int) ((intensity / 255f) * visualScale * 255f);
+
+
+
+                poseStack.pushPose();
+
+                Vec3 blockOffset = Vec3.atLowerCornerOf(blockEntity.getBlockPos()).subtract(camera.getPosition());
+
+                poseStack.translate(blockOffset.x, blockOffset.y, blockOffset.z);
+
+                preparePoseStack(blockEntity, poseStack, facing, partialTick, isFlipped, blockstate, isHanging);
+
+
+
+                VertexConsumer sourceBeamConsumer = bufferSource.getBuffer(TheatricalRenderTypes.BEAM);
+
+                poseStack.pushPose();
+
+                poseStack.translate(0.5f, 0.65f, 0.37f);
+
+                Matrix4f faceMatrix = poseStack.last().pose();
+
+                Matrix3f faceNormal = poseStack.last().normal();
+
+                addVertex(sourceBeamConsumer, faceMatrix, faceNormal, r, g, b, a, -SOURCE_BEAM_HALF_WIDTH, SOURCE_BEAM_HALF_HEIGHT, 0f);
+
+                addVertex(sourceBeamConsumer, faceMatrix, faceNormal, r, g, b, a, SOURCE_BEAM_HALF_WIDTH, SOURCE_BEAM_HALF_HEIGHT, 0f);
+
+                addVertex(sourceBeamConsumer, faceMatrix, faceNormal, r, g, b, a, SOURCE_BEAM_HALF_WIDTH, -SOURCE_BEAM_HALF_HEIGHT, 0f);
+
+                addVertex(sourceBeamConsumer, faceMatrix, faceNormal, r, g, b, a, -SOURCE_BEAM_HALF_WIDTH, -SOURCE_BEAM_HALF_HEIGHT, 0f);
+
+                poseStack.popPose();
+
+                poseStack.popPose();
+
+
 
                 BlockPos emission = blockEntity.getEmissionBlock();
 
@@ -308,25 +384,7 @@ public class StrobeRenderer extends ExtraLightsFixtureRenderer<StrobeBlockEntity
 
 
 
-                float intensityNorm = StrobeRenderHelper.renderedIntensity(blockEntity, partialTick) / 255f;
-
-                if (intensityNorm <= 0f) {
-
-                    return;
-
-                }
-
-
-
-                int color = blockEntity.getColour();
-
-                int r = (color >> 16) & 0xFF;
-
-                int g = (color >> 8) & 0xFF;
-
-                int b = color & 0xFF;
-
-
+                float intensityNorm = intensity / 255f;
 
                 float cx = emission.getX() + 0.5f;
 
@@ -338,9 +396,9 @@ public class StrobeRenderer extends ExtraLightsFixtureRenderer<StrobeBlockEntity
 
                 poseStack.pushPose();
 
-                Vec3 offset = camera.getPosition();
+                Vec3 cameraPos = camera.getPosition();
 
-                poseStack.translate(cx - offset.x, cy - offset.y, cz - offset.z);
+                poseStack.translate(cx - cameraPos.x, cy - cameraPos.y, cz - cameraPos.z);
 
 
 
