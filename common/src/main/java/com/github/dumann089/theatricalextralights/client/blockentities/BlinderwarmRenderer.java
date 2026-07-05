@@ -174,8 +174,8 @@ public class BlinderwarmRenderer extends ExtraLightsRenderer<BlinderwarmBlockEnt
 
                     Matrix4f m1 = poseStack.last().pose();
 
-                    float lensAlphaMul = 0.25f;
-                    float lensColorMul = 0.45f;
+                    float lensAlphaMul = 1.0f;
+                    float lensColorMul = 1.0f;
 
                     int la = (int)(a * lensAlphaMul);
                     int lr = (int)(r * lensColorMul);

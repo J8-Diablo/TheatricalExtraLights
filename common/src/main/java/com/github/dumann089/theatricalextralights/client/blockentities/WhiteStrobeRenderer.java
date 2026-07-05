@@ -169,34 +169,6 @@ public class WhiteStrobeRenderer extends ExtraLightsRenderer<WhiteStrobeBlockEnt
                     addVertex(beamConsumer, m, normal, r, g, b, a,-0.4375f, -0.21875f, 0f);
                     poseStack.popPose();
 
-                    //LENS
-                    if (TheatricalExtraLightsConfig.shouldRenderLens()) {
-                        VertexConsumer lensConsumer =
-                                multiBufferSource.getBuffer(LensRenderTypes.LENS);
-
-                    poseStack.pushPose();
-
-                    poseStack.translate(0.5f, 0.65f, 0.343f);
-
-                    Matrix4f m1 = poseStack.last().pose();
-
-                    float lensAlphaMul = 0.25f;
-                    float lensColorMul = 0.95f;
-
-                    int la = (int)(a * lensAlphaMul);
-                    int lr = (int)(r * lensColorMul);
-                    int lg = (int)(g * lensColorMul);
-                    int lb = (int)(b * lensColorMul);
-
-                    float size = 2.80f;
-
-                    addLensVertex(lensConsumer, m1, lr, lg, lb, la, -size,  size, 0f, 0f, 0f);
-                    addLensVertex(lensConsumer, m1, lr, lg, lb, la,  size,  size, 0f, 1f, 0f);
-                    addLensVertex(lensConsumer, m1, lr, lg, lb, la,  size, -size, 0f, 1f, 1f);
-                    addLensVertex(lensConsumer, m1, lr, lg, lb, la, -size, -size, 0f, 0f, 1f);
-
-                    poseStack.popPose();
-                    }
                     poseStack.popPose();
                 }
                 @Override
@@ -205,19 +177,6 @@ public class WhiteStrobeRenderer extends ExtraLightsRenderer<WhiteStrobeBlockEnt
                 }
             });
         }
-    }
-    private static void addLensVertex(
-            VertexConsumer vc,
-            Matrix4f m,
-            int r, int g, int b, int a,
-            float x, float y, float z,
-            float u, float v
-    ) {
-        vc.vertex(m, x, y, z)
-                .color(r, g, b, a)
-                .uv(u, v)
-                .uv2(LightTexture.FULL_BRIGHT)
-                .endVertex();
     }
 
         @Override

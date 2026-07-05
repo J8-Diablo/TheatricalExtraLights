@@ -169,8 +169,8 @@ public class Blinder2x2warmRenderer extends ExtraLightsRenderer<Blinder2x2warmBl
 
                     Matrix4f m1 = poseStack.last().pose();
 
-                    float lensAlphaMul = 0.45f;
-                    float lensColorMul = 0.45f;
+                    float lensAlphaMul = 1.0f;
+                    float lensColorMul = 1.0f;
 
                     int la = (int)(a * lensAlphaMul);
                     int lr = (int)(r * lensColorMul);

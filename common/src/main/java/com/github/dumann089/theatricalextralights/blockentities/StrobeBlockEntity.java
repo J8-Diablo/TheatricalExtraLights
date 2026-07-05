@@ -3,6 +3,7 @@ package com.github.dumann089.theatricalextralights.blockentities;
 import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasPersonality;
 import com.github.dumann089.theatricalextralights.blocks.StrobeBlock;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
+import com.github.dumann089.theatricalextralights.util.DmxFrameStrobeSync;
 import com.github.dumann089.theatricalextralights.util.DmxShutterStrobeHelper;
 import com.github.dumann089.theatricalextralights.util.DmxStrobeFixture;
 import com.github.dumann089.theatricalextralights.client.StrobeRenderHelper;
@@ -23,7 +24,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.Arrays;
 import java.util.List;
 
-public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements HasPersonality, DmxStrobeFixture {
+public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements HasPersonality, DmxStrobeFixture, DmxFrameStrobeSync {
     private static final int LEGACY_4CH_MODE = 0;
     private static final int FOCUS_5CH_MODE = 1;
     private static final int FOCUS_STROBE_6CH_MODE = 2;
@@ -33,14 +34,15 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
     /** Focus fixe pour le mode RGB only (faisceau serré type strobe). */
     private static final int FIXED_RGB_ONLY_FOCUS = 4;
     private static final int OPEN = 255;
-    /** Spread dynamique : focus 1 = faisceau serré, focus 255 = flood (aligné sur lightRadius). */
-    private static final float MIN_LIGHT_SPREAD = 0.35f;
+    /** Rayon de la tache au sol : focus DMX 1 = spot serré, 255 = flood large. */
+    private static final float MIN_FLOOR_PATCH_RADIUS = 1.25f;
+    private static final float MAX_FLOOR_PATCH_RADIUS = 12f;
     private static final float CLOSE_EMISSION_DISTANCE = 0.75f;
     private static final float FAR_EMISSION_DISTANCE = 7.5f;
     /** Réduit la lumière dynamique au focus minimum pour éviter un éclairage trop fort à DMX 1. */
     private static final float MIN_LUMINANCE_SCALE = 0.22f;
 
-    private int activePersonalityIndex = FOCUS_5CH_MODE;
+    private int activePersonalityIndex = FOCUS_STROBE_6CH_MODE;
     /** Canal strobe DMX (personnalité 6 canaux). */
     private int strobe = 255;
     private int prevStrobe = 255;
@@ -175,11 +177,21 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
 
     @Override
     public float getLightSpread() {
+        return getFloorPatchRadius(getNormalizedFocus());
+    }
+
+    /** Rayon interpolé pour le rendu client (tache au sol). */
+    public float getInterpolatedFloorPatchRadius(float partialTick) {
+        float focus = getPrevFocus() + (getFocus() - getPrevFocus()) * partialTick;
+        float norm = (Math.max(1f, focus) - 1f) / 254f;
+        return getFloorPatchRadius(norm);
+    }
+
+    private float getFloorPatchRadius(float focusNorm) {
         if (activePersonalityIndex == LEGACY_4CH_MODE) {
             return 50.0f;
         }
-        float maxLightSpread = (float) getFixture().getLightRadius();
-        return Mth.lerp(getNormalizedFocus(), MIN_LIGHT_SPREAD, maxLightSpread);
+        return Mth.lerp(focusNorm, MIN_FLOOR_PATCH_RADIUS, MAX_FLOOR_PATCH_RADIUS);
     }
 
     @Override
@@ -197,6 +209,55 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
 
     private float getNormalizedFocus() {
         return (Math.max(1, getFocus()) - 1) / 254.0f;
+    }
+
+    @Override
+    public int getSyncStrobe() {
+        return getStrobeChannelValue();
+    }
+
+    @Override
+    public int getSyncPrevStrobe() {
+        return usesStrobeChannel() ? prevStrobe : OPEN;
+    }
+
+    @Override
+    public void setSyncStrobe(int value) {
+        strobe = value;
+    }
+
+    @Override
+    public void setSyncPrevStrobe(int value) {
+        prevStrobe = value;
+    }
+
+    @Override
+    public BlockPos getSyncBlockPos() {
+        return getBlockPos();
+    }
+
+    @Override
+    public Level getSyncLevel() {
+        return level;
+    }
+
+    @Override
+    public void applyDmxFrameBase(int intensity, int red, int green, int blue,
+                                  int prevIntensity, int prevRed, int prevGreen, int prevBlue) {
+        super.applyDmxFrameBase(intensity, red, green, blue, prevIntensity, prevRed, prevGreen, prevBlue);
+        markStrobeFrameApplied();
+    }
+
+    @Override
+    protected boolean needsContinuousClientRender() {
+        return intensity > 0 || focus != prevFocus;
+    }
+
+    @Override
+    public void applyDmxFramePanTiltFocus(int pan, int tilt, int focusValue,
+                                          int prevPan, int prevTilt, int prevFocusValue) {
+        super.applyDmxFramePanTiltFocus(pan, tilt, focusValue, prevPan, prevTilt, prevFocusValue);
+        markStrobeFrameApplied();
     }
 
     @Override
@@ -296,7 +357,7 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
         if (tag.contains("activePersonality")) {
             setActivePersonality(tag.getInt("activePersonality"));
         } else {
-            setActivePersonality(FOCUS_5CH_MODE);
+            setActivePersonality(FOCUS_STROBE_6CH_MODE);
         }
         if (tag.contains("strobe")) {
             strobe = tag.getInt("strobe");

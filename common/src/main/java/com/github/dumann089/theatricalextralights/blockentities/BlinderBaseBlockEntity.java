@@ -1,6 +1,7 @@
 package com.github.dumann089.theatricalextralights.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasPersonality;
+import com.github.dumann089.theatricalextralights.util.DmxFrameStrobeSync;
 import com.github.dumann089.theatricalextralights.util.DmxShutterStrobeHelper;
 import com.github.dumann089.theatricalextralights.util.DmxStrobeFixture;
 import com.github.dumann089.theatricalextralights.client.StrobeRenderHelper;
@@ -17,7 +18,7 @@ import org.joml.Vector3f;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class BlinderBaseBlockEntity extends ExtraLightsLightBlockEntity implements HasPersonality, DmxStrobeFixture {
+public abstract class BlinderBaseBlockEntity extends ExtraLightsLightBlockEntity implements HasPersonality, DmxStrobeFixture, DmxFrameStrobeSync {
 
     private int activePersonalityIndex = 0;
 
@@ -118,6 +119,51 @@ public abstract class BlinderBaseBlockEntity extends ExtraLightsLightBlockEntity
         if (level != null) {
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
         }
+    }
+
+    @Override
+    public int getSyncStrobe() {
+        return strobe;
+    }
+
+    @Override
+    public int getSyncPrevStrobe() {
+        return prevStrobe;
+    }
+
+    @Override
+    public void setSyncStrobe(int value) {
+        strobe = value;
+        focus = value;
+    }
+
+    @Override
+    public void setSyncPrevStrobe(int value) {
+        prevStrobe = value;
+    }
+
+    @Override
+    public BlockPos getSyncBlockPos() {
+        return getBlockPos();
+    }
+
+    @Override
+    public Level getSyncLevel() {
+        return level;
+    }
+
+    @Override
+    public void applyDmxFrameBase(int intensity, int red, int green, int blue,
+                                  int prevIntensity, int prevRed, int prevGreen, int prevBlue) {
+        super.applyDmxFrameBase(intensity, red, green, blue, prevIntensity, prevRed, prevGreen, prevBlue);
+        markStrobeFrameApplied();
+    }
+
+    @Override
+    public void applyDmxFramePanTiltFocus(int pan, int tilt, int focusValue,
+                                          int prevPan, int prevTilt, int prevFocusValue) {
+        super.applyDmxFramePanTiltFocus(pan, tilt, focusValue, prevPan, prevTilt, prevFocusValue);
+        markStrobeFrameApplied();
     }
 
     @Override

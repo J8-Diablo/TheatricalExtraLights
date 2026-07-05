@@ -6,6 +6,7 @@ import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.api.HangType;
 import dev.imabad.theatrical.api.dmx.DMXPersonality;
 import dev.imabad.theatrical.blocks.light.BaseLightBlock;
+import com.github.dumann089.theatricalextralights.fixtures.ExtraLightsSlots;
 import dev.imabad.theatrical.fixtures.SharedSlots;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -33,7 +34,7 @@ public class StrobeFixture extends Fixture {
                     .addSlot(SharedSlots.GREEN)
                     .addSlot(SharedSlots.BLUE)
                     .addSlot(SharedSlots.FOCUS)
-                    .addSlot(SharedSlots.FOCUS),
+                    .addSlot(ExtraLightsSlots.STROBE),
             new DMXPersonality(3, "3-Channel Strobe RGB Only")
                     .addSlot(SharedSlots.RED)
                     .addSlot(SharedSlots.GREEN)

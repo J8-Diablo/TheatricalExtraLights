@@ -140,8 +140,8 @@ public class Blinder1x1Renderer extends ExtraLightsRenderer<Blinder1x1BlockEntit
                         poseStack.pushPose();
                         poseStack.translate(0.5f, 0.40625f, 0.335f);
                         Matrix4f m1 = poseStack.last().pose();
-                        float lensAlphaMul = 0.45f;
-                        float lensColorMul = 0.45f;
+                        float lensAlphaMul = 1.0f;
+                        float lensColorMul = 1.0f;
                         int la = (int) (a * lensAlphaMul);
                         int lr = (int) (r * lensColorMul);
                         int lg = (int) (g * lensColorMul);
