@@ -17,7 +17,10 @@ public class ModSounds {
 
     public static final RegistrySupplier<SoundEvent> FLAME_THROWER_LOOP =
             SOUNDS.register("block.flame_thrower.loop", () ->
-                    SoundEvent.createVariableRangeEvent(new ResourceLocation(TheatricalExtraLights.MOD_ID, "block.flame_thrower.loop")));
+                    SoundEvent.createFixedRangeEvent(
+                            new ResourceLocation(TheatricalExtraLights.MOD_ID, "block.flame_thrower.loop"),
+                            48.0f
+                    ));
 
     public static void initialize() {
         SOUNDS.register();

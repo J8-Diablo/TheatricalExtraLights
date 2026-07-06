@@ -89,6 +89,11 @@ public class StrobeFixture extends Fixture {
     }
 
     @Override
+    public boolean hasBeam() {
+        return false;
+    }
+
+    @Override
     public float getRayTraceRotation() {
         return 180f;
     }

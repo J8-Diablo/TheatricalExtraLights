@@ -4,9 +4,8 @@ package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.StrobeBlockEntity;
 
-import com.github.dumann089.theatricalextralights.client.Beam2DRenderTypes;
-
 import com.github.dumann089.theatricalextralights.client.StrobeRenderHelper;
+import com.github.dumann089.theatricalextralights.client.StrobeVisualEffects;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -19,8 +18,6 @@ import dev.imabad.theatrical.TheatricalExpectPlatform;
 import dev.imabad.theatrical.blocks.HangableBlock;
 
 import dev.imabad.theatrical.client.LazyRenderers;
-
-import dev.imabad.theatrical.client.TheatricalRenderTypes;
 
 import net.minecraft.client.Camera;
 
@@ -40,29 +37,11 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import net.minecraft.world.phys.Vec3;
 
-import org.joml.Matrix3f;
-
-import org.joml.Matrix4f;
-
-
-
 import java.util.Optional;
 
 
 
 public class StrobeRenderer extends ExtraLightsFixtureRenderer<StrobeBlockEntity> {
-
-    private static final float SOURCE_BEAM_HALF_WIDTH = 0.4375f;
-
-    private static final float SOURCE_BEAM_HALF_HEIGHT = 0.21875f;
-
-    private static final float MIN_VISUAL_INTENSITY_SCALE = 0.30f;
-
-    private static final int FLOOR_PATCH_SEGMENTS = 24;
-
-    private static final float FLOOR_PATCH_Y_OFFSET = 0.02f;
-
-
 
     private BakedModel cachedPanModel;
 
@@ -284,7 +263,7 @@ public class StrobeRenderer extends ExtraLightsFixtureRenderer<StrobeBlockEntity
 
     ) {
 
-        if (blockEntity.getIntensity() <= 0) {
+        if (!StrobeRenderHelper.isVisuallyLit(blockEntity)) {
 
             return;
 
@@ -314,7 +293,7 @@ public class StrobeRenderer extends ExtraLightsFixtureRenderer<StrobeBlockEntity
 
                 float focusNorm = (Math.max(1f, focusInterpolated) - 1f) / 254f;
 
-                float visualScale = Mth.lerp(focusNorm, MIN_VISUAL_INTENSITY_SCALE, 1.0f);
+                float visualScale = Mth.lerp(focusNorm, 0.30f, 1.0f);
 
 
 
@@ -328,8 +307,6 @@ public class StrobeRenderer extends ExtraLightsFixtureRenderer<StrobeBlockEntity
 
                 int a = (int) ((intensity / 255f) * visualScale * 255f);
 
-
-
                 poseStack.pushPose();
 
                 Vec3 blockOffset = Vec3.atLowerCornerOf(blockEntity.getBlockPos()).subtract(camera.getPosition());
@@ -340,73 +317,7 @@ public class StrobeRenderer extends ExtraLightsFixtureRenderer<StrobeBlockEntity
 
 
 
-                VertexConsumer sourceBeamConsumer = bufferSource.getBuffer(TheatricalRenderTypes.BEAM);
-
-                poseStack.pushPose();
-
-                poseStack.translate(0.5f, 0.65f, 0.37f);
-
-                Matrix4f faceMatrix = poseStack.last().pose();
-
-                Matrix3f faceNormal = poseStack.last().normal();
-
-                addVertex(sourceBeamConsumer, faceMatrix, faceNormal, r, g, b, a, -SOURCE_BEAM_HALF_WIDTH, SOURCE_BEAM_HALF_HEIGHT, 0f);
-
-                addVertex(sourceBeamConsumer, faceMatrix, faceNormal, r, g, b, a, SOURCE_BEAM_HALF_WIDTH, SOURCE_BEAM_HALF_HEIGHT, 0f);
-
-                addVertex(sourceBeamConsumer, faceMatrix, faceNormal, r, g, b, a, SOURCE_BEAM_HALF_WIDTH, -SOURCE_BEAM_HALF_HEIGHT, 0f);
-
-                addVertex(sourceBeamConsumer, faceMatrix, faceNormal, r, g, b, a, -SOURCE_BEAM_HALF_WIDTH, -SOURCE_BEAM_HALF_HEIGHT, 0f);
-
-                poseStack.popPose();
-
-                poseStack.popPose();
-
-
-
-                BlockPos emission = blockEntity.getEmissionBlock();
-
-                if (emission == null) {
-
-                    return;
-
-                }
-
-
-
-                float radius = blockEntity.getInterpolatedFloorPatchRadius(partialTick);
-
-                if (radius <= 0f) {
-
-                    return;
-
-                }
-
-
-
-                float intensityNorm = intensity / 255f;
-
-                float cx = emission.getX() + 0.5f;
-
-                float cy = emission.getY() + FLOOR_PATCH_Y_OFFSET;
-
-                float cz = emission.getZ() + 0.5f;
-
-
-
-                poseStack.pushPose();
-
-                Vec3 cameraPos = camera.getPosition();
-
-                poseStack.translate(cx - cameraPos.x, cy - cameraPos.y, cz - cameraPos.z);
-
-
-
-                VertexConsumer floorConsumer = bufferSource.getBuffer(Beam2DRenderTypes.FLOOR_PATCH);
-
-                renderFloorPatch(floorConsumer, poseStack.last().pose(), radius, r, g, b, intensityNorm);
-
-
+                StrobeVisualEffects.renderFace(bufferSource, poseStack, r, g, b, a);
 
                 poseStack.popPose();
 
@@ -418,75 +329,11 @@ public class StrobeRenderer extends ExtraLightsFixtureRenderer<StrobeBlockEntity
 
             public Vec3 getPos(float partialTick) {
 
-                BlockPos emission = blockEntity.getEmissionBlock();
-
-                if (emission == null) {
-
-                    return blockEntity.getBlockPos().getCenter();
-
-                }
-
-                return new Vec3(emission.getX() + 0.5, emission.getY() + FLOOR_PATCH_Y_OFFSET, emission.getZ() + 0.5);
+                return blockEntity.getBlockPos().getCenter();
 
             }
 
         });
-
-    }
-
-
-
-    /** Disque horizontal au sol — le rayon suit le focus DMX (pas de cône volumétrique). */
-
-    private static void renderFloorPatch(
-
-            VertexConsumer consumer,
-
-            Matrix4f matrix,
-
-            float radius,
-
-            int r,
-
-            int g,
-
-            int b,
-
-            float intensityNorm
-
-    ) {
-
-        int centerAlpha = (int) (intensityNorm * 200f);
-
-        int edgeAlpha = 0;
-
-
-
-        for (int i = 0; i < FLOOR_PATCH_SEGMENTS; i++) {
-
-            float angle0 = (float) (Math.PI * 2 * i / FLOOR_PATCH_SEGMENTS);
-
-            float angle1 = (float) (Math.PI * 2 * (i + 1) / FLOOR_PATCH_SEGMENTS);
-
-
-
-            float x0 = Mth.cos(angle0) * radius;
-
-            float z0 = Mth.sin(angle0) * radius;
-
-            float x1 = Mth.cos(angle1) * radius;
-
-            float z1 = Mth.sin(angle1) * radius;
-
-
-
-            consumer.vertex(matrix, 0f, 0f, 0f).color(r, g, b, centerAlpha).endVertex();
-
-            consumer.vertex(matrix, x0, 0f, z0).color(r, g, b, edgeAlpha).endVertex();
-
-            consumer.vertex(matrix, x1, 0f, z1).color(r, g, b, edgeAlpha).endVertex();
-
-        }
 
     }
 

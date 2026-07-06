@@ -3,15 +3,17 @@ package com.github.dumann089.theatricalextralights.blockentities;
 import com.github.dumann089.theatricalextralights.client.FlameThrowerClientEffects;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import com.github.dumann089.theatricalextralights.util.DirectionOffset;
+import com.github.dumann089.theatricalextralights.util.DmxFrameFlamePanSync;
 import dev.imabad.theatrical.api.Fixture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
 
-public class FlameThrowerBlockEntity extends ExtraLightsLightBlockEntity {
+public class FlameThrowerBlockEntity extends ExtraLightsLightBlockEntity implements DmxFrameFlamePanSync {
     private static final int FLAME_HOT_COLOR = 0xFF8434;
 
     private boolean clientWasActive;
@@ -74,6 +76,43 @@ public class FlameThrowerBlockEntity extends ExtraLightsLightBlockEntity {
     }
 
     @Override
+    public int getSyncPan() {
+        return pan;
+    }
+
+    @Override
+    public int getSyncPrevPan() {
+        return prevPan;
+    }
+
+    @Override
+    public void setSyncPan(int value) {
+        pan = value;
+    }
+
+    @Override
+    public void setSyncPrevPan(int value) {
+        prevPan = value;
+    }
+
+    @Override
+    public BlockPos getSyncBlockPos() {
+        return getBlockPos();
+    }
+
+    @Override
+    public Level getSyncLevel() {
+        return level;
+    }
+
+    @Override
+    public void applyDmxFrameBase(int intensity, int red, int green, int blue,
+                                  int prevIntensity, int prevRed, int prevGreen, int prevBlue) {
+        super.applyDmxFrameBase(intensity, red, green, blue, prevIntensity, prevRed, prevGreen, prevBlue);
+        markFlamePanFrameApplied();
+    }
+
+    @Override
     public void consume(byte[] dmxValues) {
         int start = getChannelStart() > 0 ? getChannelStart() - 1 : 0;
         byte[] ourValues = Arrays.copyOfRange(dmxValues, start, start + getChannelCount());
@@ -120,6 +159,11 @@ public class FlameThrowerBlockEntity extends ExtraLightsLightBlockEntity {
     @Override
     public String getTranslationKey() {
         return getBlockState().getBlock().getDescriptionId();
+    }
+
+    @Override
+    protected boolean needsContinuousClientRender() {
+        return intensity > 0;
     }
 
     @Override

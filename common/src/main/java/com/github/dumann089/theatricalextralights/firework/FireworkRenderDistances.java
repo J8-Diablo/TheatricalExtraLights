@@ -99,4 +99,41 @@ public final class FireworkRenderDistances {
         double range = effectiveClientRenderBlocks();
         return range * range;
     }
+
+    /** Portée client effets flamme (lance-flammes, etc.) — alignée sur la config pyro. */
+    public static double clientFlameRangeBlocks() {
+        return effectiveClientRenderBlocks();
+    }
+
+    public static double clientFlameRangeSq() {
+        double range = clientFlameRangeBlocks();
+        return range * range;
+    }
+
+    public static boolean isWithinClientFlameRange(double x, double y, double z) {
+        if (Platform.getEnvironment() != Env.CLIENT) {
+            return true;
+        }
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) {
+            return false;
+        }
+        return mc.player.distanceToSqr(x, y, z) <= clientFlameRangeSq();
+    }
+
+    /**
+     * Agrandit légèrement les particules flamme avec la distance pour rester lisibles
+     * quand la render distance config est élevée.
+     */
+    public static float flameParticleSizeScale(double x, double y, double z) {
+        if (Platform.getEnvironment() != Env.CLIENT) {
+            return 1.0f;
+        }
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) {
+            return 1.0f;
+        }
+        double dist = Math.sqrt(mc.player.distanceToSqr(x, y, z));
+        return (float) Math.min(2.75, Math.max(1.0, 1.0 + dist * 0.012));
+    }
 }

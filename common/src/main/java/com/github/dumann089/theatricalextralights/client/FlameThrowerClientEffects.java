@@ -11,27 +11,40 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.phys.Vec3;
 
 @Environment(EnvType.CLIENT)
 public final class FlameThrowerClientEffects {
+    /** Volume de base — atténué par la distance (son fixed-range + LINEAR). */
+    private static final float LOOP_VOLUME = 0.14f;
+    /** Audible seulement à proximité du lance-flammes. */
+    private static final double HEAR_DISTANCE = 48.0;
+    private static final double HEAR_DISTANCE_SQ = HEAR_DISTANCE * HEAR_DISTANCE;
+
     private FlameThrowerClientEffects() {
     }
 
     public static void tick(FlameThrowerBlockEntity blockEntity) {
         boolean active = blockEntity.getIntensity() > 0;
-        if (blockEntity.updateClientActiveState(active)) {
-            if (active) {
-                SoundLoopManager.play(
-                        blockEntity.getLevel(),
-                        blockEntity.getBlockPos(),
-                        null,
-                        ModSounds.FLAME_THROWER_LOOP.get(),
-                        0.5f,
-                        1.0f
-                );
-            } else {
-                SoundLoopManager.stopLoop(blockEntity.getBlockPos());
-            }
+        Minecraft minecraft = Minecraft.getInstance();
+        BlockPos pos = blockEntity.getBlockPos();
+        Vec3 center = pos.getCenter();
+
+        boolean playerCanHear = minecraft.player != null
+                && minecraft.player.distanceToSqr(center) <= HEAR_DISTANCE_SQ;
+        boolean shouldPlaySound = active && playerCanHear;
+
+        if (shouldPlaySound) {
+            SoundLoopManager.play(
+                    blockEntity.getLevel(),
+                    pos,
+                    null,
+                    ModSounds.FLAME_THROWER_LOOP.get(),
+                    LOOP_VOLUME,
+                    1.0f
+            );
+        } else {
+            SoundLoopManager.stopLoop(pos);
         }
 
         if (!active) {
@@ -42,9 +55,8 @@ public final class FlameThrowerClientEffects {
             return;
         }
 
-        Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.player != null
-                && minecraft.player.distanceToSqr(blockEntity.getBlockPos().getCenter()) > FlameThrowerParticleSpawner.maxSpawnDistanceSq()) {
+        if (!com.github.dumann089.theatricalextralights.firework.FireworkRenderDistances.isWithinClientFlameRange(
+                center.x, center.y, center.z)) {
             return;
         }
 
@@ -53,7 +65,7 @@ public final class FlameThrowerClientEffects {
 
         FlameThrowerParticleSpawner.spawnJet(
                 level,
-                blockEntity.getBlockPos(),
+                pos,
                 facing,
                 headRenderAngle,
                 blockEntity.getIntensity(),

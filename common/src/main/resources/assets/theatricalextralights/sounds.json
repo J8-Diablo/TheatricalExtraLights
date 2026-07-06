@@ -9,7 +9,10 @@
   },
   "block.flame_thrower.loop": {
     "sounds": [
-      "theatricalextralights:flame_thrower.loop"
+      {
+        "name": "theatricalextralights:flame_thrower.loop",
+        "attenuation_distance": 12
+      }
     ]
   }
 }

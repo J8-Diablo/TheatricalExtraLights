@@ -8,6 +8,7 @@ import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.particle.TextureSheetParticle;
+import com.github.dumann089.theatricalextralights.firework.FireworkRenderDistances;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -46,7 +47,8 @@ public class FlameThrowerPuffParticle extends TextureSheetParticle {
         hasPhysics = false;
         gravity = 0.0f;
         lifetime = 5 + random.nextInt(5);
-        peakSize = 0.28f + random.nextFloat() * 0.14f;
+        float distanceScale = FireworkRenderDistances.flameParticleSizeScale(x, y, z);
+        peakSize = (0.28f + random.nextFloat() * 0.14f) * distanceScale;
         quadSize = peakSize * 0.65f;
         alpha = 0.8f + random.nextFloat() * 0.2f;
         rCol = 1.0f;

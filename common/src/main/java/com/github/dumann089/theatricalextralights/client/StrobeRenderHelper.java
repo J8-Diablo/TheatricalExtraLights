@@ -21,6 +21,20 @@ public final class StrobeRenderHelper {
                 + (blockEntity.getIntensity() - blockEntity.getPrevIntensity()) * partialTick;
     }
 
+    /** True si le faisceau / la lumière dynamique doivent encore être actifs. */
+    public static boolean isVisuallyLit(BaseLightBlockEntity blockEntity) {
+        if (blockEntity == null) {
+            return false;
+        }
+        if (blockEntity instanceof DmxStrobeFixture strobe) {
+            if (strobe.getRawDimmer() <= 0) {
+                return false;
+            }
+            return strobe.getStrobeChannelValue() > 0;
+        }
+        return blockEntity.getIntensity() > 0 || blockEntity.getPrevIntensity() > 0;
+    }
+
     /** Force Sodium / vanilla à rafraîchir le chunk (strobe, faisceaux, lentilles). */
     public static void markSectionDirty(BlockPos pos) {
         Minecraft mc = Minecraft.getInstance();

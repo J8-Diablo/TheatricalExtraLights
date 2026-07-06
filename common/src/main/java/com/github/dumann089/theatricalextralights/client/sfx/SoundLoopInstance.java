@@ -34,6 +34,8 @@ public class SoundLoopInstance extends AbstractTickableSoundInstance {
         this.pitch = pitch;
         this.looping = true;
         this.delay = 0;
+        this.attenuation = SoundInstance.Attenuation.LINEAR;
+        this.relative = false;
         this.blockPos = blockPos;
         this.expectedBlock = expectedBlock;
     }

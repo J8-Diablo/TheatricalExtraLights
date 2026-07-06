@@ -1,19 +1,15 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.BlinderBlockEntity;
-import com.github.dumann089.theatricalextralights.client.LensRenderTypes;
-import com.github.dumann089.theatricalextralights.client.StrobeRenderHelper;
-import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
+import com.github.dumann089.theatricalextralights.client.BlinderRenderHelper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.imabad.theatrical.TheatricalExpectPlatform;
 import dev.imabad.theatrical.blocks.HangableBlock;
 import dev.imabad.theatrical.client.LazyRenderers;
-import dev.imabad.theatrical.client.TheatricalRenderTypes;
 import com.github.dumann089.theatricalextralights.client.blockentities.ExtraLightsRenderer;
 import net.minecraft.client.Camera;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
@@ -22,9 +18,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
-
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
 
 public class BlinderRenderer extends ExtraLightsRenderer<BlinderBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
@@ -138,80 +131,21 @@ public class BlinderRenderer extends ExtraLightsRenderer<BlinderBlockEntity> {
                             blockstate,
                             isHanging
                     );
-                    VertexConsumer beamConsumer =
-                            multiBufferSource.getBuffer(TheatricalRenderTypes.BEAM);
-
-                    float intensity = StrobeRenderHelper.renderedIntensity(blockEntity, partialTicks);
-
-                    int color = blockEntity.getColour();
-                    int r = (color >> 16) & 0xFF;
-                    int g = (color >> 8) & 0xFF;
-                    int b = color & 0xFF;
-                    int a = (int) intensity;
-
-                    poseStack.pushPose();
-
-                    poseStack.translate(0.5f, 0.68f, 0.422f);
-
-                    Matrix4f m = poseStack.last().pose();
-                    Matrix3f n = poseStack.last().normal();
-
-                    addVertex(beamConsumer, m, n, r, g, b, a, -0.3125f,  0.625f, 0f);
-                    addVertex(beamConsumer, m, n, r, g, b, a,  0.3125f,  0.625f, 0f);
-                    addVertex(beamConsumer, m, n, r, g, b, a,  0.3125f, -0.625f, 0f);
-                    addVertex(beamConsumer, m, n, r, g, b, a, -0.3125f, -0.625f, 0f);
-
-                    poseStack.popPose();
-
-                    //LENS
-                    if (TheatricalExtraLightsConfig.shouldRenderLens()) {
-                        VertexConsumer lensConsumer =
-                                multiBufferSource.getBuffer(LensRenderTypes.LENS);
-
-                    poseStack.pushPose();
-
-                    poseStack.translate(0.5f, 0.68f, 5.5f / 16f);
-
-                    Matrix4f m1 = poseStack.last().pose();
-
-                    float lensAlphaMul = 1.0f;
-                    float lensColorMul = 1.0f;
-
-                    int la = (int)(a * lensAlphaMul);
-                    int lr = (int)(r * lensColorMul);
-                    int lg = (int)(g * lensColorMul);
-                    int lb = (int)(b * lensColorMul);
-
-                    float size = 2.50f;
-
-                    addLensVertex(lensConsumer, m1, lr, lg, lb, la, -size,  size, 0f, 0f, 0f);
-                    addLensVertex(lensConsumer, m1, lr, lg, lb, la,  size,  size, 0f, 1f, 0f);
-                    addLensVertex(lensConsumer, m1, lr, lg, lb, la,  size, -size, 0f, 1f, 1f);
-                    addLensVertex(lensConsumer, m1, lr, lg, lb, la, -size, -size, 0f, 0f, 1f);
-
-                    poseStack.popPose();
-                    }
+                    BlinderRenderHelper.renderFace(
+                            blockEntity,
+                            bufferSource,
+                            poseStack,
+                            partialTick,
+                            BlinderRenderHelper.FaceQuad.STANDARD
+                    );
                     poseStack.popPose();
                 }
                 @Override
                 public Vec3 getPos(float partialTick) {
-                    return blockEntity.getBlockPos().getCenter();
+                    return BlinderRenderHelper.lazyRenderPos(blockEntity);
                 }
             });
         }
-    }
-    private static void addLensVertex(
-            VertexConsumer vc,
-            Matrix4f m,
-            int r, int g, int b, int a,
-            float x, float y, float z,
-            float u, float v
-    ) {
-        vc.vertex(m, x, y, z)
-                .color(r, g, b, a)
-                .uv(u, v)
-                .uv2(LightTexture.FULL_BRIGHT)
-                .endVertex();
     }
 
 

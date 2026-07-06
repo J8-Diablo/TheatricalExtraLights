@@ -55,6 +55,11 @@ public abstract class BlinderBaseBlockEntity extends ExtraLightsLightBlockEntity
     }
 
     @Override
+    public boolean shouldTrace() {
+        return emitsLight() && intensity > 0;
+    }
+
+    @Override
     public Vector3f getLightPos() {
         BlockPos emission = getEmissionBlock();
         if (emission != null) {
