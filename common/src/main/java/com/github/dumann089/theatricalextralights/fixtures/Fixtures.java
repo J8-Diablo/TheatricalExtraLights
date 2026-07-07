@@ -410,6 +410,8 @@ public class Fixtures {
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "flame_projector"), FlameProjectorFixture::new);
     public static final RegistrySupplier<Fixture> FLAME_THROWER =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "flame_thrower"), FlameThrowerFixture::new);
+    public static final RegistrySupplier<Fixture> FLOW2JET =
+            FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "flow2jet"), Flow2JetFixture::new);
     public static final RegistrySupplier<Fixture> CONFETTI_CANNON =
             FIXTURES.register(new ResourceLocation(TheatricalExtraLights.MOD_ID, "confetti_cannon"), ConfettiCannonFixture::new);
     public static final RegistrySupplier<Fixture> LASER_MIRROR =

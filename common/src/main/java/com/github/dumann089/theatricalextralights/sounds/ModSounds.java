@@ -22,6 +22,13 @@ public class ModSounds {
                             48.0f
                     ));
 
+    public static final RegistrySupplier<SoundEvent> FLOW2JET_LOOP =
+            SOUNDS.register("block.flow2jet.loop", () ->
+                    SoundEvent.createFixedRangeEvent(
+                            new ResourceLocation(TheatricalExtraLights.MOD_ID, "block.flow2jet.loop"),
+                            48.0f
+                    ));
+
     public static void initialize() {
         SOUNDS.register();
     }

@@ -1,5 +1,7 @@
 package com.github.dumann089.theatricalextralights.client.forge;
 
+import com.github.dumann089.theatricalextralights.client.particle.Co2JetCoreParticle;
+import com.github.dumann089.theatricalextralights.client.particle.Co2JetPuffParticle;
 import com.github.dumann089.theatricalextralights.client.particle.ConfettiParticle;
 import com.github.dumann089.theatricalextralights.client.particle.FireworkSparkParticle;
 import com.github.dumann089.theatricalextralights.client.particle.FlameThrowerJetParticle;
@@ -27,6 +29,8 @@ public class ModParticleClientImpl {
         event.registerSpriteSet(ModParticle.FIREWORK_SPARK.get(), FireworkSparkParticle.Provider::new);
         event.registerSpriteSet(ModParticle.FLAME_THROWER_JET.get(), FlameThrowerJetParticle.Provider::new);
         event.registerSpriteSet(ModParticle.FLAME_THROWER_PUFF.get(), FlameThrowerPuffParticle.Provider::new);
+        event.registerSpriteSet(ModParticle.CO2_JET_CORE.get(), Co2JetCoreParticle.Provider::new);
+        event.registerSpriteSet(ModParticle.CO2_JET_PUFF.get(), Co2JetPuffParticle.Provider::new);
         event.registerSpriteSet(ModParticle.WATERFANPARTICLE.get(), WaterFanParticle::provider);
         event.registerSpriteSet(ModParticle.WATERMOVINGJETPARTICLE.get(), WaterMovingJetParticle::provider);
     }

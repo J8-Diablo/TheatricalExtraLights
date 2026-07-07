@@ -427,6 +427,10 @@ public class Items {
             "flame_thrower",
             () -> new BlockItem(Blocks.FLAME_THROWER_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
     );
+    public static final RegistrySupplier<Item> FLOW2JET = ITEMS.register(
+            "flow2jet",
+            () -> new BlockItem(Blocks.FLOW2JET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
     public static final RegistrySupplier<Item> CONFETTI_CANNON = ITEMS.register(
             "confetti_cannon",
             ConfettiCannonItemRegistration::create

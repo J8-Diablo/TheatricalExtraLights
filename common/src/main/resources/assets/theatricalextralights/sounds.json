@@ -14,5 +14,14 @@
         "attenuation_distance": 12
       }
     ]
+  },
+  "block.flow2jet.loop": {
+    "subtitle": "subtitles.theatricalextralights.block.flow2jet.loop",
+    "sounds": [
+      {
+        "name": "theatricalextralights:block/co2",
+        "attenuation_distance": 12
+      }
+    ]
   }
 }

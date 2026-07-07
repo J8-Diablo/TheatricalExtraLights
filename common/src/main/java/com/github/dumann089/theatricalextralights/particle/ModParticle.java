@@ -60,6 +60,16 @@ public class ModParticle {
             () -> new SimpleParticleType(false) {}
     );
 
+    public static final RegistrySupplier<SimpleParticleType> CO2_JET_CORE = PARTICLE_TYPES.register(
+            "co2_jet_core",
+            () -> new SimpleParticleType(false) {}
+    );
+
+    public static final RegistrySupplier<SimpleParticleType> CO2_JET_PUFF = PARTICLE_TYPES.register(
+            "co2_jet_puff",
+            () -> new SimpleParticleType(false) {}
+    );
+
     public static void initialize() {
         PARTICLE_TYPES.register();
     }
