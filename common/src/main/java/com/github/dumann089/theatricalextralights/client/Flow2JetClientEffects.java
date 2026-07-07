@@ -6,6 +6,7 @@ import com.github.dumann089.theatricalextralights.client.sfx.SoundLoopManager;
 import com.github.dumann089.theatricalextralights.firework.FireworkRenderDistances;
 import com.github.dumann089.theatricalextralights.sounds.ModSounds;
 import com.github.dumann089.theatricalextralights.util.FixtureJetDirection;
+import dev.imabad.theatrical.blocks.HangableBlock;
 import dev.imabad.theatrical.blocks.light.BaseLightBlock;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -51,29 +52,37 @@ public final class Flow2JetClientEffects {
             return;
         }
 
+        float partial = minecraft.getFrameTime();
+        float pan = blockEntity.getInterpolatedPan(partial);
+        float userTilt = blockEntity.getInterpolatedTilt(partial);
         float[] beamStart = blockEntity.getFixture().getBeamStartPosition();
-        Vec3 nozzle = FixtureJetDirection.beamWorldPosition(
+        float[] headPivot = blockEntity.getFixture().getPanRotationPosition();
+        Direction facing = blockEntity.getBlockState().getValue(BaseLightBlock.FACING);
+        boolean isHanging = ((HangableBlock) blockEntity.getBlockState().getBlock())
+                .isHanging(blockEntity.getLevel(), pos);
+        Vec3 nozzle = FixtureJetDirection.beamWorldPositionFlow2Jet(
                 pos,
-                blockEntity.getBlockState().getValue(BaseLightBlock.FACING),
-                blockEntity.getInterpolatedPan(minecraft.getFrameTime()),
-                blockEntity.getInterpolatedTilt(minecraft.getFrameTime()),
-                blockEntity.getFixture().getPanRotationPosition(),
-                beamStart
+                facing,
+                pan,
+                userTilt,
+                headPivot,
+                beamStart,
+                isHanging
         );
 
         if (!FireworkRenderDistances.isWithinClientFlameRange(nozzle.x, nozzle.y, nozzle.z)) {
             return;
         }
 
-        Direction facing = blockEntity.getBlockState().getValue(BaseLightBlock.FACING);
         Flow2JetParticleSpawner.spawnJet(
                 level,
                 pos,
                 facing,
-                blockEntity.getInterpolatedPan(minecraft.getFrameTime()),
-                blockEntity.getInterpolatedTilt(minecraft.getFrameTime()),
-                blockEntity.getFixture().getPanRotationPosition(),
+                pan,
+                userTilt,
+                headPivot,
                 beamStart,
+                isHanging,
                 (int) blockEntity.getIntensity(),
                 level.random
         );

@@ -12,14 +12,10 @@ import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.phys.Vec3;
 
-/** Coeur du jet CO₂ — colonne dense blanche. */
+/** Colonne CO₂ — jet continu, collision blocs, pas de boules distinctes. */
 @Environment(EnvType.CLIENT)
 public class Co2JetCoreParticle extends TextureSheetParticle {
-    private static final float CONE_SPREAD = 0.048f;
-    private static final float DRAG = 0.94f;
-
     private final SpriteSet sprites;
     private final float startSize;
     private final float peakSize;
@@ -35,50 +31,26 @@ public class Co2JetCoreParticle extends TextureSheetParticle {
             SpriteSet sprites,
             RandomSource random
     ) {
-        super(level, x, y, z);
+        super(level, x, y, z, dirX, dirY, dirZ);
         this.sprites = sprites;
 
-        Vec3 axis = normalizeDirection(dirX, dirY, dirZ);
-        float speed = (0.9f + random.nextFloat() * 0.5f);
-        Vec3 lateral = randomDiskOffset(axis, random, CONE_SPREAD * (0.7f + random.nextFloat() * 0.5f));
+        xd = dirX;
+        yd = dirY;
+        zd = dirZ;
 
-        xd = axis.x * speed + lateral.x;
-        yd = axis.y * speed + lateral.y;
-        zd = axis.z * speed + lateral.z;
-
-        hasPhysics = false;
+        hasPhysics = true;
         gravity = 0.0f;
-        lifetime = 14 + random.nextInt(11);
+        friction = 0.94f;
+        lifetime = 38 + random.nextInt(22);
         float distanceScale = FireworkRenderDistances.flameParticleSizeScale(x, y, z);
-        startSize = (0.22f + random.nextFloat() * 0.12f) * distanceScale;
-        peakSize = startSize * (2.5f + random.nextFloat() * 1.0f);
+        startSize = (0.14f + random.nextFloat() * 0.06f) * distanceScale;
+        peakSize = startSize * (2.4f + random.nextFloat() * 1.1f);
         quadSize = startSize * 0.85f;
-        alpha = 0.85f;
-        rCol = 1.0f;
-        gCol = 1.0f;
-        bCol = 1.0f;
+        alpha = 0.22f + random.nextFloat() * 0.08f;
+        rCol = 0.88f + random.nextFloat() * 0.06f;
+        gCol = 0.88f + random.nextFloat() * 0.06f;
+        bCol = 0.92f + random.nextFloat() * 0.04f;
         pickSprite(sprites);
-    }
-
-    private static Vec3 normalizeDirection(double dx, double dy, double dz) {
-        Vec3 dir = new Vec3(dx, dy, dz);
-        if (dir.lengthSqr() < 1.0e-8) {
-            return new Vec3(0.0, 1.0, 0.0);
-        }
-        return dir.normalize();
-    }
-
-    private static Vec3 randomDiskOffset(Vec3 axis, RandomSource random, float radius) {
-        Vec3 helper = Math.abs(axis.y) < 0.92 ? new Vec3(0.0, 1.0, 0.0) : new Vec3(1.0, 0.0, 0.0);
-        Vec3 tangent = axis.cross(helper);
-        if (tangent.lengthSqr() < 1.0e-8) {
-            tangent = new Vec3(1.0, 0.0, 0.0);
-        }
-        tangent = tangent.normalize();
-        Vec3 bitangent = axis.cross(tangent).normalize();
-        double angle = random.nextDouble() * Math.PI * 2.0;
-        double dist = random.nextDouble() * radius;
-        return tangent.scale(Math.cos(angle) * dist).add(bitangent.scale(Math.sin(angle) * dist));
     }
 
     @Override
@@ -96,14 +68,25 @@ public class Co2JetCoreParticle extends TextureSheetParticle {
             return;
         }
 
-        xd *= DRAG;
-        yd *= DRAG;
-        zd *= DRAG;
+        xd += (random.nextDouble() - 0.5) * 0.003;
+        yd += (random.nextDouble() - 0.5) * 0.003;
+        zd += (random.nextDouble() - 0.5) * 0.003;
         move(xd, yd, zd);
 
+        if (onGround) {
+            xd *= 0.3;
+            yd *= 0.12;
+            zd *= 0.3;
+        }
+
         float life = (float) age / (float) lifetime;
-        quadSize = Mth.lerp(life, startSize, peakSize);
-        alpha = (1.0f - life) * (1.0f - life) * 0.85f;
+        quadSize = Mth.lerp(life * life * life, startSize, peakSize);
+        if (life < 0.55f) {
+            alpha = 0.24f + life * 0.52f;
+        } else {
+            float fade = (life - 0.55f) / 0.45f;
+            alpha = (1.0f - fade) * (1.0f - fade) * 0.58f;
+        }
         setSpriteFromAge(sprites);
     }
 

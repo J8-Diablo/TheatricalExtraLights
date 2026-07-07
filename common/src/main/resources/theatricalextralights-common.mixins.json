@@ -9,5 +9,8 @@
   },
   "client": [
     "client.shimmer.ReloadShaderManagerMixin"
+  ],
+  "mixins": [
+    "compat.BlockEntityTheatricalDmxExtendedMixin"
   ]
 }

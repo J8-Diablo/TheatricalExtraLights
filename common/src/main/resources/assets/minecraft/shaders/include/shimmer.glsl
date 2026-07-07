@@ -67,7 +67,7 @@ vec4 color_light_uv(vec3 pos, vec4 vertex_color, ivec2 uv) {
 
         uvlightColor = jodieReinhardTonemap(uvlightColor);
 
-        return vec4(vertex_color.rgb + clamp(uvlightColor.rgb * blockLight * 3.5 + nouvLightColor, 0.0, 1.0), vertex_color.a);
+        return vec4(vertex_color.rgb + clamp(uvlightColor.rgb * blockLight * 3.5 + nouvLightColor, 0.0, 1.0), vertexColor.a);
     } else {
         return vertex_color + vec4(nouvLightColor,.0);
     }

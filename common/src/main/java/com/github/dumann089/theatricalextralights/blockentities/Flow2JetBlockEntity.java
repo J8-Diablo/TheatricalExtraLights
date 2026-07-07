@@ -18,7 +18,7 @@ public class Flow2JetBlockEntity extends ExtraLightsLightBlockEntity {
         setChannelCount(1);
         intensity = 0;
         pan = 0;
-        tilt = 90;
+        tilt = 0;
         prevPan = pan;
         prevTilt = tilt;
     }

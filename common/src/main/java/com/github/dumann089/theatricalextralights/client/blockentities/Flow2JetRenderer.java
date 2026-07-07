@@ -1,6 +1,8 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.Flow2JetBlockEntity;
+import com.github.dumann089.theatricalextralights.fixtures.Flow2JetFixture;
+import com.github.dumann089.theatricalextralights.util.FixtureJetDirection;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -10,6 +12,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
 
@@ -89,17 +92,24 @@ public class Flow2JetRenderer extends ExtraLightsRenderer<Flow2JetBlockEntity> {
             }
         }
 
-        float[] pivot = blockEntity.getFixture().getPanRotationPosition();
+        float[] headPivot = blockEntity.getFixture().getPanRotationPosition();
         float pan = blockEntity.getInterpolatedPan(partialTicks);
-        float tilt = blockEntity.getInterpolatedTilt(partialTicks);
+        float userTilt = blockEntity.getInterpolatedTilt(partialTicks);
+        float effectiveTilt = Flow2JetFixture.effectiveTilt(userTilt, isHanging);
+        float[] groundPivot = Flow2JetFixture.GROUND_PIVOT;
 
-        poseStack.translate(pivot[0], pivot[1], pivot[2]);
+        if (!isHanging) {
+            poseStack.translate(groundPivot[0], groundPivot[1], groundPivot[2]);
+            poseStack.mulPose(Axis.XP.rotationDegrees(Flow2JetFixture.REST_LAY_DEGREES));
+            poseStack.translate(-groundPivot[0], -groundPivot[1], -groundPivot[2]);
+        }
+
+        Vec3 panTiltPivot = FixtureJetDirection.flow2JetPanTiltPivot(headPivot, null, isHanging);
+
+        poseStack.translate((float) panTiltPivot.x, (float) panTiltPivot.y, (float) panTiltPivot.z);
         poseStack.mulPose(Axis.YN.rotationDegrees(pan));
-        poseStack.translate(-pivot[0], -pivot[1], -pivot[2]);
-
-        poseStack.translate(pivot[0], pivot[1], pivot[2]);
-        poseStack.mulPose(Axis.XP.rotationDegrees(tilt));
-        poseStack.translate(-pivot[0], -pivot[1], -pivot[2]);
+        poseStack.mulPose(Axis.XP.rotationDegrees(effectiveTilt));
+        poseStack.translate(-(float) panTiltPivot.x, -(float) panTiltPivot.y, -(float) panTiltPivot.z);
     }
 
     @Override

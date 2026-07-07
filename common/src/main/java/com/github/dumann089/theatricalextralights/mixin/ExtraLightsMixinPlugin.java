@@ -20,18 +20,21 @@ public final class ExtraLightsMixinPlugin implements IMixinConfigPlugin {
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         if (mixinClassName.contains("ReloadShaderManagerMixin")) {
-            try {
-                Class.forName(
-                        "com.lowdragmc.shimmer.client.shader.ReloadShaderManager",
-                        false,
-                        getClass().getClassLoader()
-                );
-                return true;
-            } catch (ClassNotFoundException ignored) {
-                return false;
-            }
+            return isClassPresent("com.lowdragmc.shimmer.client.shader.ReloadShaderManager");
+        }
+        if (mixinClassName.contains("BlockEntityTheatricalDmxExtendedMixin")) {
+            return isClassPresent("dev.imabad.theatrical.api.dmx.DmxFrameExtendedFixture");
         }
         return true;
+    }
+
+    private static boolean isClassPresent(String name) {
+        try {
+            Class.forName(name, false, ExtraLightsMixinPlugin.class.getClassLoader());
+            return true;
+        } catch (ClassNotFoundException ignored) {
+            return false;
+        }
     }
 
     @Override
@@ -45,6 +48,16 @@ public final class ExtraLightsMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
+        if (!mixinClassName.endsWith("BlockEntityTheatricalDmxExtendedMixin")) {
+            return;
+        }
+        if (!isClassPresent("dev.imabad.theatrical.api.dmx.DmxFrameExtendedFixture")) {
+            return;
+        }
+        String theatricalExtended = "dev/imabad/theatrical/api/dmx/DmxFrameExtendedFixture";
+        if (!targetClass.interfaces.contains(theatricalExtended)) {
+            targetClass.interfaces.add(theatricalExtended);
+        }
     }
 
     @Override

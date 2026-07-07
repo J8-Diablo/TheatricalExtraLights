@@ -15,12 +15,15 @@ import org.joml.Vector3f;
 
 @Environment(EnvType.CLIENT)
 public final class Flow2JetParticleSpawner {
-    private static final int BASE_CORE_COUNT = 22;
-    private static final int EXTRA_CORE_VARIANCE = 12;
-    private static final int BASE_PUFF_COUNT = 10;
-    private static final int EXTRA_PUFF_VARIANCE = 8;
-    private static final double PUFF_MIN_DISTANCE = 0.2;
-    private static final double PUFF_MAX_DISTANCE = 1.2;
+    private static final int BASE_COLUMN_COUNT = 12;
+    private static final int EXTRA_COLUMN_VARIANCE = 8;
+    private static final int BASE_CROWN_COUNT = 5;
+    private static final int EXTRA_CROWN_VARIANCE = 4;
+    private static final float COLUMN_CONE_DEGREES = 8f;
+    private static final float COLUMN_MIN_DISTANCE = 0.08f;
+    private static final float COLUMN_MAX_DISTANCE = 1.05f;
+    private static final float CROWN_MIN_DISTANCE = 0.7f;
+    private static final float CROWN_MAX_DISTANCE = 1.45f;
 
     private Flow2JetParticleSpawner() {
     }
@@ -30,9 +33,10 @@ public final class Flow2JetParticleSpawner {
             BlockPos blockPos,
             Direction facing,
             float pan,
-            float tilt,
-            float[] pivot,
+            float userTilt,
+            float[] headPivot,
             float[] beamStart,
+            boolean hanging,
             int intensity,
             RandomSource random
     ) {
@@ -40,47 +44,93 @@ public final class Flow2JetParticleSpawner {
             return;
         }
 
-        Vec3 nozzle = FixtureJetDirection.beamWorldPosition(blockPos, facing, pan, tilt, pivot, beamStart);
+        Vector3f jetDirection = FixtureJetDirection.directionFromFlow2JetPose(
+                blockPos,
+                facing,
+                pan,
+                userTilt,
+                headPivot,
+                beamStart,
+                hanging
+        );
+        Vec3 nozzle = FixtureJetDirection.beamWorldPositionFlow2Jet(
+                blockPos,
+                facing,
+                pan,
+                userTilt,
+                headPivot,
+                beamStart,
+                hanging
+        );
+
+        if (facing.getAxis() == Direction.Axis.X) {
+            nozzle = mirrorAroundBlockCenter(nozzle, blockPos);
+            jetDirection = mirrorDirection(jetDirection);
+        }
+
         if (!FireworkRenderDistances.isWithinClientFlameRange(nozzle.x, nozzle.y, nozzle.z)) {
             return;
         }
 
         float intensityFactor = FixtureJetDirection.intensityFactor(intensity);
-        int coreCount = Math.max(3, Math.round((BASE_CORE_COUNT + random.nextInt(EXTRA_CORE_VARIANCE + 1)) * intensityFactor));
-        int puffCount = Math.max(2, Math.round((BASE_PUFF_COUNT + random.nextInt(EXTRA_PUFF_VARIANCE + 1)) * intensityFactor));
-        float speedScale = 0.5f + 0.8f * intensityFactor;
+        int columnCount = Math.max(4, Math.round((BASE_COLUMN_COUNT + random.nextInt(EXTRA_COLUMN_VARIANCE + 1)) * intensityFactor));
+        int crownCount = Math.max(2, Math.round((BASE_CROWN_COUNT + random.nextInt(EXTRA_CROWN_VARIANCE + 1)) * intensityFactor));
+        float columnSpeed = 0.48f + 0.38f * intensityFactor;
 
-        Vector3f jetDirection = FixtureJetDirection.computeDirection(pan, tilt, facing);
-        double dirX = jetDirection.x();
-        double dirY = jetDirection.y();
-        double dirZ = jetDirection.z();
+        for (int i = 0; i < columnCount; i++) {
+            float along = Mth.lerp(random.nextFloat(), COLUMN_MIN_DISTANCE, COLUMN_MAX_DISTANCE) * intensityFactor;
+            float coneRadius = along * 0.07f;
+            Vec3 axisPoint = FixtureJetDirection.pointAlongJet(nozzle, jetDirection, along);
+            Vec3 spawn = axisPoint.add(Co2SmokePhysics.randomDisk(jetDirection, random, coneRadius));
 
-        for (int i = 0; i < coreCount; i++) {
-            level.addParticle(
-                    ModParticle.CO2_JET_CORE.get(),
-                    true,
-                    nozzle.x,
-                    nozzle.y,
-                    nozzle.z,
-                    dirX * speedScale,
-                    dirY * speedScale,
-                    dirZ * speedScale
-            );
-        }
+            float spread = COLUMN_CONE_DEGREES * (0.65f + random.nextFloat() * 0.75f);
+            Vec3 velocity = Co2SmokePhysics.randomUnitCone(jetDirection, spread, random)
+                    .scale(columnSpeed + random.nextFloat() * 0.12f);
 
-        for (int i = 0; i < puffCount; i++) {
-            double along = Mth.lerp(random.nextDouble(), PUFF_MIN_DISTANCE, PUFF_MAX_DISTANCE) * intensityFactor;
-            Vec3 puffPos = FixtureJetDirection.pointAlongJet(nozzle, jetDirection, along);
             level.addParticle(
                     ModParticle.CO2_JET_PUFF.get(),
                     true,
-                    puffPos.x,
-                    puffPos.y,
-                    puffPos.z,
-                    dirX * speedScale * 0.35,
-                    dirY * speedScale * 0.35,
-                    dirZ * speedScale * 0.35
+                    spawn.x,
+                    spawn.y,
+                    spawn.z,
+                    velocity.x,
+                    velocity.y,
+                    velocity.z
             );
         }
+
+        for (int i = 0; i < crownCount; i++) {
+            float along = Mth.lerp(random.nextFloat(), CROWN_MIN_DISTANCE, CROWN_MAX_DISTANCE) * intensityFactor;
+            Vec3 axisPoint = FixtureJetDirection.pointAlongJet(nozzle, jetDirection, along);
+            Vec3 spawn = axisPoint.add(Co2SmokePhysics.randomDisk(jetDirection, random, 0.18f + along * 0.06f));
+
+            float drift = 0.05f + random.nextFloat() * 0.07f;
+            Vec3 velocity = new Vec3(
+                    jetDirection.x() * drift,
+                    jetDirection.y() * drift,
+                    jetDirection.z() * drift
+            );
+
+            level.addParticle(
+                    ModParticle.CO2_JET_PUFF.get(),
+                    true,
+                    spawn.x,
+                    spawn.y,
+                    spawn.z,
+                    velocity.x,
+                    velocity.y,
+                    velocity.z
+            );
+        }
+    }
+
+    private static Vec3 mirrorAroundBlockCenter(Vec3 world, BlockPos blockPos) {
+        double cx = blockPos.getX() + 0.5;
+        double cz = blockPos.getZ() + 0.5;
+        return new Vec3(2.0 * cx - world.x, world.y, 2.0 * cz - world.z);
+    }
+
+    private static Vector3f mirrorDirection(Vector3f direction) {
+        return new Vector3f(-direction.x(), direction.y(), -direction.z());
     }
 }

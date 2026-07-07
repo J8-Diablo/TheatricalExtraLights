@@ -44,7 +44,7 @@ public final class ExtraLightsRenderTypes {
         }
     };
 
-    /** CO₂ volumétrique — alpha translucide, teinté par la lumière de scène. */
+    /** CO₂ : alpha blend classique (fumée translucide, pas de lueur additive). */
     public static final ParticleRenderType CO2_JET = new ParticleRenderType() {
         @Override
         public void begin(BufferBuilder builder, TextureManager textureManager) {
@@ -55,7 +55,10 @@ public final class ExtraLightsRenderTypes {
             AbstractTexture atlas = textureManager.getTexture(TextureAtlas.LOCATION_PARTICLES);
             RenderSystem.bindTexture(atlas.getId());
             RenderSystem.enableBlend();
-            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+            RenderSystem.blendFunc(
+                    GlStateManager.SourceFactor.SRC_ALPHA,
+                    GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA
+            );
             RenderSystem.enableDepthTest();
             builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
         }
@@ -75,11 +78,12 @@ public final class ExtraLightsRenderTypes {
     private ExtraLightsRenderTypes() {
     }
 
-    /** Rendu additif custom ; évite le shader vanilla particle (compatible Shimmer). */
+    /** Rendu additif custom ; compatible Shimmer (même pipeline que lance-flammes). */
     public static ParticleRenderType flameThrowerJetRenderType() {
         return FLAME_THROWER_JET;
     }
 
+    /** CO₂ : fumée blanche semi-transparente. */
     public static ParticleRenderType co2JetRenderType() {
         return CO2_JET;
     }
