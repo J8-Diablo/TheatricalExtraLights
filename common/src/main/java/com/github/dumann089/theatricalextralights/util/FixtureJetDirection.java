@@ -48,42 +48,19 @@ public final class FixtureJetDirection {
         Vec3 local = new Vec3(modelPoint[0], modelPoint[1], modelPoint[2]);
         local = rotateYAround(local, 0.5, 0.5, fixtureFacingYaw(facing));
 
-        if (!hanging) {
-            float[] groundPivot = Flow2JetFixture.GROUND_PIVOT;
-            local = rotateXAround(
-                    local,
-                    groundPivot[0],
-                    groundPivot[1],
-                    groundPivot[2],
-                    Flow2JetFixture.REST_LAY_DEGREES
-            );
-        }
-
-        // Facing déjà appliqué sur le point — même pivot que Flow2JetRenderer (null).
         Vec3 panTiltPivot = flow2JetPanTiltPivot(headPivot, null, hanging);
-        local = rotateYAround(local, panTiltPivot.x, panTiltPivot.z, -pan);
+        local = rotateYAround(local, panTiltPivot.x, panTiltPivot.z, pan);
         local = rotateXAround(local, panTiltPivot.x, panTiltPivot.y, panTiltPivot.z, effectiveTilt);
         return local;
     }
 
-    /** Pivot pan/tilt au centre du bloc après pose repos (évite le décalage latéral). */
+    /** Pivot pan/tilt — même point que le renderer (facing déjà appliqué sur les points si null). */
     public static Vec3 flow2JetPanTiltPivot(float[] headPivot, Direction facing, boolean hanging) {
         Vec3 pivot = new Vec3(headPivot[0], headPivot[1], headPivot[2]);
         if (facing != null) {
             pivot = rotateYAround(pivot, 0.5, 0.5, fixtureFacingYaw(facing));
         }
-        if (hanging) {
-            return pivot;
-        }
-        float[] groundPivot = Flow2JetFixture.GROUND_PIVOT;
-        pivot = rotateXAround(
-                pivot,
-                groundPivot[0],
-                groundPivot[1],
-                groundPivot[2],
-                Flow2JetFixture.REST_LAY_DEGREES
-        );
-        return new Vec3(0.5, pivot.y, 0.5);
+        return pivot;
     }
 
     public static Vec3 flow2JetPanTiltPivot(float[] headPivot, Direction facing) {
@@ -134,7 +111,7 @@ public final class FixtureJetDirection {
         return new Vector3f((float) delta.x, (float) delta.y, (float) delta.z);
     }
 
-    /** Direction fumée = +Y Blockbench, transformé comme un vecteur (pas via delta de positions pivotées). */
+    /** Direction fumée = +Y Blockbench (sortie buse vers le haut), transformé comme un vecteur. */
     public static Vec3 transformFlow2JetDirectionLocal(
             Direction facing,
             float pan,
@@ -144,10 +121,7 @@ public final class FixtureJetDirection {
         float effectiveTilt = Flow2JetFixture.effectiveTilt(userTilt, hanging);
         Vec3 dir = new Vec3(0, 1, 0);
         dir = rotateYVector(dir, fixtureFacingYaw(facing));
-        if (!hanging) {
-            dir = rotateXVector(dir, Flow2JetFixture.REST_LAY_DEGREES);
-        }
-        dir = rotateYVector(dir, -pan);
+        dir = rotateYVector(dir, pan);
         dir = rotateXVector(dir, effectiveTilt);
         double len = dir.length();
         if (len < 1.0e-8) {

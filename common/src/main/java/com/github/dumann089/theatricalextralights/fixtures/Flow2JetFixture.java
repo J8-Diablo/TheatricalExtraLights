@@ -60,15 +60,14 @@ public class Flow2JetFixture extends Fixture {
         return beamStartPosition;
     }
 
-    /** Pose repos : modèle Blockbench vertical → couché à plat sur le bloc. */
-    public static final float REST_LAY_DEGREES = 90f;
-    public static final float[] GROUND_PIVOT = {0.5f, 0f, 0.5f};
-    /** Tilt 0 au sol = horizontal ; suspendu au truss = buse vers le bas. */
-    public static final float TILT_NEUTRAL_OFFSET = -90f;
+    /** Au sol : tilt 0 = buse vers le ciel (+Y Blockbench). Suspendu : tilt 0 = vers le bas. */
     public static final float TILT_HANGING_NEUTRAL_OFFSET = 180f;
 
     public static float effectiveTilt(float userTilt, boolean hanging) {
-        return userTilt + (hanging ? TILT_HANGING_NEUTRAL_OFFSET : TILT_NEUTRAL_OFFSET);
+        if (hanging) {
+            return userTilt + TILT_HANGING_NEUTRAL_OFFSET;
+        }
+        return userTilt;
     }
 
     public static float effectiveTilt(float userTilt) {
@@ -110,12 +109,12 @@ public class Flow2JetFixture extends Fixture {
 
     @Override
     public boolean invertTilt() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean invertPan() {
-        return true;
+        return false;
     }
 
     @Override

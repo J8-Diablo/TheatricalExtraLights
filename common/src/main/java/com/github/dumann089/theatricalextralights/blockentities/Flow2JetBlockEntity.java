@@ -47,6 +47,18 @@ public class Flow2JetBlockEntity extends ExtraLightsLightBlockEntity {
         Flow2JetClientEffects.tick(this);
     }
 
+    /** Pan/tilt manuels uniquement — la personnalité DMX n'a qu'un canal intensité. */
+    @Override
+    public void applyDmxFramePanTiltFocus(int pan, int tilt, int focus,
+                                           int prevPan, int prevTilt, int prevFocus) {
+        super.applyDmxFramePanTiltFocus(this.pan, this.tilt, focus, this.prevPan, this.prevTilt, prevFocus);
+    }
+
+    /** Pose neutre au sol / GUI : pan 0, tilt 0 = machine droite, fumée vers le haut. */
+    public void resetNeutralPose() {
+        syncOperatorAngles(0, 0);
+    }
+
     @Override
     public void consume(byte[] dmxValues) {
         int start = getChannelStart() > 0 ? getChannelStart() - 1 : 0;
