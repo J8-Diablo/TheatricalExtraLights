@@ -39,7 +39,7 @@ public class Flow2JetBlockEntity extends ExtraLightsLightBlockEntity {
     }
 
     public float getInterpolatedTilt(float partialTick) {
-        return FixtureJetDirection.interpolateAngle(prevTilt, tilt, partialTick);
+        return -FixtureJetDirection.interpolateAngle(prevTilt, tilt, partialTick);
     }
 
     private void tickClient() {
