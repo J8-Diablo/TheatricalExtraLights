@@ -61,6 +61,11 @@ public class SoundLoopInstance extends AbstractTickableSoundInstance {
         return minecraft.level.getBlockState(blockPos).is(expectedBlock);
     }
 
+    public void updateVolumeAndPitch(float volume, float pitch) {
+        this.volume = volume;
+        this.pitch = pitch;
+    }
+
     public void requestStop() {
         shouldStop = true;
         stop();

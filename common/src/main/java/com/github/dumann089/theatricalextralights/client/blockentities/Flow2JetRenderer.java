@@ -7,6 +7,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.imabad.theatrical.TheatricalExpectPlatform;
 import dev.imabad.theatrical.blocks.HangableBlock;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
@@ -22,6 +24,30 @@ public class Flow2JetRenderer extends ExtraLightsRenderer<Flow2JetBlockEntity> {
         super(context);
     }
 
+    /**
+     * Comme les lyres : {@code isFlipped} suit l'état rig du bloc (debug stick / sans truss),
+     * {@code isMounted} ne s'applique que lorsqu'un support est physiquement présent.
+     */
+    @Override
+    public void render(
+            Flow2JetBlockEntity blockEntity,
+            float partialTick,
+            PoseStack poseStack,
+            MultiBufferSource multiBufferSource,
+            int packedLight,
+            int packedOverlay
+    ) {
+        poseStack.pushPose();
+        VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.cutout());
+        BlockState blockState = blockEntity.getBlockState();
+        boolean isFlipped = blockEntity.isUpsideDown();
+        boolean isRigged = blockState.getValue(HangableBlock.HANGING);
+        Direction facing = blockState.getValue(HangableBlock.FACING);
+        renderModel(blockEntity, poseStack, vertexConsumer, facing, partialTick, isFlipped, blockState, isRigged, packedLight, packedOverlay);
+        beforeRenderBeam(blockEntity, poseStack, vertexConsumer, multiBufferSource, facing, partialTick, isFlipped, blockState, isRigged, packedLight, packedOverlay);
+        poseStack.popPose();
+    }
+
     @Override
     public void renderModel(
             Flow2JetBlockEntity blockEntity,
@@ -31,7 +57,7 @@ public class Flow2JetRenderer extends ExtraLightsRenderer<Flow2JetBlockEntity> {
             float partialTicks,
             boolean isFlipped,
             BlockState blockState,
-            boolean isHanging,
+            boolean isRigged,
             int packedLight,
             int packedOverlay
     ) {
@@ -39,7 +65,8 @@ public class Flow2JetRenderer extends ExtraLightsRenderer<Flow2JetBlockEntity> {
             wholeModel = TheatricalExpectPlatform.getBakedModel(blockEntity.getFixture().getPanModel());
         }
 
-        applyFixturePose(poseStack, blockEntity, facing, blockState, isHanging, partialTicks);
+        boolean isMounted = ((HangableBlock) blockState.getBlock()).isHanging(blockEntity.getLevel(), blockEntity.getBlockPos());
+        applyFixturePose(poseStack, blockEntity, facing, blockState, isFlipped, isRigged, isMounted, partialTicks);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, wholeModel, packedLight, packedOverlay);
     }
 
@@ -48,11 +75,13 @@ public class Flow2JetRenderer extends ExtraLightsRenderer<Flow2JetBlockEntity> {
             Flow2JetBlockEntity blockEntity,
             Direction facing,
             BlockState blockState,
-            boolean isHanging,
+            boolean isFlipped,
+            boolean isRigged,
+            boolean isMounted,
             float partialTicks
     ) {
         poseStack.translate(0.5F, 0, 0.5F);
-        if (isHanging) {
+        if (isMounted) {
             Direction hangDirection = blockState.getValue(HangableBlock.HANG_DIRECTION);
             poseStack.translate(0, 0.5, 0F);
             if (hangDirection.getAxis() != Direction.Axis.Y) {
@@ -80,20 +109,26 @@ public class Flow2JetRenderer extends ExtraLightsRenderer<Flow2JetBlockEntity> {
         }
         poseStack.translate(-0.5F, 0, -0.5F);
 
-        if (isHanging) {
+        if (isMounted) {
             Optional<BlockState> optionalSupport = blockEntity.getSupportingStructure();
             if (optionalSupport.isPresent()) {
                 float[] transforms = blockEntity.getFixture().getTransforms(blockState, optionalSupport.get());
                 poseStack.translate(transforms[0], transforms[1], transforms[2]);
-            } else {
+            } else if (isRigged) {
                 poseStack.translate(0, 0.19, 0);
             }
+        }
+
+        if (isFlipped) {
+            poseStack.translate(0.5F, 0.5F, 0.5F);
+            poseStack.mulPose(Axis.ZP.rotationDegrees(180));
+            poseStack.translate(-0.5F, -0.5F, -0.5F);
         }
 
         float[] headPivot = blockEntity.getFixture().getPanRotationPosition();
         float pan = blockEntity.getInterpolatedPan(partialTicks);
         float userTilt = blockEntity.getInterpolatedTilt(partialTicks);
-        float effectiveTilt = Flow2JetFixture.effectiveTilt(userTilt, isHanging);
+        float effectiveTilt = Flow2JetFixture.effectiveTilt(userTilt, isRigged, isFlipped);
 
         poseStack.translate(headPivot[0], headPivot[1], headPivot[2]);
         poseStack.mulPose(Axis.YN.rotationDegrees(pan));
@@ -109,8 +144,9 @@ public class Flow2JetRenderer extends ExtraLightsRenderer<Flow2JetBlockEntity> {
             float partialTicks,
             boolean isFlipped,
             BlockState blockState,
-            boolean isHanging
+            boolean isRigged
     ) {
-        applyFixturePose(poseStack, blockEntity, facing, blockState, isHanging, partialTicks);
+        boolean isMounted = ((HangableBlock) blockState.getBlock()).isHanging(blockEntity.getLevel(), blockEntity.getBlockPos());
+        applyFixturePose(poseStack, blockEntity, facing, blockState, isFlipped, isRigged, isMounted, partialTicks);
     }
 }

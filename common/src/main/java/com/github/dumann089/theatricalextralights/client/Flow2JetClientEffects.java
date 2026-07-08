@@ -25,6 +25,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class Flow2JetClientEffects {
     private static final double HEAR_DISTANCE = 48.0;
     private static final double HEAR_DISTANCE_SQ = HEAR_DISTANCE * HEAR_DISTANCE;
+    /** Volume très bas — le fichier co2.ogg est très fort à la source. */
+    private static final float LOOP_VOLUME_MIN = 0.006f;
+    private static final float LOOP_VOLUME_RANGE = 0.009f;
     private static final Map<BlockPos, Boolean> WAS_ACTIVE = new ConcurrentHashMap<>();
 
     private Flow2JetClientEffects() {
@@ -39,9 +42,10 @@ public final class Flow2JetClientEffects {
         boolean playerCanHear = minecraft.player != null
                 && minecraft.player.distanceToSqr(center) <= HEAR_DISTANCE_SQ;
         float intensityFactor = FixtureJetDirection.intensityFactor((int) blockEntity.getIntensity());
-        float volume = 0.08f + 0.14f * intensityFactor;
+        float volume = LOOP_VOLUME_MIN + LOOP_VOLUME_RANGE * intensityFactor;
+        boolean shouldPlaySound = active && playerCanHear;
 
-        if (active && playerCanHear) {
+        if (shouldPlaySound) {
             SoundLoopManager.play(
                     blockEntity.getLevel(),
                     pos,
@@ -64,8 +68,8 @@ public final class Flow2JetClientEffects {
         float[] beamStart = blockEntity.getFixture().getBeamStartPosition();
         float[] headPivot = blockEntity.getFixture().getPanRotationPosition();
         Direction facing = blockEntity.getBlockState().getValue(BaseLightBlock.FACING);
-        boolean isHanging = ((HangableBlock) blockEntity.getBlockState().getBlock())
-                .isHanging(blockEntity.getLevel(), pos);
+        boolean isRigged = blockEntity.getBlockState().getValue(HangableBlock.HANGING);
+        boolean isFlipped = blockEntity.isUpsideDown();
 
         Vector3f jetDirection = FixtureJetDirection.directionFromFlow2JetPose(
                 pos,
@@ -74,7 +78,8 @@ public final class Flow2JetClientEffects {
                 userTilt,
                 headPivot,
                 beamStart,
-                isHanging
+                isRigged,
+                isFlipped
         );
         Vec3 nozzle = FixtureJetDirection.beamWorldPositionFlow2Jet(
                 pos,
@@ -83,7 +88,8 @@ public final class Flow2JetClientEffects {
                 userTilt,
                 headPivot,
                 beamStart,
-                isHanging
+                isRigged,
+                isFlipped
         );
         nozzle = Flow2JetParticleSpawner.adjustNozzleForFacing(facing, pos, nozzle);
         jetDirection = Flow2JetParticleSpawner.adjustDirectionForFacing(facing, jetDirection);
@@ -104,13 +110,20 @@ public final class Flow2JetClientEffects {
                     userTilt,
                     headPivot,
                     beamStart,
-                    isHanging,
+                    isRigged,
+                    isFlipped,
                     (int) blockEntity.getIntensity(),
                     level.random
             );
-        } else if (Boolean.TRUE.equals(WAS_ACTIVE.get(pos))) {
-            WAS_ACTIVE.put(pos, false);
-            Flow2JetDissipation.beginStop(pos, nozzle, jetDirection, level.getGameTime());
+        } else {
+            boolean wasPumping = Boolean.TRUE.equals(WAS_ACTIVE.get(pos))
+                    || blockEntity.getPrevIntensity() > 0;
+            if (wasPumping) {
+                WAS_ACTIVE.put(pos, false);
+                if (!Flow2JetDissipation.isDissipating(pos)) {
+                    Flow2JetDissipation.beginStop(pos, nozzle, jetDirection, level.getGameTime());
+                }
+            }
         }
     }
 

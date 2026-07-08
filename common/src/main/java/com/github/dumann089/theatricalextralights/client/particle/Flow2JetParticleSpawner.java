@@ -43,7 +43,8 @@ public final class Flow2JetParticleSpawner {
             float userTilt,
             float[] headPivot,
             float[] beamStart,
-            boolean hanging,
+            boolean rigged,
+            boolean flipped,
             int intensity,
             RandomSource random
     ) {
@@ -58,7 +59,8 @@ public final class Flow2JetParticleSpawner {
                 userTilt,
                 headPivot,
                 beamStart,
-                hanging
+                rigged,
+                flipped
         );
         Vec3 nozzle = FixtureJetDirection.beamWorldPositionFlow2Jet(
                 blockPos,
@@ -67,7 +69,8 @@ public final class Flow2JetParticleSpawner {
                 userTilt,
                 headPivot,
                 beamStart,
-                hanging
+                rigged,
+                flipped
         );
         nozzle = adjustNozzleForFacing(facing, blockPos, nozzle);
         jetDirection = adjustDirectionForFacing(facing, jetDirection);

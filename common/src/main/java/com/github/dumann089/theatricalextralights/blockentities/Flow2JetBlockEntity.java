@@ -3,7 +3,9 @@ package com.github.dumann089.theatricalextralights.blockentities;
 import com.github.dumann089.theatricalextralights.client.Flow2JetClientEffects;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import dev.imabad.theatrical.api.Fixture;
+import dev.imabad.theatrical.blocks.HangableBlock;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import com.github.dumann089.theatricalextralights.util.FixtureJetDirection;
 import net.minecraft.world.level.Level;
@@ -110,6 +112,12 @@ public class Flow2JetBlockEntity extends ExtraLightsLightBlockEntity {
     @Override
     public String getTranslationKey() {
         return getBlockState().getBlock().getDescriptionId();
+    }
+
+    @Override
+    public boolean isUpsideDown() {
+        return getBlockState().getValue(HangableBlock.HANGING)
+                && getBlockState().getValue(HangableBlock.HANG_DIRECTION) == Direction.UP;
     }
 
     @Override

@@ -11,13 +11,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** Fade réaliste des particules CO₂ quand le jet s'arrête. */
+/** Fade des particules CO₂ sur place dès que le trigger s'arrête. */
 @Environment(EnvType.CLIENT)
 public final class Flow2JetDissipation {
-    private static final float FADE_DURATION_TICKS = 26f;
-    private static final float TOP_LEAD_TICKS = 10f;
-    private static final float COLUMN_RADIUS = 0.55f;
-    private static final float MAX_COLUMN_ALONG = 1.65f;
+    private static final float FADE_DURATION_TICKS = 7f;
+    private static final float COLUMN_RADIUS = 1.35f;
+    private static final float MAX_COLUMN_ALONG = 3.2f;
 
     private static final Map<BlockPos, JetPlume> STOPPED = new ConcurrentHashMap<>();
 
@@ -26,6 +25,10 @@ public final class Flow2JetDissipation {
 
     public static void markRunning(BlockPos blockPos) {
         STOPPED.remove(blockPos);
+    }
+
+    public static boolean isDissipating(BlockPos blockPos) {
+        return STOPPED.containsKey(blockPos);
     }
 
     public static void beginStop(BlockPos blockPos, Vec3 nozzle, Vector3f jetDirection, long gameTime) {
@@ -49,7 +52,7 @@ public final class Flow2JetDissipation {
             Map.Entry<BlockPos, JetPlume> entry = iterator.next();
             JetPlume plume = entry.getValue();
             float fade = plume.fadeFor(x, y, z, gameTime);
-            if (fade < 0.001f && gameTime - plume.stopGameTime > FADE_DURATION_TICKS + TOP_LEAD_TICKS + 8) {
+            if (fade < 0.001f && gameTime - plume.stopGameTime > FADE_DURATION_TICKS + 4) {
                 iterator.remove();
                 continue;
             }
@@ -65,7 +68,7 @@ public final class Flow2JetDissipation {
         if (alpha >= 0.98f) {
             return 1f;
         }
-        return 0.88f + alpha * 0.1f;
+        return 0.04f + alpha * alpha * 0.2f;
     }
 
     private static final class JetPlume {
@@ -80,21 +83,7 @@ public final class Flow2JetDissipation {
         }
 
         private float fadeFor(double x, double y, double z, long gameTime) {
-            double relX = x - nozzle.x;
-            double relY = y - nozzle.y;
-            double relZ = z - nozzle.z;
-            float along = (float) (relX * axis.x() + relY * axis.y() + relZ * axis.z());
-            if (along < -0.15f || along > MAX_COLUMN_ALONG) {
-                return 1f;
-            }
-
-            double axisX = axis.x();
-            double axisY = axis.y();
-            double axisZ = axis.z();
-            double perpX = relX - axisX * along;
-            double perpY = relY - axisY * along;
-            double perpZ = relZ - axisZ * along;
-            if (perpX * perpX + perpY * perpY + perpZ * perpZ > COLUMN_RADIUS * COLUMN_RADIUS) {
+            if (!isInsidePlume(x, y, z)) {
                 return 1f;
             }
 
@@ -103,11 +92,26 @@ public final class Flow2JetDissipation {
                 return 1f;
             }
 
-            float height = Mth.clamp(along / MAX_COLUMN_ALONG, 0f, 1f);
-            float effectiveElapsed = elapsed + height * TOP_LEAD_TICKS;
-            float t = Mth.clamp(effectiveElapsed / FADE_DURATION_TICKS, 0f, 1f);
-            float fade = 1f - t * t;
-            return Mth.clamp(fade, 0f, 1f);
+            float t = Mth.clamp(elapsed / FADE_DURATION_TICKS, 0f, 1f);
+            return 1f - t * t * t;
+        }
+
+        private boolean isInsidePlume(double x, double y, double z) {
+            double relX = x - nozzle.x;
+            double relY = y - nozzle.y;
+            double relZ = z - nozzle.z;
+            float along = (float) (relX * axis.x() + relY * axis.y() + relZ * axis.z());
+            if (along < -0.2f || along > MAX_COLUMN_ALONG) {
+                return false;
+            }
+
+            double axisX = axis.x();
+            double axisY = axis.y();
+            double axisZ = axis.z();
+            double perpX = relX - axisX * along;
+            double perpY = relY - axisY * along;
+            double perpZ = relZ - axisZ * along;
+            return perpX * perpX + perpY * perpY + perpZ * perpZ <= COLUMN_RADIUS * COLUMN_RADIUS;
         }
     }
 }

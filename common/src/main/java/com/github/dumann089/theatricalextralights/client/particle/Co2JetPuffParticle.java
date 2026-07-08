@@ -91,13 +91,13 @@ public class Co2JetPuffParticle extends TextureSheetParticle {
         long gameTime = level.getGameTime();
         float dissipation = Flow2JetDissipation.alphaMultiplier(x, y, z, gameTime);
         alpha *= dissipation;
-        if (dissipation < 0.85f) {
+        if (dissipation < 1f) {
             float damp = Flow2JetDissipation.motionDamping(x, y, z, gameTime);
             xd *= damp;
             yd *= damp;
             zd *= damp;
         }
-        if (alpha < 0.015f) {
+        if (dissipation < 0.12f || alpha < 0.012f) {
             remove();
             return;
         }

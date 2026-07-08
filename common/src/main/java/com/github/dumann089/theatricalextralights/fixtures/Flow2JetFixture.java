@@ -63,15 +63,22 @@ public class Flow2JetFixture extends Fixture {
     /** Au sol : tilt 0 = buse vers le ciel (+Y Blockbench). Suspendu : tilt 0 = vers le bas. */
     public static final float TILT_HANGING_NEUTRAL_OFFSET = 180f;
 
-    public static float effectiveTilt(float userTilt, boolean hanging) {
-        if (hanging) {
+    public static float effectiveTilt(float userTilt, boolean rigged, boolean flipped) {
+        if (flipped) {
+            return -180f + userTilt;
+        }
+        if (rigged) {
             return userTilt + TILT_HANGING_NEUTRAL_OFFSET;
         }
         return userTilt;
     }
 
+    public static float effectiveTilt(float userTilt, boolean rigged) {
+        return effectiveTilt(userTilt, rigged, false);
+    }
+
     public static float effectiveTilt(float userTilt) {
-        return effectiveTilt(userTilt, false);
+        return effectiveTilt(userTilt, false, false);
     }
 
     @Override

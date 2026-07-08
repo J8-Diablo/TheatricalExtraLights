@@ -6,6 +6,7 @@ import com.github.dumann089.theatricalextralights.client.Flow2JetClientEffects;
 import com.github.dumann089.theatricalextralights.net.OpenExtraLightsScreenPacket;
 import dev.imabad.theatrical.TheatricalClient;
 import dev.imabad.theatrical.blocks.Blocks;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -50,7 +51,7 @@ public class Flow2JetBlock extends ExtraLightsLightBlock {
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
-        if (!level.isClientSide()) {
+        if (!level.isClientSide() && !state.getValue(HANGING)) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof Flow2JetBlockEntity flow2Jet) {
                 flow2Jet.resetNeutralPose();
@@ -58,6 +59,15 @@ public class Flow2JetBlock extends ExtraLightsLightBlock {
                 level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
             }
         }
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(BlockGetter level, BlockPos pos, BlockState state) {
+        ItemStack stack = super.getCloneItemStack(level, pos, state);
+        if (state.getValue(HANGING)) {
+            stack.getOrCreateTag().put("BlockStateTag", NbtUtils.writeBlockState(state));
+        }
+        return stack;
     }
 
     @Nullable
@@ -77,7 +87,7 @@ public class Flow2JetBlock extends ExtraLightsLightBlock {
     @Override
     public boolean canSurvive(BlockState blockState, LevelReader levelReader, BlockPos blockPos) {
         if (blockState.getValue(HANGING)) {
-            return isHanging(levelReader, blockPos);
+            return true;
         }
         return !levelReader.getBlockState(blockPos.below()).isAir();
     }

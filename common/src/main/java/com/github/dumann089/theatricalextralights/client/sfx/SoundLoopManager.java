@@ -26,25 +26,33 @@ public final class SoundLoopManager {
         if (!level.isClientSide) {
             return;
         }
+        var soundManager = Minecraft.getInstance().getSoundManager();
         SoundData data = ACTIVE.computeIfAbsent(pos, ignored -> new SoundData());
+
+        if (data.loopInstance != null) {
+            if (soundManager.isActive(data.loopInstance)) {
+                data.loopInstance.updateVolumeAndPitch(volume, pitch);
+                return;
+            }
+            data.loopInstance = null;
+        }
+
         if (!data.started && startSound != null) {
             playSingleSound(level, pos, startSound, volume, pitch);
             data.started = true;
         }
-        if (data.loopInstance == null) {
-            Block expectedBlock = level.getBlockState(pos).getBlock();
-            SoundLoopInstance loop = new SoundLoopInstance(
-                    loopSound,
-                    SoundSource.BLOCKS,
-                    Vec3.atCenterOf(pos),
-                    volume,
-                    pitch,
-                    pos,
-                    expectedBlock
-            );
-            data.loopInstance = loop;
-            Minecraft.getInstance().getSoundManager().play(loop);
-        }
+        Block expectedBlock = level.getBlockState(pos).getBlock();
+        SoundLoopInstance loop = new SoundLoopInstance(
+                loopSound,
+                SoundSource.BLOCKS,
+                Vec3.atCenterOf(pos),
+                volume,
+                pitch,
+                pos,
+                expectedBlock
+        );
+        data.loopInstance = loop;
+        soundManager.play(loop);
     }
 
     public static void playSingleSound(Level level, BlockPos pos, SoundEvent start, float volume, float pitch) {
@@ -70,14 +78,10 @@ public final class SoundLoopManager {
     }
 
     public static void stopLoop(BlockPos pos) {
-        SoundData data = ACTIVE.get(pos);
-        if (data != null) {
-            if (data.loopInstance != null) {
-                data.loopInstance.requestStop();
-                Minecraft.getInstance().getSoundManager().stop(data.loopInstance);
-                data.loopInstance = null;
-            }
-            data.started = false;
+        SoundData data = ACTIVE.remove(pos);
+        if (data != null && data.loopInstance != null) {
+            data.loopInstance.requestStop();
+            Minecraft.getInstance().getSoundManager().stop(data.loopInstance);
         }
     }
 

@@ -20,6 +20,7 @@
     "sounds": [
       {
         "name": "theatricalextralights:block/co2",
+        "volume": 0.12,
         "attenuation_distance": 12
       }
     ]
