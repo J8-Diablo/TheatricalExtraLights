@@ -73,6 +73,11 @@ public class Flow2JetFixture extends Fixture {
         return userTilt;
     }
 
+    /** Flip corps entier — seulement rig sans support (pas sur truss). */
+    public static boolean shouldApplyBodyFlip(boolean upsideDown, boolean mounted) {
+        return upsideDown && !mounted;
+    }
+
     public static float effectiveTilt(float userTilt, boolean rigged) {
         return effectiveTilt(userTilt, rigged, false);
     }

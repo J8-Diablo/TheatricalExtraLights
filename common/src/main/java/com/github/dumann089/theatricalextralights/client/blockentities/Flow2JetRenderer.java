@@ -25,8 +25,7 @@ public class Flow2JetRenderer extends ExtraLightsRenderer<Flow2JetBlockEntity> {
     }
 
     /**
-     * Comme les lyres : {@code isFlipped} suit l'état rig du bloc (debug stick / sans truss),
-     * {@code isMounted} ne s'applique que lorsqu'un support est physiquement présent.
+     * Sur truss : tilt rig (+180°). Sans support : flip corps (debug stick / truss cassé).
      */
     @Override
     public void render(
@@ -66,7 +65,8 @@ public class Flow2JetRenderer extends ExtraLightsRenderer<Flow2JetBlockEntity> {
         }
 
         boolean isMounted = ((HangableBlock) blockState.getBlock()).isHanging(blockEntity.getLevel(), blockEntity.getBlockPos());
-        applyFixturePose(poseStack, blockEntity, facing, blockState, isFlipped, isRigged, isMounted, partialTicks);
+        boolean bodyFlip = Flow2JetFixture.shouldApplyBodyFlip(isFlipped, isMounted);
+        applyFixturePose(poseStack, blockEntity, facing, blockState, bodyFlip, isRigged, isMounted, partialTicks);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, wholeModel, packedLight, packedOverlay);
     }
 
@@ -147,6 +147,7 @@ public class Flow2JetRenderer extends ExtraLightsRenderer<Flow2JetBlockEntity> {
             boolean isRigged
     ) {
         boolean isMounted = ((HangableBlock) blockState.getBlock()).isHanging(blockEntity.getLevel(), blockEntity.getBlockPos());
-        applyFixturePose(poseStack, blockEntity, facing, blockState, isFlipped, isRigged, isMounted, partialTicks);
+        boolean bodyFlip = Flow2JetFixture.shouldApplyBodyFlip(isFlipped, isMounted);
+        applyFixturePose(poseStack, blockEntity, facing, blockState, bodyFlip, isRigged, isMounted, partialTicks);
     }
 }

@@ -5,6 +5,7 @@ import com.github.dumann089.theatricalextralights.client.particle.Flow2JetDissip
 import com.github.dumann089.theatricalextralights.client.particle.Flow2JetParticleSpawner;
 import com.github.dumann089.theatricalextralights.client.sfx.SoundLoopManager;
 import com.github.dumann089.theatricalextralights.firework.FireworkRenderDistances;
+import com.github.dumann089.theatricalextralights.fixtures.Flow2JetFixture;
 import com.github.dumann089.theatricalextralights.sounds.ModSounds;
 import com.github.dumann089.theatricalextralights.util.FixtureJetDirection;
 import dev.imabad.theatrical.blocks.HangableBlock;
@@ -70,6 +71,9 @@ public final class Flow2JetClientEffects {
         Direction facing = blockEntity.getBlockState().getValue(BaseLightBlock.FACING);
         boolean isRigged = blockEntity.getBlockState().getValue(HangableBlock.HANGING);
         boolean isFlipped = blockEntity.isUpsideDown();
+        boolean isMounted = ((HangableBlock) blockEntity.getBlockState().getBlock())
+                .isHanging(blockEntity.getLevel(), pos);
+        boolean bodyFlip = Flow2JetFixture.shouldApplyBodyFlip(isFlipped, isMounted);
 
         Vector3f jetDirection = FixtureJetDirection.directionFromFlow2JetPose(
                 pos,
@@ -79,7 +83,7 @@ public final class Flow2JetClientEffects {
                 headPivot,
                 beamStart,
                 isRigged,
-                isFlipped
+                bodyFlip
         );
         Vec3 nozzle = FixtureJetDirection.beamWorldPositionFlow2Jet(
                 pos,
@@ -89,7 +93,7 @@ public final class Flow2JetClientEffects {
                 headPivot,
                 beamStart,
                 isRigged,
-                isFlipped
+                bodyFlip
         );
         nozzle = Flow2JetParticleSpawner.adjustNozzleForFacing(facing, pos, nozzle);
         jetDirection = Flow2JetParticleSpawner.adjustDirectionForFacing(facing, jetDirection);
@@ -111,7 +115,7 @@ public final class Flow2JetClientEffects {
                     headPivot,
                     beamStart,
                     isRigged,
-                    isFlipped,
+                    bodyFlip,
                     (int) blockEntity.getIntensity(),
                     level.random
             );
