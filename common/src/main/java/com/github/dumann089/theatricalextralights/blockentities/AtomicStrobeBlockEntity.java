@@ -1,6 +1,7 @@
 package com.github.dumann089.theatricalextralights.blockentities;
 
 import com.github.dumann089.theatricalextralights.blocks.AtomicStrobeBlock;
+import com.github.dumann089.theatricalextralights.client.StrobeRenderHelper;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
@@ -70,6 +71,8 @@ public class AtomicStrobeBlockEntity extends ExtraLightsLightBlockEntity {
         }
                 boolean prevAdvanced = beginDmxUpdate();
         int _pi = intensity, _pr = red, _pg = green, _pb = blue, _pf = focus, _pp = pan, _pt = tilt;
+        int[] prevZones = rgbZones.clone();
+        int[] prevSegments = whiteSegments.clone();
         // 1-24 → 8 RGB zones
         for (int i = 0; i < RGB_ZONE_COUNT * 3; i++) {
             rgbZones[i] = u(v[i]);
@@ -119,8 +122,43 @@ public class AtomicStrobeBlockEntity extends ExtraLightsLightBlockEntity {
         } else {
             red = green = blue = 0;
         }
-        boolean changed = intensity != _pi || red != _pr || green != _pg || blue != _pb || focus != _pf;
+        boolean zonesChanged = !Arrays.equals(rgbZones, prevZones) || !Arrays.equals(whiteSegments, prevSegments);
+        boolean changed = intensity != _pi || red != _pr || green != _pg || blue != _pb || focus != _pf
+                || pan != _pp || tilt != _pt || zonesChanged;
         finishDmxUpdate(changed, prevAdvanced);
+    }
+
+    /**
+     * Per-zone RGB + bar segments are not in the batched DmxFrame payload (only aggregate colour).
+     * Always push a full block-entity sync so zone overlays update live.
+     */
+    @Override
+    protected void finishDmxUpdate(boolean valuesChanged, boolean prevAdvanced) {
+        if (level == null || level.isClientSide()) {
+            return;
+        }
+        if (valuesChanged || prevAdvanced) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+            setChanged();
+        }
+    }
+
+    @Override
+    protected boolean needsContinuousClientRender() {
+        if (super.needsContinuousClientRender()) {
+            return true;
+        }
+        for (int zone : rgbZones) {
+            if (zone > 0) {
+                return true;
+            }
+        }
+        for (int segment : whiteSegments) {
+            if (segment > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** @return packed 0xRRGGBB for the zone (0–{@link #RGB_ZONE_COUNT}-1). */
@@ -295,6 +333,9 @@ public class AtomicStrobeBlockEntity extends ExtraLightsLightBlockEntity {
         int[] segs = tag.getIntArray("WhiteSegments");
         if (segs.length == whiteSegments.length) {
             System.arraycopy(segs, 0, whiteSegments, 0, whiteSegments.length);
+        }
+        if (level != null && level.isClientSide) {
+            StrobeRenderHelper.markSectionDirty(getBlockPos());
         }
     }
 

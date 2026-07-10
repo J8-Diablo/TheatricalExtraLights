@@ -119,6 +119,24 @@ public abstract class ExtraLightsLightBlockEntity extends BaseDMXConsumerLightBl
     }
 
     @Override
+    public void applyDmxFrameBase(int intensity, int red, int green, int blue,
+                                  int prevIntensity, int prevRed, int prevGreen, int prevBlue) {
+        super.applyDmxFrameBase(intensity, red, green, blue, prevIntensity, prevRed, prevGreen, prevBlue);
+        if (level != null && level.isClientSide) {
+            StrobeRenderHelper.markSectionDirty(getBlockPos());
+        }
+    }
+
+    @Override
+    public void applyDmxFramePanTiltFocus(int pan, int tilt, int focus,
+                                          int prevPan, int prevTilt, int prevFocus) {
+        super.applyDmxFramePanTiltFocus(pan, tilt, focus, prevPan, prevTilt, prevFocus);
+        if (level != null && level.isClientSide) {
+            StrobeRenderHelper.markSectionDirty(getBlockPos());
+        }
+    }
+
+    @Override
     public void write(CompoundTag tag) {
         super.write(tag);
         tag.putInt("prevPan", prevPan);

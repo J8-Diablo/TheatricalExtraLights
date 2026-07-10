@@ -243,6 +243,7 @@ public class StrobeBlockEntity extends ExtraLightsLightBlockEntity implements Ha
     protected boolean needsContinuousClientRender() {
         return intensity > 0
                 || focus != prevFocus
+                || red != prevRed || green != prevGreen || blue != prevBlue
                 || (usesStrobeChannel() && DmxShutterStrobeHelper.isStrobing(strobe));
     }
 
