@@ -128,21 +128,6 @@ public class AtomicStrobeBlockEntity extends ExtraLightsLightBlockEntity {
         finishDmxUpdate(changed, prevAdvanced);
     }
 
-    /**
-     * Per-zone RGB + bar segments are not in the batched DmxFrame payload (only aggregate colour).
-     * Always push a full block-entity sync so zone overlays update live.
-     */
-    @Override
-    protected void finishDmxUpdate(boolean valuesChanged, boolean prevAdvanced) {
-        if (level == null || level.isClientSide()) {
-            return;
-        }
-        if (valuesChanged || prevAdvanced) {
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-            setChanged();
-        }
-    }
-
     @Override
     protected boolean needsContinuousClientRender() {
         if (super.needsContinuousClientRender()) {

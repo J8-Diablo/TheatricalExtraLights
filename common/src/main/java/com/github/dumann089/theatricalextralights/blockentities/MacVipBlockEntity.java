@@ -2,6 +2,7 @@ package com.github.dumann089.theatricalextralights.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasPersonality;
 import com.github.dumann089.theatricalextralights.blocks.MacVipBlock;
+import com.github.dumann089.theatricalextralights.client.StrobeRenderHelper;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.api.dmx.DMXPersonality;
@@ -77,7 +78,7 @@ public class MacVipBlockEntity extends ExtraLightsLightBlockEntity implements Ha
 
     @Override
     protected boolean needsContinuousClientRender() {
-        return super.needsContinuousClientRender() || goboSpin > 0;
+        return super.needsContinuousClientRender() || gobo > 0 || goboSpin > 0;
     }
 
     // ─── Consume DMX ─────────────────────────────────────────────────────────
@@ -135,6 +136,9 @@ public class MacVipBlockEntity extends ExtraLightsLightBlockEntity implements Ha
         goboSpin = tag.getInt("goboSpin");
         prevGobo = gobo;
         prevZoom = zoom;
+        if (level != null && level.isClientSide) {
+            StrobeRenderHelper.markSectionDirty(getBlockPos());
+        }
     }
 
     @Override

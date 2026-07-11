@@ -26,6 +26,15 @@ public abstract class ExtraLightsLightBlockEntity extends BaseDMXConsumerLightBl
     }
 
     /**
+     * DMX channels beyond the standard 7 (e.g. prism / gobo on 10ch personalities) are not
+     * included in Theatrical's batched DmxFrame payload — force a block-entity sync so the
+     * client renderer sees prism beam count, zoom, and rotation.
+     */
+    protected boolean hasExtraDmxChannelsBeyondBatch() {
+        return getChannelCount() > 7;
+    }
+
+    /**
      * Sync client si valeurs changées OU si prev* serveur ont rattrapé (pattern Theatrical).
      * Utilise le batch DMXFrame si Theatrical récent est présent, sinon vanilla.
      */
@@ -34,7 +43,9 @@ public abstract class ExtraLightsLightBlockEntity extends BaseDMXConsumerLightBl
             return;
         }
         if (valuesChanged || prevAdvanced) {
-            if (!TheatricalDmxFrameBridge.markDirtyIfBatchEnabled(getBlockPos())) {
+            boolean batchQueued = !hasExtraDmxChannelsBeyondBatch()
+                    && TheatricalDmxFrameBridge.markDirtyIfBatchEnabled(getBlockPos());
+            if (!batchQueued) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
             }
         }
