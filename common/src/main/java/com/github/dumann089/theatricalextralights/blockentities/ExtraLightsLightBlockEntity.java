@@ -1,5 +1,6 @@
 package com.github.dumann089.theatricalextralights.blockentities;
 
+import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasExtendedBeamChannels;
 import com.github.dumann089.theatricalextralights.client.StrobeRenderHelper;
 import com.github.dumann089.theatricalextralights.util.FollowspotDmxHelper;
 import com.github.dumann089.theatricalextralights.util.TheatricalDmxFrameBridge;
@@ -126,7 +127,13 @@ public abstract class ExtraLightsLightBlockEntity extends BaseDMXConsumerLightBl
      * tant que la fixture est visuellement active.
      */
     protected boolean needsContinuousClientRender() {
-        return intensity > 0;
+        if (intensity > 0) {
+            return true;
+        }
+        if (getChannelCount() > 7 && this instanceof HasExtendedBeamChannels ext) {
+            return ext.getGobo() > 0 || ext.getGoboSpin() > 0;
+        }
+        return false;
     }
 
     @Override

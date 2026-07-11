@@ -1,8 +1,8 @@
 package com.github.dumann089.theatricalextralights.blockentities;
 
+import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasExtendedBeamChannels;
 import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasPersonality;
 import com.github.dumann089.theatricalextralights.blocks.MacVipBlock;
-import com.github.dumann089.theatricalextralights.client.StrobeRenderHelper;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import dev.imabad.theatrical.api.Fixture;
 import dev.imabad.theatrical.api.dmx.DMXPersonality;
@@ -18,7 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.Arrays;
 import java.util.List;
 
-public class MacVipBlockEntity extends ExtraLightsLightBlockEntity implements HasPersonality {
+public class MacVipBlockEntity extends ExtraLightsLightBlockEntity implements HasPersonality, HasExtendedBeamChannels {
 
     private int activePersonalityIndex = 0;
 
@@ -76,11 +76,6 @@ public class MacVipBlockEntity extends ExtraLightsLightBlockEntity implements Ha
         }
     }
 
-    @Override
-    protected boolean needsContinuousClientRender() {
-        return super.needsContinuousClientRender() || gobo > 0 || goboSpin > 0;
-    }
-
     // ─── Consume DMX ─────────────────────────────────────────────────────────
     @Override
     public void consume(byte[] dmxValues) {
@@ -136,9 +131,6 @@ public class MacVipBlockEntity extends ExtraLightsLightBlockEntity implements Ha
         goboSpin = tag.getInt("goboSpin");
         prevGobo = gobo;
         prevZoom = zoom;
-        if (level != null && level.isClientSide) {
-            StrobeRenderHelper.markSectionDirty(getBlockPos());
-        }
     }
 
     @Override
