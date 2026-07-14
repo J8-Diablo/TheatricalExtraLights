@@ -45,6 +45,8 @@ public class TheatricalExtraLightsConfig {
     private Integer fireworkSmokeBudgetPerTick = 24;
     private Integer fireworkSmokeSpawnInterval = 3;
 
+    private Integer ledFacadeMaxUniverses = 64;
+
     private transient Set<String> laserPassThroughSet;
 
     static {
@@ -104,6 +106,7 @@ public class TheatricalExtraLightsConfig {
     public static boolean isFireworkSmokeEnabled() { return INSTANCE.fireworkSmokeEnabled == null || INSTANCE.fireworkSmokeEnabled; }
     public static int getFireworkSmokeBudgetPerTick() { return INSTANCE.fireworkSmokeBudgetPerTick != null ? INSTANCE.fireworkSmokeBudgetPerTick : 24; }
     public static int getFireworkSmokeSpawnInterval() { return Math.max(1, INSTANCE.fireworkSmokeSpawnInterval != null ? INSTANCE.fireworkSmokeSpawnInterval : 3); }
+    public static int getLedFacadeMaxUniverses() { return INSTANCE.ledFacadeMaxUniverses != null ? INSTANCE.ledFacadeMaxUniverses : 64; }
 
     /* ================= SETTERS ================= */
 

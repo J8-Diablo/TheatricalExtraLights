@@ -784,6 +784,10 @@ public class Items {
             "waltz_curtain",
             () -> new BlockItem(Blocks.WALTZ_CURTAIN_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
+    public static final RegistrySupplier<Item> LED_FACADE = ITEMS.register(
+            "led_facade",
+            () -> new BlockItem(Blocks.LED_FACADE.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
 
 
     public static void init(){
