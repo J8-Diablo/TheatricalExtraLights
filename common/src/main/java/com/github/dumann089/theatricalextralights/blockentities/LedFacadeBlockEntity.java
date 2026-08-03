@@ -44,13 +44,17 @@ import java.util.List;
 public class LedFacadeBlockEntity extends ExtraLightsLightBlockEntity {
 
     public static final int[] RESOLUTIONS = {16, 32, 64, 128, 256};
-    public static final int DEFAULT_RESOLUTION = 16;
+    public static final int DEFAULT_RESOLUTION = 32; // grille fixe (le bouton règle désormais le lissage)
     public static final int CHANNELS_PER_PIXEL = 4;
     public static final int DMX_CHANNELS_PER_UNIVERSE = 512;
+
+    public static final int MAX_SMOOTHING = 2; // 0 = net, 1 = doux, 2 = très doux
 
     private int resolution = DEFAULT_RESOLUTION;
     /** Pixels allumés, row-major : index = row * resolution + col. */
     private BitSet activePixels = new BitSet(DEFAULT_RESOLUTION * DEFAULT_RESOLUTION);
+    /** Niveau de lissage / anti-aliasing du rendu en jeu (0..MAX_SMOOTHING). */
+    private int smoothing = 0;
 
     // ─── Serveur : trames DMX + sous-consommateurs ────────────────────────────
     private byte[][] universeFrames = new byte[1][];
@@ -116,6 +120,23 @@ public class LedFacadeBlockEntity extends ExtraLightsLightBlockEntity {
 
     public boolean isPixelActive(int index) {
         return index >= 0 && index < resolution * resolution && activePixels.get(index);
+    }
+
+    public int getSmoothing() {
+        return smoothing;
+    }
+
+    /** Règle le niveau de lissage du rendu (0=net, 1=doux, 2=très doux). N'efface pas le dessin. */
+    public void setSmoothing(int value) {
+        int v = Math.max(0, Math.min(MAX_SMOOTHING, value));
+        if (v == smoothing) {
+            return;
+        }
+        smoothing = v;
+        setChanged();
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+        }
     }
 
     public void setActivePixels(BitSet pixels) {
@@ -438,6 +459,7 @@ public class LedFacadeBlockEntity extends ExtraLightsLightBlockEntity {
     public void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.putInt("resolution", resolution);
+        tag.putInt("smoothing", smoothing);
         tag.putByteArray("activePixels", activePixels.toByteArray());
     }
 
@@ -446,6 +468,9 @@ public class LedFacadeBlockEntity extends ExtraLightsLightBlockEntity {
         super.load(tag);
         if (tag.contains("resolution") && isValidResolution(tag.getInt("resolution"))) {
             resolution = tag.getInt("resolution");
+        }
+        if (tag.contains("smoothing")) {
+            smoothing = Math.max(0, Math.min(MAX_SMOOTHING, tag.getInt("smoothing")));
         }
         if (tag.contains("activePixels")) {
             activePixels = BitSet.valueOf(tag.getByteArray("activePixels"));
@@ -462,6 +487,7 @@ public class LedFacadeBlockEntity extends ExtraLightsLightBlockEntity {
     public CompoundTag getUpdateTag() {
         CompoundTag tag = super.getUpdateTag();
         tag.putInt("resolution", resolution);
+        tag.putInt("smoothing", smoothing);
         tag.putByteArray("activePixels", activePixels.toByteArray());
         return tag;
     }

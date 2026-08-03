@@ -56,6 +56,7 @@ public class LedFacadeScreen extends Screen {
 
     private int workingResolution;
     private BitSet workingPixels;
+    private int workingSmoothing;
 
     private List<UUID> networkIds = List.of(UUIDUtil.NULL);
     private int currentNetworkIndex;
@@ -87,6 +88,7 @@ public class LedFacadeScreen extends Screen {
         this.pos = pos;
         this.workingResolution = blockEntity.getResolution();
         this.workingPixels = (BitSet) blockEntity.getActivePixels().clone();
+        this.workingSmoothing = blockEntity.getSmoothing();
     }
 
     @Override
@@ -164,12 +166,9 @@ public class LedFacadeScreen extends Screen {
         int half = (w - COL_GAP) / 2;
         int top = canvasY;
 
-        addRenderableWidget(Button.builder(resolutionLabel(), b -> {
-            workingResolution = nextResolution(workingResolution);
-            workingPixels = new BitSet(workingResolution * workingResolution);
-            resetView();
-            pixelsDirty = true;
-            b.setMessage(resolutionLabel());
+        addRenderableWidget(Button.builder(smoothingLabel(), b -> {
+            workingSmoothing = (workingSmoothing + 1) % (LedFacadeBlockEntity.MAX_SMOOTHING + 1);
+            b.setMessage(smoothingLabel());
         }).bounds(x, top + oRes, w, WIDGET_HEIGHT).build());
 
         universeField = new EditBox(font, x, top + oIo, half, WIDGET_HEIGHT, Component.translatable("artneti.dmxUniverse"));
@@ -341,7 +340,8 @@ public class LedFacadeScreen extends Screen {
         int universe = parseOrDefault(universeField, blockEntity.getUniverse());
         int address = parseOrDefault(addressField, Math.max(1, blockEntity.getChannelStart()));
         ModNetworkHandler.CHANNEL.sendToServer(new SetLedFacadeConfigPacket(
-                pos, workingResolution, Math.max(0, universe), Math.max(1, address), networkIds.get(currentNetworkIndex)));
+                pos, workingResolution, Math.max(0, universe), Math.max(1, address),
+                networkIds.get(currentNetworkIndex), workingSmoothing));
         ModNetworkHandler.CHANNEL.sendToServer(new SetLedFacadePixelsPacket(pos, workingPixels.toByteArray()));
         pixelsDirty = false;
     }
@@ -406,7 +406,7 @@ public class LedFacadeScreen extends Screen {
         int x = controlsX;
         int half = (CONTROLS_WIDTH - COL_GAP) / 2;
         int top = canvasY;
-        g.drawString(font, Component.translatable("screen.led_facade.resolution"), x, top + oResLabel, COLOR_TEXT, false);
+        g.drawString(font, Component.translatable("screen.led_facade.smoothing"), x, top + oResLabel, COLOR_TEXT, false);
         g.drawString(font, Component.translatable("screen.led_facade.universe"), x, top + oIoLabel, COLOR_TEXT, false);
         g.drawString(font, Component.translatable("screen.led_facade.address"), x + half + COL_GAP, top + oIoLabel, COLOR_TEXT, false);
         g.drawString(font, Component.translatable("screen.artnetconfig.network"), x, top + oNetLabel, COLOR_TEXT, false);
@@ -424,18 +424,8 @@ public class LedFacadeScreen extends Screen {
 
     // ─── Utilitaires ───────────────────────────────────────────────────────────
 
-    private static int nextResolution(int current) {
-        int[] res = LedFacadeBlockEntity.RESOLUTIONS;
-        for (int i = 0; i < res.length; i++) {
-            if (res[i] == current) {
-                return res[(i + 1) % res.length];
-            }
-        }
-        return res[0];
-    }
-
-    private Component resolutionLabel() {
-        return Component.literal(workingResolution + " × " + workingResolution);
+    private Component smoothingLabel() {
+        return Component.translatable("screen.led_facade.smoothing." + workingSmoothing);
     }
 
     private Component brushLabel() {
