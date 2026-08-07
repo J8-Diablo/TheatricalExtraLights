@@ -242,5 +242,17 @@
   "screen.followspot_console.actionbar_exit": "Échap pour quitter le mode followspot",
   "screen.followspot_console.section_patch": "Patch DMX",
   "screen.followspot_console.section_view": "Vue faisceau",
-  "screen.followspot_console.section_control": "Contrôles"
+  "screen.followspot_console.section_control": "Contrôles",
+  "item.theatricalextralights.fixture_wrench": "Clé de montage",
+  "screen.theatricalextralights.fixture_mount": "Montage fixture",
+  "screen.theatricalextralights.mount.section": "Position et rotation",
+  "screen.theatricalextralights.mount.position": "Position",
+  "screen.theatricalextralights.mount.rotation": "Rotation",
+  "screen.theatricalextralights.mount.offset_x": "Décalage X",
+  "screen.theatricalextralights.mount.offset_y": "Décalage Y",
+  "screen.theatricalextralights.mount.offset_z": "Décalage Z",
+  "screen.theatricalextralights.mount.yaw": "Yaw",
+  "screen.theatricalextralights.mount.pitch": "Pitch",
+  "screen.theatricalextralights.mount.roll": "Roll",
+  "screen.theatricalextralights.mount.reset": "Réinitialiser"
 }

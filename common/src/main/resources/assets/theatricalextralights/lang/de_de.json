@@ -239,5 +239,17 @@
   "screen.followspot_console.actionbar_exit": "Escape drücken, um den Followspot-Modus zu verlassen",
   "screen.followspot_console.section_patch": "DMX-Patch",
   "screen.followspot_console.section_view": "Strahlansicht",
-  "screen.followspot_console.section_control": "Steuerung"
+  "screen.followspot_console.section_control": "Steuerung",
+  "item.theatricalextralights.fixture_wrench": "Montageschlüssel",
+  "screen.theatricalextralights.fixture_mount": "Fixture-Montage",
+  "screen.theatricalextralights.mount.section": "Position und Rotation",
+  "screen.theatricalextralights.mount.position": "Position",
+  "screen.theatricalextralights.mount.rotation": "Rotation",
+  "screen.theatricalextralights.mount.offset_x": "Versatz X",
+  "screen.theatricalextralights.mount.offset_y": "Versatz Y",
+  "screen.theatricalextralights.mount.offset_z": "Versatz Z",
+  "screen.theatricalextralights.mount.yaw": "Yaw",
+  "screen.theatricalextralights.mount.pitch": "Pitch",
+  "screen.theatricalextralights.mount.roll": "Roll",
+  "screen.theatricalextralights.mount.reset": "Zurücksetzen"
 }

@@ -435,6 +435,10 @@ public class Items {
             "confetti_cannon",
             ConfettiCannonItemRegistration::create
     );
+    public static final RegistrySupplier<Item> FIXTURE_WRENCH = ITEMS.register(
+            "fixture_wrench",
+            FixtureWrenchItem::new
+    );
     public static final RegistrySupplier<Item> TRUSS_3LIGHTS = ITEMS.register(
         "truss_3lights",
         () -> new BlockItem(Blocks.TRUSS_3LIGHTS.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))

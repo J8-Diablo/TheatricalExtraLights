@@ -1,6 +1,7 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.Blinder2x2BlockEntity;
+import com.github.dumann089.theatricalextralights.util.FixtureMountTransform;
 import com.github.dumann089.theatricalextralights.blockentities.Blinder2x2warmBlockEntity;
 import com.github.dumann089.theatricalextralights.client.BlinderRenderHelper;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -150,6 +151,7 @@ public class Blinder2x2warmRenderer extends ExtraLightsRenderer<Blinder2x2warmBl
 
     @Override
     public void preparePoseStack(Blinder2x2warmBlockEntity blockEntity, PoseStack poseStack, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging) {
+        FixtureMountTransform.apply(poseStack, blockEntity);
         //#region Fixture Hanging
         poseStack.translate(0.5F, 0, .5F);
         if(isHanging){

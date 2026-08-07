@@ -1,6 +1,7 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.Blinder2x2warmBlockEntity;
+import com.github.dumann089.theatricalextralights.util.FixtureMountTransform;
 import com.github.dumann089.theatricalextralights.blockentities.StrobeBlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.WhiteStrobeBlockEntity;
 import com.github.dumann089.theatricalextralights.client.LensRenderTypes;
@@ -181,6 +182,7 @@ public class WhiteStrobeRenderer extends ExtraLightsRenderer<WhiteStrobeBlockEnt
 
         @Override
         public void preparePoseStack(WhiteStrobeBlockEntity blockEntity, PoseStack poseStack, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging) {
+        FixtureMountTransform.apply(poseStack, blockEntity);
             poseStack.translate(0.5F, 0, .5F);
             if(isHanging){
                 Direction hangDirection = blockState.getValue(HangableBlock.HANG_DIRECTION);

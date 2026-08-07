@@ -275,5 +275,17 @@
   "screen.followspot_console.actionbar_exit": "Press Escape to exit followspot control",
   "screen.followspot_console.section_patch": "DMX patch",
   "screen.followspot_console.section_view": "Beam view",
-  "screen.followspot_console.section_control": "Controls"
+  "screen.followspot_console.section_control": "Controls",
+  "item.theatricalextralights.fixture_wrench": "Fixture Wrench",
+  "screen.theatricalextralights.fixture_mount": "Fixture Mount",
+  "screen.theatricalextralights.mount.section": "Position and rotation",
+  "screen.theatricalextralights.mount.position": "Position",
+  "screen.theatricalextralights.mount.rotation": "Rotation",
+  "screen.theatricalextralights.mount.offset_x": "Offset X",
+  "screen.theatricalextralights.mount.offset_y": "Offset Y",
+  "screen.theatricalextralights.mount.offset_z": "Offset Z",
+  "screen.theatricalextralights.mount.yaw": "Yaw",
+  "screen.theatricalextralights.mount.pitch": "Pitch",
+  "screen.theatricalextralights.mount.roll": "Roll",
+  "screen.theatricalextralights.mount.reset": "Reset"
 }

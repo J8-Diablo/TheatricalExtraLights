@@ -3,6 +3,7 @@ package com.github.dumann089.theatricalextralights.client.blockentities;
 
 
 import com.github.dumann089.theatricalextralights.blockentities.StrobeBlockEntity;
+import com.github.dumann089.theatricalextralights.util.FixtureMountTransform;
 
 import com.github.dumann089.theatricalextralights.client.StrobeRenderHelper;
 import com.github.dumann089.theatricalextralights.client.StrobeVisualEffects;
@@ -359,6 +360,7 @@ public class StrobeRenderer extends ExtraLightsFixtureRenderer<StrobeBlockEntity
 
     ) {
 
+        FixtureMountTransform.apply(poseStack, blockEntity);
         poseStack.translate(0.5F, 0, .5F);
 
         if (isHanging) {

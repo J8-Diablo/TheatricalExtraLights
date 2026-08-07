@@ -1,8 +1,10 @@
 package com.github.dumann089.theatricalextralights.client;
 
 import com.github.dumann089.theatricalextralights.TheatricalExtraLightsScreens;
+import com.github.dumann089.theatricalextralights.blockentities.ExtraLightsLightBlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.FollowspotConsoleBlockEntity;
 import com.github.dumann089.theatricalextralights.client.gui.ExtraLightsConfigScreen;
+import com.github.dumann089.theatricalextralights.client.gui.FixtureMountScreen;
 import com.github.dumann089.theatricalextralights.client.gui.FollowspotConsoleScreen;
 import com.github.dumann089.theatricalextralights.client.gui.WaterJetConfigScreen;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
@@ -34,6 +36,13 @@ public class ExtraLightsClientScreens {
             return;
         }
 
+        if (screenType == TheatricalExtraLightsScreens.MOUNT_WRENCH) {
+            if (be instanceof ExtraLightsLightBlockEntity mountable) {
+                mc.setScreen(new FixtureMountScreen(mountable, pos));
+            }
+            return;
+        }
+
         if (!(be instanceof BaseDMXConsumerLightBlockEntity lightBE)) {
             return;
         }
@@ -49,7 +58,7 @@ public class ExtraLightsClientScreens {
                     new ExtraLightsConfigScreen(lightBE, pos, lightBE.getTranslationKey(), false);
             case CHANNEL_PANTILT ->
                     new ExtraLightsConfigScreen(lightBE, pos, lightBE.getTranslationKey(), true);
-            case FOLLOWSPOT_CONSOLE -> null;
+            case MOUNT_WRENCH, FOLLOWSPOT_CONSOLE -> null;
         };
 
         if (gui != null) {

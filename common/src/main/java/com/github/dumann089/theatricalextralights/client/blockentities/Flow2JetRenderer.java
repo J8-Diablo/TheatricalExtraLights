@@ -1,6 +1,7 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.Flow2JetBlockEntity;
+import com.github.dumann089.theatricalextralights.util.FixtureMountTransform;
 import com.github.dumann089.theatricalextralights.fixtures.Flow2JetFixture;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -146,6 +147,7 @@ public class Flow2JetRenderer extends ExtraLightsRenderer<Flow2JetBlockEntity> {
             BlockState blockState,
             boolean isRigged
     ) {
+        FixtureMountTransform.apply(poseStack, blockEntity);
         boolean isMounted = ((HangableBlock) blockState.getBlock()).isHanging(blockEntity.getLevel(), blockEntity.getBlockPos());
         boolean bodyFlip = Flow2JetFixture.shouldApplyBodyFlip(isFlipped, isMounted);
         applyFixturePose(poseStack, blockEntity, facing, blockState, bodyFlip, isRigged, isMounted, partialTicks);

@@ -1,6 +1,7 @@
 package com.github.dumann089.theatricalextralights.client.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.FlameThrowerBlockEntity;
+import com.github.dumann089.theatricalextralights.util.FixtureMountTransform;
 import com.github.dumann089.theatricalextralights.blocks.FlameThrowerBlock;
 import com.github.dumann089.theatricalextralights.util.DirectionOffset;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -130,5 +131,6 @@ public class FlameThrowerRenderer extends ExtraLightsRenderer<FlameThrowerBlockE
             BlockState blockState,
             boolean isHanging
     ) {
+        FixtureMountTransform.apply(poseStack, blockEntity);
     }
 }

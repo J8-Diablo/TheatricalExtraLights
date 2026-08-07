@@ -6,5 +6,6 @@ public enum TheatricalExtraLightsScreens {
     WATER_CONE,
     CHANNEL_MENU,
     CHANNEL_PANTILT,
+    MOUNT_WRENCH,
     FOLLOWSPOT_CONSOLE;
 }
