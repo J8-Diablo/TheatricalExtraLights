@@ -10,8 +10,24 @@ public final class FollowspotInputHelper {
     private FollowspotInputHelper() {
     }
 
+    /**
+     * Raw GLFW key/mouse state — {@link KeyMapping#isDown()} is unreliable while a Screen is open,
+     * which broke Followspot Console pan/tilt (WASD) while sliders still worked.
+     */
     public static boolean isKeyDown(KeyMapping mapping) {
-        return mapping != null && mapping.isDown();
+        if (mapping == null) {
+            return false;
+        }
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft == null) {
+            return false;
+        }
+        InputConstants.Key key = mapping.getKey();
+        long window = minecraft.getWindow().getWindow();
+        if (key.getType() == InputConstants.Type.MOUSE) {
+            return GLFW.glfwGetMouseButton(window, key.getValue()) == GLFW.GLFW_PRESS;
+        }
+        return InputConstants.isKeyDown(window, key.getValue());
     }
 
     public static boolean isEscapeDown(Minecraft minecraft) {
