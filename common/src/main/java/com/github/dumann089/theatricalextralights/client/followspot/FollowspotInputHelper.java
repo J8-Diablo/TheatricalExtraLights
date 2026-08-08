@@ -22,7 +22,8 @@ public final class FollowspotInputHelper {
         if (minecraft == null) {
             return false;
         }
-        InputConstants.Key key = mapping.getKey();
+        // 1.20.1 KeyMapping has no getKey(); resolve via saveString (e.g. key.keyboard.w)
+        InputConstants.Key key = InputConstants.getKey(mapping.saveString());
         long window = minecraft.getWindow().getWindow();
         if (key.getType() == InputConstants.Type.MOUSE) {
             return GLFW.glfwGetMouseButton(window, key.getValue()) == GLFW.GLFW_PRESS;
