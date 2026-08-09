@@ -22,9 +22,9 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
     /** cos² FOV threshold — lower = wider (shader fallback needs wider or horizon beams vanish). */
     private static final double BEAM_FOV_COS2 = 0.05;
     private static final double BEAM_FOV_COS2_SHADERS = 0.0004; // ~almost full sphere
-    /** Open gobo (mostly clear) — solid white_concrete was too dark after Complementary emission math. */
+    /** Soft gradient that ships in the jar (gobos/*.png are often absent from the build). */
     private static final net.minecraft.resources.ResourceLocation SHADER_BEAM_TEXTURE =
-            new net.minecraft.resources.ResourceLocation("theatricalextralights", "textures/gobos/generic_1/open.png");
+            new net.minecraft.resources.ResourceLocation("theatricalextralights", "textures/beam/beam_gradient.png");
 
     private final float[][] cachedVertsSlots = new float[MAX_BEAMS_PER_FIXTURE][16384];
     private final int[] cachedQuadCountSlots = new int[MAX_BEAMS_PER_FIXTURE];
