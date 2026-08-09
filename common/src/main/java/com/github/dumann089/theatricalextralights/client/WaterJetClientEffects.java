@@ -13,7 +13,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.world.level.block.state.BlockState;
 import org.joml.Vector3f;
 
 /**
@@ -47,8 +46,8 @@ public final class WaterJetClientEffects {
     private static final double[] CAKE_SPEED_MULT = {0.6, 0.8, 1.0};
 
     private static final int[] VASE_COUNTS = {0, 0, 12};
-    private static final double[] VASE_RADII = {0.0, 0.00, 0.3};
-    private static final float[] VASE_ELEVATIONS = {00.0F, 0.0F, 80.0F};
+    private static final double[] VASE_RADII = {0.0, 0.00, 0.2};
+    private static final float[] VASE_ELEVATIONS = {0.0F, 0.0F, 85.0F};
     private static final double[] VASE_SPEED_MULT = {0.0, 0.0, 1.0};
 
     public record JetPreset(
@@ -94,10 +93,57 @@ public final class WaterJetClientEffects {
                 || blockEntity instanceof FanWaterJetBlockEntity
                 || blockEntity instanceof CakeWaterJetBlockEntity
                 || blockEntity instanceof VaseWaterJetBlockEntity
-                || blockEntity instanceof WaltzesWaterJetBlockEntity;
+                || blockEntity instanceof WaltzesWaterJetBlockEntity
+                || blockEntity instanceof WaltzCurtainBlockEntity;
+    }
 
+    public static void updateWaltzesClient(WaltzesWaterJetBlockEntity blockEntity) {
+        if (resolveClientLevel(blockEntity) == null) {
+            return;
+        }
+        float globalSwayTime = (blockEntity.getLevel().getGameTime() * 0.45F);
+        blockEntity.prevAngle = blockEntity.currentAngle;
 
+        float baseTilt = -25.0F + (blockEntity.getTilt() / 255.0F) * 50.0F;
+        float targetAngle = baseTilt;
 
+        if (blockEntity.swingChannel > 0) {
+            float speed = (blockEntity.swingChannel / 255.0F) * 0.02F;
+            float amplitude = 25.0F;
+            targetAngle = baseTilt + (float) Math.sin(globalSwayTime * speed * 20.0F) * amplitude;
+        }
+
+        float alpha = 0.15F;
+        blockEntity.currentAngle += (targetAngle - blockEntity.currentAngle) * alpha;
+
+        float intensityNorm = blockEntity.getIntensity() / 255.0F;
+        double targetHeight = intensityNorm * blockEntity.getJetHeight();
+        blockEntity.smoothedHeight += (targetHeight - blockEntity.smoothedHeight) * 0.15;
+    }
+
+    // Este método es exclusivo para el WaltzCurtain
+    public static void updateWaltzCurtainClient(WaltzCurtainBlockEntity blockEntity) {
+        if (resolveClientLevel(blockEntity) == null) {
+            return;
+        }
+        float globalSwayTime = (blockEntity.getLevel().getGameTime() * 0.45F);
+        blockEntity.prevAngle = blockEntity.currentAngle;
+
+        float baseTilt = -25.0F + (blockEntity.getTilt() / 255.0F) * 50.0F;
+        float targetAngle = baseTilt;
+
+        if (blockEntity.swingChannel > 0) {
+            float speed = (blockEntity.swingChannel / 255.0F) * 0.02F;
+            float amplitude = 25.0F;
+            targetAngle = baseTilt + (float) Math.sin(globalSwayTime * speed * 20.0F) * amplitude;
+        }
+
+        float alpha = 0.15F;
+        blockEntity.currentAngle += (targetAngle - blockEntity.currentAngle) * alpha;
+
+        float intensityNorm = blockEntity.getIntensity() / 255.0F;
+        double targetHeight = intensityNorm * blockEntity.getJetHeight();
+        blockEntity.smoothedHeight += (targetHeight - blockEntity.smoothedHeight) * 0.15;
     }
 
     /** Called each render frame when the fixture is visible (LazyRenderers). */
@@ -141,7 +187,12 @@ public final class WaterJetClientEffects {
             spawnVaseJets(vase, level, JetVariant.JET3, pan, tilt);
 
         } else if (blockEntity instanceof WaltzesWaterJetBlockEntity waltzes) {
-            spawnWaltzesParticles(waltzes, level, JetVariant.JET3);
+            updateWaltzesClient(waltzes);
+            spawnWaltzesParticles(waltzes, level, JetVariant.JET3, partialTick);
+
+        } else if (blockEntity instanceof WaltzCurtainBlockEntity waltzcurtain) {
+            updateWaltzCurtainClient(waltzcurtain);
+            spawnWaltzCurtainParticles(waltzcurtain, level, JetVariant.JET3, partialTick);
 
         } else if (blockEntity instanceof OrganPipesInvBlockEntity organInv) {
             spawnOrganPipes(organInv, level, JetVariant.JET3, pan, tilt);
@@ -443,30 +494,102 @@ public final class WaterJetClientEffects {
                     dirX * particleSpeed, dirY * particleSpeed, dirZ * particleSpeed);
         }
     }
-    public static void spawnWaltzesParticles(WaltzesWaterJetBlockEntity blockEntity, ClientLevel level, JetVariant variant) {
-        // 1. Obtener datos sincronizados
-        float angleRad = (float) Math.toRadians(blockEntity.currentAngle);
+    public static void spawnWaltzesParticles(WaltzesWaterJetBlockEntity blockEntity, ClientLevel level, JetVariant variant, float partialTicks) {
+        if (!isNearPlayer(level, blockEntity.getBlockPos().getX() + 0.5, blockEntity.getBlockPos().getY() + 2.0, blockEntity.getBlockPos().getZ() + 0.5)) {
+            return;
+        }
+
         float intensityNorm = blockEntity.getIntensity() / 255.0f;
 
+        net.minecraft.core.Direction facing = blockEntity.getBlockState().getValue(dev.imabad.theatrical.blocks.HangableBlock.FACING);
+        float yawRad = (float) Math.toRadians(facing.getOpposite().toYRot());
+
+        float smoothAngle = blockEntity.getRenderAngle(partialTicks);
+        float tiltRad = (float) Math.toRadians(smoothAngle);
+
+        double yOffsetFromBlock = 2.0;
+
         double xBase = blockEntity.getBlockPos().getX() + 0.5;
-        double yBase = blockEntity.getBlockPos().getY() + blockEntity.smoothedHeight;
+        double yBase = blockEntity.getBlockPos().getY() + yOffsetFromBlock;
         double zBase = blockEntity.getBlockPos().getZ() + 0.5;
 
-        double[] zOffsets = {-0.9375, -0.625, -0.25, 0.125, 0.5, 0.875, 1.25, 1.625, 1.9375};
+        double[] xOffsets = {-1.4375, -1.125, -0.75, -0.375, 0.0, 0.375, 0.75, 1.125, 1.4375};
 
-        double cos = Math.cos(angleRad);
-        double sin = Math.sin(angleRad);
+        double cosYaw = Math.cos(yawRad);
+        double sinYaw = Math.sin(yawRad);
 
-        for (double zOffset : zOffsets) {
-            double finalY = yBase + (zOffset * sin);
-            double finalZ = zBase + (zOffset * cos);
+        double speed = blockEntity.smoothedHeight * 0.1;
+
+        double vLocalY = speed * Math.cos(tiltRad);
+        double vLocalZ = speed * Math.sin(tiltRad);
+
+        double vGlobalX = vLocalZ * -sinYaw;
+        double vGlobalY = vLocalY;
+        double vGlobalZ = vLocalZ * cosYaw;
+
+        for (double xOffset : xOffsets) {
+            double finalX = xBase + (xOffset * cosYaw);
+            double finalY = yBase;
+            double finalZ = zBase - (xOffset * sinYaw);
 
             emit(level,
                     new WaterJetParticleOptions(intensityNorm, blockEntity.getJetThickness(), variant),
-                    xBase,
+                    finalX,
                     finalY,
                     finalZ,
-                    0, 0, 0
+                    vGlobalX,
+                    vGlobalY,
+                    vGlobalZ
+            );
+        }
+    }
+
+    public static void spawnWaltzCurtainParticles(WaltzCurtainBlockEntity blockEntity, ClientLevel level, JetVariant variant, float partialTicks) {
+        if (!isNearPlayer(level, blockEntity.getBlockPos().getX() + 0.5, blockEntity.getBlockPos().getY() + 2.0, blockEntity.getBlockPos().getZ() + 0.5)) {
+            return;
+        }
+
+        float intensityNorm = blockEntity.getIntensity() / 255.0f;
+
+        net.minecraft.core.Direction facing = blockEntity.getBlockState().getValue(dev.imabad.theatrical.blocks.HangableBlock.FACING);
+        float yawRad = (float) Math.toRadians(facing.getOpposite().toYRot());
+
+        float smoothAngle = blockEntity.getRenderAngle(partialTicks);
+        float tiltRad = (float) Math.toRadians(smoothAngle);
+
+        double yOffsetFromBlock = 2.0;
+
+        double xBase = blockEntity.getBlockPos().getX() + 0.5;
+        double yBase = blockEntity.getBlockPos().getY() + yOffsetFromBlock;
+        double zBase = blockEntity.getBlockPos().getZ() + 0.5;
+
+        double[] xOffsets = { -0.375, 0.0, 0.375,};
+
+        double cosYaw = Math.cos(yawRad);
+        double sinYaw = Math.sin(yawRad);
+
+        double speed = blockEntity.smoothedHeight * 0.1;
+        double vLocalX = speed * Math.sin(tiltRad); // Movimiento lateral
+        double vLocalY = speed * Math.cos(tiltRad); // Elevación
+        double vLocalZ = 0; // Sin profundidad
+
+        double vGlobalX = (vLocalX * cosYaw) + (vLocalZ * sinYaw);
+        double vGlobalY = vLocalY;
+        double vGlobalZ = (-vLocalX * sinYaw) + (vLocalZ * cosYaw);
+
+        for (double xOffset : xOffsets) {
+            double finalX = xBase + (xOffset * cosYaw);
+            double finalY = yBase;
+            double finalZ = zBase - (xOffset * sinYaw);
+
+            emit(level,
+                    new WaterJetParticleOptions(intensityNorm, blockEntity.getJetThickness(), variant),
+                    finalX,
+                    finalY,
+                    finalZ,
+                    vGlobalX,
+                    vGlobalY,
+                    vGlobalZ
             );
         }
     }

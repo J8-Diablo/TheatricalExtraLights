@@ -38,37 +38,6 @@ public class GoboGPUProjector {
     private final Vector4f raycastDirVec    = new Vector4f();
     private final PoseStack projectorPoseStack = new PoseStack();
 
-    // ══════════════════════════════════════════════════════════════════════════
-//  Background rebuild infrastructure
-// ══════════════════════════════════════════════════════════════════════════
-
-    // Double-buffer: the render thread reads from the "front" buffer while
-// the worker thread writes into the "back" buffer. No locking needed on
-// the hot path — we only swap atomically once the worker is done.
-    // Replaces frontVerts and frontQuadCount
-    private volatile VboState frontState = new VboState(new float[2048 * 12], 0);
-
-    private float[] backVerts = new float[2048 * 12];
-    private int     backQuadCount = 0;
-
-    // True while a background rebuild is in flight. Prevents queuing a second
-// rebuild before the first one finishes.
-    private final java.util.concurrent.atomic.AtomicBoolean rebuildInFlight =
-            new java.util.concurrent.atomic.AtomicBoolean(false);
-
-    // Shared executor — one daemon thread is enough since rebuilds are
-// per-fixture and short-lived (< 5 ms at typical ray counts).
-    // Reemplazar tu REBUILD_EXECUTOR actual por este:
-    private static final java.util.concurrent.ExecutorService REBUILD_EXECUTOR =
-            java.util.concurrent.Executors.newFixedThreadPool(
-                    Math.max(1, Math.min(4, Runtime.getRuntime().availableProcessors() / 2)),
-                    r -> {
-                        Thread t = new Thread(r, "gobo-geometry-rebuild");
-                        t.setDaemon(true);
-                        t.setPriority(Thread.NORM_PRIORITY - 1); // Prioridad ligeramente baja para no afectar los ticks del server/render
-                        return t;
-                    });
-
     // ── Reused Vector4f slots for the lazy-render closure ──────────────────────
     private final Vector4f tmpLightPos = new Vector4f();
     private final Vector4f tmpLightDir = new Vector4f();
@@ -77,30 +46,32 @@ public class GoboGPUProjector {
 
     private static final Direction[] DIRS = Direction.values();
 
-    // ── Variables para limitar la caída de FPS al mover suavemente ──────────────
-    private long lastEntityCheckTime = 0;
-    private long lastRebuildTime = 0;
-    private float cachedMaxLen = 100.0f;
-
-    // ── Control de movimiento para rebuild adaptativo ──────────────────────────
-    // Guarda el pan/tilt del frame anterior para detectar si el fixture sigue moviendose
-    private float lastKnownPan  = Float.NaN;
-    private float lastKnownTilt = Float.NaN;
-    // Cuantos frames consecutivos el fixture estuvo quieto
-    private int   stillFrameCount = 0;
-    // Threshold: diferencia de pan/tilt en grados que se considera "en movimiento"
-    private static final float MOTION_THRESHOLD_DEG = 0.15f;
-    // Frames quietos necesarios antes de permitir un rebuild
-    private static final int   STILL_FRAMES_REQUIRED = 4;
-    // Cooldown durante movimiento (ms) — rebuilds muy espaciados
-    private static final long  REBUILD_COOLDOWN_MOVING_MS = 200L;
-    // Cooldown en reposo (ms) — rebuild rapido cuando el fixture se detiene
-    private static final long  REBUILD_COOLDOWN_STILL_MS  = 60L;
-
     // ── Geometry cache ─────────────────────────────────────────────────────────
     private int   cachedGeoHash   = Integer.MIN_VALUE;
+    private long  lastRebuildNanos = 0L;
+    private final LongOpenHashSet uniqueBlocks = new LongOpenHashSet(512);
+
+    // ── Control de movimiento para rebuild adaptativo (SIN threads) ────────────
+    // Mismo propósito que antes: si el fixture está moviendo pan/tilt activamente,
+    // usamos un ray budget más barato porque el jugador solo ve ese ángulo una
+    // fracción de segundo. Todo esto corre síncrono en el render thread, no hay
+    // ningún Thread/Executor involucrado — es solo aritmética de comparación.
+    private float lastKnownPan  = Float.NaN;
+    private float lastKnownTilt = Float.NaN;
+    private int   stillFrameCount = 0;
+    private static final float MOTION_THRESHOLD_DEG   = 0.15f;
+    private static final int   STILL_FRAMES_REQUIRED  = 4;
+    // Cooldowns reemplazan el MIN_REBUILD_INTERVAL_NS único de arriba con dos
+    // valores: más espaciado mientras se mueve, más rápido apenas se frena.
+    private static final long  REBUILD_COOLDOWN_MOVING_NS = 200_000_000L; // 200 ms
+    private static final long  REBUILD_COOLDOWN_STILL_NS  = 60_000_000L;  // 60 ms
+
+    // Flat VBO: 3 floats per corner × 4 corners = 12 floats per quad
+    private float[] cachedVerts    = new float[2048 * 12];
+    private int     cachedQuadCount = 0;
 
     // Reusable MutableBlockPos for DDA — eliminates one allocation per isOccludedFast call
+    private final BlockPos.MutableBlockPos ddaCheckPos = new BlockPos.MutableBlockPos();
 
     // ── Tunables ───────────────────────────────────────────────────────────────
     /**
@@ -108,7 +79,6 @@ public class GoboGPUProjector {
      * at wide zoom angles.
      */
     private static final float MAX_SCAN_RADIUS = 6.0f;
-    private static final float Z_BIAS = 0.02f;
 
     /**
      * Scan length at maximum zoom (widest cone, zoomNorm = 1.0).
@@ -130,11 +100,9 @@ public class GoboGPUProjector {
         if (intensity01 <= 0f || be.getLevel() == null) return;
 
         int   colour   = be.getColour() == 0 ? 0xFFFFFF : be.getColour();
-
         // --- USAMOS LOS VALORES SUAVES EN LUGAR DE LOS DEL BLOCK ENTITY ---
         float panDeg   = smoothPan;
         float tiltDeg  = smoothTilt;
-
         float zoomNorm = be.getPartialZoom(partialTicks) / 255f;
         float coneHalfAngle = minAngle + zoomNorm * (maxAngle - minAngle);
 
@@ -151,35 +119,27 @@ public class GoboGPUProjector {
                 .add(raycastOriginVec.x, raycastOriginVec.y, raycastOriginVec.z);
         Vec3 beamDir = new Vec3(raycastDirVec.x, raycastDirVec.y, raycastDirVec.z).normalize();
 
-        // ── Entity hit → shorten beam (OPTIMIZADO CON CACHÉ) ───────────────────
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - lastEntityCheckTime > 50) {
-            float tempLen = TheatricalExtraLightsConfig.getLaserBeamLength() * 1.5f;
-            Vec3  centerEnd = origin.add(beamDir.scale(tempLen));
-            AABB  beamVolume = new AABB(origin, centerEnd).inflate(3.0);
+        // ── Entity hit → shorten beam ──────────────────────────────────────────
+        float finalLen = TheatricalExtraLightsConfig.getLaserBeamLength() * 1.5f;
+        Vec3  centerEnd = origin.add(beamDir.scale(finalLen));
+        AABB  beamVolume = new AABB(origin, centerEnd).inflate(3.0);
 
-            List<LivingEntity> entities = be.getLevel().getEntitiesOfClass(
-                    LivingEntity.class, beamVolume, e -> !e.isSpectator());
-            for (LivingEntity entity : entities) {
-                Optional<Vec3> hit = entity.getBoundingBox().clip(origin, centerEnd);
-                if (hit.isPresent()) {
-                    float d = (float) origin.distanceToSqr(hit.get());
-                    if (d < tempLen * tempLen) tempLen = (float) Math.sqrt(d);
-                }
+        List<LivingEntity> entities = be.getLevel().getEntitiesOfClass(
+                LivingEntity.class, beamVolume, e -> !e.isSpectator());
+        for (LivingEntity entity : entities) {
+            Optional<Vec3> hit = entity.getBoundingBox().clip(origin, centerEnd);
+            if (hit.isPresent()) {
+                float d = (float) origin.distanceToSqr(hit.get());
+                if (d < finalLen * finalLen) finalLen = (float) Math.sqrt(d);
             }
-            cachedMaxLen = tempLen;
-            lastEntityCheckTime = currentTime;
         }
-        float finalLen = cachedMaxLen;
 
         // ── Beam axes (with optional gobo rotation) ───────────────────────────
         Vec3 axisU, axisV;
         {
-            Vector4f uVec = new Vector4f(1f, 0f, 0f, 0f).mul(m);
-            Vector4f vVec = new Vector4f(0f, 1f, 0f, 0f).mul(m);
-
-            axisU = new Vec3(uVec.x, uVec.y, uVec.z).normalize();
-            axisV = new Vec3(vVec.x, vVec.y, vVec.z).normalize();
+            Vec3 up = Math.abs(beamDir.y) > 0.9 ? new Vec3(1, 0, 0) : new Vec3(0, 1, 0);
+            axisU = beamDir.cross(up).normalize();
+            axisV = beamDir.cross(axisU).normalize();
 
             float goboRot = be.getGoboRotation();
             if (Math.abs(goboRot) > 0.001f) {
@@ -204,19 +164,22 @@ public class GoboGPUProjector {
         final Vec3   finalAxisU     = axisU;
         final Vec3   finalAxisV     = axisV;
         final float  finalMaxLen    = finalLen;
-        final float  finalZoomNorm  = zoomNorm;
+        final float  finalZoomNorm  = zoomNorm;   // 0 = narrow, 1 = wide
 
         LazyRenderers.addLazyRender(new LazyRenderers.LazyRenderer() {
+
             @Override
             public void render(MultiBufferSource.BufferSource bufferSource,
                                PoseStack poseStack, Camera camera, float partialTick) {
 
                 Vec3 camPos = camera.getPosition();
 
+                // ── Transform light vectors into view space ────────────────────
                 poseStack.pushPose();
                 poseStack.translate(-camPos.x, -camPos.y, -camPos.z);
                 Matrix4f matrix = poseStack.last().pose();
 
+                // Reuse pre-allocated Vector4f slots — zero allocations here
                 tmpLightPos.set((float) finalOrigin.x, (float) finalOrigin.y,
                         (float) finalOrigin.z, 1.0f);
                 matrix.transform(tmpLightPos);
@@ -236,6 +199,7 @@ public class GoboGPUProjector {
                 matrix.transform(tmpAxisV);
                 tmpAxisV.normalize();
 
+                // ── Vertex buffer setup ───────────────────────────────────────
                 ResourceLocation texture    = be.getGoboLibrary().getTexture(finalGoboSlot);
                 RenderType       renderType = ModShaders.getGoboRenderType(texture);
                 VertexConsumer   vc         = bufferSource.getBuffer(renderType);
@@ -245,24 +209,37 @@ public class GoboGPUProjector {
                 int   b          = finalColour          & 0xFF;
                 int   finalAlpha = (int)(Math.min(1f, finalIntensity * 1.5f) * 255f);
 
+                // ── Zoom-driven scan length ───────────────────────────────────
+                // zoomNorm=0 → narrow beam → projects far (up to MaxGoboDistance)
+                // zoomNorm=1 → wide  beam → cuts off early (SCAN_LEN_ZOOM_MAX)
+                //
+                // Quadratic ease-in so the cut-off feels gradual at low zoom
+                // and aggressive at high zoom, matching how a real gobo frosts out.
+                // Scan length at min zoom = full configured gobo distance.
+                // The ray-march rebuild handles long projections cheaply now,
+                // so no internal cap is needed — let the config decide.
                 float scanLenAtMin  = TheatricalExtraLightsConfig.getMaxGoboDistance();
-                float zoomT         = finalZoomNorm * finalZoomNorm;
+                float zoomT         = finalZoomNorm * finalZoomNorm; // ease-in^2
                 float scanLen       = scanLenAtMin + zoomT * (SCAN_LEN_ZOOM_MAX - scanLenAtMin);
+                // Also respect the actual beam stop (entity hit, etc.)
                 scanLen = Math.min(scanLen, finalMaxLen);
 
-                // Cuantización gruesa: solo cambia cuando el cono apunta a bloques distintos.
-                // * 8 en vez de 16 → resolución ~7° por click (suficiente para detectar
-                //   cambio de bloque objetivo sin disparar rebuild en cada frame de lerp).
-                // * scanLen redondeada a 2 bloques para estabilidad adicional.
-                int qDirX = Math.round((float) finalBeamDir.x * 8f);
-                int qDirY = Math.round((float) finalBeamDir.y * 8f);
-                int qDirZ = Math.round((float) finalBeamDir.z * 8f);
-                int qTan  = Math.round(tanHalfAngle * 10f);
-                int qScan = Math.round(scanLen / 2f);
+                // Coarser hash quantisation so partial-tick interpolation jitter
+                // (sub-degree pan/tilt drift, sub-block scan changes) does not
+                // invalidate the cache every frame. Trade some precision in
+                // when-to-rebuild for a stable cache hit during steady state.
+                int qDirX = Math.round((float) finalBeamDir.x * 16f);
+                int qDirY = Math.round((float) finalBeamDir.y * 16f);
+                int qDirZ = Math.round((float) finalBeamDir.z * 16f);
+                int qTan  = Math.round(tanHalfAngle * 20f);
+                int qScan = Math.round(scanLen / 4f);   // bucket by 4 blocks
 
                 int geoHash = java.util.Objects.hash(
                         bePos, qDirX, qDirY, qDirZ, qTan, qScan);
 
+                // ── Shader uniforms (after scanLen is computed) ───────────────
+                // MaxLen is set to scanLen so the shader's lengthFade matches
+                // the zoom-driven cutoff exactly — no geometry/shader mismatch.
                 ShaderInstance shader = ModShaders.goboProjectorShader;
                 if (shader != null) {
                     shader.safeGetUniform("LightPos").set(tmpLightPos.x(), tmpLightPos.y(), tmpLightPos.z());
@@ -275,68 +252,55 @@ public class GoboGPUProjector {
                             .set(TheatricalExtraLightsConfig.getMaxGoboDistance());
                 }
 
-                // ── Rebuild adaptativo basado en detección de movimiento ────────────
-                // Detectamos si el fixture está en movimiento comparando pan/tilt actuales
-                // con los del frame anterior. smoothPan/smoothTilt llegan como parámetros
-                // del render() y son capturados en las finals de abajo.
-                long renderTime = System.currentTimeMillis();
+                // ── Rebuild adaptativo basado en detección de movimiento ───────
+                // Comparamos el smoothPan/smoothTilt actual contra el del frame
+                // anterior para saber si el fixture sigue en movimiento. Todo
+                // esto es aritmética simple en el render thread — no hay
+                // ningún Thread/Executor corriendo en paralelo.
+                long nowNanos = System.nanoTime();
 
                 boolean isMoving = false;
                 if (!Float.isNaN(lastKnownPan) && !Float.isNaN(lastKnownTilt)) {
-                    float dpan  = Math.abs(smoothPan  - lastKnownPan);
-                    float dtilt = Math.abs(smoothTilt - lastKnownTilt);
+                    float dpan  = Math.abs(panDeg  - lastKnownPan);
+                    float dtilt = Math.abs(tiltDeg - lastKnownTilt);
                     isMoving = (dpan > MOTION_THRESHOLD_DEG || dtilt > MOTION_THRESHOLD_DEG);
                 }
-                lastKnownPan  = smoothPan;
-                lastKnownTilt = smoothTilt;
+                lastKnownPan  = panDeg;
+                lastKnownTilt = tiltDeg;
 
                 if (isMoving) {
                     stillFrameCount = 0;
-                } else {
-                    if (stillFrameCount < STILL_FRAMES_REQUIRED) stillFrameCount++;
+                } else if (stillFrameCount < STILL_FRAMES_REQUIRED) {
+                    stillFrameCount++;
                 }
 
                 boolean fixtureIsStill = (stillFrameCount >= STILL_FRAMES_REQUIRED);
-                long cooldown = fixtureIsStill ? REBUILD_COOLDOWN_STILL_MS : REBUILD_COOLDOWN_MOVING_MS;
+                long cooldownNanos = fixtureIsStill ? REBUILD_COOLDOWN_STILL_NS : REBUILD_COOLDOWN_MOVING_NS;
 
-                if (geoHash != cachedGeoHash && (renderTime - lastRebuildTime > cooldown)) {
-                    scheduleRebuild(level, bePos, finalOrigin, finalBeamDir,
-                            finalAxisU, finalAxisV,
-                            scanLen, tanHalfAngle, geoHash);
-                    lastRebuildTime = renderTime;
+                if (geoHash != cachedGeoHash) {
+                    // Mismo throttle de antes (no rebuildear más seguido que el
+                    // cooldown), pero el cooldown ahora depende de si el
+                    // fixture está quieto o en movimiento.
+                    if (cachedQuadCount == 0
+                            || nowNanos - lastRebuildNanos >= cooldownNanos) {
+                        rebuildGeometryCache(level, bePos, finalOrigin, finalBeamDir,
+                                finalAxisU, finalAxisV,
+                                scanLen, tanHalfAngle, geoHash, fixtureIsStill);
+                        lastRebuildNanos = nowNanos;
+                    }
                 }
 
-                VboState state = frontState;
-                int snapCount = state.quadCount;
-                float[] verts = state.verts;
-
-                double ox = finalOrigin.x, oy = finalOrigin.y, oz = finalOrigin.z;
-                double bx = finalBeamDir.x, by = finalBeamDir.y, bz = finalBeamDir.z;
-                double ux = finalAxisU.x, uy = finalAxisU.y, uz = finalAxisU.z;
-                double vxA = finalAxisV.x, vyA = finalAxisV.y, vzA = finalAxisV.z;
-
-                for (int i = 0; i < snapCount; i++) {
+                // ── Emit cached quads every frame (no block lookups) ──────────
+                for (int i = 0; i < cachedQuadCount; i++) {
                     int vIdx = i * 12;
-
-                    for (int j = 0; j < 4; j++) {
-                        float vx = verts[vIdx + (j * 3)];
-                        float vy = verts[vIdx + (j * 3) + 1];
-                        float vz = verts[vIdx + (j * 3) + 2];
-
-                        double vecX = vx - ox;
-                        double vecY = vy - oy;
-                        double vecZ = vz - oz;
-
-                        double zDist = vecX * bx + vecY * by + vecZ * bz;
-                        double rZ = Math.max(zDist * tanHalfAngle, 0.0001);
-
-                        double uDist = vecX * ux + vecY * uy + vecZ * uz;
-                        double vDist = vecX * vxA + vecY * vyA + vecZ * vzA;
-
-                        float u = (float) ((uDist / rZ) * 0.5 + 0.5);
-                        float v = (float) (1.0 - ((vDist / rZ) * 0.5 + 0.5));
-                        vc.vertex(matrix, vx, vy, vz).color(r, g, b, finalAlpha).uv(u, v).endVertex();
-                    }
+                    vc.vertex(matrix, cachedVerts[vIdx],   cachedVerts[vIdx+1], cachedVerts[vIdx+2])
+                            .color(r, g, b, finalAlpha).uv(0f, 0f).endVertex();
+                    vc.vertex(matrix, cachedVerts[vIdx+3], cachedVerts[vIdx+4], cachedVerts[vIdx+5])
+                            .color(r, g, b, finalAlpha).uv(0f, 0f).endVertex();
+                    vc.vertex(matrix, cachedVerts[vIdx+6], cachedVerts[vIdx+7], cachedVerts[vIdx+8])
+                            .color(r, g, b, finalAlpha).uv(0f, 0f).endVertex();
+                    vc.vertex(matrix, cachedVerts[vIdx+9], cachedVerts[vIdx+10],cachedVerts[vIdx+11])
+                            .color(r, g, b, finalAlpha).uv(0f, 0f).endVertex();
                 }
 
                 poseStack.popPose();
@@ -355,11 +319,198 @@ public class GoboGPUProjector {
     /** Vogel-disk golden angle, gives uniform 2D disk sampling. */
     private static final double GOLDEN_ANGLE = 2.39996322972865332;
 
-/**
- * Vogel-disk ray-march geometry builder. Dispatched to a background thread
- * by {@link #scheduleRebuild}. Results are written into the back buffer and
- * then swapped atomically to the front buffer when done.
- */
+    /**
+     * Rebuilds {@link #cachedVerts} and {@link #cachedQuadCount}.
+     *
+     * <p>Strategy: ray-march from the origin through the cone using a Vogel-disk
+     * sample pattern. Each ray finds the FIRST solid block it hits within
+     * {@code scanLen}. Hit blocks are deduplicated. This replaces the previous
+     * volumetric scan (which iterated every block in the AABB and ran a per-face
+     * DDA occlusion test for each) and is physically more correct — a gobo only
+     * lights the first surface it strikes.
+     *
+     * <p>Cost is O(rayCount × averageRayLength) instead of
+     * O(coneVolume × 6 × scanLen). For a 30-block projection with a typical
+     * cone, this is roughly 10× faster while producing the same visual result.
+     */
+    private void rebuildGeometryCache(Level level, BlockPos bePos, Vec3 finalOrigin,
+                                      Vec3 finalBeamDir, Vec3 finalAxisU, Vec3 finalAxisV,
+                                      float scanLen, float tanHalfAngle, int newGeoHash,
+                                      boolean fixtureIsStill) {
+
+        cachedGeoHash  = newGeoHash;
+        cachedQuadCount = 0;
+        uniqueBlocks.clear();
+
+        // Adaptive ray count: full precision (hasta 8192) cuando el fixture
+        // está quieto; budget recortado (hasta 2048) mientras se mueve, porque
+        // el jugador solo ve ese ángulo exacto una fracción de segundo. Esto
+        // es la misma idea de antes, solo que ahora corre en el render thread
+        // en vez de un worker — el costo por rebuild se reduce en vez de
+        // paralelizarse.
+        float projectedRadius = scanLen * tanHalfAngle;
+        float projectedArea   = (float) (Math.PI * projectedRadius * projectedRadius);
+        int   maxRays         = fixtureIsStill ? 8192 : 2048;
+        int   rayCount        = Math.max(256, Math.min(maxRays, (int) (projectedArea * 16f) + 256));
+
+        final double ox = finalOrigin.x;
+        final double oy = finalOrigin.y;
+        final double oz = finalOrigin.z;
+        final double bx = finalBeamDir.x, by = finalBeamDir.y, bz = finalBeamDir.z;
+        final double ux = finalAxisU.x,   uy = finalAxisU.y,   uz = finalAxisU.z;
+        final double vxA = finalAxisV.x,  vyA = finalAxisV.y,  vzA = finalAxisV.z;
+
+        BlockPos.MutableBlockPos hitPos = new BlockPos.MutableBlockPos();
+
+        for (int i = 0; i < rayCount; i++) {
+            // Vogel disk: uniform sampling of the cone's perpendicular disk.
+            double progress = (i + 0.5d) / rayCount;
+            double r        = Math.sqrt(progress) * tanHalfAngle;
+            double theta    = i * GOLDEN_ANGLE;
+            double cu       = r * Math.cos(theta);
+            double cv       = r * Math.sin(theta);
+
+            // Ray dir = beam + cu*U + cv*V, normalised.
+            double dx = bx + cu * ux + cv * vxA;
+            double dy = by + cu * uy + cv * vyA;
+            double dz = bz + cu * uz + cv * vzA;
+            double dlen = Math.sqrt(dx*dx + dy*dy + dz*dz);
+            if (dlen < 1e-6) continue;
+            dx /= dlen; dy /= dlen; dz /= dlen;
+
+            // Walk the ray, find the first non-passthrough solid block.
+            if (!ddaFirstHit(level, ox, oy, oz, dx, dy, dz, scanLen, bePos, hitPos)) continue;
+
+            int relX = hitPos.getX() - bePos.getX();
+            int relY = hitPos.getY() - bePos.getY();
+            int relZ = hitPos.getZ() - bePos.getZ();
+            long blockKey = (((long)(relX & 0xFFFF)) << 32)
+                    | (((long)(relY & 0xFFFF)) << 16)
+                    | ((long)(relZ & 0xFFFF));
+            uniqueBlocks.add(blockKey);
+        }
+
+        // ── Neighbour expansion: fill gaps where rays passed between blocks ──
+        // Solo corre cuando el fixture está quieto. Es pulido visual (rellena
+        // huecos entre bloques adyacentes) y cuesta tiempo real de CPU en el
+        // render thread — no vale la pena pagarlo para geometría que se va a
+        // reemplazar en ~200ms mientras el fixture sigue moviendo.
+        if (fixtureIsStill) {
+            BlockPos.MutableBlockPos nbPos = new BlockPos.MutableBlockPos();
+            LongOpenHashSet expansionSeed = uniqueBlocks;
+            for (int round = 0; round < 2; round++) {
+                LongOpenHashSet expansion = new LongOpenHashSet(expansionSeed.size() * 2);
+                LongIterator hitIter = expansionSeed.iterator();
+                while (hitIter.hasNext()) {
+                    long bk = hitIter.nextLong();
+                    int hRelX = (short)(bk >>> 32);
+                    int hRelY = (short)(bk >>> 16);
+                    int hRelZ = (short)(bk & 0xFFFF);
+                    for (Direction d : DIRS) {
+                        // Skip neighbours along the beam axis — they sit above/below
+                        // the hit surface, not in the projection plane.
+                        double dotBeam = d.getStepX() * bx + d.getStepY() * by + d.getStepZ() * bz;
+                        if (Math.abs(dotBeam) > 0.5) continue;
+
+                        int nRelX = hRelX + d.getStepX();
+                        int nRelY = hRelY + d.getStepY();
+                        int nRelZ = hRelZ + d.getStepZ();
+                        long expKey = (((long)(nRelX & 0xFFFF)) << 32)
+                                | (((long)(nRelY & 0xFFFF)) << 16)
+                                | ((long)(nRelZ & 0xFFFF));
+                        if (uniqueBlocks.contains(expKey)) continue; // already covered
+
+                        int nAbsX = bePos.getX() + nRelX;
+                        int nAbsY = bePos.getY() + nRelY;
+                        int nAbsZ = bePos.getZ() + nRelZ;
+
+                        // Cone inclusion with 0.5-block slack. Fragments truly
+                        // outside the cone are still clipped by the shader.
+                        double vxN = nAbsX + 0.5 - ox;
+                        double vyN = nAbsY + 0.5 - oy;
+                        double vzN = nAbsZ + 0.5 - oz;
+                        double tN = vxN * bx + vyN * by + vzN * bz;
+                        if (tN < 0 || tN > scanLen) continue;
+                        double radSqN = (vxN * vxN + vyN * vyN + vzN * vzN) - tN * tN;
+                        double maxRN = tN * tanHalfAngle + 0.5;
+                        if (radSqN > maxRN * maxRN) continue;
+
+                        nbPos.set(nAbsX, nAbsY, nAbsZ);
+                        if (nbPos.equals(bePos)) continue;
+                        BlockState ns = level.getBlockState(nbPos);
+                        if (ns.isAir() || ns.getShape(level, nbPos).isEmpty()) continue;
+
+                        ResourceLocation nkey = BuiltInRegistries.BLOCK.getKey(ns.getBlock());
+                        if (nkey != null) {
+                            String namespace = nkey.getNamespace();
+                            if (namespace.equals("theatrical") || namespace.equals("theatricalextralights")) continue;
+                            if (TheatricalExtraLightsConfig.isLaserPassThrough(nkey.toString())) continue;
+                        }
+
+                        expansion.add(expKey);
+                    }
+                }
+                if (expansion.isEmpty()) break;
+                uniqueBlocks.addAll(expansion);
+                expansionSeed = expansion; // round 2 only iterates the new blocks
+            }
+        }
+
+        // Build VBO data from accepted blocks
+        final float zBias = 0.02f;
+
+        LongIterator iter = uniqueBlocks.iterator();
+        while (iter.hasNext()) {
+            long bk  = iter.nextLong();
+            int  pdx = (short)(bk >>> 32);
+            int  pdy = (short)(bk >>> 16);
+            int  pdz = (short)(bk & 0xFFFF);
+
+            BlockPos pos = bePos.offset(pdx, pdy, pdz);
+            BlockState s = level.getBlockState(pos);
+            if (s.isAir()) continue;
+
+            // Per-block radial direction for back-face culling
+            float cvx, cvy, cvz;
+            double dirX = pos.getX() + 0.5 - finalOrigin.x;
+            double dirY = pos.getY() + 0.5 - finalOrigin.y;
+            double dirZ = pos.getZ() + 0.5 - finalOrigin.z;
+            double dirLen = Math.sqrt(dirX*dirX + dirY*dirY + dirZ*dirZ);
+            if (dirLen > 0.001) {
+                cvx = (float)(dirX / dirLen);
+                cvy = (float)(dirY / dirLen);
+                cvz = (float)(dirZ / dirLen);
+            } else {
+                cvx = (float) finalBeamDir.x;
+                cvy = (float) finalBeamDir.y;
+                cvz = (float) finalBeamDir.z;
+            }
+
+            if (s.isCollisionShapeFullBlock(level, pos)) {
+                AABB box = new AABB(pos.getX(), pos.getY(), pos.getZ(),
+                        pos.getX() + 1.0, pos.getY() + 1.0, pos.getZ() + 1.0)
+                        .inflate(zBias);
+                for (int f = 0; f < 6; f++) {
+                    Direction face = DIRS[f];
+                    if ((face.getStepX() * cvx + face.getStepY() * cvy + face.getStepZ() * cvz) > 0.01f) continue;
+                    BlockPos adj = pos.relative(face);
+                    if (level.getBlockState(adj).isSolidRender(level, adj)) continue;
+                    addQuadToVBO(box, f);
+                }
+            } else {
+                for (AABB box : s.getShape(level, pos).toAabbs()) {
+                    AABB wBox = box.move(pos).inflate(zBias);
+                    for (int f = 0; f < 6; f++) {
+                        Direction face = DIRS[f];
+                        if ((face.getStepX() * cvx + face.getStepY() * cvy + face.getStepZ() * cvz) > 0.01f) continue;
+                        BlockPos adj = pos.relative(face);
+                        if (level.getBlockState(adj).isSolidRender(level, adj)) continue;
+                        addQuadToVBO(wBox, f);
+                    }
+                }
+            }
+        }
+    }
 
     // ══════════════════════════════════════════════════════════════════════════
     //  DDA occlusion test
@@ -371,245 +522,11 @@ public class GoboGPUProjector {
      *
      * @return {@code true} if a hit was found within {@code maxLen} blocks.
      */
-
-
-    // ══════════════════════════════════════════════════════════════════════════
-    //  VBO helpers
-    // ══════════════════════════════════════════════════════════════════════════
-
-    // ══════════════════════════════════════════════════════════════════════════
-//  Async rebuild scheduling
-// ══════════════════════════════════════════════════════════════════════════
-
-    private static class VboState {
-        final float[] verts;
-        final int quadCount;
-
-        VboState(float[] verts, int quadCount) {
-            this.verts = verts;
-            this.quadCount = quadCount;
-        }
-    }
-
-    /**
-     * Schedules a geometry rebuild on the background thread.
-     * Sets cachedGeoHash immediately so the render thread stops re-queuing
-     * for this exact geometry while the worker is running.
-     * If a rebuild is already in flight, skips — it will finish soon and
-     * the next frame will queue a new one if still dirty.
-     */
-    private void scheduleRebuild(Level level, BlockPos bePos, Vec3 finalOrigin,
-                                 Vec3 finalBeamDir, Vec3 finalAxisU, Vec3 finalAxisV,
-                                 float scanLen, float tanHalfAngle, int newGeoHash) {
-
-        if (!rebuildInFlight.compareAndSet(false, true)) {
-            return;
-        }
-
-        // Solo actualizamos el hash si hemos adquirido el "lock" y vamos a procesarlo
-        cachedGeoHash = newGeoHash;
-
-        // Capture immutable snapshots — nothing mutable is shared with the worker
-        final double ox = finalOrigin.x, oy = finalOrigin.y, oz = finalOrigin.z;
-        final double bx = finalBeamDir.x, by = finalBeamDir.y, bz = finalBeamDir.z;
-        final double ux = finalAxisU.x,   uy = finalAxisU.y,   uz = finalAxisU.z;
-        final double vxA = finalAxisV.x,  vyA = finalAxisV.y,  vzA = finalAxisV.z;
-        final BlockPos bePosSnap = bePos.immutable();
-
-        REBUILD_EXECUTOR.submit(() -> {
-            try {
-                rebuildGeometryCache(level, bePosSnap,
-                        ox, oy, oz, bx, by, bz, ux, uy, uz, vxA, vyA, vzA,
-                        scanLen, tanHalfAngle);
-            } finally {
-                // Always clear the flag so the next frame can queue a new rebuild
-                rebuildInFlight.set(false);
-            }
-        });
-    }
-
-// ══════════════════════════════════════════════════════════════════════════
-//  Worker-thread geometry rebuild
-// ══════════════════════════════════════════════════════════════════════════
-
-    /**
-     * Runs on the background thread. Writes results into the back buffer,
-     * then atomically swaps it to the front buffer so the render thread
-     * picks it up on the next frame with zero stall.
-     * Uses its own local MutableBlockPos instances — never touches render-thread fields.
-     */
-    private void rebuildGeometryCache(Level level, BlockPos bePos,
-                                      double ox, double oy, double oz,
-                                      double bx, double by, double bz,
-                                      double ux, double uy, double uz,
-                                      double vxA, double vyA, double vzA,
-                                      float scanLen, float tanHalfAngle) {
-
-        // Worker-local collections — never shared with the render thread
-        LongOpenHashSet localBlocks = new LongOpenHashSet(512);
-        BlockPos.MutableBlockPos hitPos   = new BlockPos.MutableBlockPos();
-        BlockPos.MutableBlockPos ddaLocal = new BlockPos.MutableBlockPos();
-        BlockPos.MutableBlockPos nbPos    = new BlockPos.MutableBlockPos();
-
-        float projectedRadius = scanLen * tanHalfAngle;
-        float projectedArea   = (float)(Math.PI * projectedRadius * projectedRadius);
-        int   rayCount        = Math.max(512, Math.min(8192, (int)(projectedArea * 16f) + 256));
-
-        for (int i = 0; i < rayCount; i++) {
-            double progress = (i + 0.5d) / rayCount;
-            double r        = Math.sqrt(progress) * tanHalfAngle;
-            double theta    = i * GOLDEN_ANGLE;
-            double cu       = r * Math.cos(theta);
-            double cv       = r * Math.sin(theta);
-
-            double dx = bx + cu * ux + cv * vxA;
-            double dy = by + cu * uy + cv * vyA;
-            double dz = bz + cu * uz + cv * vzA;
-            double dlen = Math.sqrt(dx*dx + dy*dy + dz*dz);
-            if (dlen < 1e-6) continue;
-            dx /= dlen; dy /= dlen; dz /= dlen;
-
-            if (!ddaFirstHitLocal(level, ox, oy, oz, dx, dy, dz, scanLen, bePos,
-                    hitPos, ddaLocal)) continue;
-
-            int relX = hitPos.getX() - bePos.getX();
-            int relY = hitPos.getY() - bePos.getY();
-            int relZ = hitPos.getZ() - bePos.getZ();
-            long blockKey = (((long)(relX & 0xFFFF)) << 32)
-                    | (((long)(relY & 0xFFFF)) << 16)
-                    | ((long)(relZ & 0xFFFF));
-            localBlocks.add(blockKey);
-        }
-
-        // Neighbour expansion — fills gaps where rays passed between blocks
-        LongOpenHashSet expansionSeed = localBlocks;
-        for (int round = 0; round < 2; round++) {
-            LongOpenHashSet expansion = new LongOpenHashSet(expansionSeed.size() * 2);
-            LongIterator hitIter = expansionSeed.iterator();
-            while (hitIter.hasNext()) {
-                long bk    = hitIter.nextLong();
-                int hRelX = (short)(bk >>> 32);
-                int hRelY = (short)(bk >>> 16);
-                int hRelZ = (short)(bk & 0xFFFF);
-                for (Direction d : DIRS) {
-                    double dotBeam = d.getStepX() * bx + d.getStepY() * by + d.getStepZ() * bz;
-                    if (Math.abs(dotBeam) > 0.5) continue;
-
-                    int nRelX = hRelX + d.getStepX();
-                    int nRelY = hRelY + d.getStepY();
-                    int nRelZ = hRelZ + d.getStepZ();
-                    long expKey = (((long)(nRelX & 0xFFFF)) << 32)
-                            | (((long)(nRelY & 0xFFFF)) << 16)
-                            | ((long)(nRelZ & 0xFFFF));
-                    if (localBlocks.contains(expKey)) continue;
-
-                    int nAbsX = bePos.getX() + nRelX;
-                    int nAbsY = bePos.getY() + nRelY;
-                    int nAbsZ = bePos.getZ() + nRelZ;
-
-                    double vxN = nAbsX + 0.5 - ox;
-                    double vyN = nAbsY + 0.5 - oy;
-                    double vzN = nAbsZ + 0.5 - oz;
-                    double tN  = vxN * bx + vyN * by + vzN * bz;
-                    if (tN < 0 || tN > scanLen) continue;
-                    double radSqN = (vxN * vxN + vyN * vyN + vzN * vzN) - tN * tN;
-                    double maxRN  = tN * tanHalfAngle + 0.5;
-                    if (radSqN > maxRN * maxRN) continue;
-
-                    nbPos.set(nAbsX, nAbsY, nAbsZ);
-                    if (nbPos.equals(bePos)) continue;
-                    BlockState ns = level.getBlockState(nbPos);
-                    if (ns.isAir() || ns.getShape(level, nbPos).isEmpty()) continue;
-
-                    ResourceLocation nkey = BuiltInRegistries.BLOCK.getKey(ns.getBlock());
-                    if (nkey != null) {
-                        String namespace = nkey.getNamespace();
-                        if (namespace.equals("theatrical") || namespace.equals("theatricalextralights")) continue;
-                        if (TheatricalExtraLightsConfig.isLaserPassThrough(nkey.toString())) continue;
-                    }
-                    expansion.add(expKey);
-                }
-            }
-            if (expansion.isEmpty()) break;
-            localBlocks.addAll(expansion);
-            expansionSeed = expansion;
-        }
-
-        // Build VBO data into the back buffer
-        backQuadCount = 0;
-        int needed = localBlocks.size() * 6 * 12;
-        if (backVerts.length < needed) {
-            backVerts = new float[needed + 256 * 12];
-        }
-
-        LongIterator iter = localBlocks.iterator();
-        while (iter.hasNext()) {
-            long bk  = iter.nextLong();
-            int  pdx = (short)(bk >>> 32);
-            int  pdy = (short)(bk >>> 16);
-            int  pdz = (short)(bk & 0xFFFF);
-
-            BlockPos pos = bePos.offset(pdx, pdy, pdz);
-            BlockState s = level.getBlockState(pos);
-            if (s.isAir()) continue;
-
-            float cvx, cvy, cvz;
-            double dirX  = pos.getX() + 0.5 - ox;
-            double dirY  = pos.getY() + 0.5 - oy;
-            double dirZ  = pos.getZ() + 0.5 - oz;
-            double dirLen = Math.sqrt(dirX*dirX + dirY*dirY + dirZ*dirZ);
-            if (dirLen > 0.001) {
-                cvx = (float)(dirX / dirLen);
-                cvy = (float)(dirY / dirLen);
-                cvz = (float)(dirZ / dirLen);
-            } else {
-                cvx = (float) bx; cvy = (float) by; cvz = (float) bz;
-            }
-
-            if (s.isCollisionShapeFullBlock(level, pos)) {
-                AABB box = new AABB(pos.getX(), pos.getY(), pos.getZ(),
-                        pos.getX() + 1.0, pos.getY() + 1.0, pos.getZ() + 1.0);
-                for (int f = 0; f < 6; f++) {
-                    Direction face = DIRS[f];
-                    if ((face.getStepX() * cvx + face.getStepY() * cvy + face.getStepZ() * cvz) > 0.01f) continue;
-                    BlockPos adj = pos.relative(face);
-                    if (level.getBlockState(adj).isSolidRender(level, adj)) continue;
-                    addQuadToBack(box, f);
-                }
-            } else {
-                for (AABB box : s.getShape(level, pos).toAabbs()) {
-                    AABB wBox = box.move(pos);
-                    for (int f = 0; f < 6; f++) {
-                        Direction face = DIRS[f];
-                        if ((face.getStepX() * cvx + face.getStepY() * cvy + face.getStepZ() * cvz) > 0.01f) continue;
-                        BlockPos adj = pos.relative(face);
-                        if (level.getBlockState(adj).isSolidRender(level, adj)) continue;
-                        addQuadToBack(wBox, f);
-                    }
-                }
-            }
-        }
-        // Atomic front-buffer swap using immutable container
-        float[] oldFrontVerts = frontState.verts;
-        frontState = new VboState(backVerts, backQuadCount);
-        backVerts = oldFrontVerts;
-
-    }
-
-// ══════════════════════════════════════════════════════════════════════════
-//  DDA — worker-thread variant (uses caller-supplied MutableBlockPos)
-// ══════════════════════════════════════════════════════════════════════════
-
-    /**
-     * Identical to ddaFirstHit but accepts an external ddaCheck MutableBlockPos
-     * so the worker thread never touches the render-thread-owned ddaCheckPos field.
-     */
-    private boolean ddaFirstHitLocal(Level level,
-                                     double sx, double sy, double sz,
-                                     double dx, double dy, double dz,
-                                     double maxLen, BlockPos bePos,
-                                     BlockPos.MutableBlockPos outHit,
-                                     BlockPos.MutableBlockPos ddaCheck) {
+    private boolean ddaFirstHit(Level level,
+                                double sx, double sy, double sz,
+                                double dx, double dy, double dz,
+                                double maxLen, BlockPos bePos,
+                                BlockPos.MutableBlockPos outHit) {
         int stepX = dx > 0 ? 1 : (dx < 0 ? -1 : 0);
         int stepY = dy > 0 ? 1 : (dy < 0 ? -1 : 0);
         int stepZ = dz > 0 ? 1 : (dz < 0 ? -1 : 0);
@@ -627,17 +544,20 @@ public class GoboGPUProjector {
         double tMZ = stepZ > 0 ? (vz + 1.0 - sz) * tDZ : (stepZ < 0 ? (sz - vz) * tDZ : Double.MAX_VALUE);
 
         double t = 0;
+        BlockPos.MutableBlockPos check = ddaCheckPos;
+
         while (t < maxLen) {
             if (tMX < tMY && tMX < tMZ) { t = tMX; vx += stepX; tMX += tDX; }
             else if (tMY < tMZ)          { t = tMY; vy += stepY; tMY += tDY; }
             else                          { t = tMZ; vz += stepZ; tMZ += tDZ; }
 
-            ddaCheck.set(vx, vy, vz);
-            if (ddaCheck.equals(bePos)) continue;
+            check.set(vx, vy, vz);
+            if (check.equals(bePos)) continue;
 
-            BlockState state = level.getBlockState(ddaCheck);
-            if (state.isAir() || state.getShape(level, ddaCheck).isEmpty()) continue;
+            BlockState state = level.getBlockState(check);
+            if (state.isAir() || state.getShape(level, check).isEmpty()) continue;
 
+            // Skip mod/passthrough blocks — let the ray continue past them.
             ResourceLocation key = BuiltInRegistries.BLOCK.getKey(state.getBlock());
             if (key != null) {
                 String ns = key.getNamespace();
@@ -645,51 +565,47 @@ public class GoboGPUProjector {
                 if (TheatricalExtraLightsConfig.isLaserPassThrough(key.toString())) continue;
             }
 
+            // First real hit — record and stop.
             outHit.set(vx, vy, vz);
             return true;
         }
         return false;
     }
 
-// ══════════════════════════════════════════════════════════════════════════
-//  Back-buffer VBO helpers (worker thread only)
-// ══════════════════════════════════════════════════════════════════════════
 
-    /**
-     * Writes a quad into the back buffer. Mirrors addQuadToVBO but targets
-     * backVerts/backQuadCount instead of the front buffer.
-     */
-    private void addQuadToBack(AABB box, int faceIdx) {
-        if (backQuadCount * 12 >= backVerts.length) {
-            backVerts = Arrays.copyOf(backVerts, backVerts.length * 2);
+    // ══════════════════════════════════════════════════════════════════════════
+    //  VBO helpers
+    // ══════════════════════════════════════════════════════════════════════════
+
+    private void addQuadToVBO(AABB box, int faceIdx) {
+        if (cachedQuadCount * 12 >= cachedVerts.length) {
+            cachedVerts = Arrays.copyOf(cachedVerts, cachedVerts.length * 2);
         }
-        int   vIdx = backQuadCount * 12;
+
+        int   vIdx = cachedQuadCount * 12;
         float mx = (float) box.minX, my = (float) box.minY, mz = (float) box.minZ;
         float Mx = (float) box.maxX, My = (float) box.maxY, Mz = (float) box.maxZ;
+
         switch (DIRS[faceIdx]) {
-            case DOWN:  writeQuadTo(backVerts, vIdx, mx,my-Z_BIAS,Mz, mx,my-Z_BIAS,mz, Mx,my-Z_BIAS,mz, Mx,my-Z_BIAS,Mz); break;
-            case UP:    writeQuadTo(backVerts, vIdx, mx,My+Z_BIAS,mz, mx,My+Z_BIAS,Mz, Mx,My+Z_BIAS,Mz, Mx,My+Z_BIAS,mz); break;
-            case NORTH: writeQuadTo(backVerts, vIdx, Mx,my,mz-Z_BIAS, mx,my,mz-Z_BIAS, mx,My,mz-Z_BIAS, Mx,My,mz-Z_BIAS); break;
-            case SOUTH: writeQuadTo(backVerts, vIdx, mx,my,Mz+Z_BIAS, Mx,my,Mz+Z_BIAS, Mx,My,Mz+Z_BIAS, mx,My,Mz+Z_BIAS); break;
-            case WEST:  writeQuadTo(backVerts, vIdx, mx-Z_BIAS,my,mz, mx-Z_BIAS,my,Mz, mx-Z_BIAS,My,Mz, mx-Z_BIAS,My,mz); break;
-            case EAST:  writeQuadTo(backVerts, vIdx, Mx+Z_BIAS,my,Mz, Mx+Z_BIAS,my,mz, Mx+Z_BIAS,My,mz, Mx+Z_BIAS,My,Mz); break;
+            case DOWN:  writeQuad(vIdx, mx,my,Mz, mx,my,mz, Mx,my,mz, Mx,my,Mz); break;
+            case UP:    writeQuad(vIdx, mx,My,mz, mx,My,Mz, Mx,My,Mz, Mx,My,mz); break;
+            case NORTH: writeQuad(vIdx, Mx,my,mz, mx,my,mz, mx,My,mz, Mx,My,mz); break;
+            case SOUTH: writeQuad(vIdx, mx,my,Mz, Mx,my,Mz, Mx,My,Mz, mx,My,Mz); break;
+            case WEST:  writeQuad(vIdx, mx,my,mz, mx,my,Mz, mx,My,Mz, mx,My,mz); break;
+            case EAST:  writeQuad(vIdx, Mx,my,Mz, Mx,my,mz, Mx,My,mz, Mx,My,Mz); break;
         }
-        backQuadCount++;
+        cachedQuadCount++;
     }
 
-    /**
-     * Writes 12 floats (4 corners × xyz) into an arbitrary float array at offset i.
-     * Replaces the old writeQuad() which always targeted cachedVerts.
-     */
-    private static void writeQuadTo(float[] buf, int i,
-                                    float x1, float y1, float z1,
-                                    float x2, float y2, float z2,
-                                    float x3, float y3, float z3,
-                                    float x4, float y4, float z4) {
-        buf[i++]=x1; buf[i++]=y1; buf[i++]=z1;
-        buf[i++]=x2; buf[i++]=y2; buf[i++]=z2;
-        buf[i++]=x3; buf[i++]=y3; buf[i++]=z3;
-        buf[i++]=x4; buf[i++]=y4; buf[i]   =z4;
+    private void writeQuad(int i,
+                           float x1, float y1, float z1,
+                           float x2, float y2, float z2,
+                           float x3, float y3, float z3,
+                           float x4, float y4, float z4) {
+        cachedVerts[i++] = x1; cachedVerts[i++] = y1; cachedVerts[i++] = z1;
+        cachedVerts[i++] = x2; cachedVerts[i++] = y2; cachedVerts[i++] = z2;
+        cachedVerts[i++] = x3; cachedVerts[i++] = y3; cachedVerts[i++] = z3;
+        cachedVerts[i++] = x4; cachedVerts[i++] = y4; cachedVerts[i]   = z4;
     }
 
     // ══════════════════════════════════════════════════════════════════════════

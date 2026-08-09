@@ -1,4 +1,15 @@
 {
+  "block.theatricalextralights.led_facade": "LED Facade",
+  "screen.led_facade.resolution": "Resolution",
+  "screen.led_facade.clear": "Clear",
+  "screen.led_facade.footprint": "%s px · %s ch · %s universe(s)",
+  "screen.led_facade.brush": "Brush: %s",
+  "screen.led_facade.universe": "Universe",
+  "screen.led_facade.address": "Address",
+  "screen.led_facade.smoothing": "Smoothing",
+  "screen.led_facade.smoothing.0": "Sharp",
+  "screen.led_facade.smoothing.1": "Soft",
+  "screen.led_facade.smoothing.2": "Very soft",
   "block.theatricalextralights.big_panel": "Big Panel 3x3",
   "block.theatricalextralights.big_panel2": "Big Panel 3x2",
   "block.theatricalextralights.led_fountain": "Led Fountain",
@@ -95,6 +106,8 @@
   "block.theatricalextralights.fan_water_jet": "Fan Water Jet (Adjustable)",
   "block.theatricalextralights.cake_water_jet": "Wedding Cake Water Jet (Adjustable)",
   "block.theatricalextralights.vase_water_jet": "Vase Water Jet (Adjustable)",
+  "block.theatricalextralights.waltzes_water_jet": "9 Waltzes Water Jets (Adjustable)",
+  "block.theatricalextralights.waltz_curtain": "Waltz Curtain Water Jets (Adjustable)",
 
 
   "block.theatricalextralights.white_strobe": "White Strobe (1 Channel)",

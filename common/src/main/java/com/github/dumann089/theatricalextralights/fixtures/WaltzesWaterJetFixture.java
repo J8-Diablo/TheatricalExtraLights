@@ -16,10 +16,11 @@ import java.util.List;
 public class WaltzesWaterJetFixture extends Fixture {
 
     private static final List<DMXPersonality> PERSONALITIES = Collections.singletonList(
-            new DMXPersonality(3, "3-Channel Mode")
+            new DMXPersonality(3, "2-Channel Mode")
                     .addSlot(SharedSlots.INTENSITY)
-                    .addSlot(SharedSlots.PAN)
                     .addSlot(SharedSlots.TILT)
+                    .addSlot(SharedSlots.TILT)
+
 
     );
 

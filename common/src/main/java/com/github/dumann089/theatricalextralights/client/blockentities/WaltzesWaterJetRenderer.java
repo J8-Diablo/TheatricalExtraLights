@@ -17,7 +17,7 @@ import java.util.Optional;
 public class WaltzesWaterJetRenderer extends ExtraLightsRenderer<WaltzesWaterJetBlockEntity> {
     private BakedModel cachedPanModel, cachedTiltModel, cachedStaticModel;
 
-    private static final double[] PARTICLE_X_OFFSETS = {
+    private static final double[] PARTICLE_Z_OFFSETS = {
             -0.9375, -0.625, -0.25, 0.125, 0.5, 0.875, 1.25, 1.625, 1.9375
     };
 
@@ -94,13 +94,13 @@ public class WaltzesWaterJetRenderer extends ExtraLightsRenderer<WaltzesWaterJet
         //#region Model Tilt
         float[] tilts = blockEntity.getFixture().getTiltRotationPosition();
         poseStack.translate(tilts[0], tilts[1], tilts[2]);
-        int prevTilt = blockEntity.getPrevTilt();
-        int tilt = blockEntity.getTilt();
-        poseStack.mulPose(Axis.XP.rotationDegrees(blockEntity.currentAngle));
+        float smoothTilt = blockEntity.getRenderAngle(partialTicks);
+        poseStack.mulPose(Axis.XP.rotationDegrees(smoothTilt));
         poseStack.translate(-tilts[0], -tilts[1], -tilts[2]);
         minecraftRenderModel(poseStack, vertexConsumer, blockState, cachedTiltModel,  packedLight, packedOverlay);
         //#endregion
     }
+
 
     @Override
     public void preparePoseStack(WaltzesWaterJetBlockEntity blockEntity, PoseStack poseStack, Direction facing, float partialTicks, boolean isFlipped, BlockState blockState, boolean isHanging) {

@@ -2,8 +2,6 @@ package com.github.dumann089.theatricalextralights.blockentities;
 
 import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasJetHeight;
 import com.github.dumann089.theatricalextralights.blockentities.interfaces.HasJetThickness;
-import com.github.dumann089.theatricalextralights.client.particle.JetVariant;
-import com.github.dumann089.theatricalextralights.client.particle.WaterJetParticleOptions;
 import com.github.dumann089.theatricalextralights.fixtures.Fixtures;
 import dev.imabad.theatrical.api.Fixture;
 import net.minecraft.client.Minecraft;
@@ -24,20 +22,22 @@ public class WaltzesWaterJetBlockEntity extends ExtraLightsLightBlockEntity
     private float jetHeight = 9.0f;
     private float jetThickness = 0.1f;
 
-    private int tickCounter = 0;
-
     public static final float MIN_THICKNESS = 0.05f;
     public static final float MAX_THICKNESS = 9.5f;
     public static final float MIN_JET_HEIGHT = 0.1f;
     public static final float MAX_JET_HEIGHT = 99.0f;
 
-    public float currentAngle = 0; // Ángulo para render y chorros
-    private float swayTime = 0;
+    /** Ángulo actual (suavizado) — fuente única de verdad para modelo y partículas. */
+    public float currentAngle = 0;
+
+    /** Acumulador de tiempo para el modo de oscilación automática. */
+    public float swayTime = 0;
 
     public WaltzesWaterJetBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntities.WALTZES_WATER_JET.get(), pos, state);
-        setChannelCount(1);
+        setChannelCount(3);
     }
+
     // -------------------
     // GETTERS / SETTERS
     // -------------------
@@ -54,6 +54,16 @@ public class WaltzesWaterJetBlockEntity extends ExtraLightsLightBlockEntity
         if (level != null && !level.isClientSide) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
         }
+    }
+
+    public float prevAngle = 0;
+
+    /** Valor DMX del sistema Swing (Canal 3). */
+    public int swingChannel = 0;
+
+    // Método para interpolar el ángulo en el renderizador
+    public float getRenderAngle(float partialTicks) {
+        return prevAngle + (currentAngle - prevAngle) * partialTicks;
     }
 
     @Override
@@ -77,15 +87,36 @@ public class WaltzesWaterJetBlockEntity extends ExtraLightsLightBlockEntity
     @Override
     public void consume(byte[] dmxValues) {
         int start = getChannelStart() > 0 ? getChannelStart() - 1 : 0;
-        byte[] ourValues = Arrays.copyOfRange(dmxValues, start, start + getChannelCount());
-        if (ourValues.length < 1) return;
 
-        intensity = convertByteToInt(ourValues[0]);
+        // 1. Evitamos errores de fuera de rango, pero no limitamos la lectura por getChannelCount()
+        if (dmxValues == null || start >= dmxValues.length) return;
 
-        if (storePrev()) {
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+        // Guardamos el valor previo de nuestro canal personalizado
+        int prevSwing = this.swingChannel;
+        this.dmxTimeoutCounter = TIMEOUT_LIMIT;
+
+        // 2. Leemos los canales directamente del universo DMX de forma segura (& 0xFF convierte a int)
+        if (start < dmxValues.length) {
+            this.intensity = dmxValues[start] & 0xFF;        // Canal 1: Dimmer
         }
-        setChanged();
+        if (start + 1 < dmxValues.length) {
+            this.tilt = dmxValues[start + 1] & 0xFF;         // Canal 2: Tilt manual
+        }
+        if (start + 2 < dmxValues.length) {
+            this.swingChannel = dmxValues[start + 2] & 0xFF; // Canal 3: Velocidad del Swing
+        }
+
+        // 3. storePrev() revisa los cambios de la clase base (intensidad y tilt)
+        boolean baseChanged = storePrev();
+        boolean swingChanged = (prevSwing != this.swingChannel);
+
+        // 4. Si CUALQUIER canal cambió (incluyendo el nuestro), forzamos la actualización visual
+        if (baseChanged || swingChanged) {
+            if (level != null && !level.isClientSide) {
+                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+            }
+            setChanged();
+        }
     }
 
     public int convertByteToInt(byte val) {
@@ -93,56 +124,27 @@ public class WaltzesWaterJetBlockEntity extends ExtraLightsLightBlockEntity
     }
 
     // -------------------
-    // PARTICLE TICK
+    // TICK — Lógica de movimiento
     // -------------------
 
+    public int dmxTimeoutCounter = 0;
+    private static final int TIMEOUT_LIMIT = 20; // 1 segundo aprox (si 20 ticks = 1 seg)
+
     public void tick() {
-        if (!level.isClientSide || Minecraft.getInstance().isPaused()) return;
-
-        tickCounter++;
-
-        // 1. Lógica de Movimiento (Vaivén)
-        int panValue = getPan();
-        int tiltValue = getTilt();
-        float targetAngle;
-
-        if (tiltValue > 0) { // Si hay valor en Tilt, modo Automático
-            swayTime += (tiltValue / 255.0f) * 0.1f;
-            targetAngle = (float) Math.sin(swayTime) * 45.0f; // Oscilación -45 a 45 grados
-        } else { // Modo Manual
-            targetAngle = (panValue / 255.0f) * 90.0f - 45.0f;
-        }
-
-        // 2. Smoothing
-        currentAngle += (targetAngle - currentAngle) * 0.1f;
-
-        // 3. Lógica de Altura
-        double targetHeight = (intensity / 255.0) * getJetHeight();
-        smoothedHeight += (targetHeight - smoothedHeight) * 0.1;
-
-        // 4. Emisión de 9 chorros sincronizados
-        if (tickCounter % 18 == 0) {
-            float intensityNorm = intensity / 255.0f;
-            double rad = Math.toRadians(currentAngle);
-
-            // Offsets definidos en tu Renderer
-            double[] offsets = {-0.9375, -0.625, -0.25, 0.125, 0.5, 0.875, 1.25, 1.625, 1.9375};
-
-            for (double offset : offsets) {
-                // Rotación aplicada a la posición y vector de velocidad
-                double zOffset = offset * Math.sin(rad);
-                double yOffset = offset * (1 - Math.cos(rad));
-
-                level.addAlwaysVisibleParticle(
-                        new WaterJetParticleOptions(intensityNorm, getJetThickness(), JetVariant.JET3),
-                        true,
-                        worldPosition.getX() + 0.5,
-                        worldPosition.getY() + smoothedHeight + yOffset,
-                        worldPosition.getZ() + 0.5 + zOffset,
-                        0, 0.1, Math.sin(rad) * 0.05 // Velocidad Z para seguir el ángulo
-                );
+        if (this.level.isClientSide) {
+            // Lógica de detección de pérdida de señal
+            if (dmxTimeoutCounter > 0) {
+                dmxTimeoutCounter--;
+            } else if (dmxTimeoutCounter == 0 && this.getTilt() != 128) {
+                // Si el contador llega a 0, forzamos a 128 (la posición central)
+                this.setTilt(128);
             }
         }
+    }
+
+    // Llama a esto cada vez que recibas un valor DMX válido desde tu consola
+    public void onDmxReceived() {
+        this.dmxTimeoutCounter = TIMEOUT_LIMIT;
     }
 
     // -------------------
@@ -188,6 +190,7 @@ public class WaltzesWaterJetBlockEntity extends ExtraLightsLightBlockEntity
         super.saveAdditional(tag);
         tag.putFloat("JetHeight", jetHeight);
         tag.putFloat("JetThickness", jetThickness);
+        tag.putInt("SwingChannel", swingChannel); // Guardamos estado del swing
     }
 
     @Override
@@ -195,6 +198,7 @@ public class WaltzesWaterJetBlockEntity extends ExtraLightsLightBlockEntity
         super.load(tag);
         if (tag.contains("JetHeight")) jetHeight = tag.getFloat("JetHeight");
         if (tag.contains("JetThickness")) jetThickness = tag.getFloat("JetThickness");
+        if (tag.contains("SwingChannel")) swingChannel = tag.getInt("SwingChannel");
     }
 
     @Override
@@ -202,6 +206,7 @@ public class WaltzesWaterJetBlockEntity extends ExtraLightsLightBlockEntity
         CompoundTag tag = super.getUpdateTag();
         tag.putFloat("JetHeight", jetHeight);
         tag.putFloat("JetThickness", jetThickness);
+        tag.putInt("SwingChannel", swingChannel); // Sincroniza al cliente inicial
         return tag;
     }
 
