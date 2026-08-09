@@ -18,13 +18,13 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
     /** Vanilla volumetric shader fills density; Iris fallback only draws shell quads. */
     private static final int SLICE_MULTIPLIER = 2;
     /** Length subdivisions for Iris shell geometry (4 walls × N) — not disc slices. */
-    private static final int SHELL_SEGMENTS_SHADERS = 24;
+    private static final int SHELL_SEGMENTS_SHADERS = 16;
     /** cos² FOV threshold — lower = wider (shader fallback needs wider or horizon beams vanish). */
     private static final double BEAM_FOV_COS2 = 0.05;
     private static final double BEAM_FOV_COS2_SHADERS = 0.0004; // ~almost full sphere
-    /** Flat albedo so gobo UV noise doesn't print a mesh into the shaft under Complementary. */
+    /** Open gobo (mostly clear) — solid white_concrete was too dark after Complementary emission math. */
     private static final net.minecraft.resources.ResourceLocation SHADER_BEAM_TEXTURE =
-            new net.minecraft.resources.ResourceLocation("minecraft", "textures/block/white_concrete.png");
+            new net.minecraft.resources.ResourceLocation("theatricalextralights", "textures/gobos/generic_1/open.png");
 
     private final float[][] cachedVertsSlots = new float[MAX_BEAMS_PER_FIXTURE][16384];
     private final int[] cachedQuadCountSlots = new int[MAX_BEAMS_PER_FIXTURE];
@@ -95,8 +95,7 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
         this.beamB[slot] =  data.color()         & 0xFF;
 
         float rawIntensity = Math.min(data.intensity() * TheatricalExtraLightsConfig.getVolumetricBeamBrightness(), 1.0f);
-        // Complementary/IPBR punches beaconbeam emission — keep shaft softer
-        this.beamAlphaScale[slot] = (float) Math.pow(rawIntensity, 0.5) * (shaders ? 0.55f : 1.0f);
+        this.beamAlphaScale[slot] = (float) Math.pow(rawIntensity, 0.5);
 
         if (shaders) {
             this.beamRenderTypes[slot] = ModShaders.getVolumetricFallbackRenderType(SHADER_BEAM_TEXTURE);
@@ -167,7 +166,6 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
                     int g  = beamG[k];
                     int bl = beamB[k];
                     float alphaScale = beamAlphaScale[k];
-                    boolean shellSoft = IrisCompat.isShadersActive();
 
                     for (int i = 0; i < quadCount; i++) {
                         int offsetVert = i * 24;
@@ -192,27 +190,16 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
 
                         float baseAlpha = verts[offsetVert + 5];
                         float finalAlpha = baseAlpha * proximityFactor * alphaScale;
-
                         if (finalAlpha <= 0.001f) continue;
+
+                        int alphaInt = Math.min((int) (finalAlpha * 255.0f), 255);
+                        if (alphaInt <= 1) continue;
 
                         for (int v = 0; v < 4; v++) {
                             int vOffset = offsetVert + (v * 6);
-                            float u = verts[vOffset + 3];
-                            float vv = verts[vOffset + 4];
-                            float soft = 1.0f;
-                            if (shellSoft) {
-                                // Soften wall seams (U) + lengthwise banding (V)
-                                float across = u * 2.0f - 1.0f;
-                                soft = (float) Math.exp(-across * across * 2.2)
-                                        * (0.75f + 0.25f * (float) Math.sin(Math.PI * vv));
-                            }
-                            int alphaInt = Math.min((int) (finalAlpha * soft * 255.0f), 255);
-                            if (alphaInt <= 1) {
-                                continue;
-                            }
                             vc.vertex(mat, verts[vOffset], verts[vOffset + 1], verts[vOffset + 2])
                                     .color(r, g, bl, alphaInt)
-                                    .uv(u, vv)
+                                    .uv(verts[vOffset + 3], verts[vOffset + 4])
                                     .endVertex();
                         }
                     }
@@ -259,7 +246,8 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
 
         float[] verts = cachedVertsSlots[slot];
         int idx = 0;
-        float alphaFactor = 1.35f / segments;
+        // Surface walls (not stacked volume slices) — keep alpha in the same range as the old path
+        float alphaFactor = 1.1f;
 
         for (int i = 0; i < segments; i++) {
             float tCurr = (float) i / segments;
@@ -304,10 +292,12 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
             for (int face = 0; face < 4; face++) {
                 int a = face;
                 int b = (face + 1) & 3;
-                idx = putVert(verts, idx, c[a][0], c[a][1], c[a][2], 0.0f, tCurr, alphaC);
-                idx = putVert(verts, idx, c[b][0], c[b][1], c[b][2], 1.0f, tCurr, alphaC);
-                idx = putVert(verts, idx, n[b][0], n[b][1], n[b][2], 1.0f, tNext, alphaN);
-                idx = putVert(verts, idx, n[a][0], n[a][1], n[a][2], 0.0f, tNext, alphaN);
+                // Keep U near 0.5 — Complementary/Photon soft-edge uses radial UV and
+                // discards U=0/1 hard, which made the whole shell invisible.
+                idx = putVert(verts, idx, c[a][0], c[a][1], c[a][2], 0.35f, tCurr, alphaC);
+                idx = putVert(verts, idx, c[b][0], c[b][1], c[b][2], 0.65f, tCurr, alphaC);
+                idx = putVert(verts, idx, n[b][0], n[b][1], n[b][2], 0.65f, tNext, alphaN);
+                idx = putVert(verts, idx, n[a][0], n[a][1], n[a][2], 0.35f, tNext, alphaN);
                 cachedQuadCountSlots[slot]++;
             }
         }
