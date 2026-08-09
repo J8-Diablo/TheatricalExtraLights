@@ -81,6 +81,13 @@ public class FollowspotConsoleScreen extends Screen {
 
     private int controlSendCooldown;
     private BlockPos linkedFixturePos;
+    private int networkRefreshCooldown;
+
+    /** Held via keyPressed/keyReleased — more reliable than polling while a Screen is open. */
+    private boolean moveUpHeld;
+    private boolean moveDownHeld;
+    private boolean moveLeftHeld;
+    private boolean moveRightHeld;
 
     private UUID syncedNetworkId;
     private int syncedUniverse;
@@ -181,8 +188,23 @@ public class FollowspotConsoleScreen extends Screen {
                 }
             }
         }
+        // Keep the console's saved network even if ArtNet hasn't advertised it yet —
+        // otherwise indexOf fails, UI resets to "—", and WASD pan/tilt never link.
+        UUID saved = console.getNetworkId();
+        if (FollowspotTargetHelper.isValidNetwork(saved) && !available.contains(saved)) {
+            available.add(saved);
+        }
         networkIds = available;
-        currentNetworkIndex = Math.max(networkIds.indexOf(console.getNetworkId()), 0);
+        currentNetworkIndex = Math.max(networkIds.indexOf(saved), 0);
+    }
+
+    private void ensureNetworkListed(UUID networkId) {
+        if (!FollowspotTargetHelper.isValidNetwork(networkId) || networkIds.contains(networkId)) {
+            return;
+        }
+        ArrayList<UUID> next = new ArrayList<>(networkIds);
+        next.add(networkId);
+        networkIds = next;
     }
 
     private Component getNetworkLabel() {
@@ -291,6 +313,7 @@ public class FollowspotConsoleScreen extends Screen {
         syncedNetworkId = networkId;
         syncedUniverse = universe;
         syncedDmxAddress = address;
+        ensureNetworkListed(networkId);
         currentNetworkIndex = Math.max(networkIds.indexOf(networkId), 0);
         if (networkButton != null) {
             networkButton.setMessage(getNetworkLabel());
@@ -328,6 +351,12 @@ public class FollowspotConsoleScreen extends Screen {
     @Override
     public void tick() {
         super.tick();
+        if (networkRefreshCooldown > 0) {
+            networkRefreshCooldown--;
+        } else {
+            networkRefreshCooldown = 20;
+            refreshNetworksIfNeeded();
+        }
         syncFromConsoleEntityIfNeeded();
         int draftHash = computePatchDraftHash();
         if (draftHash != patchDraftHash) {
@@ -337,40 +366,69 @@ public class FollowspotConsoleScreen extends Screen {
         if (controlSendCooldown > 0) {
             controlSendCooldown--;
         }
-        if (!isFieldFocused()) {
-            handleMovementKeys();
+        handleMovementKeys();
+    }
+
+    private void refreshNetworksIfNeeded() {
+        UUID selected = networkIds.get(currentNetworkIndex);
+        int before = networkIds.size();
+        setupNetworks();
+        // Prefer keeping the user's current selection when still present
+        int idx = networkIds.indexOf(selected);
+        if (idx < 0) {
+            idx = networkIds.indexOf(console.getNetworkId());
+        }
+        currentNetworkIndex = Math.max(idx, 0);
+        if (networkButton != null && (before != networkIds.size() || idx >= 0)) {
+            networkButton.setMessage(getNetworkLabel());
         }
     }
 
-    private boolean isFieldFocused() {
-        return (universeField != null && universeField.isFocused())
-                || (addressField != null && addressField.isFocused());
+    private boolean isMovementHeld() {
+        return moveUpHeld || moveDownHeld || moveLeftHeld || moveRightHeld
+                || (minecraft != null && (
+                FollowspotInputHelper.isKeyDown(minecraft.options.keyUp)
+                        || FollowspotInputHelper.isKeyDown(minecraft.options.keyDown)
+                        || FollowspotInputHelper.isKeyDown(minecraft.options.keyLeft)
+                        || FollowspotInputHelper.isKeyDown(minecraft.options.keyRight)));
     }
 
     private void handleMovementKeys() {
-        if (linkedFixturePos == null || minecraft == null || minecraft.level == null) {
+        if (minecraft == null || minecraft.level == null || !isMovementHeld()) {
             return;
         }
-        BaseLightBlockEntity fixture = minecraft.level.getBlockEntity(linkedFixturePos) instanceof BaseLightBlockEntity light
-                ? light : null;
+        // Don't let universe/address EditBoxes swallow WASD
+        setFocused(null);
+
+        BaseLightBlockEntity fixture = resolveLinkedFixture();
+        if (fixture == null && linkedFixturePos == null) {
+            // Still allow sending if console already has a valid server-side patch
+            updateLinkPreview();
+            fixture = resolveLinkedFixture();
+        }
         FollowspotOrientationHelper.InputRemap remap = fixture != null
                 ? FollowspotOrientationHelper.computeInputRemap(fixture, pan, tilt)
                 : new FollowspotOrientationHelper.InputRemap(1f, 1f, 1f, 1f);
 
+        boolean up = moveUpHeld || FollowspotInputHelper.isKeyDown(minecraft.options.keyUp);
+        boolean down = moveDownHeld || FollowspotInputHelper.isKeyDown(minecraft.options.keyDown);
+        boolean left = moveLeftHeld || FollowspotInputHelper.isKeyDown(minecraft.options.keyLeft);
+        boolean right = moveRightHeld || FollowspotInputHelper.isKeyDown(minecraft.options.keyRight);
+
         boolean changed = false;
-        if (FollowspotInputHelper.isKeyDown(minecraft.options.keyUp)) {
+        if (up) {
             tilt = FollowspotDmxHelper.quantizeTilt(tilt + (int) (remap.tiltUp() * FollowspotDmxHelper.PAN_TILT_STEP));
             changed = true;
         }
-        if (FollowspotInputHelper.isKeyDown(minecraft.options.keyDown)) {
+        if (down) {
             tilt = FollowspotDmxHelper.quantizeTilt(tilt + (int) (remap.tiltDown() * FollowspotDmxHelper.PAN_TILT_STEP));
             changed = true;
         }
-        if (FollowspotInputHelper.isKeyDown(minecraft.options.keyLeft)) {
+        if (left) {
             pan = FollowspotDmxHelper.quantizePan(pan + (int) (remap.panLeft() * FollowspotDmxHelper.PAN_TILT_STEP));
             changed = true;
         }
-        if (FollowspotInputHelper.isKeyDown(minecraft.options.keyRight)) {
+        if (right) {
             pan = FollowspotDmxHelper.quantizePan(pan + (int) (remap.panRight() * FollowspotDmxHelper.PAN_TILT_STEP));
             changed = true;
         }
@@ -379,12 +437,65 @@ public class FollowspotConsoleScreen extends Screen {
         }
     }
 
+    private BaseLightBlockEntity resolveLinkedFixture() {
+        if (minecraft == null || minecraft.level == null) {
+            return null;
+        }
+        if (linkedFixturePos != null
+                && minecraft.level.getBlockEntity(linkedFixturePos) instanceof BaseLightBlockEntity light) {
+            return light;
+        }
+        // Fallback: server-synced console patch (draft UI may briefly show "—")
+        return FollowspotTargetHelper.findTarget(
+                minecraft.level,
+                console.getNetworkId(),
+                console.getUniverse(),
+                console.getDmxAddress(),
+                consolePos
+        ).map(FollowspotTargetHelper.TargetMatch::fixture).orElse(null);
+    }
+
+    private boolean updateMovementHeld(int keyCode, int scanCode, boolean down) {
+        if (minecraft == null) {
+            return false;
+        }
+        if (minecraft.options.keyUp.matches(keyCode, scanCode)) {
+            moveUpHeld = down;
+            return true;
+        }
+        if (minecraft.options.keyDown.matches(keyCode, scanCode)) {
+            moveDownHeld = down;
+            return true;
+        }
+        if (minecraft.options.keyLeft.matches(keyCode, scanCode)) {
+            moveLeftHeld = down;
+            return true;
+        }
+        if (minecraft.options.keyRight.matches(keyCode, scanCode)) {
+            moveRightHeld = down;
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (minecraft != null && minecraft.options.keyInventory.matches(keyCode, scanCode)) {
             return true;
         }
+        if (updateMovementHeld(keyCode, scanCode, true)) {
+            setFocused(null);
+            return true;
+        }
         return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+        if (updateMovementHeld(keyCode, scanCode, false)) {
+            return true;
+        }
+        return super.keyReleased(keyCode, scanCode, modifiers);
     }
 
     @Override
@@ -478,13 +589,12 @@ public class FollowspotConsoleScreen extends Screen {
         if (minecraft != null && minecraft.level != null
                 && universeField != null && addressField != null) {
             UUID networkId = networkIds.get(currentNetworkIndex);
-            int universe = parseOrDefault(universeField, console.getUniverse());
             int address = parseOrDefault(addressField, console.getDmxAddress());
             boolean patchChanged = !networkId.equals(console.getNetworkId())
-                    || universe != console.getUniverse()
+                    || parseOrDefault(universeField, console.getUniverse()) != console.getUniverse()
                     || address != console.getDmxAddress();
-            if (patchChanged && FollowspotDmxHelper.isValidDmxAddress(address)
-                    && FollowspotTargetHelper.isValidNetwork(networkId)) {
+            // Save whenever address is valid; NULL network is allowed (clears link)
+            if (patchChanged && FollowspotDmxHelper.isValidDmxAddress(address)) {
                 sendPatch();
             }
             sendControl();
