@@ -15,7 +15,12 @@ import org.joml.Matrix4f;
 public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
 
     private static final int MAX_BEAMS_PER_FIXTURE = 32;
+    /** Vanilla volumetric shader fills density; Iris fallback only draws shell quads. */
     private static final int SLICE_MULTIPLIER = 2;
+    private static final int SLICE_MULTIPLIER_SHADERS = 8; // denser = softer shafts under Iris fallback
+    /** cos² FOV threshold — lower = wider (shader fallback needs wider or horizon beams vanish). */
+    private static final double BEAM_FOV_COS2 = 0.05;
+    private static final double BEAM_FOV_COS2_SHADERS = 0.0004; // ~almost full sphere
 
     private final float[][] cachedVertsSlots = new float[MAX_BEAMS_PER_FIXTURE][16384];
     private final int[] cachedQuadCountSlots = new int[MAX_BEAMS_PER_FIXTURE];
@@ -57,6 +62,8 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
         float density  = TheatricalExtraLightsConfig.getVolumetricBeamDensity();
         float maxAlpha = TheatricalExtraLightsConfig.getVolumetricBeamMaxAlpha();
         float fadeLen  = TheatricalExtraLightsConfig.getVolumetricBeamFadeLength();
+        boolean shaders = IrisCompat.isShadersActive();
+        int sliceMul = shaders ? SLICE_MULTIPLIER_SHADERS : SLICE_MULTIPLIER;
 
         int currentHash = 1;
         currentHash = 31 * currentHash + data.generateStateHash(dynamicSlices);
@@ -66,10 +73,12 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
         currentHash = 31 * currentHash + Float.floatToIntBits(fadeLen);
         currentHash = 31 * currentHash + Float.floatToIntBits(TheatricalExtraLightsConfig.getVolumetricBeamBrightness());
         currentHash = 31 * currentHash + dynamicSlices;
+        currentHash = 31 * currentHash + sliceMul;
         currentHash = 31 * currentHash + (hitBlock ? 1231 : 1237);
+        currentHash = 31 * currentHash + (shaders ? 1 : 0);
 
         if (currentHash != cachedHashSlots[slot]) {
-            rebuildGeometry(slot, data, dynamicSlices, scanLen, density, maxAlpha, fadeLen, hitBlock);
+            rebuildGeometry(slot, data, dynamicSlices, scanLen, density, maxAlpha, fadeLen, hitBlock, sliceMul);
             cachedHashSlots[slot] = currentHash;
         }
 
@@ -99,6 +108,7 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
         final float lx = look.x();
         final float ly = look.y();
         final float lz = look.z();
+        final double fovCos2 = IrisCompat.isShadersActive() ? BEAM_FOV_COS2_SHADERS : BEAM_FOV_COS2;
 
         final double blockX = this.currentPos.getX();
         final double blockY = this.currentPos.getY();
@@ -132,7 +142,7 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
                     double sdz = (blockZ + verts[2]) - camZ;
                     double sDot = sdx*lx + sdy*ly + sdz*lz;
                     double sDistSq = sdx*sdx + sdy*sdy + sdz*sdz;
-                    boolean sVisible = (sDot >= -4.0 && sDot < 0) || (sDot >= 0 && (sDot * sDot) >= sDistSq * 0.05);
+                    boolean sVisible = (sDot >= -8.0 && sDot < 0) || (sDot >= 0 && (sDot * sDot) >= sDistSq * fovCos2);
 
                     int lastOffset = (quadCount - 1) * 24;
                     double edx = (blockX + verts[lastOffset]) - camX;
@@ -140,7 +150,7 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
                     double edz = (blockZ + verts[lastOffset+2]) - camZ;
                     double eDot = edx*lx + edy*ly + edz*lz;
                     double eDistSq = edx*edx + edy*edy + edz*edz;
-                    boolean eVisible = (eDot >= -4.0 && eDot < 0) || (eDot >= 0 && (eDot * eDot) >= eDistSq * 0.05);
+                    boolean eVisible = (eDot >= -8.0 && eDot < 0) || (eDot >= 0 && (eDot * eDot) >= eDistSq * fovCos2);
 
                     if (!sVisible && !eVisible) continue;
 
@@ -199,9 +209,10 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
     }
 
     private void rebuildGeometry(int slot, BeamRenderData data, int slices, float scanLen,
-                                 float density, float maxAlpha, float fadeLen, boolean hitBlock) {
+                                 float density, float maxAlpha, float fadeLen, boolean hitBlock,
+                                 int sliceMul) {
 
-        int totalSlices = slices * SLICE_MULTIPLIER;
+        int totalSlices = slices * sliceMul;
         int totalSegments = totalSlices - 1;
         int requiredSize = totalSegments * 4 * 6;
 
