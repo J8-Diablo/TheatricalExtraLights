@@ -17,7 +17,11 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
     private static final int MAX_BEAMS_PER_FIXTURE = 32;
     /** Vanilla volumetric shader fills density; Iris fallback only draws shell quads. */
     private static final int SLICE_MULTIPLIER = 2;
-    private static final int SLICE_MULTIPLIER_SHADERS = 8; // denser = softer shafts under Iris fallback
+    /**
+     * Keep Iris slice count modest — Complementary/IPBR treat beaconbeam almost opaque,
+     * so dense slices look like a cross/grid lattice. Soft UV falloff hides the remaining edges.
+     */
+    private static final int SLICE_MULTIPLIER_SHADERS = 3;
     /** cos² FOV threshold — lower = wider (shader fallback needs wider or horizon beams vanish). */
     private static final double BEAM_FOV_COS2 = 0.05;
     private static final double BEAM_FOV_COS2_SHADERS = 0.0004; // ~almost full sphere
@@ -158,6 +162,7 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
                     int g  = beamG[k];
                     int bl = beamB[k];
                     float alphaScale = beamAlphaScale[k];
+                    boolean softEdges = IrisCompat.isShadersActive();
 
                     for (int i = 0; i < quadCount; i++) {
                         int offsetVert = i * 24;
@@ -185,13 +190,24 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
 
                         if (finalAlpha <= 0.001f) continue;
 
-                        int alphaInt = Math.min((int)(finalAlpha * 255.0f), 255);
-
                         for (int v = 0; v < 4; v++) {
                             int vOffset = offsetVert + (v * 6);
+                            float u = verts[vOffset + 3];
+                            float vv = verts[vOffset + 4];
+                            float soft = 1.0f;
+                            if (softEdges) {
+                                float cx = u - 0.5f;
+                                float cy = vv - 0.5f;
+                                // Soft radial falloff kills hard slice edges / "cross" lattice under Complementary
+                                soft = (float) Math.exp(-(cx * cx + cy * cy) * 6.5);
+                            }
+                            int alphaInt = Math.min((int) (finalAlpha * soft * 255.0f), 255);
+                            if (alphaInt <= 1) {
+                                continue;
+                            }
                             vc.vertex(mat, verts[vOffset], verts[vOffset + 1], verts[vOffset + 2])
                                     .color(r, g, bl, alphaInt)
-                                    .uv(verts[vOffset + 3], verts[vOffset + 4])
+                                    .uv(u, vv)
                                     .endVertex();
                         }
                     }
