@@ -99,6 +99,10 @@ public class Items {
             "blinder2x2warm",
             () -> new BlockItem(Blocks.BLINDER2X2WARM_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
     );
+    public static final RegistrySupplier<Item> BLINDER1X1 = ITEMS.register(
+            "blinder1x1",
+            () -> new BlockItem(Blocks.BLINDER1X1_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
+    );
     public static final RegistrySupplier<Item> BLINDER_WARM = ITEMS.register(
             "blinder_warm",
             () -> new BlockItem(Blocks.BLINDER_WARM_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.TAB))
@@ -419,9 +423,21 @@ public class Items {
             "flame_projector",
             () -> new BlockItem(Blocks.FLAME_PROJECTOR_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
     );
+    public static final RegistrySupplier<Item> FLAME_THROWER = ITEMS.register(
+            "flame_thrower",
+            () -> new BlockItem(Blocks.FLAME_THROWER_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
+    public static final RegistrySupplier<Item> FLOW2JET = ITEMS.register(
+            "flow2jet",
+            () -> new BlockItem(Blocks.FLOW2JET_BLOCK.get(), new Item.Properties().arch$tab(TheatricalExtraLights.PYRO_TAB))
+    );
     public static final RegistrySupplier<Item> CONFETTI_CANNON = ITEMS.register(
             "confetti_cannon",
             ConfettiCannonItemRegistration::create
+    );
+    public static final RegistrySupplier<Item> FIXTURE_WRENCH = ITEMS.register(
+            "fixture_wrench",
+            FixtureWrenchItem::new
     );
     public static final RegistrySupplier<Item> TRUSS_3LIGHTS = ITEMS.register(
         "truss_3lights",

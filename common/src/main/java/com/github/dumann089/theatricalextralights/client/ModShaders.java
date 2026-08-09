@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import dev.imabad.theatrical.compat.ModCompat;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
@@ -64,8 +65,8 @@ public class ModShaders {
     }
 
     public static RenderType getGoboRenderType(ResourceLocation texture) {
-        if (isIrisShaderpackActive()) {
-            return getGoboFallbackRenderType(texture); // Usamos el fallback con CLAMP
+        if (ModCompat.SHIMMER || isIrisShaderpackActive()) {
+            return getGoboFallbackRenderType(texture);
         }
 
         return RENDER_TYPE_CACHE.computeIfAbsent(texture, tex -> {
@@ -103,7 +104,7 @@ public class ModShaders {
     }
 
     public static RenderType getVolumetricRenderType(ResourceLocation texture) {
-        if (isIrisShaderpackActive()) {
+        if (ModCompat.SHIMMER || isIrisShaderpackActive()) {
             return getVolumetricFallbackRenderType(texture);
         }
 
