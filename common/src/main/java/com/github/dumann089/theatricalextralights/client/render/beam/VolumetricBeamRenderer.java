@@ -17,14 +17,14 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
     private static final int MAX_BEAMS_PER_FIXTURE = 32;
     /** Vanilla volumetric shader fills density; Iris fallback only draws shell quads. */
     private static final int SLICE_MULTIPLIER = 2;
-    /**
-     * Keep Iris slice count modest — Complementary/IPBR treat beaconbeam almost opaque,
-     * so dense slices look like a cross/grid lattice. Soft UV falloff hides the remaining edges.
-     */
-    private static final int SLICE_MULTIPLIER_SHADERS = 3;
+    /** Length subdivisions for Iris shell geometry (4 walls × N) — not disc slices. */
+    private static final int SHELL_SEGMENTS_SHADERS = 24;
     /** cos² FOV threshold — lower = wider (shader fallback needs wider or horizon beams vanish). */
     private static final double BEAM_FOV_COS2 = 0.05;
     private static final double BEAM_FOV_COS2_SHADERS = 0.0004; // ~almost full sphere
+    /** Flat albedo so gobo UV noise doesn't print a mesh into the shaft under Complementary. */
+    private static final net.minecraft.resources.ResourceLocation SHADER_BEAM_TEXTURE =
+            new net.minecraft.resources.ResourceLocation("minecraft", "textures/block/white_concrete.png");
 
     private final float[][] cachedVertsSlots = new float[MAX_BEAMS_PER_FIXTURE][16384];
     private final int[] cachedQuadCountSlots = new int[MAX_BEAMS_PER_FIXTURE];
@@ -67,7 +67,7 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
         float maxAlpha = TheatricalExtraLightsConfig.getVolumetricBeamMaxAlpha();
         float fadeLen  = TheatricalExtraLightsConfig.getVolumetricBeamFadeLength();
         boolean shaders = IrisCompat.isShadersActive();
-        int sliceMul = shaders ? SLICE_MULTIPLIER_SHADERS : SLICE_MULTIPLIER;
+        int sliceMul = shaders ? 1 : SLICE_MULTIPLIER;
 
         int currentHash = 1;
         currentHash = 31 * currentHash + data.generateStateHash(dynamicSlices);
@@ -79,10 +79,14 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
         currentHash = 31 * currentHash + dynamicSlices;
         currentHash = 31 * currentHash + sliceMul;
         currentHash = 31 * currentHash + (hitBlock ? 1231 : 1237);
-        currentHash = 31 * currentHash + (shaders ? 1 : 0);
+        currentHash = 31 * currentHash + (shaders ? 2 : 0); // 2 = shell geometry
 
         if (currentHash != cachedHashSlots[slot]) {
-            rebuildGeometry(slot, data, dynamicSlices, scanLen, density, maxAlpha, fadeLen, hitBlock, sliceMul);
+            if (shaders) {
+                rebuildShellGeometry(slot, data, scanLen, density, maxAlpha, fadeLen, hitBlock);
+            } else {
+                rebuildGeometry(slot, data, dynamicSlices, scanLen, density, maxAlpha, fadeLen, hitBlock, sliceMul);
+            }
             cachedHashSlots[slot] = currentHash;
         }
 
@@ -91,10 +95,11 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
         this.beamB[slot] =  data.color()         & 0xFF;
 
         float rawIntensity = Math.min(data.intensity() * TheatricalExtraLightsConfig.getVolumetricBeamBrightness(), 1.0f);
-        this.beamAlphaScale[slot] = (float) Math.pow(rawIntensity, 0.5);
+        // Complementary/IPBR punches beaconbeam emission — keep shaft softer
+        this.beamAlphaScale[slot] = (float) Math.pow(rawIntensity, 0.5) * (shaders ? 0.55f : 1.0f);
 
-        if (IrisCompat.isShadersActive()) {
-            this.beamRenderTypes[slot] = ModShaders.getVolumetricFallbackRenderType(data.goboTexture());
+        if (shaders) {
+            this.beamRenderTypes[slot] = ModShaders.getVolumetricFallbackRenderType(SHADER_BEAM_TEXTURE);
         } else {
             this.beamRenderTypes[slot] = ModShaders.getVolumetricRenderType(data.goboTexture());
         }
@@ -162,7 +167,7 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
                     int g  = beamG[k];
                     int bl = beamB[k];
                     float alphaScale = beamAlphaScale[k];
-                    boolean softEdges = IrisCompat.isShadersActive();
+                    boolean shellSoft = IrisCompat.isShadersActive();
 
                     for (int i = 0; i < quadCount; i++) {
                         int offsetVert = i * 24;
@@ -195,11 +200,11 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
                             float u = verts[vOffset + 3];
                             float vv = verts[vOffset + 4];
                             float soft = 1.0f;
-                            if (softEdges) {
-                                float cx = u - 0.5f;
-                                float cy = vv - 0.5f;
-                                // Soft radial falloff kills hard slice edges / "cross" lattice under Complementary
-                                soft = (float) Math.exp(-(cx * cx + cy * cy) * 6.5);
+                            if (shellSoft) {
+                                // Soften wall seams (U) + lengthwise banding (V)
+                                float across = u * 2.0f - 1.0f;
+                                soft = (float) Math.exp(-across * across * 2.2)
+                                        * (0.75f + 0.25f * (float) Math.sin(Math.PI * vv));
                             }
                             int alphaInt = Math.min((int) (finalAlpha * soft * 255.0f), 255);
                             if (alphaInt <= 1) {
@@ -222,6 +227,114 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
     @Override
     public Vec3 getPos(float partialTick) {
         return this.currentPos != null ? Vec3.atCenterOf(this.currentPos) : Vec3.ZERO;
+    }
+
+    /**
+     * Iris/Complementary path: 4 longitudinal walls (frustum shell).
+     * The old single diagonal quad per slice cut through the volume and looked like a cross mesh.
+     */
+    private void rebuildShellGeometry(int slot, BeamRenderData data, float scanLen,
+                                      float density, float maxAlpha, float fadeLen, boolean hitBlock) {
+        int segments = SHELL_SEGMENTS_SHADERS;
+        int requiredSize = segments * 4 * 4 * 6; // segments × 4 walls × 4 verts × 6 floats
+        if (cachedVertsSlots[slot].length < requiredSize) {
+            cachedVertsSlots[slot] = new float[requiredSize + 512];
+        }
+        cachedQuadCountSlots[slot] = 0;
+
+        double ox = data.origin().x, oy = data.origin().y, oz = data.origin().z;
+        double bx = data.beamDir().x, by = data.beamDir().y, bz = data.beamDir().z;
+
+        double rad = Math.toRadians(-data.goboRotation());
+        double cos = Math.cos(rad);
+        double sin = Math.sin(rad);
+
+        double ux = (data.axisU().x * cos - data.axisV().x * sin);
+        double uy = (data.axisU().y * cos - data.axisV().y * sin);
+        double uz = (data.axisU().z * cos - data.axisV().z * sin);
+
+        double vx = (data.axisU().x * sin + data.axisV().x * cos);
+        double vy = (data.axisU().y * sin + data.axisV().y * cos);
+        double vz = (data.axisU().z * sin + data.axisV().z * cos);
+
+        float[] verts = cachedVertsSlots[slot];
+        int idx = 0;
+        float alphaFactor = 1.35f / segments;
+
+        for (int i = 0; i < segments; i++) {
+            float tCurr = (float) i / segments;
+            float tNext = (float) (i + 1) / segments;
+            float distCurr = tCurr * scanLen;
+            float distNext = tNext * scanLen;
+
+            float alphaC = shellAlpha(distCurr, scanLen, density, maxAlpha, fadeLen, hitBlock, alphaFactor);
+            float alphaN = shellAlpha(distNext, scanLen, density, maxAlpha, fadeLen, hitBlock, alphaFactor);
+            if (alphaC <= 0.001f && alphaN <= 0.001f) {
+                continue;
+            }
+
+            float radiusC = (data.tanHalfAngle() < 0.001f)
+                    ? data.baseRadius()
+                    : Math.max(data.baseRadius(), distCurr * data.tanHalfAngle());
+            float radiusN = (data.tanHalfAngle() < 0.001f)
+                    ? data.baseRadius()
+                    : Math.max(data.baseRadius(), distNext * data.tanHalfAngle());
+            float rwC = radiusC * data.widthScale();
+            float rhC = radiusC * data.heightScale();
+            float rwN = radiusN * data.widthScale();
+            float rhN = radiusN * data.heightScale();
+
+            double cxC = ox + bx * distCurr, cyC = oy + by * distCurr, czC = oz + bz * distCurr;
+            double cxN = ox + bx * distNext, cyN = oy + by * distNext, czN = oz + bz * distNext;
+
+            // Rectangle corners: 0=-- 1=+- 2=++ 3=-+  (u,v)
+            double[][] c = {
+                    {cxC - ux * rwC - vx * rhC, cyC - uy * rwC - vy * rhC, czC - uz * rwC - vz * rhC},
+                    {cxC + ux * rwC - vx * rhC, cyC + uy * rwC - vy * rhC, czC + uz * rwC - vz * rhC},
+                    {cxC + ux * rwC + vx * rhC, cyC + uy * rwC + vy * rhC, czC + uz * rwC + vz * rhC},
+                    {cxC - ux * rwC + vx * rhC, cyC - uy * rwC + vy * rhC, czC - uz * rwC + vz * rhC},
+            };
+            double[][] n = {
+                    {cxN - ux * rwN - vx * rhN, cyN - uy * rwN - vy * rhN, czN - uz * rwN - vz * rhN},
+                    {cxN + ux * rwN - vx * rhN, cyN + uy * rwN - vy * rhN, czN + uz * rwN - vz * rhN},
+                    {cxN + ux * rwN + vx * rhN, cyN + uy * rwN + vy * rhN, czN + uz * rwN + vz * rhN},
+                    {cxN - ux * rwN + vx * rhN, cyN - uy * rwN + vy * rhN, czN - uz * rwN + vz * rhN},
+            };
+
+            for (int face = 0; face < 4; face++) {
+                int a = face;
+                int b = (face + 1) & 3;
+                idx = putVert(verts, idx, c[a][0], c[a][1], c[a][2], 0.0f, tCurr, alphaC);
+                idx = putVert(verts, idx, c[b][0], c[b][1], c[b][2], 1.0f, tCurr, alphaC);
+                idx = putVert(verts, idx, n[b][0], n[b][1], n[b][2], 1.0f, tNext, alphaN);
+                idx = putVert(verts, idx, n[a][0], n[a][1], n[a][2], 0.0f, tNext, alphaN);
+                cachedQuadCountSlots[slot]++;
+            }
+        }
+    }
+
+    private static float shellAlpha(float dist, float scanLen, float density, float maxAlpha,
+                                    float fadeLen, boolean hitBlock, float alphaFactor) {
+        float alpha = (float) Math.exp(-(dist / scanLen) * density) * maxAlpha * alphaFactor;
+        if (fadeLen > 0.0f && !hitBlock) {
+            float distanceLeft = scanLen - dist;
+            if (distanceLeft < fadeLen) {
+                float fadeRatio = distanceLeft / fadeLen;
+                alpha *= fadeRatio * fadeRatio * fadeRatio;
+            }
+        }
+        return alpha;
+    }
+
+    private static int putVert(float[] verts, int idx, double x, double y, double z,
+                               float u, float v, float alpha) {
+        verts[idx++] = (float) x;
+        verts[idx++] = (float) y;
+        verts[idx++] = (float) z;
+        verts[idx++] = u;
+        verts[idx++] = v;
+        verts[idx++] = alpha;
+        return idx;
     }
 
     private void rebuildGeometry(int slot, BeamRenderData data, int slices, float scanLen,
@@ -302,6 +415,7 @@ public class VolumetricBeamRenderer extends LazyRenderers.LazyRenderer {
 
             if (sliceAlphaC <= 0.001f && sliceAlphaN <= 0.001f) continue;
 
+            // Vanilla path keeps legacy single-panel segments (custom volumetric shader fills them)
             verts[idx++] = (float)(cxC - ux*radiusWC + vx*radiusHC); verts[idx++] = (float)(cyC - uy*radiusWC + vy*radiusHC); verts[idx++] = (float)(czC - uz*radiusWC + vz*radiusHC);
             verts[idx++] = 0.0f; verts[idx++] = 0.0f; verts[idx++] = sliceAlphaC;
 
