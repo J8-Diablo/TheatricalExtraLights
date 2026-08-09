@@ -117,6 +117,7 @@ public class Blocks {
     public static final RegistrySupplier<Block> CAKE_WATER_JET_BLOCK = BLOCKS.register("cake_water_jet", CakeWaterJetBlock::new);
     public static final RegistrySupplier<Block> VASE_WATER_JET_BLOCK = BLOCKS.register("vase_water_jet", VaseWaterJetBlock::new);
     public static final RegistrySupplier<Block> WALTZES_WATER_JET_BLOCK = BLOCKS.register("waltzes_water_jet", WaltzesWaterJetBlock::new);
+    public static final RegistrySupplier<Block> WALTZ_CURTAIN_BLOCK = BLOCKS.register("waltz_curtain", WaltzCurtainBlock::new);
 
 
     public static final RegistrySupplier<Block> WHITE_STROBE_BLOCK = BLOCKS.register("white_strobe", WhiteStrobeBlock::new);
@@ -221,6 +222,7 @@ public class Blocks {
     public static final RegistrySupplier<Block> TRUSS_CORNER_BLOCK = BLOCKS.register("truss_corner", TrussCornerBlock::new);
     public static final RegistrySupplier<Block> TRUSS_CORNER_T_BLOCK = BLOCKS.register("truss_corner_t", TrussCornerTBlock::new);
     public static final RegistrySupplier<Block> FOLLOWSPOT_CONSOLE_BLOCK = BLOCKS.register("followspot_console", FollowspotConsoleBlock::new);
+    public static final RegistrySupplier<Block> LED_FACADE = BLOCKS.register("led_facade", LedFacadeBlock::new);
 
 
 

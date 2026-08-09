@@ -3,9 +3,11 @@ package com.github.dumann089.theatricalextralights.client;
 import com.github.dumann089.theatricalextralights.TheatricalExtraLightsScreens;
 import com.github.dumann089.theatricalextralights.blockentities.ExtraLightsLightBlockEntity;
 import com.github.dumann089.theatricalextralights.blockentities.FollowspotConsoleBlockEntity;
+import com.github.dumann089.theatricalextralights.blockentities.LedFacadeBlockEntity;
 import com.github.dumann089.theatricalextralights.client.gui.ExtraLightsConfigScreen;
 import com.github.dumann089.theatricalextralights.client.gui.FixtureMountScreen;
 import com.github.dumann089.theatricalextralights.client.gui.FollowspotConsoleScreen;
+import com.github.dumann089.theatricalextralights.client.gui.LedFacadeScreen;
 import com.github.dumann089.theatricalextralights.client.gui.WaterJetConfigScreen;
 import dev.imabad.theatrical.blockentities.light.BaseDMXConsumerLightBlockEntity;
 import net.fabricmc.api.EnvType;
@@ -39,6 +41,9 @@ public class ExtraLightsClientScreens {
         if (screenType == TheatricalExtraLightsScreens.MOUNT_WRENCH) {
             if (be instanceof ExtraLightsLightBlockEntity mountable) {
                 mc.setScreen(new FixtureMountScreen(mountable, pos));
+        if (screenType == TheatricalExtraLightsScreens.LED_FACADE) {
+            if (be instanceof LedFacadeBlockEntity facade) {
+                mc.setScreen(new LedFacadeScreen(facade, pos));
             }
             return;
         }
@@ -59,6 +64,8 @@ public class ExtraLightsClientScreens {
             case CHANNEL_PANTILT ->
                     new ExtraLightsConfigScreen(lightBE, pos, lightBE.getTranslationKey(), true);
             case MOUNT_WRENCH, FOLLOWSPOT_CONSOLE -> null;
+            case FOLLOWSPOT_CONSOLE -> null;
+            case LED_FACADE -> null; // Phase 2 : new LedFacadeScreen(...)
         };
 
         if (gui != null) {
