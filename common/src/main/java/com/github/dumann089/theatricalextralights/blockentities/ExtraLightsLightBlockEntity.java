@@ -192,6 +192,24 @@ public abstract class ExtraLightsLightBlockEntity extends BaseDMXConsumerLightBl
         level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
     }
 
+    /** Pan/tilt only — leaves intensity / RGB / focus to Art-Net / desk software. */
+    public void applyDirectPanTilt(int pan, int tilt) {
+        if (level == null || level.isClientSide) {
+            return;
+        }
+        int qi = FollowspotDmxHelper.quantizePan(pan);
+        int qt = FollowspotDmxHelper.quantizeTilt(tilt);
+        if (this.pan == qi && this.tilt == qt) {
+            return;
+        }
+        this.pan = qi;
+        this.tilt = qt;
+        prevPan = qi;
+        prevTilt = qt;
+        setChanged();
+        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+    }
+
     @Override
     public void lightTick() {
         super.lightTick();

@@ -55,13 +55,7 @@ public class ModShaders {
     private static final Map<ResourceLocation, RenderType> GOBO_FALLBACK_CACHE = new HashMap<>();
 
     public static boolean isIrisShaderpackActive() {
-        try {
-            Class<?> irisApiClass = Class.forName("net.irisshaders.iris.api.v0.IrisApi");
-            Object apiInstance = irisApiClass.getMethod("getInstance").invoke(null);
-            return (Boolean) irisApiClass.getMethod("isShaderPackInUse").invoke(apiInstance);
-        } catch (Exception e) {
-            return false;
-        }
+        return IrisCompat.isShadersActive();
     }
 
     public static RenderType getGoboRenderType(ResourceLocation texture) {

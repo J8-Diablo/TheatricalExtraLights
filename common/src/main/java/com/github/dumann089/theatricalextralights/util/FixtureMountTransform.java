@@ -4,7 +4,12 @@ import com.github.dumann089.theatricalextralights.blockentities.ExtraLightsLight
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.imabad.theatrical.blockentities.light.BaseLightBlockEntity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 /**
  * Applies user-configurable mount offsets before fixture facing / pan / tilt transforms.
@@ -49,5 +54,54 @@ public final class FixtureMountTransform {
         }
         poseStack.translate(offsetX, offsetY, offsetZ);
         poseStack.translate(-0.5F, -0.5F, -0.5F);
+    }
+
+    /** World-space point after the same mount transform used for rendering. */
+    public static Vec3 transformWorldPoint(ExtraLightsLightBlockEntity mountable, BlockPos pos, Vec3 worldPoint) {
+        if (!mountable.hasMountTransform()) {
+            return worldPoint;
+        }
+        Matrix4f m = buildMatrix(mountable);
+        Vector4f v = m.transform(new Vector4f(
+                (float) (worldPoint.x - pos.getX()),
+                (float) (worldPoint.y - pos.getY()),
+                (float) (worldPoint.z - pos.getZ()),
+                1.0f
+        ));
+        return new Vec3(pos.getX() + v.x, pos.getY() + v.y, pos.getZ() + v.z);
+    }
+
+    /** Direction after mount rotation (offsets ignored). */
+    public static Vector3f transformDirection(ExtraLightsLightBlockEntity mountable, Vector3f direction) {
+        if (!mountable.hasMountTransform()) {
+            return direction;
+        }
+        Matrix4f m = buildMatrix(mountable);
+        Vector4f v = m.transform(new Vector4f(direction.x, direction.y, direction.z, 0.0f));
+        Vector3f out = new Vector3f(v.x, v.y, v.z);
+        if (out.lengthSquared() > 1.0e-8f) {
+            out.normalize();
+        }
+        return out;
+    }
+
+    private static Matrix4f buildMatrix(ExtraLightsLightBlockEntity mountable) {
+        Matrix4f m = new Matrix4f().identity();
+        m.translate(0.5f, 0.5f, 0.5f);
+        float yaw = mountable.getMountYaw();
+        float pitch = mountable.getMountPitch();
+        float roll = mountable.getMountRoll();
+        if (yaw != 0.0F) {
+            m.rotateY((float) Math.toRadians(yaw));
+        }
+        if (pitch != 0.0F) {
+            m.rotateX((float) Math.toRadians(pitch));
+        }
+        if (roll != 0.0F) {
+            m.rotateZ((float) Math.toRadians(roll));
+        }
+        m.translate(mountable.getMountOffsetX(), mountable.getMountOffsetY(), mountable.getMountOffsetZ());
+        m.translate(-0.5f, -0.5f, -0.5f);
+        return m;
     }
 }

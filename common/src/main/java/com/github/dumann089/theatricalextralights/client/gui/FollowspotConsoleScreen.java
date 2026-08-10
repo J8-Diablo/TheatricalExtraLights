@@ -30,7 +30,7 @@ import java.util.UUID;
 public class FollowspotConsoleScreen extends Screen {
 
     private static final int PANEL_W = 400;
-    private static final int PANEL_H = 318;
+    private static final int PANEL_H = 368;
     private static final int PAD = 14;
     private static final int ROW_H = 18;
     private static final int GAP = 6;
@@ -53,6 +53,7 @@ public class FollowspotConsoleScreen extends Screen {
     private EditBox universeField;
     private EditBox addressField;
     private Button networkButton;
+    private Button modeButton;
 
     private ValueSlider focusSlider;
     private ValueSlider redSlider;
@@ -70,12 +71,15 @@ public class FollowspotConsoleScreen extends Screen {
     private int focus;
     private int pan;
     private int tilt;
+    /** Console aims only; intensity / RGB / focus stay on the desk / Art-Net. */
+    private boolean panTiltOnly;
 
     private int panelX;
     private int panelY;
     private int contentX;
     private int contentW;
     private int patchFieldsY;
+    private int modeButtonY;
     private int slidersY;
     private int buttonsY;
 
@@ -92,6 +96,7 @@ public class FollowspotConsoleScreen extends Screen {
     private UUID syncedNetworkId;
     private int syncedUniverse;
     private int syncedDmxAddress;
+    private boolean syncedPanTiltOnly;
     private int patchDraftHash;
 
     public FollowspotConsoleScreen(FollowspotConsoleBlockEntity console, BlockPos consolePos) {
@@ -111,7 +116,8 @@ public class FollowspotConsoleScreen extends Screen {
         contentW = PANEL_W - PAD * 2;
 
         patchFieldsY = panelY + HEADER_H + 34;
-        slidersY = panelY + HEADER_H + 108;
+        modeButtonY = patchFieldsY + ROW_H + 22;
+        slidersY = panelY + HEADER_H + 150;
         buttonsY = panelY + PANEL_H - PAD - ROW_H;
 
         int netW = 98;
@@ -134,6 +140,12 @@ public class FollowspotConsoleScreen extends Screen {
         addressField.setFilter(v -> v.isEmpty() || v.matches("\\d+"));
         addressField.setValue(Integer.toString(console.getDmxAddress()));
         addRenderableWidget(addressField);
+
+        modeButton = addRenderableWidget(Button.builder(getModeLabel(), b -> {
+            panTiltOnly = !panTiltOnly;
+            refreshModeUi();
+            sendPatch();
+        }).bounds(contentX, modeButtonY, contentW, ROW_H).build());
 
         int sliderW = contentW - LABEL_COL - 30;
         int sx = contentX + LABEL_COL;
@@ -159,9 +171,11 @@ public class FollowspotConsoleScreen extends Screen {
         syncedNetworkId = console.getNetworkId();
         syncedUniverse = console.getUniverse();
         syncedDmxAddress = console.getDmxAddress();
+        syncedPanTiltOnly = console.isPanTiltOnly();
         patchDraftHash = computePatchDraftHash();
         updateLinkPreview();
         syncControlsFromLinkedFixture();
+        refreshModeUi();
     }
 
     private ValueSlider addSlider(int x, int y, int w, int initial, java.util.function.IntConsumer onChange) {
@@ -176,6 +190,27 @@ public class FollowspotConsoleScreen extends Screen {
         focus = console.getFocus();
         pan = console.getPan();
         tilt = console.getTilt();
+        panTiltOnly = console.isPanTiltOnly();
+    }
+
+    private Component getModeLabel() {
+        return Component.translatable(panTiltOnly
+                ? "screen.followspot_console.mode_pan_tilt"
+                : "screen.followspot_console.mode_full");
+    }
+
+    private void refreshModeUi() {
+        if (modeButton != null) {
+            modeButton.setMessage(getModeLabel());
+        }
+        boolean full = !panTiltOnly;
+        if (focusSlider != null) {
+            focusSlider.active = full;
+            redSlider.active = full;
+            greenSlider.active = full;
+            blueSlider.active = full;
+            intensitySlider.active = full;
+        }
     }
 
     private void setupNetworks() {
@@ -230,7 +265,8 @@ public class FollowspotConsoleScreen extends Screen {
             updateLinkPreview();
             return;
         }
-        ModNetworkHandler.CHANNEL.sendToServer(new FollowspotConsolePatchPacket(consolePos, networkId, universe, address));
+        ModNetworkHandler.CHANNEL.sendToServer(new FollowspotConsolePatchPacket(
+                consolePos, networkId, universe, address, panTiltOnly));
         updateLinkPreview();
     }
 
@@ -307,12 +343,15 @@ public class FollowspotConsoleScreen extends Screen {
         UUID networkId = console.getNetworkId();
         int universe = console.getUniverse();
         int address = console.getDmxAddress();
-        if (networkId.equals(syncedNetworkId) && universe == syncedUniverse && address == syncedDmxAddress) {
+        boolean mode = console.isPanTiltOnly();
+        if (networkId.equals(syncedNetworkId) && universe == syncedUniverse
+                && address == syncedDmxAddress && mode == syncedPanTiltOnly) {
             return;
         }
         syncedNetworkId = networkId;
         syncedUniverse = universe;
         syncedDmxAddress = address;
+        syncedPanTiltOnly = mode;
         ensureNetworkListed(networkId);
         currentNetworkIndex = Math.max(networkIds.indexOf(networkId), 0);
         if (networkButton != null) {
@@ -325,6 +364,7 @@ public class FollowspotConsoleScreen extends Screen {
             addressField.setValue(Integer.toString(address));
         }
         loadFromConsole();
+        refreshModeUi();
         updateLinkPreview();
         syncControlsFromLinkedFixture();
     }
@@ -522,16 +562,22 @@ public class FollowspotConsoleScreen extends Screen {
         g.drawString(font, Component.translatable("fixture.dmxStart"), addrX, patchFieldsY - 11, SUB, false);
 
         int statusColor = linkedFixturePos != null ? ACCENT : WARN;
-        g.drawString(font, getLinkStatus(), contentX, patchFieldsY + ROW_H + 8, statusColor, false);
+        g.drawString(font, getLinkStatus(), contentX, patchFieldsY + ROW_H + 4, statusColor, false);
+
+        if (panTiltOnly) {
+            g.drawString(font, Component.translatable("screen.followspot_console.mode_hint"),
+                    contentX, modeButtonY + ROW_H + 3, SUB, false);
+        }
 
         if (minecraft != null && linkedFixturePos != null) {
+            int infoY = panTiltOnly ? modeButtonY + ROW_H + 14 : modeButtonY + ROW_H + 4;
             g.drawString(font, Component.translatable("screen.followspot_console.pan_tilt",
                     Integer.toString(pan), Integer.toString(tilt)),
-                    contentX, panelY + HEADER_H + 72, TEXT, false);
+                    contentX, infoY, TEXT, false);
             g.drawString(font, Component.translatable("screen.followspot_console.movement_hint",
                             keyLabel(minecraft.options.keyUp), keyLabel(minecraft.options.keyLeft),
                             keyLabel(minecraft.options.keyDown), keyLabel(minecraft.options.keyRight)),
-                    contentX, panelY + HEADER_H + 84, SUB, false);
+                    contentX, infoY + 12, SUB, false);
         }
 
         g.drawString(font, Component.translatable("screen.followspot_console.section_control"),
@@ -592,7 +638,8 @@ public class FollowspotConsoleScreen extends Screen {
             int address = parseOrDefault(addressField, console.getDmxAddress());
             boolean patchChanged = !networkId.equals(console.getNetworkId())
                     || parseOrDefault(universeField, console.getUniverse()) != console.getUniverse()
-                    || address != console.getDmxAddress();
+                    || address != console.getDmxAddress()
+                    || panTiltOnly != console.isPanTiltOnly();
             // Save whenever address is valid; NULL network is allowed (clears link)
             if (patchChanged && FollowspotDmxHelper.isValidDmxAddress(address)) {
                 sendPatch();
@@ -630,6 +677,9 @@ public class FollowspotConsoleScreen extends Screen {
 
         @Override
         protected void applyValue() {
+            if (panTiltOnly) {
+                return;
+            }
             onChange.accept(getIntValue());
             sendControl();
         }
