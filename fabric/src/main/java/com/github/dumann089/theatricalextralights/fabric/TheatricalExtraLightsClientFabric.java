@@ -41,6 +41,18 @@ public class TheatricalExtraLightsClientFabric implements ClientModInitializer {
             buffers.endBatch(LensRenderTypes.LENS);
         });
 
+        // Capture la profondeur après les block entities mais avant le rendu
+        // translucide et les particules, pour que ni les particules ni les
+        // vitres ne découpent les faisceaux raymarch.
+        WorldRenderEvents.BEFORE_BLOCK_OUTLINE.register((context, hitResult) -> {
+            if (com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig.isRaymarchEngine()
+                    && ModShaders.canUseRaymarch()) {
+                Minecraft.getInstance().renderBuffers().bufferSource().endBatch();
+                com.github.dumann089.theatricalextralights.client.render.beam.raymarch.SceneDepthCopy.capture();
+            }
+            return true;
+        });
+
         if (!ModCompat.SHIMMER) {
             CoreShaderRegistrationCallback.EVENT.register(context -> {
                 context.register(
@@ -52,6 +64,11 @@ public class TheatricalExtraLightsClientFabric implements ClientModInitializer {
                         new ResourceLocation("theatricalextralights", "volumetric_beam"),
                         DefaultVertexFormat.POSITION_COLOR_TEX,
                         shader -> ModShaders.volumetricBeamShader = shader
+                );
+                context.register(
+                        new ResourceLocation("theatricalextralights", "beam_raymarch"),
+                        DefaultVertexFormat.POSITION_COLOR_TEX,
+                        shader -> ModShaders.beamRaymarchShader = shader
                 );
             });
         }

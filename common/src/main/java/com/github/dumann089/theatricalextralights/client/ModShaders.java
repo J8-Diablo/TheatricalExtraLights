@@ -19,6 +19,7 @@ public class ModShaders {
 
     public static ShaderInstance goboProjectorShader;
     public static ShaderInstance volumetricBeamShader;
+    public static ShaderInstance beamRaymarchShader;
 
     public static float configDensity = 0.15f;
     public static float configMaxAlpha = 0.25f;
@@ -30,10 +31,23 @@ public class ModShaders {
     public static final RenderStateShard.ShaderStateShard VOLUMETRIC_SHADER_STATE =
             new RenderStateShard.ShaderStateShard(() -> volumetricBeamShader);
 
+    public static final RenderStateShard.ShaderStateShard RAYMARCH_SHADER_STATE =
+            new RenderStateShard.ShaderStateShard(() -> beamRaymarchShader);
+
     public static final RenderStateShard.TransparencyStateShard ADDITIVE_TRANSPARENCY =
             new RenderStateShard.TransparencyStateShard("additive_transparency", () -> {
                 RenderSystem.enableBlend();
                 RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
+            }, () -> {
+                RenderSystem.disableBlend();
+                RenderSystem.defaultBlendFunc();
+            });
+
+    /** ONE/ONE: the raymarch shader outputs final light energy, alpha is ignored. */
+    public static final RenderStateShard.TransparencyStateShard PURE_ADDITIVE_TRANSPARENCY =
+            new RenderStateShard.TransparencyStateShard("pure_additive_transparency", () -> {
+                RenderSystem.enableBlend();
+                RenderSystem.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
             }, () -> {
                 RenderSystem.disableBlend();
                 RenderSystem.defaultBlendFunc();
@@ -53,9 +67,38 @@ public class ModShaders {
     private static final Map<ResourceLocation, RenderType> VOLUMETRIC_TYPE_CACHE = new HashMap<>();
     private static final Map<ResourceLocation, RenderType> VOLUMETRIC_FALLBACK_CACHE = new HashMap<>();
     private static final Map<ResourceLocation, RenderType> GOBO_FALLBACK_CACHE = new HashMap<>();
+    private static final Map<ResourceLocation, RenderType> RAYMARCH_TYPE_CACHE = new HashMap<>();
 
     public static boolean isIrisShaderpackActive() {
         return IrisCompat.isShadersActive();
+    }
+
+    /**
+     * Raymarch needs our core shader; only an active Iris/Oculus shaderpack bypasses it.
+     * Shimmer 0.2.5+ no longer breaks mod-namespace core shaders, so it stays allowed.
+     */
+    public static boolean canUseRaymarch() {
+        return beamRaymarchShader != null && !isIrisShaderpackActive();
+    }
+
+    public static RenderType getRaymarchRenderType(ResourceLocation texture) {
+        return RAYMARCH_TYPE_CACHE.computeIfAbsent(texture, tex -> {
+            // Proxy quads are wound inward + culling enabled: exactly one face per
+            // ray (the exit face), so the volume is marched once, even with the
+            // camera inside the beam.
+            RenderType.CompositeState state = RenderType.CompositeState.builder()
+                    .setShaderState(RAYMARCH_SHADER_STATE)
+                    .setTextureState(new RenderStateShard.TextureStateShard(tex, false, false))
+                    .setTransparencyState(PURE_ADDITIVE_TRANSPARENCY)
+                    .setDepthTestState(RenderStateShard.NO_DEPTH_TEST)
+                    .setCullState(RenderStateShard.CULL)
+                    .setLightmapState(RenderStateShard.NO_LIGHTMAP)
+                    .setWriteMaskState(RenderStateShard.COLOR_WRITE)
+                    .createCompositeState(false);
+
+            return RenderType.create("beam_raymarch", DefaultVertexFormat.POSITION_COLOR_TEX,
+                    VertexFormat.Mode.QUADS, 65536, false, true, state);
+        });
     }
 
     public static RenderType getGoboRenderType(ResourceLocation texture) {
@@ -106,6 +149,7 @@ public class ModShaders {
             RenderType.CompositeState state = RenderType.CompositeState.builder()
                     .setShaderState(VOLUMETRIC_SHADER_STATE)
                     .setTextureState(new RenderStateShard.TextureStateShard(tex, false, false))
+                    .setTexturingState(CLAMP_TEXTURING)
                     .setTransparencyState(ADDITIVE_TRANSPARENCY)
                     .setDepthTestState(new RenderStateShard.DepthTestStateShard("lequal_depth", 515))
                     .setCullState(new RenderStateShard.CullStateShard(false))
@@ -113,7 +157,7 @@ public class ModShaders {
                     .createCompositeState(false);
 
             return RenderType.create("volumetric_beam", DefaultVertexFormat.POSITION_COLOR_TEX,
-                    VertexFormat.Mode.QUADS, 256, false, true, state);
+                    VertexFormat.Mode.QUADS, 65536, false, true, state);
         });
     }
 
@@ -122,6 +166,7 @@ public class ModShaders {
             RenderType.CompositeState state = RenderType.CompositeState.builder()
                     .setShaderState(RenderStateShard.RENDERTYPE_BEACON_BEAM_SHADER)
                     .setTextureState(new RenderStateShard.TextureStateShard(tex, false, false))
+                    .setTexturingState(CLAMP_TEXTURING)
                     .setTransparencyState(ADDITIVE_TRANSPARENCY)
                     .setDepthTestState(new RenderStateShard.DepthTestStateShard("lequal_depth", 515))
                     .setCullState(new RenderStateShard.CullStateShard(false))
@@ -129,7 +174,7 @@ public class ModShaders {
                     .createCompositeState(false);
 
             return RenderType.create("volumetric_beam_fallback", DefaultVertexFormat.POSITION_COLOR_TEX,
-                    VertexFormat.Mode.QUADS, 256, false, true, state);
+                    VertexFormat.Mode.QUADS, 65536, false, true, state);
         });
     }
 }

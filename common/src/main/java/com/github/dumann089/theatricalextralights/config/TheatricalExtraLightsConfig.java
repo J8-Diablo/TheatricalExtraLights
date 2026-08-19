@@ -37,6 +37,14 @@ public class TheatricalExtraLightsConfig {
     private Float volumetricBeamMaxAlpha = 0.15f;
     private Float volumetricBeamFadeLength = 12.0f;
 
+    /** RAYMARCH (default) or LEGACY_SLICES */
+    private String volumetricEngine = "RAYMARCH";
+    /** LOW, MEDIUM, HIGH, ULTRA */
+    private String raymarchQuality = "HIGH";
+    private Float raymarchAnisotropy = 0.55f;
+    private Float raymarchDustAmount = 0.55f;
+    private Integer raymarchMaxBeamsPerFrame = 128;
+
     private Integer maxConcurrentRockets = 768;
     private Integer maxSparksPerRocket = 600;
     private Double fireworkRenderDistance = 2048.0;
@@ -95,6 +103,38 @@ public class TheatricalExtraLightsConfig {
     public static float getVolumetricBeamDensity() { return INSTANCE.volumetricBeamDensity; }
     public static float getVolumetricBeamMaxAlpha() { return INSTANCE.volumetricBeamMaxAlpha; }
     public static float getVolumetricBeamFadeLength() { return INSTANCE.volumetricBeamFadeLength != null ? INSTANCE.volumetricBeamFadeLength : 2.0f; }
+
+    public static boolean isRaymarchEngine() {
+        String engine = INSTANCE.volumetricEngine;
+        return engine == null || !"LEGACY_SLICES".equalsIgnoreCase(engine.trim());
+    }
+
+    public static String getRaymarchQuality() {
+        return INSTANCE.raymarchQuality != null ? INSTANCE.raymarchQuality : "HIGH";
+    }
+
+    public static int getRaymarchSteps() {
+        String q = getRaymarchQuality().trim().toUpperCase();
+        return switch (q) {
+            case "LOW" -> 8;
+            case "MEDIUM" -> 16;
+            case "ULTRA" -> 32;
+            default -> 24; // HIGH
+        };
+    }
+
+    public static float getRaymarchAnisotropy() {
+        return INSTANCE.raymarchAnisotropy != null ? INSTANCE.raymarchAnisotropy : 0.55f;
+    }
+
+    public static float getRaymarchDustAmount() {
+        return INSTANCE.raymarchDustAmount != null ? INSTANCE.raymarchDustAmount : 0.55f;
+    }
+
+    public static int getRaymarchMaxBeamsPerFrame() {
+        int value = INSTANCE.raymarchMaxBeamsPerFrame != null ? INSTANCE.raymarchMaxBeamsPerFrame : 128;
+        return Math.max(1, Math.min(128, value));
+    }
     public static float getLaserBeamLength() { return INSTANCE.laserBeamLength; }
     public static float getRgbBarBeamLength() { return INSTANCE.rgbBarBeamLength; }
     public static boolean shouldRenderLens() { return INSTANCE.renderLens; }
