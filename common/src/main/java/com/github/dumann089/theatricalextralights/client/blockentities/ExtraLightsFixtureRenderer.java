@@ -6,6 +6,7 @@ import com.github.dumann089.theatricalextralights.client.gobo.GoboLibrary;
 import com.github.dumann089.theatricalextralights.client.render.beam.BeamRenderData;
 import com.github.dumann089.theatricalextralights.client.render.beam.VolumetricBeamRenderer;
 import com.github.dumann089.theatricalextralights.config.TheatricalExtraLightsConfig;
+import com.github.dumann089.theatricalextralights.util.FixtureMountTransform;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.imabad.theatrical.blockentities.light.BaseLightBlockEntity;
@@ -48,6 +49,9 @@ public abstract class ExtraLightsFixtureRenderer<T extends BaseLightBlockEntity>
     public void render(T blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource multiBufferSource,
                        int packedLight, int packedOverlay) {
         poseStack.pushPose();
+        // renderModel duplicates hang/pan/tilt and never called preparePoseStack — apply mount here
+        // so the wrench moves the block model (beams already apply mount in preparePoseStack).
+        FixtureMountTransform.apply(poseStack, blockEntity);
         VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.cutout());
         BlockState blockState = blockEntity.getBlockState();
         boolean isFlipped = blockEntity.isUpsideDown();

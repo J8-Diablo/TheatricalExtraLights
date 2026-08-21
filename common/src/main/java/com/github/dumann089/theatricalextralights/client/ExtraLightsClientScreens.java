@@ -41,6 +41,10 @@ public class ExtraLightsClientScreens {
         if (screenType == TheatricalExtraLightsScreens.MOUNT_WRENCH) {
             if (be instanceof ExtraLightsLightBlockEntity mountable) {
                 mc.setScreen(new FixtureMountScreen(mountable, pos));
+            }
+            return;
+        }
+
         if (screenType == TheatricalExtraLightsScreens.LED_FACADE) {
             if (be instanceof LedFacadeBlockEntity facade) {
                 mc.setScreen(new LedFacadeScreen(facade, pos));
@@ -63,9 +67,7 @@ public class ExtraLightsClientScreens {
                     new ExtraLightsConfigScreen(lightBE, pos, lightBE.getTranslationKey(), false);
             case CHANNEL_PANTILT ->
                     new ExtraLightsConfigScreen(lightBE, pos, lightBE.getTranslationKey(), true);
-            case MOUNT_WRENCH, FOLLOWSPOT_CONSOLE -> null;
-            case FOLLOWSPOT_CONSOLE -> null;
-            case LED_FACADE -> null; // Phase 2 : new LedFacadeScreen(...)
+            case MOUNT_WRENCH, FOLLOWSPOT_CONSOLE, LED_FACADE -> null;
         };
 
         if (gui != null) {
