@@ -45,6 +45,14 @@ public class TheatricalExtraLightsConfig {
     private Float raymarchDustAmount = 0.55f;
     private Integer raymarchMaxBeamsPerFrame = 128;
 
+    /**
+     * Dimensionne la tache lumineuse des lyres sur la section du cone a la distance eclairee,
+     * au lieu du rayon derive du seul focus par Theatrical, qui ignore la distance.
+     */
+    private Boolean spotFollowsBeam = true;
+    /** Garde-fou : au-dela, la lumiere dynamique couvrirait un volume absurde. */
+    private Float spotMaxRadius = 48.0f;
+
     private Integer maxConcurrentRockets = 768;
     private Integer maxSparksPerRocket = 600;
     private Double fireworkRenderDistance = 2048.0;
@@ -129,6 +137,20 @@ public class TheatricalExtraLightsConfig {
 
     public static float getRaymarchDustAmount() {
         return INSTANCE.raymarchDustAmount != null ? INSTANCE.raymarchDustAmount : 0.55f;
+    }
+
+    public static boolean doesSpotFollowBeam() {
+        return INSTANCE.spotFollowsBeam == null || INSTANCE.spotFollowsBeam;
+    }
+
+    public static float getSpotMaxRadius() {
+        float v = INSTANCE.spotMaxRadius != null ? INSTANCE.spotMaxRadius : 48.0f;
+        return Math.max(1.0f, Math.min(256.0f, v));
+    }
+
+    public static void setSpotFollowsBeam(boolean value) {
+        INSTANCE.spotFollowsBeam = value;
+        save();
     }
 
     public static int getRaymarchMaxBeamsPerFrame() {

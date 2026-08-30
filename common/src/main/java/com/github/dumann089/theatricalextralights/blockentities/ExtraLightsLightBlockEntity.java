@@ -192,6 +192,26 @@ public abstract class ExtraLightsLightBlockEntity extends BaseDMXConsumerLightBl
         level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
     }
 
+    /**
+     * Rayon de la tache lumineuse, cale sur la section du cone la ou la lumiere arrive.
+     *
+     * <p>Theatrical derive ce rayon du seul canal focus, sans tenir compte de la distance : un
+     * cone serre eclairant a 60 blocs produisait la meme tache qu'a 3 blocs, alors que le
+     * faisceau dessine, lui, s'elargit avec la distance. Les deux tailles ne coincidaient qu'a
+     * une distance precise.
+     *
+     * <p>Ne s'applique qu'aux projecteurs dont le renderer publie un cone, c'est-a-dire les
+     * lyres a focus ou a zoom. Pour tous les autres — PAR a cone fixe notamment — aucun cone
+     * n'est publie et le comportement d'origine est conserve. Les strobes et blinders
+     * surchargent deja cette methode et ne passent pas ici.
+     */
+    @Override
+    public float getLightSpread() {
+        float spread = com.github.dumann089.theatricalextralights.client.render.beam.BeamSpotLighting
+                .spotRadius(getLevel(), getBlockPos(), getDistance());
+        return Float.isNaN(spread) ? super.getLightSpread() : spread;
+    }
+
     /** Pan/tilt only — leaves intensity / RGB / focus to Art-Net / desk software. */
     public void applyDirectPanTilt(int pan, int tilt) {
         if (level == null || level.isClientSide) {
