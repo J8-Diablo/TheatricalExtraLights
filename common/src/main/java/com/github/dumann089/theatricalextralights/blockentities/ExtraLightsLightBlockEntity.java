@@ -246,19 +246,36 @@ public abstract class ExtraLightsLightBlockEntity extends BaseDMXConsumerLightBl
         return false;
     }
 
-    @Override
+    // Point d'entree du DmxFrame etendu de Theatrical. Pas de @Override ni d'appel a super :
+    // BaseDMXConsumerLightBlockEntity ne declare ces methodes que dans les builds Theatrical
+    // portant DmxFrameExtendedFixture, absente de la derniere version publiee
+    // (alpha.28.120). On applique donc les valeurs directement sur les champs protected de
+    // BaseLightBlockEntity — meme resultat, et la dependance reste souple comme le veut
+    // ExtraLightsMixinPlugin, qui n'ajoute l'interface que lorsque l'API existe.
+
     public void applyDmxFrameBase(int intensity, int red, int green, int blue,
                                   int prevIntensity, int prevRed, int prevGreen, int prevBlue) {
-        super.applyDmxFrameBase(intensity, red, green, blue, prevIntensity, prevRed, prevGreen, prevBlue);
+        this.intensity = intensity;
+        this.red = red;
+        this.green = green;
+        this.blue = blue;
+        this.prevIntensity = prevIntensity;
+        this.prevRed = prevRed;
+        this.prevGreen = prevGreen;
+        this.prevBlue = prevBlue;
         if (level != null && level.isClientSide) {
             StrobeRenderHelper.markSectionDirty(getBlockPos());
         }
     }
 
-    @Override
     public void applyDmxFramePanTiltFocus(int pan, int tilt, int focus,
                                           int prevPan, int prevTilt, int prevFocus) {
-        super.applyDmxFramePanTiltFocus(pan, tilt, focus, prevPan, prevTilt, prevFocus);
+        this.pan = pan;
+        this.tilt = tilt;
+        this.focus = focus;
+        this.prevPan = prevPan;
+        this.prevTilt = prevTilt;
+        this.prevFocus = prevFocus;
         if (level != null && level.isClientSide) {
             StrobeRenderHelper.markSectionDirty(getBlockPos());
         }
